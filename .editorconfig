@@ -1,0 +1,21 @@
+# To learn more about .editorconfig see https://aka.ms/editorconfigdocs
+###############################
+# Core EditorConfig Options   #
+###############################
+# All files
+[*]
+indent_style = space
+# Code files
+[*.{cs,csx,vb,vbx}]
+indent_size = 4
+insert_final_newline = true
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+
+# Markdown
+[*.md]
+charset = utf-8
+trim_trailing_whitespace = false
+indent_size = 4
+end_of_line = lf

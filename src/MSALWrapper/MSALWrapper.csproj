@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Package Naming, Building, & Versioning -->
+    <PackageId>Microsoft.Authentication.MSALWrapper</PackageId>
+    <TargetFrameworks>net472;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>Microsoft.Authentication.MSALWrapper</RootNamespace>
+
+    <PackageOutputPath>../</PackageOutputPath>
+
+    <!-- Human Metadata -->
+    <Title>Microsoft Authentication MSAL Wrapper</Title>
+    <RepositoryUrl>https://github.com/AzureAD/microsoft-authentication-cli</RepositoryUrl>
+    <Authors>engse@microsoft.com</Authors>
+    <Description>A library for quickly authenticating with various Azure resources</Description>
+    <PackageTags>MSAL;authentication</PackageTags>
+
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- Stylecop warnings as errors flag for build to fail -->
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+    
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <DefineConstants>PlatformWindows</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Stylecop required items -->
+    <AdditionalFiles Include="..\..\stylecop\stylecop.json" Link="stylecop.json" />
+    <Compile Include="..\..\stylecop\GlobalSupressions.cs" Link="GlobalSupressions.cs" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.42.0" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.19.6" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.16.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.42.0" />
+  </ItemGroup>
+
+</Project>
