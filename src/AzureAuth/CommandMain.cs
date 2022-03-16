@@ -255,11 +255,16 @@ Allowed values: [all, web, devicecode]";
         {
             try
             {
-                ITokenFetcher tokenFetcher = this.TokenFetcher();
-                TokenResult tokenResult = (this.tokenFetcherOptions.Scopes == null
+                TokenResult tokenResult = null;
+                ITokenFetcher tokenFetcher = null;
+                using (new GlobalLock(this.Tenant + this.Resource))
+                {
+                    tokenFetcher = this.TokenFetcher();
+                    tokenResult = (this.tokenFetcherOptions.Scopes == null
                     ? tokenFetcher.GetAccessTokenAsync(this.CombinedAuthMode)
                     : tokenFetcher.GetAccessTokenAsync(this.tokenFetcherOptions.Scopes, this.CombinedAuthMode))
                     .Result;
+                }
 
                 this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(tokenFetcher.Errors()));
 
