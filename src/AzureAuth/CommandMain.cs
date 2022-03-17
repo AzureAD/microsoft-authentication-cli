@@ -257,7 +257,12 @@ Allowed values: [all, web, devicecode]";
             {
                 TokenResult tokenResult = null;
                 ITokenFetcher tokenFetcher = null;
-                using (new GlobalLock(this.Tenant + this.Resource))
+
+                // When running multiple AzureAuth processes with the same tenant and resource ID,
+                // They may prompt many times, which is annoying and unexpected.
+                // Use GlobalLock to ensure that only one process can access the corresponding resource at the same time.
+                string lockName = this.Tenant + this.Resource;
+                using (new GlobalLock(lockName))
                 {
                     tokenFetcher = this.TokenFetcher();
                     tokenResult = (this.tokenFetcherOptions.Scopes == null

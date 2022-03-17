@@ -18,7 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         /// <summary>
         /// The number of threads or tasks.
         /// </summary>
-        private const int N = 10;
+        private const int NumberOfThreads = 10;
 
         /// <summary>
         /// The simulated lockname.
@@ -43,7 +43,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             int sum = 0;
             Task.Run(() =>
             {
-                using (var mu = new GlobalLock(this.lockName))
+                using (new GlobalLock(this.lockName))
                 {
                     sum++;
                 }
@@ -60,7 +60,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             int cas = 0;
             int sum = 0;
             var tasks = new List<Task>();
-            for (int i = 0; i < N; i++)
+            for (int i = 0; i < NumberOfThreads; i++)
             {
                 var task = new Task(() =>
                 {
@@ -81,7 +81,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             }
 
             Task.WaitAll(tasks.ToArray());
-            Assert.AreEqual(N, sum);
+            Assert.AreEqual(NumberOfThreads, sum);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             }
 
             threads.ForEach(t => t.Join());
-            Assert.AreEqual(N, sum);
+            Assert.AreEqual(NumberOfThreads, sum);
         }
     }
 }
