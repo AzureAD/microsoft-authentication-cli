@@ -17,7 +17,7 @@ namespace Microsoft.Authentication.MSALWrapper
     {
         private Mutex mutex;
         private bool disposedValue;
-        private bool lockAcqired;
+        private bool lockAcquired;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlobalLock"/> class.
@@ -35,12 +35,12 @@ namespace Microsoft.Authentication.MSALWrapper
             try
             {
                 this.mutex.WaitOne();
-                this.lockAcqired = true;
+                this.lockAcquired = true;
             }
             catch (AbandonedMutexException)
             {
                 // lock eventually acquired
-                this.lockAcqired = true;
+                this.lockAcquired = true;
             }
         }
 
@@ -54,7 +54,7 @@ namespace Microsoft.Authentication.MSALWrapper
             {
                 if (disposing)
                 {
-                    if (this.lockAcqired)
+                    if (this.lockAcquired)
                     {
                         this.mutex.ReleaseMutex();
                     }
