@@ -18,6 +18,7 @@
     <!-- Output an executable -->
     <PackageId>microsoft.authentication.azureauth</PackageId>
     <OutputType>Exe</OutputType>
+    <RootNamespace>Microsoft.Authentication.AzureAuth</RootNamespace>
 
     <NuspecFile>AzureAuth.nuspec</NuspecFile>
     <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration);Version=$(Version)$(VersionSuffix)</NuspecProperties>

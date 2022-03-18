@@ -7,12 +7,14 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Collections.Generic;
     using System.IO.Abstractions;
     using System.Linq;
+    using System.Runtime.CompilerServices;
 
     using McMaster.Extensions.CommandLineUtils;
 
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Extensions;
+    using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
@@ -46,7 +48,7 @@ Allowed values: [all, web, devicecode]";
         private readonly EventData eventData;
         private readonly ILogger<CommandMain> logger;
         private readonly IFileSystem fileSystem;
-
+        private readonly IEnv env;
         private Alias tokenFetcherOptions;
         private ITokenFetcher tokenFetcher;
 
@@ -56,11 +58,13 @@ Allowed values: [all, web, devicecode]";
         /// <param name="eventData">The event data.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
-        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem)
+        /// <param name="env">The environment interface.</param>
+        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env)
         {
             this.eventData = eventData;
             this.logger = logger;
             this.fileSystem = fileSystem;
+            this.env = env;
         }
 
         /// <summary>
@@ -69,9 +73,10 @@ Allowed values: [all, web, devicecode]";
         /// <param name="eventData">The event data.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
+        /// <param name="env">The environment interface.</param>
         /// <param name="tokenFetcher">An injected ITokenFetcher (defined for testability).</param>
-        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, ITokenFetcher tokenFetcher)
-            : this(eventData, logger, fileSystem)
+        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env, ITokenFetcher tokenFetcher)
+            : this(eventData, logger, fileSystem, env)
         {
             this.tokenFetcher = tokenFetcher;
         }
@@ -168,6 +173,7 @@ Allowed values: [all, web, devicecode]";
             // We only load options from a config file if an alias is given.
             if (!string.IsNullOrEmpty(this.AliasName))
             {
+                this.ConfigFilePath = this.ConfigFilePath ?? this.env.Get(EnvVars.Config);
                 if (string.IsNullOrEmpty(this.ConfigFilePath))
                 {
                     // This is a fatal error. We can't load aliases without a config file.

@@ -13,9 +13,6 @@ namespace Microsoft.Authentication.AzureAuth
     /// </summary>
     public class Program
     {
-        private const string EnvVarPrefix = "AZUREAUTH";
-        private static readonly string ApplicationInsightsIngestionTokenEnvVar = $"{EnvVarPrefix}_APPLICATION_INSIGHTS_INGESTION_TOKEN";
-
         private static void Main(string[] args)
         {
             CommandLineApplication app = new CommandLineApplication<CommandMain>();
@@ -34,7 +31,7 @@ namespace Microsoft.Authentication.AzureAuth
             // trigger telemetry before we ever get to disable it.
             //
             // To disable telemetry a user need only leave this environment variable unset. It's off by default.
-            string applicationInsightsIngestionToken = Environment.GetEnvironmentVariable(ApplicationInsightsIngestionTokenEnvVar);
+            string applicationInsightsIngestionToken = Environment.GetEnvironmentVariable(EnvVars.ApplicationInsightsIngestionTokenEnvVar);
             if (!string.IsNullOrEmpty(applicationInsightsIngestionToken))
             {
                 ingestionToken = applicationInsightsIngestionToken;
