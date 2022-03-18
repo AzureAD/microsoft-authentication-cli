@@ -8,7 +8,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.IO.Abstractions;
     using System.Linq;
     using System.Runtime.CompilerServices;
-
+    using System.Threading;
     using McMaster.Extensions.CommandLineUtils;
 
     using Microsoft.Authentication.MSALWrapper;
