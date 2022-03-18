@@ -1,22 +1,16 @@
 # Microsoft Authentication CLI
 
-## Libraries
-This project builds a small auth library wrapping [MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) for auth and [MSAL Extensions](https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet) for local caching.
-
-The library enables dotnet code to authenticate with the Microsoft AAD Tenant and public client app registrations to access resources such as Azure Devops and Source Depot.
-
-## AzureAuth
-The `AzureAuth` project builds a CLI wrapper around this library which acts like a generic credential provider.
+`AzureAuth` is a CLI wrapper for performing AAD Authentication. It makes use of [MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) for authentication and [MSAL Extensions](https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet) for caching.
 
 The CLI is designed for authenticating and returning an access token for public client AAD applications. This acts like a credential provider for Azure Devops and any other [public client app](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications).
 
 # Platform Support
 
-| Operating System | Multi-Account Support | Auth Broker Integration | Web Auth Flow | Device Code Flow (fall back) | Token Caching |
+| Operating System | Auth Broker Integration | Web Auth Flow | Device Code Flow | Token Caching | Multi-Account Support |
 |------------------|-----------------------|-------------------------|---------------|------------------------------|---------------|
-| Windows          |❌ (not yet) | ✅ | ✅ | ✅ | ✅ |
-| OSX (MacOS)      |❌ (not yet) | ❌ (not yet) | ✅ | ✅ | ✅ |
-| Ubuntu (linux)   |❌ (not yet) | ❌ (not yet) | ✅ | ✅ | ✅ |
+| Windows          | ✅ | ✅ | ✅ | ✅ | ❌ (not yet) |
+| OSX (MacOS)      | ❌ (not yet) | ✅ | ✅ | ✅ | ❌ (not yet) |
+| Ubuntu (linux)   | ❌ (not yet) | ✅ | ✅ | ✅ | ❌ (not yet) |
 <br/>
 
 # Data Collection

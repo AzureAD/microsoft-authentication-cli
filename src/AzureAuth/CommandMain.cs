@@ -91,7 +91,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the tenant.
         /// </summary>
-        [Option(TenantOption, "Tenant Name or AAD TenantId.\nAllowed values are \"microsoft\", \"torus\" or an AAD Tenant Guid\n", CommandOptionType.SingleValue)]
+        [Option(TenantOption, "The ID of the Tenant where the client and resource entities exist in", CommandOptionType.SingleValue)]
         public string Tenant { get; set; }
 
         /// <summary>
