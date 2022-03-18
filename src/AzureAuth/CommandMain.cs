@@ -7,7 +7,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Collections.Generic;
     using System.IO.Abstractions;
     using System.Linq;
-
+    using System.Threading;
     using McMaster.Extensions.CommandLineUtils;
 
     using Microsoft.Authentication.MSALWrapper;
@@ -256,10 +256,45 @@ Allowed values: [all, web, devicecode]";
             try
             {
                 ITokenFetcher tokenFetcher = this.TokenFetcher();
-                TokenResult tokenResult = (this.tokenFetcherOptions.Scopes == null
-                    ? tokenFetcher.GetAccessTokenAsync(this.CombinedAuthMode)
-                    : tokenFetcher.GetAccessTokenAsync(this.tokenFetcherOptions.Scopes, this.CombinedAuthMode))
-                    .Result;
+                TokenResult tokenResult = null;
+
+                // When running multiple AzureAuth processes with the same tenant and resource ID,
+                // They may prompt many times, which is annoying and unexpected.
+                // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
+                string lockName = "Global\\"
+                    + this.Resource
+                    + this.Client
+                    + this.Tenant;
+
+                // First parameter InitiallyOwned indicated whether this lock is owned by current thread.
+                // It should be false otherwise a dead lock could occur.
+                using (Mutex mutex = new Mutex(false, lockName))
+                {
+                    try
+                    {
+                        // Wait for other session exit.
+                        mutex.WaitOne();
+                    }
+
+                    // AbandonedMutexException could be thrown if another process exit without releasing mutex correctly.
+                    catch (AbandonedMutexException)
+                    {
+                        // lock eventually acquired
+                        this.logger.LogWarning("Another auth thread or process may exit unexpected.");
+                    }
+
+                    try
+                    {
+                        tokenResult = (this.tokenFetcherOptions.Scopes == null
+                        ? tokenFetcher.GetAccessTokenAsync(this.CombinedAuthMode)
+                        : tokenFetcher.GetAccessTokenAsync(this.tokenFetcherOptions.Scopes, this.CombinedAuthMode))
+                        .Result;
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
 
                 this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(tokenFetcher.Errors()));
 
