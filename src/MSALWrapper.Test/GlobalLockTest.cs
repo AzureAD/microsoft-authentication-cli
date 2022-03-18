@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
     using NUnit.Framework;
 
@@ -48,7 +49,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                     sum++;
                 }
             }).Wait();
-            Assert.AreEqual(1, sum);
+            sum.Should().Be(1);
         }
 
         /// <summary>
@@ -57,7 +58,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void TestMutexInTasks()
         {
-            int cas = 0;
+            Semaphore semaphore = new Semaphore(1, 1);
             int sum = 0;
             var tasks = new List<Task>();
             for (int i = 0; i < NumberOfThreads; i++)
@@ -66,14 +67,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 {
                     using (new GlobalLock(this.lockName))
                     {
-                        if (Interlocked.CompareExchange(ref cas, 1, 0) == 1)
-                        {
-                            Assert.Fail($"The thread should be blocked by {nameof(Thread)}");
-                        }
+                        semaphore.WaitOne(0).Should().BeTrue($"The thread should be blocked by {nameof(Thread)}");
 
                         sum++;
-                        Thread.Sleep(10);
-                        Interlocked.Exchange(ref cas, 0);
+                        Thread.Sleep(1);
+                        semaphore.Release();
                     }
                 });
                 task.Start();
@@ -81,7 +79,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             }
 
             Task.WaitAll(tasks.ToArray());
-            Assert.AreEqual(NumberOfThreads, sum);
+            sum.Should().Be(NumberOfThreads);
         }
 
         /// <summary>
@@ -90,7 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void TestMutexInThreads()
         {
-            int cas = 0;
+            Semaphore semaphore = new Semaphore(1, 1);
             int sum = 0;
             var threads = new List<Thread>();
             for (int i = 0; i < 10; i++)
@@ -99,14 +97,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 {
                     using (new GlobalLock(this.lockName))
                     {
-                        if (Interlocked.CompareExchange(ref cas, 1, 0) == 1)
-                        {
-                            Assert.Fail($"The thread should be blocked by {nameof(Thread)}");
-                        }
+                        semaphore.WaitOne(0).Should().BeTrue($"The thread should be blocked by {nameof(Thread)}");
 
                         sum++;
-                        Thread.Sleep(50);
-                        Interlocked.Exchange(ref cas, 0);
+                        Thread.Sleep(1);
+                        semaphore.Release();
                     }
                 });
                 thread.Start();
@@ -114,7 +109,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             }
 
             threads.ForEach(t => t.Join());
-            Assert.AreEqual(NumberOfThreads, sum);
+            sum.Should().Be(NumberOfThreads);
         }
     }
 }
