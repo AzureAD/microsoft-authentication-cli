@@ -264,13 +264,11 @@ Allowed values: [all, web, devicecode]";
                 ITokenFetcher tokenFetcher = this.TokenFetcher();
                 TokenResult tokenResult = null;
 
-                // When running multiple AzureAuth processes with the same tenant and resource ID,
+                // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
+
                 // They may prompt many times, which is annoying and unexpected.
                 // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
-                string lockName = "Global\\"
-                    + this.Resource
-                    + this.Client
-                    + this.Tenant;
+                string lockName = $"Global\\{this.Resource}_{this.Client}_{this.Tenant}";
 
                 // First parameter InitiallyOwned indicated whether this lock is owned by current thread.
                 // It should be false otherwise a dead lock could occur.
@@ -282,11 +280,12 @@ Allowed values: [all, web, devicecode]";
                         mutex.WaitOne();
                     }
 
-                    // AbandonedMutexException could be thrown if another process exit without releasing mutex correctly.
+                    // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
+
                     catch (AbandonedMutexException)
                     {
                         // lock eventually acquired
-                        this.logger.LogWarning("Another auth thread or process may exit unexpected.");
+                        this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
                     }
 
                     try
