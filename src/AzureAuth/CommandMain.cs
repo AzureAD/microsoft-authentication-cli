@@ -281,7 +281,6 @@ Allowed values: [all, web, devicecode]";
                     }
 
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
-
                     catch (AbandonedMutexException)
                     {
                         // lock eventually acquired
