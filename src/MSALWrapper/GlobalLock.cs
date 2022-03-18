@@ -11,10 +11,17 @@ namespace Microsoft.Authentication.MSALWrapper
     using System.Threading.Tasks;
 
     /// <summary>
-    /// GlobalLock is used for preventing code from entering critical sections in different processes at the same time.
+    /// GlobalLock is a wrapper for named mutex, used for preventing code from entering critical sections in different processes at the same time.
+    /// <seealso cref="Mutex"/>
     /// </summary>
     public class GlobalLock : IDisposable
     {
+        /// <summary>
+        /// InitiallyOwned indicated whether this lock is owned by current thread.
+        /// It should be false otherwise a dead lock could occur.
+        /// </summary>
+        private const bool InitiallyOwnedByCurrentThread = false;
+
         private Mutex mutex;
         private bool disposedValue;
         private bool lockAcquired;
@@ -31,7 +38,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 throw new ArgumentNullException($"{nameof(lockName)} must not be null");
             }
 
-            this.mutex = new Mutex(false, lockName);
+            this.mutex = new Mutex(InitiallyOwnedByCurrentThread, lockName);
             try
             {
                 this.mutex.WaitOne();
