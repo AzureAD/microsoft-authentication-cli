@@ -12,6 +12,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
 
     using Moq;
@@ -55,6 +56,7 @@ invalid_key = ""this is not a valid alias key""
         private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
         private Mock<ITokenFetcher> tokenFetcherMock;
+        private Mock<IEnv> envMock;
 
         /// <summary>
         /// The setup.
@@ -79,6 +81,8 @@ invalid_key = ""this is not a valid alias key""
             // Meaning all param types are also registered with the DI service provider.
             this.tokenFetcherMock = new Mock<ITokenFetcher>(MockBehavior.Strict);
 
+            this.envMock = new Mock<IEnv>(MockBehavior.Strict);
+
             // Setup Dependency Injection container to provide logger and out class under test (the "subject").
             this.serviceProvider = new ServiceCollection()
                 .AddLogging(loggingBuilder =>
@@ -90,6 +94,7 @@ invalid_key = ""this is not a valid alias key""
                 .AddSingleton(this.eventData)
                 .AddSingleton(this.fileSystem)
                 .AddSingleton<ITokenFetcher>(this.tokenFetcherMock.Object)
+                .AddSingleton<IEnv>(this.envMock.Object)
                 .AddTransient<CommandMain>()
                 .BuildServiceProvider();
         }
@@ -102,6 +107,8 @@ invalid_key = ""this is not a valid alias key""
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             subject.AliasName = "contoso";
+            this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns((string)null);
+
             subject.EvaluateOptions().Should().BeFalse();
             this.logTarget.Logs.Should().Contain("The --alias field was given, but no --config was specified.");
         }
@@ -192,6 +199,39 @@ invalid_key = ""this is not a valid alias key""
 
             subject.EvaluateOptions().Should().BeTrue();
             subject.TokenFetcherOptions.Should().BeEquivalentTo(expected);
+        }
+
+        /// <summary>
+        /// Assert evaluate options provided alias with env var configured config file.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsProvidedAliasWithEnvVarConfig()
+        {
+            string configFile = RootPath("complete.toml");
+            string clientOverride = "3933d919-5ba4-4eb7-b4b1-19d33e8b82c0";
+            this.fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
+            Alias expected = new Alias
+            {
+                Resource = "67eeda51-3891-4101-a0e3-bf0c64047157",
+                Client = clientOverride,
+                Domain = "contoso.com",
+                Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
+                Scopes = new List<string> { ".default" },
+            };
+
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.AliasName = "contoso";
+            subject.ConfigFilePath = null;
+
+            // Specify config via env var
+            this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
+
+            // Specify a client override on the command line.
+            subject.Client = clientOverride;
+
+            subject.EvaluateOptions().Should().BeTrue();
+            subject.TokenFetcherOptions.Should().BeEquivalentTo(expected);
+            this.envMock.VerifyAll();
         }
 
         /// <summary>
