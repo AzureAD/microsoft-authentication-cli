@@ -37,7 +37,8 @@ namespace Microsoft.Authentication.AzureAuth
 
         /// <summary>
         /// The override method create a new <see cref="Alias"/> instance which merges two Alias fields.
-        /// Non-null fields in the given parameter will replace origional fields.
+        /// Non-null fields in the given parameter will replace original fields.
+
         /// </summary>
         /// <param name="other">
         /// The given instance with fields to be replaced.

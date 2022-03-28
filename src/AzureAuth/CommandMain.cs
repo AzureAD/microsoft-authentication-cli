@@ -18,7 +18,8 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
-    /// The command main class parses commands and dispatch to corresponed methods.
+    /// The command main class parses commands and dispatches to the corresponding methods.
+
     /// </summary>
     [Command(Name = "azureauth", Description = "A CLI interface to MSAL authentication")]
     public class CommandMain
@@ -153,7 +154,8 @@ Allowed values: [all, web, devicecode]";
         private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
 
         /// <summary>
-        /// Evaluate options valid or not.
+        /// This method evaluates whether the options are valid or not.
+
         /// </summary>
         /// <returns>
         /// Whether the option is valid.
@@ -212,10 +214,12 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
-        /// Execute the auth process.
+        /// This method executes the auth process.
+
         /// </summary>
         /// <returns>
-        /// Error code. 0 is normal execution, the rest means errors during execution.
+        /// The error code: 0 is normal execution, and the rest means errors during execution.
+
         /// </returns>
         public int OnExecute()
         {
