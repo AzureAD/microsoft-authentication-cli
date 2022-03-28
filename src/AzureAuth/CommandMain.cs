@@ -283,7 +283,8 @@ Allowed values: [all, web, devicecode]";
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
                     catch (AbandonedMutexException)
                     {
-                        // lock eventually acquired
+                        // If another process crashes or exits accidently, we can still acquire the lock.
+                        // In this case, basicly we can just leave a log warning, because the worst side effect is propmting more than once.
                         this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
                     }
 
