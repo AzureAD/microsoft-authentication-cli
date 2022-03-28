@@ -19,7 +19,6 @@ namespace Microsoft.Authentication.AzureAuth
 
     /// <summary>
     /// The command main class parses commands and dispatches to the corresponding methods.
-
     /// </summary>
     [Command(Name = "azureauth", Description = "A CLI interface to MSAL authentication")]
     public class CommandMain
@@ -155,7 +154,6 @@ Allowed values: [all, web, devicecode]";
 
         /// <summary>
         /// This method evaluates whether the options are valid or not.
-
         /// </summary>
         /// <returns>
         /// Whether the option is valid.
@@ -215,11 +213,9 @@ Allowed values: [all, web, devicecode]";
 
         /// <summary>
         /// This method executes the auth process.
-
         /// </summary>
         /// <returns>
         /// The error code: 0 is normal execution, and the rest means errors during execution.
-
         /// </returns>
         public int OnExecute()
         {
