@@ -31,6 +31,11 @@ namespace Microsoft.Authentication.AzureAuth
         public string Tenant { get; set; }
 
         /// <summary>
+        /// Gets or sets the customized header text.
+        /// </summary>
+        public string HeaderText { get; set; }
+
+        /// <summary>
         /// Gets or sets the scopes.
         /// </summary>
         public List<string> Scopes { get; set; }
@@ -52,6 +57,7 @@ namespace Microsoft.Authentication.AzureAuth
                 Client = other.Client ?? this.Client,
                 Domain = other.Domain ?? this.Domain,
                 Tenant = other.Tenant ?? this.Tenant,
+                HeaderText = other.HeaderText ?? this.HeaderText,
                 Scopes = other.Scopes ?? this.Scopes,
             };
         }

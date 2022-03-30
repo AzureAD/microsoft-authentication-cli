@@ -60,6 +60,8 @@ namespace Microsoft.Authentication.MSALWrapper
         private readonly bool windows;
         private readonly bool windows10;
 
+        private readonly string headerText;
+
         #region Required MSAL GUIDs
 
         /// <summary>
@@ -68,6 +70,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public readonly string Authority;
         private readonly Guid resourceId;
         private readonly Guid clientId;
+
         #endregion
 
         #region Public configurable properties
@@ -115,7 +118,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="verifyPersistence">
         /// Optionally choose to verify the cache persistence layer when setting up the token cache.
         /// </param>
-        public TokenFetcherPublicClient(ILogger logger, Guid resourceId, Guid clientId, Guid tenantId, string osxKeyChainSuffix = null, string preferredDomain = null, bool verifyPersistence = false)
+        /// <param name="headerText">
+        /// The customized header text in account picker.
+        /// </param>
+        public TokenFetcherPublicClient(ILogger logger, Guid resourceId, Guid clientId, Guid tenantId, string osxKeyChainSuffix = null, string preferredDomain = null, bool verifyPersistence = false, string headerText = null)
         {
             this.windows = PlatformUtils.IsWindows(logger);
             this.windows10 = PlatformUtils.IsWindows10(logger);
@@ -124,6 +130,8 @@ namespace Microsoft.Authentication.MSALWrapper
             this.Authority = this.GetAuthority(tenantId);
             this.resourceId = resourceId;
             this.clientId = clientId;
+
+            this.headerText = headerText;
 
             this.osxKeyChainSuffix = osxKeyChainSuffix;
             this.verifyPersistence = verifyPersistence;
@@ -227,7 +235,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 var pca = this.PCABroker();
                 var pcaWrapper = new PCAWrapper(pca);
                 IAccount account = await this.TryToGetCachedAccountAsync(pca, this.preferredDomain).ConfigureAwait(false) ?? PublicClientApplication.OperatingSystemAccount;
-                result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, account);
+                result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, null);
             }
 
             if (result is null && authMode.IsWeb())
@@ -462,6 +470,10 @@ namespace Microsoft.Authentication.MSALWrapper
             var pca = this.PCABase()
                 .WithHttpClientFactory(httpFactoryAdaptor)
                 .WithRedirectUri(Constants.AadRedirectUri.ToString())
+                .WithWindowsBrokerOptions(new WindowsBrokerOptions
+                {
+                    HeaderText = this.headerText,
+                })
                 .Build();
 
             this.SetupTokenCache(pca);
@@ -471,12 +483,18 @@ namespace Microsoft.Authentication.MSALWrapper
         private IPublicClientApplication PCABroker()
         {
             var pcaBuilder = this.PCABase();
+            pcaBuilder.WithWindowsBrokerOptions(new WindowsBrokerOptions
+            {
+                HeaderText = this.headerText,
+            });
+
 #if NETFRAMEWORK
             pcaBuilder.WithWindowsBroker();
 #else
             pcaBuilder.WithBroker();
 #endif
             var pca = pcaBuilder.Build();
+
             this.SetupTokenCache(pca);
             return pca;
         }

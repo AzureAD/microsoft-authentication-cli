@@ -26,6 +26,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
         private const string TenantOption = "-t|--tenant";
+        private const string HeaderTextOption = "-h|--header";
         private const string ScopeOption = "--scope";
         private const string ClearOption = "-c|--clear";
         private const string DomainOption = "-d|--domain";
@@ -100,6 +101,12 @@ Allowed values: [all, web, devicecode]";
         public string Tenant { get; set; }
 
         /// <summary>
+        /// Gets or sets the customized header text.
+        /// </summary>
+        [Option(HeaderTextOption, "the customized header text", CommandOptionType.SingleValue)]
+        public string HeaderText { get; set; }
+
+        /// <summary>
         /// Gets or sets the scopes.
         /// </summary>
         [Option(ScopeOption, "Scopes to request. By default, the only scope requested is <resource ID>\\.default.\nPassing in one or more values here will override the default.", CommandOptionType.MultipleValue)]
@@ -167,6 +174,7 @@ Allowed values: [all, web, devicecode]";
                 Client = this.Client,
                 Domain = this.PreferredDomain,
                 Tenant = this.Tenant,
+                HeaderText = this.HeaderText,
                 Scopes = this.Scopes?.ToList(),
             };
 
@@ -312,7 +320,8 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.tokenFetcherOptions.Client),
                     new Guid(this.tokenFetcherOptions.Tenant),
                     osxKeyChainSuffix: Constants.AuthOSXKeyChainSuffix,
-                    preferredDomain: this.tokenFetcherOptions.Domain);
+                    preferredDomain: this.tokenFetcherOptions.Domain,
+                    headerText: this.HeaderText);
             }
 
             return this.tokenFetcher;
