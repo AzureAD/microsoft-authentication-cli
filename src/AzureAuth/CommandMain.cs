@@ -276,7 +276,7 @@ Allowed values: [all, web, devicecode]";
                 {
                     try
                     {
-                        // Wait for other session exit.
+                        // Wait for the other session to exit.
                         mutex.WaitOne();
                     }
 
