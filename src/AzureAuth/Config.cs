@@ -19,7 +19,7 @@ namespace Microsoft.Authentication.AzureAuth
         public Dictionary<string, Alias> Alias { get; set; }
 
         /// <summary>
-        /// Create a Config instance from <see cref="Toml"/> format file.
+        /// Create a Config instance from a file in the <see cref="Toml"/> format.
         /// </summary>
         /// <param name="configFile">
         /// The full path of config file.
