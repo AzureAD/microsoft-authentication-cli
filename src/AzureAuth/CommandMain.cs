@@ -25,12 +25,12 @@ namespace Microsoft.Authentication.AzureAuth
     {
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
-        private const string TenantOption = "-t|--tenant";
+        private const string TenantOption = "--tenant";
         private const string ScopeOption = "--scope";
-        private const string ClearOption = "-c|--clear";
-        private const string DomainOption = "-d|--domain";
-        private const string AuthModeOption = "-m|--auth-mode";
-        private const string OutputOption = "-o|--output";
+        private const string ClearOption = "--clear";
+        private const string DomainOption = "--domain";
+        private const string AuthModeOption = "--auth-mode";
+        private const string OutputOption = "--output";
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
 
