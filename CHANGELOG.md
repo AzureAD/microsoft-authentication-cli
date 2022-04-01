@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Removed
-- Short flags for `--tenant`, `--clear`, `--domain`, `--auth-mode`, and `--output`.
+- The `-t`, `-c`, `-d`, `-m`, and `-o` short flags.
 
 ## [v0.1.0] - 2022-03-30
 ### Added
