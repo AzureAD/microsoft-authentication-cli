@@ -490,7 +490,6 @@ namespace Microsoft.Authentication.MSALWrapper
             pcaBuilder.WithBroker();
 #endif
             var pca = pcaBuilder.Build();
-
             this.SetupTokenCache(pca);
             return pca;
         }
