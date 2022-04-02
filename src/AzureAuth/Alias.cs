@@ -6,7 +6,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Collections.Generic;
 
     /// <summary>
-    /// The alias.
+    /// The alias contains information that the auth process needs.
     /// </summary>
     public class Alias
     {
@@ -41,13 +41,14 @@ namespace Microsoft.Authentication.AzureAuth
         public List<string> Scopes { get; set; }
 
         /// <summary>
-        /// The override.
+        /// The override method creates a new <see cref="Alias"/> instance which merges two Alias fields.
+        /// Non-null fields in the given parameter will replace original fields.
         /// </summary>
         /// <param name="other">
-        /// The other.
+        /// The given instance with fields to be replaced.
         /// </param>
         /// <returns>
-        /// The <see cref="Alias"/>.
+        /// The merged <see cref="Alias"/>.
         /// </returns>
         public Alias Override(Alias other)
         {

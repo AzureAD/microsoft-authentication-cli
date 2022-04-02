@@ -9,7 +9,7 @@ namespace Microsoft.Authentication.AzureAuth
     using Tomlyn;
 
     /// <summary>
-    /// The config.
+    /// A config contains a collection of <see cref="Alias"/>.
     /// </summary>
     public class Config
     {
@@ -19,10 +19,10 @@ namespace Microsoft.Authentication.AzureAuth
         public Dictionary<string, Alias> Alias { get; set; }
 
         /// <summary>
-        /// The from file.
+        /// Create a Config instance from a file in the <see cref="Toml"/> format.
         /// </summary>
         /// <param name="configFile">
-        /// The config file.
+        /// The full path of config file.
         /// </param>
         /// <param name="fileSystem">
         /// The file system.
