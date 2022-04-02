@@ -26,7 +26,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
         private const string TenantOption = "-t|--tenant";
-        private const string HeaderTextOption = "--header";
+        private const string HeaderTextOption = "--header-text";
         private const string ScopeOption = "--scope";
         private const string ClearOption = "-c|--clear";
         private const string DomainOption = "-d|--domain";
