@@ -26,7 +26,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
         private const string TenantOption = "-t|--tenant";
-        private const string HeaderTextOption = "-h|--header";
+        private const string HeaderTextOption = "--header";
         private const string ScopeOption = "--scope";
         private const string ClearOption = "-c|--clear";
         private const string DomainOption = "-d|--domain";
@@ -101,9 +101,9 @@ Allowed values: [all, web, devicecode]";
         public string Tenant { get; set; }
 
         /// <summary>
-        /// Gets or sets the customized header text.
+        /// Gets or sets the customized header text for WAM prompts.
         /// </summary>
-        [Option(HeaderTextOption, "the customized header text", CommandOptionType.SingleValue)]
+        [Option(HeaderTextOption, "the customized header text for WAM prompts only", CommandOptionType.SingleValue)]
         public string HeaderText { get; set; }
 
         /// <summary>

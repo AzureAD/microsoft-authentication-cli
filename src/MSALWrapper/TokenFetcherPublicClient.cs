@@ -119,7 +119,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Optionally choose to verify the cache persistence layer when setting up the token cache.
         /// </param>
         /// <param name="headerText">
-        /// The customized header text in account picker.
+        /// The customized header text in account picker for WAM prompts.
         /// </param>
         public TokenFetcherPublicClient(ILogger logger, Guid resourceId, Guid clientId, Guid tenantId, string osxKeyChainSuffix = null, string preferredDomain = null, bool verifyPersistence = false, string headerText = null)
         {
@@ -235,7 +235,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 var pca = this.PCABroker();
                 var pcaWrapper = new PCAWrapper(pca);
                 IAccount account = await this.TryToGetCachedAccountAsync(pca, this.preferredDomain).ConfigureAwait(false) ?? PublicClientApplication.OperatingSystemAccount;
-                result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, null);
+                result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, account);
             }
 
             if (result is null && authMode.IsWeb())
@@ -470,10 +470,6 @@ namespace Microsoft.Authentication.MSALWrapper
             var pca = this.PCABase()
                 .WithHttpClientFactory(httpFactoryAdaptor)
                 .WithRedirectUri(Constants.AadRedirectUri.ToString())
-                .WithWindowsBrokerOptions(new WindowsBrokerOptions
-                {
-                    HeaderText = this.headerText,
-                })
                 .Build();
 
             this.SetupTokenCache(pca);

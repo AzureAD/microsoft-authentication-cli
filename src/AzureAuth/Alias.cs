@@ -31,7 +31,7 @@ namespace Microsoft.Authentication.AzureAuth
         public string Tenant { get; set; }
 
         /// <summary>
-        /// Gets or sets the customized header text.
+        /// Gets or sets the customized header text (WAM prompts only).
         /// </summary>
         public string HeaderText { get; set; }
 
