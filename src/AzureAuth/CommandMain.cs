@@ -282,8 +282,8 @@ Allowed values: [all, web, devicecode]";
                     bool lockAcquired = false;
                     try
                     {
-                        // Wait for other session exit.
-                        lockAcquired = mutex.WaitOne(this.mutexTimeout);
+                        // Wait for the other session to exit.
+                        mutex.WaitOne();
                     }
 
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
