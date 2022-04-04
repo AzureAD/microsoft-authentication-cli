@@ -53,6 +53,11 @@ Allowed values: [all, web, devicecode]";
         private ITokenFetcher tokenFetcher;
 
         /// <summary>
+        /// MutexTimeout is the timeout of Mutex to prevent infinite waiting.
+        /// </summary>
+        private TimeSpan mutexTimeout = TimeSpan.FromMinutes(15);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
@@ -274,18 +279,27 @@ Allowed values: [all, web, devicecode]";
                 // It should be false otherwise a dead lock could occur.
                 using (Mutex mutex = new Mutex(false, lockName))
                 {
+                    bool lockAcquired = false;
                     try
                     {
                         // Wait for other session exit.
-                        mutex.WaitOne();
+                        lockAcquired = mutex.WaitOne(this.mutexTimeout);
                     }
 
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
                     catch (AbandonedMutexException)
                     {
                         // If another process crashes or exits accidently, we can still acquire the lock.
+                        lockAcquired = true;
+
                         // In this case, basicly we can just leave a log warning, because the worst side effect is propmting more than once.
                         this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
+                    }
+
+                    if (!lockAcquired)
+                    {
+                        this.logger.LogError("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
+                        return 1;
                     }
 
                     try
