@@ -29,7 +29,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ScopeOption = "--scope";
         private const string ClearOption = "--clear";
         private const string DomainOption = "--domain";
-        private const string AuthModeOption = "--auth-mode";
+        private const string ModeOption = "--mode";
         private const string OutputOption = "--output";
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
@@ -120,7 +120,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the auth modes.
         /// </summary>
-        [Option(AuthModeOption, AuthModeHelperText, CommandOptionType.MultipleValue)]
+        [Option(ModeOption, AuthModeHelperText, CommandOptionType.MultipleValue)]
         public IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
         /// <summary>
