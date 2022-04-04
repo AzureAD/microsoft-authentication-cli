@@ -9,7 +9,7 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
-    /// The program.
+    /// The start up program.
     /// </summary>
     public class Program
     {
