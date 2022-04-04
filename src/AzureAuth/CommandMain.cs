@@ -298,8 +298,7 @@ Allowed values: [all, web, devicecode]";
 
                     if (!lockAcquired)
                     {
-                        this.logger.LogError("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
-                        return 1;
+                        throw new TimeoutException("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
                     }
 
                     try
