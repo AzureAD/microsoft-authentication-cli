@@ -18,19 +18,19 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
-    /// The command main.
+    /// The command main class parses commands and dispatches to the corresponding methods.
     /// </summary>
     [Command(Name = "azureauth", Description = "A CLI interface to MSAL authentication")]
     public class CommandMain
     {
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
-        private const string TenantOption = "-t|--tenant";
+        private const string TenantOption = "--tenant";
         private const string ScopeOption = "--scope";
-        private const string ClearOption = "-c|--clear";
-        private const string DomainOption = "-d|--domain";
-        private const string AuthModeOption = "-m|--auth-mode";
-        private const string OutputOption = "-o|--output";
+        private const string ClearOption = "--clear";
+        private const string DomainOption = "--domain";
+        private const string ModeOption = "--mode";
+        private const string OutputOption = "--output";
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
 
@@ -125,7 +125,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the auth modes.
         /// </summary>
-        [Option(AuthModeOption, AuthModeHelperText, CommandOptionType.MultipleValue)]
+        [Option(ModeOption, AuthModeHelperText, CommandOptionType.MultipleValue)]
         public IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
         /// <summary>
@@ -158,10 +158,10 @@ Allowed values: [all, web, devicecode]";
         private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
 
         /// <summary>
-        /// The evaluate options.
+        /// This method evaluates whether the options are valid or not.
         /// </summary>
         /// <returns>
-        /// The <see cref="bool"/>.
+        /// Whether the option is valid.
         /// </returns>
         public bool EvaluateOptions()
         {
@@ -217,10 +217,10 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
-        /// The on execute.
+        /// This method executes the auth process.
         /// </summary>
         /// <returns>
-        /// The <see cref="int"/>.
+        /// The error code: 0 is normal execution, and the rest means errors during execution.
         /// </returns>
         public int OnExecute()
         {

@@ -14,19 +14,24 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='release'">
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
   <PropertyGroup>
     <!-- Output an executable -->
     <PackageId>microsoft.authentication.azureauth</PackageId>
     <OutputType>Exe</OutputType>
+    <AssemblyName>azureauth</AssemblyName>
     <RootNamespace>Microsoft.Authentication.AzureAuth</RootNamespace>
 
     <NuspecFile>AzureAuth.nuspec</NuspecFile>
     <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration);Version=$(Version)$(VersionSuffix)</NuspecProperties>
 
-    <PublishReadyToRun Condition="'$(Configuration)'=='release'">true</PublishReadyToRun>
-
     <!-- Stylecop warnings as errors flag for build to fail -->
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 

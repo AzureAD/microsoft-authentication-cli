@@ -310,7 +310,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = null;
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain("The -t|--tenant field is required.");
+            this.logTarget.Logs.Should().Contain("The --tenant field is required.");
         }
 
         /// <summary>
@@ -329,7 +329,7 @@ invalid_key = ""this is not a valid alias key""
             {
                 "The --resource field is required.",
                 "The --client field is required.",
-                "The -t|--tenant field is required.",
+                "The --tenant field is required.",
             });
         }
 
