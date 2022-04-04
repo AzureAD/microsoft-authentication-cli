@@ -283,7 +283,7 @@ Allowed values: [all, web, devicecode]";
                     try
                     {
                         // Wait for the other session to exit.
-                        mutex.WaitOne();
+                        lockAcquired = mutex.WaitOne();
                     }
 
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
