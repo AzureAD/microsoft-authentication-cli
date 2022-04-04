@@ -103,7 +103,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the customized header text for WAM prompts.
         /// </summary>
-        [Option(HeaderTextOption, "the customized header text for WAM prompts only", CommandOptionType.SingleValue)]
+        [Option(HeaderTextOption, "The customized header text for WAM prompts only", CommandOptionType.SingleValue)]
         public string HeaderText { get; set; }
 
         /// <summary>
