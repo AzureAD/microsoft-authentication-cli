@@ -13,6 +13,26 @@ The CLI is designed for authenticating and returning an access token for public 
 | Ubuntu (linux)   | ❌ (not yet) | ✅ | ✅ | ✅ | ❌ (not yet) |
 <br/>
 
+# Installation
+
+## Windows
+
+On Windows we provide a PowerShell bootstrap script, which will download and extract the application to
+`%LOCALAPPDATA%\AzureAuth` and automatically add the `azureauth` binary to your `$PATH`. We don't currently provide a
+means of downloading the latest release, so you **must** specify your desired version via the `$AZUREAUTH_VERSION`
+environment variable.
+
+To install the application, run
+
+```powershell
+# v0.1.0 is just an example here. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = 'v0.1.0'
+iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1) }"
+```
+
+**Note**: The script does not signal currently running processes to update their environments, so you'll need to
+relaunch applications before the `$PATH` changes take effect.
+
 # Data Collection
 
 The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use
