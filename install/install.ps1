@@ -15,7 +15,7 @@ if ($null -eq $version) {
     exit 1
 }
 
-$repo = ($null -eq $Env:AZUREAUTH_REPO) ? 'AzureAD/microsoft-authentication-cli' : $Env:AZUREAUTH_REPO
+$repo = if ($null -eq $Env:AZUREAUTH_REPO) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
 $releaseName = "azureauth-${version}-win10-x64"
 $releaseFile = "${releaseName}.zip"
 $releaseUrl = "https://github.com/${repo}/releases/download/${version}/$releaseFile"
