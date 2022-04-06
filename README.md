@@ -44,7 +44,7 @@ To install the application, run
 ```bash
 # v0.1.0 is just an example here. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
 export AZUREAUTH_VERSION='v0.1.0'
-curl https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.sh | sh
+curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.sh | sh
 ```
 
 **Note**: The script currently only updates the `$PATH` in `~/.bashrc` and `~/.zshrc`. It does not update the environment
