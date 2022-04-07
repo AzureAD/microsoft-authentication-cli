@@ -314,6 +314,8 @@ namespace Microsoft.Authentication.MSALWrapper
 
             try
             {
+                const string interactiveAuthMessage = "Opening a browser window for interactive auth...";
+
                 try
                 {
                     try
@@ -331,6 +333,7 @@ namespace Microsoft.Authentication.MSALWrapper
                     {
                         this.ErrorsList.Add(ex);
                         this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
+                        this.logger.LogWarning(interactiveAuthMessage);
                         var tokenResult = await this.CompleteWithin(
                             this.interactiveAuthTimeout,
                             "Interactive Auth",
@@ -344,6 +347,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 {
                     this.ErrorsList.Add(ex);
                     this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
+                    this.logger.LogWarning(interactiveAuthMessage);
                     var tokenResult = await this.CompleteWithin(
                         this.interactiveAuthTimeout,
                         "Interactive Auth (with extra claims)",
