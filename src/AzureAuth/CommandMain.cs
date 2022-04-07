@@ -53,9 +53,9 @@ Allowed values: [all, web, devicecode]";
         private ITokenFetcher tokenFetcher;
 
         /// <summary>
-        /// MutexTimeout is the timeout of Mutex to prevent infinite waiting.
+        /// The maximum time we will wait to acquire a mutex around prompting the user.
         /// </summary>
-        private TimeSpan mutexTimeout = TimeSpan.FromMinutes(15);
+        private TimeSpan promptMutexTimeout = TimeSpan.FromMinutes(15);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
