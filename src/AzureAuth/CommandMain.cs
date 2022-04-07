@@ -273,7 +273,7 @@ Allowed values: [all, web, devicecode]";
 
                 // They may prompt many times, which is annoying and unexpected.
                 // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
-                string lockName = $"Global\\{this.Resource}_{this.Client}_{this.Tenant}";
+                string lockName = $"Local\\{this.Resource}_{this.Client}_{this.Tenant}";
 
                 // First parameter InitiallyOwned indicated whether this lock is owned by current thread.
                 // It should be false otherwise a dead lock could occur.
@@ -283,7 +283,7 @@ Allowed values: [all, web, devicecode]";
                     try
                     {
                         // Wait for the other session to exit.
-                        lockAcquired = mutex.WaitOne();
+                        lockAcquired = mutex.WaitOne(this.mutexTimeout);
                     }
 
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
