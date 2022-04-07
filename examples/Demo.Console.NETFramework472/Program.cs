@@ -13,7 +13,7 @@ namespace Demo.Console.NETFramework472
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
-    /// The program.
+    /// The startup program.
     /// </summary>
     internal class Program
     {
@@ -39,14 +39,10 @@ namespace Demo.Console.NETFramework472
         public string Tenant { get; set; }
 
         /// <summary>
-        /// The on execute.
+        /// This method executes the auth process. This method is invoked when lasso is launched.
         /// </summary>
-        /// <param name="logger">
-        /// The logger.
-        /// </param>
-        /// <returns>
-        /// The <see cref="int"/>.
-        /// </returns>
+        /// <param name="logger"> The logger. </param>
+        /// <returns> The error code: 0 is normal execution, and the rest means errors during execution. </returns>
         public int OnExecute(ILogger<Program> logger)
         {
             ITokenFetcher fetcher = new TokenFetcherPublicClient(logger, new Guid(this.Resource), new Guid(this.Client), new Guid(this.Tenant));
