@@ -64,7 +64,10 @@ verbose "Creating ${azureauth_directory}"
 mkdir -p $azureauth_directory
 
 verbose "Downloading ${release_url} to ${tarball}"
-curl -sL $release_url > $tarball
+if ! curl -sfL $release_url > $tarball; then
+    error "Failed to download azureauth ${version}"
+    exit 1
+fi
 
 if [ -d "${target_directory}" ]; then
     verbose "Removing pre-existing target directory at ${target_directory}"
