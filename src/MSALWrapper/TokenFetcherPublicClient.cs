@@ -70,7 +70,6 @@ namespace Microsoft.Authentication.MSALWrapper
         public readonly string Authority;
         private readonly Guid resourceId;
         private readonly Guid clientId;
-
         #endregion
 
         #region Public configurable properties
@@ -472,6 +471,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 .WithHttpClientFactory(httpFactoryAdaptor)
                 .WithRedirectUri(Constants.AadRedirectUri.ToString())
                 .Build();
+
             this.SetupTokenCache(pca);
             return pca;
         }
