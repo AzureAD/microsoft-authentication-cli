@@ -270,7 +270,6 @@ Allowed values: [all, web, devicecode]";
                 TokenResult tokenResult = null;
 
                 // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
-
                 // They may prompt many times, which is annoying and unexpected.
                 // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
                 string lockName = $"Local\\{this.Resource}_{this.Client}_{this.Tenant}";
@@ -283,7 +282,7 @@ Allowed values: [all, web, devicecode]";
                     try
                     {
                         // Wait for the other session to exit.
-                        lockAcquired = mutex.WaitOne(this.mutexTimeout);
+                        lockAcquired = mutex.WaitOne(this.promptMutexTimeout);
                     }
 
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
