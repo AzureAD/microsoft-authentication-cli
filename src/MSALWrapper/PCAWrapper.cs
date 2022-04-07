@@ -107,6 +107,22 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
+        /// Gets or sets, The name of the caller displayed in the title bar.
+        /// </summary>
+        public string Caller { get; set; }
+
+        /// <summary>
+        /// Customize the title bar by caller name(Web mode only).
+        /// </summary>
+        /// <param name="caller">see <see cref="Caller"/>.</param>
+        /// <returns>This.</returns>
+        public PCAWrapper WithCallerName(string caller)
+        {
+            this.Caller = caller;
+            return this;
+        }
+
+        /// <summary>
         /// The get token silent async.
         /// </summary>
         /// <param name="scopes">
@@ -146,6 +162,10 @@ namespace Microsoft.Authentication.MSALWrapper
         {
             AuthenticationResult result = await this.pca
                 .AcquireTokenInteractive(scopes)
+                .WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions()
+                {
+                    Title = this.Caller,
+                })
                 .WithAccount(account)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -171,6 +191,10 @@ namespace Microsoft.Authentication.MSALWrapper
         {
             AuthenticationResult result = await this.pca
                 .AcquireTokenInteractive(scopes)
+                .WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions()
+                {
+                    Title = this.Caller,
+                })
                 .WithClaims(claims)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);

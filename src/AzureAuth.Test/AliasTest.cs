@@ -74,13 +74,13 @@ namespace Microsoft.Authentication.AzureAuth.Test
         }
 
         /// <summary>
-        /// The test to merge header text.
+        /// The test to merge caller text.
         /// </summary>
         [Test]
-        public void TestMergeHeaderText()
+        public void TestMergeCaller()
         {
-            this.alias.Resource = "expected header text";
-            this.expected.Resource = "expected header text";
+            this.alias.Caller = "expected caller text";
+            this.expected.Caller = "expected caller text";
 
             Alias result = this.alias.Override(this.other);
 
@@ -114,7 +114,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
             this.alias.Client = "unexpected client";
             this.alias.Domain = "unexpected domain";
             this.alias.Tenant = "unexpected tenant";
-            this.alias.HeaderText = "unexpected headertext";
+            this.alias.Caller = "unexpected headertext";
             this.alias.Scopes = new List<string> { "unexpected scope" };
 
             Alias result = this.alias.Override(this.other);

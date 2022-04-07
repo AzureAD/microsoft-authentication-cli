@@ -34,7 +34,7 @@ client = ""73e5793e-8f71-4da2-9f71-575cb3019b37""
 domain = ""contoso.com""
 tenant = ""a3be859b-7f9a-4955-98ed-f3602dbd954c""
 scopes = [ "".default"", ]
-header_text = ""sample header text.""
+caller = ""sample caller text.""
 ";
 
         private const string PartialAliasTOML = @"
@@ -163,7 +163,7 @@ invalid_key = ""this is not a valid alias key""
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
                 Scopes = new List<string> { ".default" },
-                HeaderText = "sample header text.",
+                Caller = "sample caller text.",
             };
 
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
@@ -190,7 +190,7 @@ invalid_key = ""this is not a valid alias key""
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
                 Scopes = new List<string> { ".default" },
-                HeaderText = "sample header text.",
+                Caller = "sample caller text.",
             };
 
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
@@ -220,7 +220,7 @@ invalid_key = ""this is not a valid alias key""
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
                 Scopes = new List<string> { ".default" },
-                HeaderText = "sample header text.",
+                Caller = "sample caller text.",
             };
 
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();

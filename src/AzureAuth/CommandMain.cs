@@ -26,7 +26,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
         private const string TenantOption = "--tenant";
-        private const string HeaderTextOption = "--header-text";
+        private const string CallerOption = "--caller";
         private const string ScopeOption = "--scope";
         private const string ClearOption = "--clear";
         private const string DomainOption = "--domain";
@@ -103,8 +103,8 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the customized header text for WAM prompts.
         /// </summary>
-        [Option(HeaderTextOption, "The customized header text for WAM prompts only", CommandOptionType.SingleValue)]
-        public string HeaderText { get; set; }
+        [Option(CallerOption, "The caller name text for WAM prompts and web ", CommandOptionType.SingleValue)]
+        public string Caller { get; set; }
 
         /// <summary>
         /// Gets or sets the scopes.
@@ -174,7 +174,7 @@ Allowed values: [all, web, devicecode]";
                 Client = this.Client,
                 Domain = this.PreferredDomain,
                 Tenant = this.Tenant,
-                HeaderText = this.HeaderText,
+                Caller = this.Caller,
                 Scopes = this.Scopes?.ToList(),
             };
 
@@ -321,7 +321,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.tokenFetcherOptions.Tenant),
                     osxKeyChainSuffix: Constants.AuthOSXKeyChainSuffix,
                     preferredDomain: this.tokenFetcherOptions.Domain,
-                    headerText: this.HeaderText);
+                    caller: this.Caller);
             }
 
             return this.tokenFetcher;

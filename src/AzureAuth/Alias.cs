@@ -31,9 +31,9 @@ namespace Microsoft.Authentication.AzureAuth
         public string Tenant { get; set; }
 
         /// <summary>
-        /// Gets or sets the customized header text (WAM prompts only).
+        /// Gets or sets the customized caller name (WAM prompts and web mode only).
         /// </summary>
-        public string HeaderText { get; set; }
+        public string Caller { get; set; }
 
         /// <summary>
         /// Gets or sets the scopes.
@@ -58,7 +58,7 @@ namespace Microsoft.Authentication.AzureAuth
                 Client = other.Client ?? this.Client,
                 Domain = other.Domain ?? this.Domain,
                 Tenant = other.Tenant ?? this.Tenant,
-                HeaderText = other.HeaderText ?? this.HeaderText,
+                Caller = other.Caller ?? this.Caller,
                 Scopes = other.Scopes ?? this.Scopes,
             };
         }
