@@ -235,14 +235,15 @@ namespace Microsoft.Authentication.MSALWrapper
                 var pca = this.PCABroker();
                 var pcaWrapper = new PCAWrapper(pca);
                 IAccount account = await this.TryToGetCachedAccountAsync(pca, this.preferredDomain).ConfigureAwait(false) ?? PublicClientApplication.OperatingSystemAccount;
-                result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, null);
+                result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, account);
             }
 
             if (result is null && authMode.IsWeb())
             {
                 this.logger.LogDebug("Trying Web Auth flow.");
                 var pca = this.PCAWeb();
-                var pcaWrapper = new PCAWrapper(pca);
+                var pcaWrapper = new PCAWrapper(pca)
+                    .WithCallerName(this.caller);
                 IAccount account = await this.TryToGetCachedAccountAsync(pca, this.preferredDomain).ConfigureAwait(false) ?? null;
                 result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, account);
             }

@@ -114,7 +114,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
             this.alias.Client = "unexpected client";
             this.alias.Domain = "unexpected domain";
             this.alias.Tenant = "unexpected tenant";
-            this.alias.Caller = "unexpected headertext";
+            this.alias.Caller = "unexpected caller";
             this.alias.Scopes = new List<string> { "unexpected scope" };
 
             Alias result = this.alias.Override(this.other);
