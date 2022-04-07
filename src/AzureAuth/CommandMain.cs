@@ -101,9 +101,9 @@ Allowed values: [all, web, devicecode]";
         public string Tenant { get; set; }
 
         /// <summary>
-        /// Gets or sets the customized header text for WAM prompts.
+        /// Gets or sets the customized header text for WAM prompts and web mode.
         /// </summary>
-        [Option(CallerOption, "The caller name text for WAM prompts and web ", CommandOptionType.SingleValue)]
+        [Option(CallerOption, "The caller name text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
         public string Caller { get; set; }
 
         /// <summary>
