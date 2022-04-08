@@ -31,15 +31,15 @@ namespace Demo.Console.NET6
 
             logger.LogInformation("I am ExampleCLI");
 
-            if (args.Length != 2)
+            if (args.Length != 3)
             {
-                logger.LogError("Usage: <resource> <client>");
+                logger.LogError("Usage: <resource> <client> <tenant>");
                 Environment.Exit(1);
             }
 
-            Guid resource = new Guid(args[1]);
-            Guid client = new Guid(args[2]);
-            Guid tenant = new Guid(args[3]);
+            Guid resource = new Guid(args[0]);
+            Guid client = new Guid(args[1]);
+            Guid tenant = new Guid(args[2]);
 
             // Create a token fetcher
             ITokenFetcher adoAuth = new TokenFetcherPublicClient(logger, resource, client, tenant);
