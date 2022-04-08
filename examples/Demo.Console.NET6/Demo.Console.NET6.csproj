@@ -20,6 +20,10 @@
     <PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="16.153.0" />
     <PackageReference Include="NLog" Version="4.7.6" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.6.5" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

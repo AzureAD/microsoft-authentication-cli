@@ -1,22 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.VisualStudio.Services.Common;
-using Microsoft.VisualStudio.Services.WebApi;
-
-using System;
-using Microsoft.Authentication.MSALWrapper;
-using Microsoft.Extensions.Logging;
-using Microsoft.TeamFoundation.SourceControl.WebApi;
-using NLog.Extensions.Logging;
-using NLog.Config;
-using NLog.Targets;
-
 namespace Demo.Console.NET6
 {
-    class Program
+    using System;
+    using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.TeamFoundation.SourceControl.WebApi;
+    using Microsoft.VisualStudio.Services.Common;
+    using Microsoft.VisualStudio.Services.WebApi;
+    using NLog.Config;
+    using NLog.Extensions.Logging;
+    using NLog.Targets;
+
+    /// <summary>
+    /// The startup program.
+    /// </summary>
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             // Setup dependencies
             Uri repoUri = new Uri("https://contoso.com/repo");
@@ -57,6 +59,7 @@ namespace Demo.Console.NET6
                 {
                     logger.LogError($"Inner Exception:\n{ex.InnerException.Message}");
                 }
+
                 Environment.Exit(1);
                 return;
             }
@@ -71,7 +74,7 @@ namespace Demo.Console.NET6
             // Use the token!
             VssConnection connection = new VssConnection(
               repoUri,
-              new VssBasicCredential("", token.Token));
+              new VssBasicCredential(string.Empty, token.Token));
 
             var gitClient = connection.GetClient<GitHttpClient>();
 
