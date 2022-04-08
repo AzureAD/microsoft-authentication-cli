@@ -30,7 +30,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         public const string OEAUTH_MSAL_DISABLE_CACHE = "OEAUTH_MSAL_DISABLE_CACHE";
 
-        private const string INTERACTIVE_AUTH_MESSAGE = "Opening a browser window for interactive auth...";
+        private const string INTERACTIVE_AUTH_MESSAGE = "Opening a browser window for interactive auth.";
+
 
         /// <summary>
         /// The _errors.
