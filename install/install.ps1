@@ -33,12 +33,17 @@ Write-Verbose "Downloading ${releaseUrl} to ${zipFile}"
 $client = New-Object System.Net.WebClient
 $client.DownloadFile($releaseUrl, $zipFile)
 
+if (Test-Path -Path $extractedDirectory) {
+    Write-Verbose "Removing pre-existing extracted directory at ${extractedDirectory}"
+    Remove-Item -Force -Recurse $extractedDirectory
+}
+
 if (Test-Path -Path $targetDirectory) {
     Write-Verbose "Removing pre-existing target directory at ${targetDirectory}"
     Remove-Item -Force -Recurse $targetDirectory
 }
 
-Write-Verbose "Extracting ${zipFile} to ${targetDirectory}"
+Write-Verbose "Extracting ${zipFile} to ${extractedDirectory}"
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $azureauthDirectory)
 
@@ -46,6 +51,7 @@ Write-Verbose "Removing ${zipFile}"
 Remove-Item -Force $zipFile
 
 # The zip file is extracted to a directory with the same base name. Rename the extracted directory to match the version.
+Write-Verbose "Renaming ${extractedDirectory} to ${targetDirectory}"
 Rename-Item $extractedDirectory $targetDirectory
 
 # Symlink latest directory.
