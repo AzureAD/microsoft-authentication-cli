@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-        <TargetFramework>net5.0-windows10.0.17763.0</TargetFramework>
-        <SupportedOSPlatformVersion>7</SupportedOSPlatformVersion>
-        <DefineConstants>PlatformWindows</DefineConstants>
-        <IsPackable>false</IsPackable>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <TargetFramework>net5.0-windows10.0.17763.0</TargetFramework>
+    <SupportedOSPlatformVersion>7</SupportedOSPlatformVersion>
+    <DefineConstants>PlatformWindows</DefineConstants>
+    <IsPackable>false</IsPackable>
 
-        <!-- Stylecop warnings as errors flag for build to fail -->
-        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-        <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    </PropertyGroup>
+    <!-- Stylecop warnings as errors flag for build to fail -->
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
 
     <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
         <TargetFramework>net6.0</TargetFramework>
@@ -19,31 +19,31 @@
         <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
-    <ItemGroup>
-        <!-- Stylecop required items -->
-        <AdditionalFiles Include="..\..\stylecop\stylecop.json" Link="stylecop.json" />
-        <Compile Include="..\..\stylecop\GlobalSupressions.cs" Link="GlobalSupressions.cs" />
-        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
+  <ItemGroup>
+    <!-- Stylecop required items -->
+    <AdditionalFiles Include="..\..\stylecop\stylecop.json" Link="stylecop.json" />
+    <Compile Include="..\..\stylecop\GlobalSupressions.cs" Link="GlobalSupressions.cs" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.1.0" />
-        <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
-        <PackageReference Include="nunit" Version="3.13.2" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
-        <PackageReference Include="Moq" Version="4.17.2" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.1.0" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
+    <PackageReference Include="nunit" Version="3.13.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="Moq" Version="4.17.2" />
+  </ItemGroup>
 
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-        <DefineConstants>PlatformWindows</DefineConstants>
-    </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <DefineConstants>PlatformWindows</DefineConstants>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
+  </ItemGroup>
 
 </Project>
