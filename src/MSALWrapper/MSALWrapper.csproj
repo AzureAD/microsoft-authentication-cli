@@ -25,7 +25,7 @@
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
-
+    
   <ItemGroup>
     <!-- Stylecop required items -->
     <AdditionalFiles Include="..\..\stylecop\stylecop.json" Link="stylecop.json" />
@@ -46,5 +46,11 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.42.0" />
   </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>$(AssemblyName).Test</_Parameter1>
+            <!-- We use the value of AssemblyName to declare the value of the attribute -->
+        </AssemblyAttribute>
+    </ItemGroup>
 
 </Project>
