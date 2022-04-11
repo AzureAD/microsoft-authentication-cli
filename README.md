@@ -22,14 +22,17 @@ On Windows we provide a PowerShell bootstrap script, which will download and ext
 means of downloading the latest release, so you **must** specify your desired version via the `$AZUREAUTH_VERSION`
 environment variable.
 
-To install the application, run
+To install the application, set the environment variable (`v0.1.0` is an example. See
+[releases](https://github.com/AzureAD/microsoft-authentication-cli/releases) for the latest).
 
 ```powershell
-# v0.1.0 is just an example here. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
 $env:AZUREAUTH_VERSION = 'v0.1.0'
-$script = "${env:TEMP}\install.ps1"
-$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1'
-irm $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
+```
+
+Then execute the installation script (excuse the verbosity, we avoided using `Invoke-Expression`).
+
+```powershell
+$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1'; $script = "${env:TEMP}\install.ps1"; irm $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
 ```
 
 **Note**: The script does not signal currently running processes to update their environments, so you'll need to
@@ -41,11 +44,15 @@ On macOS we provide a shell bootstrap script, which will download and extract th
 and automatically add the `azureauth` binary to your `$PATH`. We don't currently provide a means of downloading the
 latest release, so you **must** specify your desired version via the `$AZUREAUTH_VERSION` environment variable.
 
-To install the application, run
+To install the application, set the environment variable (`v0.1.0` is an example. See
+[releases](https://github.com/AzureAD/microsoft-authentication-cli/releases) for the latest).
+```bash
+export AZUREAUTH_VERSION='v0.1.0'
+```
+
+Then execute the installation script.
 
 ```bash
-# v0.1.0 is just an example here. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-export AZUREAUTH_VERSION='v0.1.0'
 curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.sh | sh
 ```
 
