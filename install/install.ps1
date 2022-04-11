@@ -9,10 +9,7 @@ $script:ErrorActionPreference='Stop'
 # knowledge of the specific target version, which the user should set as an environment variable.
 $version = $Env:AZUREAUTH_VERSION
 if ($null -eq $version) {
-    # Write-Error is terminal with ErrorActionPreference='Stop', so we continue to hit the exit
-    # and set an exit code.
-    Write-Error 'No $AZUREAUTH_VERSION specified, unable to download a release' -ErrorAction:Continue
-    exit 1
+    Write-Error 'No $AZUREAUTH_VERSION specified, unable to download a release'
 }
 
 $repo = if ($null -eq $Env:AZUREAUTH_REPO) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }

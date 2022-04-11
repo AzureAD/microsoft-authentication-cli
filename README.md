@@ -27,7 +27,9 @@ To install the application, run
 ```powershell
 # v0.1.0 is just an example here. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
 $env:AZUREAUTH_VERSION = 'v0.1.0'
-iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1) }"
+$script = "${env:TEMP}\install.ps1"
+$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1'
+irm $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
 ```
 
 **Note**: The script does not signal currently running processes to update their environments, so you'll need to
