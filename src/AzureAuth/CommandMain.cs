@@ -8,7 +8,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.IO.Abstractions;
     using System.Linq;
     using System.Runtime.CompilerServices;
-
+    using System.Threading;
     using McMaster.Extensions.CommandLineUtils;
 
     using Microsoft.Authentication.MSALWrapper;
@@ -51,6 +51,11 @@ Allowed values: [all, web, devicecode]";
         private readonly IEnv env;
         private Alias tokenFetcherOptions;
         private ITokenFetcher tokenFetcher;
+
+        /// <summary>
+        /// The maximum time we will wait to acquire a mutex around prompting the user.
+        /// </summary>
+        private TimeSpan promptMutexTimeout = TimeSpan.FromMinutes(15);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
@@ -262,10 +267,51 @@ Allowed values: [all, web, devicecode]";
             try
             {
                 ITokenFetcher tokenFetcher = this.TokenFetcher();
-                TokenResult tokenResult = (this.tokenFetcherOptions.Scopes == null
-                    ? tokenFetcher.GetAccessTokenAsync(this.CombinedAuthMode)
-                    : tokenFetcher.GetAccessTokenAsync(this.tokenFetcherOptions.Scopes, this.CombinedAuthMode))
-                    .Result;
+                TokenResult tokenResult = null;
+
+                // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
+                // They may prompt many times, which is annoying and unexpected.
+                // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
+                string lockName = $"Local\\{this.Resource}_{this.Client}_{this.Tenant}";
+
+                // First parameter InitiallyOwned indicated whether this lock is owned by current thread.
+                // It should be false otherwise a dead lock could occur.
+                using (Mutex mutex = new Mutex(false, lockName))
+                {
+                    bool lockAcquired = false;
+                    try
+                    {
+                        // Wait for the other session to exit.
+                        lockAcquired = mutex.WaitOne(this.promptMutexTimeout);
+                    }
+
+                    // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
+                    catch (AbandonedMutexException)
+                    {
+                        // If another process crashes or exits accidently, we can still acquire the lock.
+                        lockAcquired = true;
+
+                        // In this case, basicly we can just leave a log warning, because the worst side effect is propmting more than once.
+                        this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
+                    }
+
+                    if (!lockAcquired)
+                    {
+                        throw new TimeoutException("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
+                    }
+
+                    try
+                    {
+                        tokenResult = (this.tokenFetcherOptions.Scopes == null
+                        ? tokenFetcher.GetAccessTokenAsync(this.CombinedAuthMode)
+                        : tokenFetcher.GetAccessTokenAsync(this.tokenFetcherOptions.Scopes, this.CombinedAuthMode))
+                        .Result;
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
 
                 this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(tokenFetcher.Errors()));
 
