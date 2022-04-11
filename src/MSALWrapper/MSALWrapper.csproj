@@ -25,7 +25,7 @@
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
-    
+ 
   <ItemGroup>
     <!-- Stylecop required items -->
     <AdditionalFiles Include="..\..\stylecop\stylecop.json" Link="stylecop.json" />
