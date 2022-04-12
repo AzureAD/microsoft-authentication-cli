@@ -40,20 +40,26 @@ if (Test-Path -Path $targetDirectory) {
     Remove-Item -Force -Recurse $targetDirectory
 }
 
-Write-Verbose "Extracting ${zipFile} to ${extractedDirectory}"
+Write-Verbose "Extracting ${zipFile} to ${targetDirectory}"
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $azureauthDirectory)
+# The zip file is extracted to a directory with the same base name. Rename the extracted directory to match the version.
+Rename-Item $extractedDirectory $targetDirectory
+
+if (Test-Path -Path $latestDirectory) {
+    Write-Verbose "Removing pre-existing latest directory at ${latestDirectory}"
+    Remove-Item -Force -Recurse $latestDirectory
+}
+
+# We would use a symlink here except that not all Windows users will have permission to create them.
+Write-Verbose "Extracting ${zipFile} to ${latestDirectory}"
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $azureauthDirectory)
+# The zip file is extracted to a directory with the same base name. Rename the extracted directory to be "latest".
+Rename-Item $extractedDirectory $latestDirectory
 
 Write-Verbose "Removing ${zipFile}"
 Remove-Item -Force $zipFile
-
-# The zip file is extracted to a directory with the same base name. Rename the extracted directory to match the version.
-Write-Verbose "Renaming ${extractedDirectory} to ${targetDirectory}"
-Rename-Item $extractedDirectory $targetDirectory
-
-# Symlink latest directory.
-Write-Verbose "Linking ${latestDirectory} to ${targetDirectory}"
-$null = New-Item -ItemType SymbolicLink -Force -Path $latestDirectory -Target $targetDirectory
 
 # Permanently add the latest directory to the current user's $PATH (if it's not already there).
 # Note that this will only take effect when a new terminal is started.
