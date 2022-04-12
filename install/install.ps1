@@ -8,16 +8,16 @@ $script:ErrorActionPreference='Stop'
 # We don't currently have good cross-platform options for determining the latest release version, so we require
 # knowledge of the specific target version, which the user should set as an environment variable.
 $version = $Env:AZUREAUTH_VERSION
-if ($null -eq $version) {
+if ([string]::IsNullOrEmpty($version)) {
     Write-Error 'No $AZUREAUTH_VERSION specified, unable to download a release'
 }
 
-$repo = if ($null -eq $Env:AZUREAUTH_REPO) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
+$repo = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_REPO)) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
 $releaseName = "azureauth-${version}-win10-x64"
 $releaseFile = "${releaseName}.zip"
 $releaseUrl = "https://github.com/${repo}/releases/download/${version}/$releaseFile"
 
-$azureauthDirectory = ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "AzureAuth"))
+$azureauthDirectory = ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "Programs", "AzureAuth"))
 $extractedDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $releaseName))
 $targetDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $version))
 $latestDirectory = ([System.IO.Path]::Combine($azureauthDirectory, "latest"))
