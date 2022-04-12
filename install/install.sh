@@ -95,7 +95,7 @@ for shell_profile in "${HOME}/.bashrc" "${HOME}/.zshrc"
 do
     if ! grep "${path_modification}" "${shell_profile}" &>/dev/null; then
         verbose "Updating \$PATH in ${shell_profile} to include ${latest_directory}"
-        echo "${path_modification}" >> $shell_profile
+        printf "\n${path_modification}\n" >> $shell_profile
     fi
 done
 
