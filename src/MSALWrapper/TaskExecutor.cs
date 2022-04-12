@@ -10,21 +10,21 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// The task executor.
+    /// The task executor class.
     /// </summary>
-    internal class TaskExecutor
+    internal static class TaskExecutor
     {
         /// <summary>
-        /// The complete within.
+        /// Completes a task within the timeout period.
         /// </summary>
         /// <typeparam name="T">The type.</typeparam>
+        /// <param name="logger">The logger.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="taskName">The task name.</param>
         /// <param name="getTask">A function that return the task you want to complete within the given timeout.</param>
         /// <param name="errorsList">The errors list.</param>
-        /// <param name="logger">The logger.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        internal static async Task<T> CompleteWithin<T>(TimeSpan timeout, string taskName, Func<CancellationToken, Task<T>> getTask, List<Exception> errorsList = null, ILogger logger = null)
+        internal static async Task<T> CompleteWithin<T>(ILogger logger, TimeSpan timeout, string taskName, Func<CancellationToken, Task<T>> getTask, List<Exception> errorsList)
             where T : class
         {
             CancellationTokenSource source = new CancellationTokenSource();

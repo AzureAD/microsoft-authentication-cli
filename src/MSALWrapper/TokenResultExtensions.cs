@@ -4,12 +4,12 @@
 namespace Microsoft.Authentication.MSALWrapper.AuthFlows
 {
     /// <summary>
-    /// Extension methods to the <see cref="TokenResult"/> class.
+    /// Extension method to the <see cref="TokenResult"/> class.
     /// </summary>
     internal static class TokenResultExtensions
     {
         /// <summary>
-        /// Set the AuthType property to the given authType if the token result is not null.
+        /// Sets the AuthType property to the given authType if the token result is not null.
         /// </summary>
         /// <param name="result">The result.</param>
         /// <param name="authType">The auth type.</param>

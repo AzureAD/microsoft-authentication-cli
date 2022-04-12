@@ -13,7 +13,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
     internal class MsalHttpClientFactoryAdaptor : IMsalHttpClientFactory
     {
         /// <summary>
-        /// The get http client.
+        /// Gets the msal http client.
         /// </summary>
         /// <returns>An instance of <see cref="HttpClient"/>.</returns>
         public HttpClient GetHttpClient()
