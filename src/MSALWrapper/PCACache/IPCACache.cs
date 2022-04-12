@@ -12,12 +12,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
     internal interface IPCACache
     {
         /// <summary>
-        /// The setup token cache.
-        /// </summary>
-        void SetupTokenCache();
-
-        /// <summary>
-        /// The setup token cache.
+        /// Sets up the token cache.
         /// </summary>
         /// <param name="errorsList">The errors list.</param>
         void SetupTokenCache(List<Exception> errorsList);

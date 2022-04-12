@@ -11,7 +11,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
     using Microsoft.Identity.Client.Extensions.Msal;
 
     /// <summary>
-    /// The pca cache.
+    /// The PCA cache class.
     /// </summary>
     internal class PCACache : IPCACache
     {
@@ -56,7 +56,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         }
 
         /// <summary>
-        /// The setup token cache.
+        /// Sets up the token cache.
         /// </summary>
         /// <param name="errorsList">The errors list.</param>
         public void SetupTokenCache(List<Exception> errorsList)
@@ -96,14 +96,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
                 this.logger.LogError("An unexpected error occured creating the cache.");
                 throw new Exception(exceptionMessage);
             }
-        }
-
-        /// <summary>
-        /// The setup token cache.
-        /// </summary>
-        public void SetupTokenCache()
-        {
-            this.SetupTokenCache(new List<Exception>());
         }
     }
 }
