@@ -8,9 +8,9 @@ The CLI is designed for authenticating and returning an access token for public 
 
 | Operating System | Auth Broker Integration | Web Auth Flow | Device Code Flow | Token Caching | Multi-Account Support |
 |------------------|-----------------------|-------------------------|---------------|------------------------------|---------------|
-| Windows          | ✅ | ✅ | ✅ | ✅ | ❌ (not yet) |
-| OSX (MacOS)      | ❌ (not yet) | ✅ | ✅ | ✅ | ❌ (not yet) |
-| Ubuntu (linux)   | ❌ (not yet) | ✅ | ✅ | ✅ | ❌ (not yet) |
+| Windows          | ✅ | ✅ | ✅ | ✅ | ⚠️ `--domain` account filtering |
+| OSX (MacOS)      | ⚠️ via Web Browser | ✅ | ✅ | ✅ | ⚠️ `--domain` account filtering |
+| Ubuntu (linux) <br/>‼️Releases coming soon | ⚠️ via Edge | ✅ | ✅ | ✅ | ⚠️ `--domain` account filtering |
 <br/>
 
 # Installation
