@@ -16,7 +16,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// The get http client.
         /// </summary>
         /// <returns>An instance of <see cref="HttpClient"/>.</returns>
-
         public HttpClient GetHttpClient()
         {
             // MSAL calls this method each time it wants to use an HTTP client.
