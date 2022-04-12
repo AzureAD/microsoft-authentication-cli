@@ -13,6 +13,54 @@ The CLI is designed for authenticating and returning an access token for public 
 | Ubuntu (linux)   | ❌ (not yet) | ✅ | ✅ | ✅ | ❌ (not yet) |
 <br/>
 
+# Installation
+
+## Windows
+
+On Windows we provide a PowerShell bootstrap script, which will download and extract the application to
+`%LOCALAPPDATA%\Programs\AzureAuth` and automatically add the `azureauth` binary to your `$PATH`. We don't currently
+provide a means of downloading the latest release, so you **must** specify your desired version via the
+`$AZUREAUTH_VERSION` environment variable.
+
+To install the application, run
+
+```powershell
+# v0.1.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = 'v0.1.0'
+iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1) } -Verbose"
+```
+
+Or, if you want a method more resilient to failure than `Invoke-Expression`, run
+
+```powershell
+# v0.1.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = 'v0.1.0'
+$script = "${env:TEMP}\install.ps1"
+$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1'
+Invoke-WebRequest $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
+```
+
+**Note**: The script does not signal currently running processes to update their environments, so you'll need to
+relaunch applications before the `$PATH` changes take effect.
+
+## macOS
+
+On macOS we provide a shell bootstrap script, which will download and extract the application to `$HOME/.azureauth`
+and automatically add the `azureauth` binary to your `$PATH`. We don't currently provide a means of downloading the
+latest release, so you **must** specify your desired version via the `$AZUREAUTH_VERSION` environment variable.
+
+To install the application, run
+
+```bash
+# v0.1.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+export AZUREAUTH_VERSION='v0.1.0'
+curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.sh | sh
+```
+
+**Note**: The script currently only updates the `$PATH` in `~/.bashrc` and `~/.zshrc`. It does not update the environment
+of currently running processes, so you'll need to relaunch applications (or source your shell profile) before the `$PATH`
+changes take effect.
+
 # Data Collection
 
 The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use
