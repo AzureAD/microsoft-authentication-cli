@@ -20,7 +20,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// <typeparam name="T">The type.</typeparam>
         /// <param name="timeout">The timeout.</param>
         /// <param name="taskName">The task name.</param>
-        /// <param name="getTask">The get task.</param>
+        /// <param name="getTask">A function that return the task you want to complete within the given timeout.</param>
+
         /// <param name="errorsList">The errors list.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>The <see cref="Task"/>.</returns>
