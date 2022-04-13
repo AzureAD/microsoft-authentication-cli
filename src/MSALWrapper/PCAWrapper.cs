@@ -87,18 +87,18 @@ namespace Microsoft.Authentication.MSALWrapper
         Task<TokenResult> GetTokenDeviceCodeAsync(IEnumerable<string> scopes, Func<DeviceCodeResult, Task> callback, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Tries to get an account using the preferred domain if provided.
+        /// Tries to get a cached account using the preferred domain if provided.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        Task<IAccount> TryGetAccountAsync(string preferredDomain = null);
+        Task<IAccount> TryToGetCachedAccountAsync(string preferredDomain = null);
 
         /// <summary>
-        /// Tries to get a list of accounts using the preferred domain if provided.
+        /// Tries to get a list of cached accounts using the preferred domain if provided.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        Task<IList<IAccount>> TryToGetAccountsAsync(string preferredDomain = null);
+        Task<IList<IAccount>> TryToGetCachedAccountsAsync(string preferredDomain = null);
     }
 
     /// <summary>
@@ -225,23 +225,23 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Tries to get an account using the preferred domain if provided.
+        /// Tries to get a cached account using the preferred domain if provided.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public async Task<IAccount> TryGetAccountAsync(string preferredDomain = null)
+        public async Task<IAccount> TryToGetCachedAccountAsync(string preferredDomain = null)
         {
-            var accounts = await this.TryToGetAccountsAsync(preferredDomain);
+            var accounts = await this.TryToGetCachedAccountsAsync(preferredDomain);
             var account = (accounts == null || accounts.Count() > 1) ? null : accounts.FirstOrDefault();
             return account;
         }
 
         /// <summary>
-        /// Tries to get a list of accounts using the preferred domain if provided.
+        /// Tries to get a list of cached accounts using the preferred domain if provided.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public async Task<IList<IAccount>> TryToGetAccountsAsync(string preferredDomain = null)
+        public async Task<IList<IAccount>> TryToGetCachedAccountsAsync(string preferredDomain = null)
         {
             IEnumerable<IAccount> accounts = await this.pca.GetAccountsAsync().ConfigureAwait(false);
             if (accounts == null)

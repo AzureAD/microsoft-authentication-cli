@@ -89,7 +89,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var accountsProvider = this.Subject();
-            IAccount result = await accountsProvider.TryGetAccountAsync();
+            IAccount result = await accountsProvider.TryToGetCachedAccountAsync();
 
             // Assert
             this.pcaClient.VerifyAll();
@@ -108,7 +108,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.GetAccountsMock(null);
 
             // Act
-            IAccount result = await this.Subject().TryGetAccountAsync();
+            IAccount result = await this.Subject().TryToGetCachedAccountAsync();
 
             // Assert
             this.pcaClient.VerifyAll();
@@ -129,7 +129,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.GetAccountsMock(accounts);
 
             // Act
-            IAccount result = await this.Subject().TryGetAccountAsync();
+            IAccount result = await this.Subject().TryToGetCachedAccountAsync();
 
             // Assert
             this.pcaClient.VerifyAll();
@@ -151,7 +151,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.GetAccountsMock(accounts);
 
             // Act
-            IAccount result = await this.Subject().TryGetAccountAsync();
+            IAccount result = await this.Subject().TryToGetCachedAccountAsync();
 
             // Assert
             this.pcaClient.VerifyAll();
@@ -171,7 +171,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.GetAccountsMock(accounts);
 
             // Act
-            IAccount result = await this.Subject().TryGetAccountAsync("microsoft.com");
+            IAccount result = await this.Subject().TryToGetCachedAccountAsync("microsoft.com");
 
             // Assert
             this.pcaClient.VerifyAll();
@@ -191,7 +191,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.GetAccountsMock(accounts);
 
             // Act
-            IAccount result = await this.Subject().TryGetAccountAsync();
+            IAccount result = await this.Subject().TryToGetCachedAccountAsync();
 
             // Assert
             this.pcaClient.VerifyAll();
