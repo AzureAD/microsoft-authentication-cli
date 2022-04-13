@@ -374,7 +374,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         /// <summary>
-        /// .
+        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="TokenFetcherPublicClient.GetTokenNormalFlowAsync"/>.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
         [Test]
