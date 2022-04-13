@@ -5,11 +5,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Authentication.MSALWrapper.AuthFlows;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
@@ -20,9 +18,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using NUnit.Framework;
 
     /// <summary>
-    /// The accounts provider test.
+    /// The PCA wrapper test for trying to get accounts.
     /// </summary>
-    public class AccountsProviderTest
+    public class PCAWrapperTest
     {
         private const string TestUser = "user@microsoft.com";
 
@@ -67,10 +65,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                  loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                  loggingBuilder.AddNLog(loggingConfig);
              })
-             .AddTransient<IAccountsProvider>((provider) =>
+             .AddTransient<IPCAWrapper>((provider) =>
              {
-                 var logger = provider.GetService<ILogger<AccountsProvider>>();
-                 return new AccountsProvider(this.pcaClient.Object, logger);
+                 var logger = provider.GetService<ILogger<PCAWrapper>>();
+                 return new PCAWrapper(logger, this.pcaClient.Object);
              })
              .BuildServiceProvider();
 
@@ -207,6 +205,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ReturnsAsync(accounts);
         }
 
-        private IAccountsProvider Subject() => this.serviceProvider.GetService<IAccountsProvider>();
+        private IPCAWrapper Subject() => this.serviceProvider.GetService<IPCAWrapper>();
     }
 }
