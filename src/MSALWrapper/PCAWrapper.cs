@@ -88,7 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper
 
         /// <summary>
         /// Tries to return a cached account when the list returns only one account using the preferred domain if provided.
-        /// If there are more than one account returned in the list, then return null.
+        /// If there is more than one account returned in the list, then return null.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
@@ -219,7 +219,7 @@ namespace Microsoft.Authentication.MSALWrapper
 
         /// <summary>
         /// Tries to return a cached account when the list has only one account using the preferred domain if provided.
-        /// If there are more than one account returned in the list, then return null.
+        /// If there is more than one account returned in the list, then return null.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
