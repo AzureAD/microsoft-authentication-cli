@@ -117,15 +117,6 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Initializes a new instance of the <see cref="PCAWrapper"/> class.
         /// </summary>
-        /// <param name="pca">The public client application instance.</param>
-        public PCAWrapper(IPublicClientApplication pca)
-        {
-            this.pca = pca;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PCAWrapper"/> class.
-        /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="pca">The public client application instance.</param>
         public PCAWrapper(ILogger logger, IPublicClientApplication pca)
