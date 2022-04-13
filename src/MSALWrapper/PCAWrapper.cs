@@ -87,7 +87,8 @@ namespace Microsoft.Authentication.MSALWrapper
         Task<TokenResult> GetTokenDeviceCodeAsync(IEnumerable<string> scopes, Func<DeviceCodeResult, Task> callback, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Tries to get a cached account using the preferred domain if provided.
+        /// Tries to return a cached account when the list returns only one account using the preferred domain if provided.
+        /// If there are more than one account returned in the list, then return null.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
@@ -95,6 +96,7 @@ namespace Microsoft.Authentication.MSALWrapper
 
         /// <summary>
         /// Tries to get a list of cached accounts using the preferred domain if provided.
+        /// It returns null if no accounts are returned from the PCA.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
@@ -225,7 +227,8 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Tries to get a cached account using the preferred domain if provided.
+        /// Tries to return a cached account when the list has only one account using the preferred domain if provided.
+        /// If there are more than one account returned in the list, then return null.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
@@ -238,6 +241,7 @@ namespace Microsoft.Authentication.MSALWrapper
 
         /// <summary>
         /// Tries to get a list of cached accounts using the preferred domain if provided.
+        /// It returns null if no accounts are returned from the PCA.
         /// </summary>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
