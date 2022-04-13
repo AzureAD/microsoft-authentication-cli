@@ -107,18 +107,18 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Gets or sets, The name of the caller displayed in the title bar.
+        /// Gets or sets, The prompt hint displayed in the title bar.
         /// </summary>
-        public string Caller { get; set; }
+        public string PromptHint { get; set; }
 
         /// <summary>
-        /// Customize the title bar by caller name(Web mode only).
+        /// Customize the title bar by prompt hint(Web mode only).
         /// </summary>
-        /// <param name="caller">see <see cref="Caller"/>.</param>
+        /// <param name="promptHint">see <see cref="PromptHint"/>.</param>
         /// <returns>This.</returns>
-        public PCAWrapper WithCallerName(string caller)
+        public PCAWrapper WithPromptHint(string promptHint)
         {
-            this.Caller = caller;
+            this.PromptHint = promptHint;
             return this;
         }
 
@@ -164,7 +164,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 .AcquireTokenInteractive(scopes)
                 .WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions()
                 {
-                    Title = this.Caller,
+                    Title = this.PromptHint,
                 })
                 .WithAccount(account)
                 .ExecuteAsync(cancellationToken)
@@ -193,7 +193,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 .AcquireTokenInteractive(scopes)
                 .WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions()
                 {
-                    Title = this.Caller,
+                    Title = this.PromptHint,
                 })
                 .WithClaims(claims)
                 .ExecuteAsync(cancellationToken)

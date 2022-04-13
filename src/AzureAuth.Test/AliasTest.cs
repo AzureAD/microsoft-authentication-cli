@@ -74,13 +74,13 @@ namespace Microsoft.Authentication.AzureAuth.Test
         }
 
         /// <summary>
-        /// The test to merge caller text.
+        /// The test to merge prompt hints.
         /// </summary>
         [Test]
-        public void TestMergeCaller()
+        public void TestMergePromptHint()
         {
-            this.alias.Caller = "expected caller text";
-            this.expected.Caller = "expected caller text";
+            this.alias.PromptHint = "expected prompt hint";
+            this.expected.PromptHint = "expected prompt hint";
 
             Alias result = this.alias.Override(this.other);
 
@@ -114,7 +114,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
             this.alias.Client = "unexpected client";
             this.alias.Domain = "unexpected domain";
             this.alias.Tenant = "unexpected tenant";
-            this.alias.Caller = "unexpected caller";
+            this.alias.PromptHint = "unexpected prompt hint";
             this.alias.Scopes = new List<string> { "unexpected scope" };
 
             Alias result = this.alias.Override(this.other);

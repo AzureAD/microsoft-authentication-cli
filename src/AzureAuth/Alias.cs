@@ -31,9 +31,9 @@ namespace Microsoft.Authentication.AzureAuth
         public string Tenant { get; set; }
 
         /// <summary>
-        /// Gets or sets the customized caller name (WAM prompts and web mode only).
+        /// Gets or sets the customized prompt hint.
         /// </summary>
-        public string Caller { get; set; }
+        public string PromptHint { get; set; }
 
         /// <summary>
         /// Gets or sets the scopes.
@@ -58,7 +58,7 @@ namespace Microsoft.Authentication.AzureAuth
                 Client = other.Client ?? this.Client,
                 Domain = other.Domain ?? this.Domain,
                 Tenant = other.Tenant ?? this.Tenant,
-                Caller = other.Caller ?? this.Caller,
+                PromptHint = other.PromptHint ?? this.PromptHint,
                 Scopes = other.Scopes ?? this.Scopes,
             };
         }

@@ -60,7 +60,7 @@ namespace Microsoft.Authentication.MSALWrapper
         private readonly bool windows;
         private readonly bool windows10;
 
-        private readonly string caller;
+        private readonly string promptHint;
 
         #region Required MSAL GUIDs
 
@@ -117,10 +117,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="verifyPersistence">
         /// Optionally choose to verify the cache persistence layer when setting up the token cache.
         /// </param>
-        /// <param name="caller">
+        /// <param name="promptHint">
         /// The customized header text in account picker for WAM prompts.
         /// </param>
-        public TokenFetcherPublicClient(ILogger logger, Guid resourceId, Guid clientId, Guid tenantId, string osxKeyChainSuffix = null, string preferredDomain = null, bool verifyPersistence = false, string caller = null)
+        public TokenFetcherPublicClient(ILogger logger, Guid resourceId, Guid clientId, Guid tenantId, string osxKeyChainSuffix = null, string preferredDomain = null, bool verifyPersistence = false, string promptHint = null)
         {
             this.windows = PlatformUtils.IsWindows(logger);
             this.windows10 = PlatformUtils.IsWindows10(logger);
@@ -130,7 +130,7 @@ namespace Microsoft.Authentication.MSALWrapper
             this.resourceId = resourceId;
             this.clientId = clientId;
 
-            this.caller = caller;
+            this.promptHint = promptHint;
 
             this.osxKeyChainSuffix = osxKeyChainSuffix;
             this.verifyPersistence = verifyPersistence;
@@ -242,7 +242,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 this.logger.LogDebug("Trying Web Auth flow.");
                 var pca = this.PCAWeb();
                 var pcaWrapper = new PCAWrapper(pca)
-                    .WithCallerName(this.caller);
+                    .WithPromptHint(this.promptHint);
                 IAccount account = await this.TryToGetCachedAccountAsync(pca, this.preferredDomain).ConfigureAwait(false) ?? null;
                 result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, account);
             }
@@ -481,7 +481,7 @@ namespace Microsoft.Authentication.MSALWrapper
             var pcaBuilder = this.PCABase();
             pcaBuilder.WithWindowsBrokerOptions(new WindowsBrokerOptions
             {
-                HeaderText = this.caller,
+                HeaderText = this.promptHint,
             });
 
 #if NETFRAMEWORK
