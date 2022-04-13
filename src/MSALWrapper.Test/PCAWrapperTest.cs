@@ -32,8 +32,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private MemoryTarget logTarget;
 
         // MSAL Specific Mocks
-        private Mock<IPCAWrapper> pcaWrapper;
-        private Mock<IPublicClientApplication> pcaClient;
+        private Mock<IPublicClientApplication> pcaClientMock;
         private Mock<IAccount> testAccount;
         private TokenResult tokenResult;
 
@@ -53,8 +52,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.testAccount = new Mock<IAccount>(MockBehavior.Strict);
             this.testAccount.Setup(a => a.Username).Returns(TestUser);
 
-            this.pcaWrapper = new Mock<IPCAWrapper>(MockBehavior.Strict);
-            this.pcaClient = new Mock<IPublicClientApplication>(MockBehavior.Strict);
+            this.pcaClientMock = new Mock<IPublicClientApplication>(MockBehavior.Strict);
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject")
             this.serviceProvider = new ServiceCollection()
@@ -68,7 +66,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .AddTransient<IPCAWrapper>((provider) =>
              {
                  var logger = provider.GetService<ILogger<PCAWrapper>>();
-                 return new PCAWrapper(logger, this.pcaClient.Object);
+                 return new PCAWrapper(logger, this.pcaClientMock.Object);
              })
              .BuildServiceProvider();
 
@@ -85,14 +83,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task TryToGetCachedAccountAsync_NoAccounts()
         {
-            this.GetAccountsMock(new List<IAccount>());
+            this.MockAccounts(new List<IAccount>());
 
             // Act
-            var accountsProvider = this.Subject();
-            IAccount result = await accountsProvider.TryToGetCachedAccountAsync();
+            IPCAWrapper subject = this.Subject();
+            IAccount result = await subject.TryToGetCachedAccountAsync();
 
             // Assert
-            this.pcaClient.VerifyAll();
+            this.pcaClientMock.VerifyAll();
             result.Should().BeNull();
         }
 
@@ -105,13 +103,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task TryToGetCachedAccountAsync_Null()
         {
-            this.GetAccountsMock(null);
+            this.MockAccounts(null);
 
             // Act
             IAccount result = await this.Subject().TryToGetCachedAccountAsync();
 
             // Assert
-            this.pcaClient.VerifyAll();
+            this.pcaClientMock.VerifyAll();
             result.Should().BeNull();
         }
 
@@ -126,13 +124,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var joe = new MockAccount("joe@microsoft.com");
             IList<IAccount> accounts = new List<IAccount>() { joe };
-            this.GetAccountsMock(accounts);
+            this.MockAccounts(accounts);
 
             // Act
             IAccount result = await this.Subject().TryToGetCachedAccountAsync();
 
             // Assert
-            this.pcaClient.VerifyAll();
+            this.pcaClientMock.VerifyAll();
             result.Should().BeSameAs(joe);
         }
 
@@ -148,13 +146,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var first = new MockAccount("first@live.com");
             var second = new MockAccount("second@microsoft.com");
             IList<IAccount> accounts = new List<IAccount>() { first, second };
-            this.GetAccountsMock(accounts);
+            this.MockAccounts(accounts);
 
             // Act
             IAccount result = await this.Subject().TryToGetCachedAccountAsync();
 
             // Assert
-            this.pcaClient.VerifyAll();
+            this.pcaClientMock.VerifyAll();
             result.Should().BeNull();
         }
 
@@ -168,13 +166,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task TryToGetCachedAccountAsync_TwoAccounts_WithPreferredDomain()
         {
             IList<IAccount> accounts = new List<IAccount>() { this.userLive, this.userMicrosoft1 };
-            this.GetAccountsMock(accounts);
+            this.MockAccounts(accounts);
 
             // Act
             IAccount result = await this.Subject().TryToGetCachedAccountAsync("microsoft.com");
 
             // Assert
-            this.pcaClient.VerifyAll();
+            this.pcaClientMock.VerifyAll();
             result.Should().BeSameAs(this.userMicrosoft1);
         }
 
@@ -188,19 +186,19 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task TryToGetCachedAccountAsync_MultipleAccounts_WithPreferredDomain()
         {
             IList<IAccount> accounts = new List<IAccount>() { this.userLive, this.userMicrosoft1, this.userMicrosoft2 };
-            this.GetAccountsMock(accounts);
+            this.MockAccounts(accounts);
 
             // Act
             IAccount result = await this.Subject().TryToGetCachedAccountAsync();
 
             // Assert
-            this.pcaClient.VerifyAll();
+            this.pcaClientMock.VerifyAll();
             result.Should().BeNull();
         }
 
-        private void GetAccountsMock(IEnumerable<IAccount> accounts)
+        private void MockAccounts(IEnumerable<IAccount> accounts)
         {
-            this.pcaClient
+            this.pcaClientMock
                 .Setup(pca => pca.GetAccountsAsync())
                 .ReturnsAsync(accounts);
         }
