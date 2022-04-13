@@ -232,7 +232,7 @@ namespace Microsoft.Authentication.MSALWrapper
             {
                 this.logger.LogDebug("Trying WAM Broker flow.");
                 var pca = this.PCABroker();
-                var pcaWrapper = new PCAWrapper(pca);
+                var pcaWrapper = new PCAWrapper(this.logger, pca);
                 IAccount account = await this.TryToGetCachedAccountAsync(pca, this.preferredDomain).ConfigureAwait(false) ?? PublicClientApplication.OperatingSystemAccount;
                 result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, account);
             }
@@ -241,7 +241,7 @@ namespace Microsoft.Authentication.MSALWrapper
             {
                 this.logger.LogDebug("Trying Web Auth flow.");
                 var pca = this.PCAWeb();
-                var pcaWrapper = new PCAWrapper(pca);
+                var pcaWrapper = new PCAWrapper(this.logger, pca);
                 IAccount account = await this.TryToGetCachedAccountAsync(pca, this.preferredDomain).ConfigureAwait(false) ?? null;
                 result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, account);
             }
@@ -249,7 +249,7 @@ namespace Microsoft.Authentication.MSALWrapper
             if (result is null && authMode.IsDeviceCode())
             {
                 var pca = this.PCAWeb();
-                var pcaWrapper = new PCAWrapper(pca);
+                var pcaWrapper = new PCAWrapper(this.logger, pca);
                 this.logger.LogTrace("Trying Device Code flow.");
                 try
                 {
