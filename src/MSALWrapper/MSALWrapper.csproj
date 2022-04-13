@@ -46,4 +46,5 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.42.0" />
   </ItemGroup>
+
 </Project>
