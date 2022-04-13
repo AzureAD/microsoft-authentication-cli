@@ -241,8 +241,7 @@ namespace Microsoft.Authentication.MSALWrapper
             {
                 this.logger.LogDebug("Trying Web Auth flow.");
                 var pca = this.PCAWeb();
-                var pcaWrapper = new PCAWrapper(pca)
-                    .WithPromptHint(this.promptHint);
+                var pcaWrapper = new PCAWrapper(pca);
                 IAccount account = await this.TryToGetCachedAccountAsync(pca, this.preferredDomain).ConfigureAwait(false) ?? null;
                 result = await this.GetTokenNormalFlowAsync(pcaWrapper, scopes, account);
             }
@@ -342,7 +341,9 @@ namespace Microsoft.Authentication.MSALWrapper
                         var tokenResult = await this.CompleteWithin(
                             this.interactiveAuthTimeout,
                             "Interactive Auth",
-                            (cancellationToken) => pcaWrapper.GetTokenInteractiveAsync(scopes, account, cancellationToken)) // TODO: Need to pass account here
+                            (cancellationToken) => pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(scopes, account, cancellationToken)) // TODO: Need to pass account here
                             .ConfigureAwait(false);
                         this.SetAuthenticationType(tokenResult, AuthType.Interactive);
                         return tokenResult;
@@ -355,7 +356,9 @@ namespace Microsoft.Authentication.MSALWrapper
                     var tokenResult = await this.CompleteWithin(
                         this.interactiveAuthTimeout,
                         "Interactive Auth (with extra claims)",
-                        (cancellationToken) => pcaWrapper.GetTokenInteractiveAsync(scopes, ex.Claims, cancellationToken))
+                        (cancellationToken) => pcaWrapper
+                        .WithPromptHint(this.promptHint)
+                        .GetTokenInteractiveAsync(scopes, ex.Claims, cancellationToken))
                         .ConfigureAwait(false);
                     this.SetAuthenticationType(tokenResult, AuthType.Interactive);
                     return tokenResult;

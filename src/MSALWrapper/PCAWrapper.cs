@@ -83,6 +83,13 @@ namespace Microsoft.Authentication.MSALWrapper
         /// The <see cref="Task"/>.
         /// </returns>
         Task<TokenResult> GetTokenDeviceCodeAsync(IEnumerable<string> scopes, Func<DeviceCodeResult, Task> callback, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Customize the title bar by prompt hint(Web mode only).
+        /// </summary>
+        /// <param name="promptHint">The prompt hint text.</param>
+        /// <returns>This.</returns>
+        IPCAWrapper WithPromptHint(string promptHint);
     }
 
     /// <summary>
@@ -116,7 +123,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="promptHint">see <see cref="PromptHint"/>.</param>
         /// <returns>This.</returns>
-        public PCAWrapper WithPromptHint(string promptHint)
+        public IPCAWrapper WithPromptHint(string promptHint)
         {
             this.PromptHint = promptHint;
             return this;
