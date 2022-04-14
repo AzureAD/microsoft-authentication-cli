@@ -24,7 +24,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// <param name="getTask">A function that return the task you want to complete within the given timeout.</param>
         /// <param name="errorsList">The errors list.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        internal static async Task<T> CompleteWithin<T>(ILogger logger, TimeSpan timeout, string taskName, Func<CancellationToken, Task<T>> getTask, List<Exception> errorsList)
+        internal static async Task<T> CompleteWithin<T>(ILogger logger, TimeSpan timeout, string taskName, Func<CancellationToken, Task<T>> getTask, IList<Exception> errorsList)
             where T : class
         {
             CancellationTokenSource source = new CancellationTokenSource();

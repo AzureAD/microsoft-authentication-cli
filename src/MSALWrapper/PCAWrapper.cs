@@ -94,7 +94,7 @@ namespace Microsoft.Authentication.MSALWrapper
         IPCAWrapper WithPromptHint(string promptHint);
 
         /// <summary>
-        /// Tries to return a cached account when the list returns only one account using the preferred domain if provided.
+        /// Tries to return a cached account when the list has only one account using the preferred domain if provided.
         /// A null return indicates one of the following.
         /// No accounts were found in cache.
         /// No accounts match the domain.
@@ -125,7 +125,7 @@ namespace Microsoft.Authentication.MSALWrapper
         private IPublicClientApplication pca;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PCAWrapper"/> class.
+        /// Initializes a new instance of the <see cref="PCAWrapper"/> class without caching.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="pca">The public client application instance.</param>
@@ -136,57 +136,40 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="PCAWrapper"/> class with x-plat caching configured.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="pca">The public client application instance.</param>
+        /// <param name="errors">The errors list to append error encountered to.</param>
+        /// <param name="tenantId">The tenant ID to help key the cache off of.</param>
+        /// <param name="osxKeyChainSuffix">An optional (can be null) suffix to further customize key chain token caches on OSX.</param>
+        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId, string osxKeyChainSuffix)
+            : this(logger, pca)
+        {
+            var cacher = new PCACache(logger, tenantId, osxKeyChainSuffix);
+            cacher.SetupTokenCache(this.pca.UserTokenCache, errors);
+        }
+
+        /// <summary>
         /// Gets or sets, The prompt hint displayed in the title bar.
         /// </summary>
         public string PromptHint { get; set; }
 
-        /// <summary>
-        /// Customize the title bar by prompt hint(Web mode only).
-        /// </summary>
-        /// <param name="promptHint">see <see cref="PromptHint"/>.</param>
-        /// <returns>This.</returns>
+        /// <inheritdoc/>
         public IPCAWrapper WithPromptHint(string promptHint)
         {
             this.PromptHint = promptHint;
             return this;
         }
 
-        /// <summary>
-        /// The get token silent async.
-        /// </summary>
-        /// <param name="scopes">
-        /// The scopes.
-        /// </param>
-        /// <param name="account">
-        /// The account.
-        /// </param>
-        /// <param name="cancellationToken">
-        /// The cancellation token.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
+        /// <inheritdoc/>
         public async Task<TokenResult> GetTokenSilentAsync(IEnumerable<string> scopes, IAccount account, CancellationToken cancellationToken)
         {
             AuthenticationResult result = await this.pca.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken).ConfigureAwait(false);
             return this.TokenResultOrThrow(result);
         }
 
-        /// <summary>
-        /// The get token interactive async.
-        /// </summary>
-        /// <param name="scopes">
-        /// The scopes.
-        /// </param>
-        /// <param name="account">
-        /// The account.
-        /// </param>
-        /// <param name="cancellationToken">
-        /// The cancellation token.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
+        /// <inheritdoc/>
         public async Task<TokenResult> GetTokenInteractiveAsync(IEnumerable<string> scopes, IAccount account, CancellationToken cancellationToken)
         {
             AuthenticationResult result = await this.pca
@@ -201,21 +184,7 @@ namespace Microsoft.Authentication.MSALWrapper
             return this.TokenResultOrThrow(result);
         }
 
-        /// <summary>
-        /// The get token interactive async.
-        /// </summary>
-        /// <param name="scopes">
-        /// The scopes.
-        /// </param>
-        /// <param name="claims">
-        /// The claims.
-        /// </param>
-        /// <param name="cancellationToken">
-        /// The cancellation token.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
+        /// <inheritdoc/>
         public async Task<TokenResult> GetTokenInteractiveAsync(IEnumerable<string> scopes, string claims, CancellationToken cancellationToken)
         {
             AuthenticationResult result = await this.pca
@@ -230,36 +199,14 @@ namespace Microsoft.Authentication.MSALWrapper
             return this.TokenResultOrThrow(result);
         }
 
-        /// <summary>
-        /// The get token device code async.
-        /// </summary>
-        /// <param name="scopes">
-        /// The scopes.
-        /// </param>
-        /// <param name="callback">
-        /// The callback.
-        /// </param>
-        /// <param name="cancellationToken">
-        /// The cancellation token.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
+        /// <inheritdoc/>
         public async Task<TokenResult> GetTokenDeviceCodeAsync(IEnumerable<string> scopes, Func<DeviceCodeResult, Task> callback, CancellationToken cancellationToken)
         {
             AuthenticationResult result = await this.pca.AcquireTokenWithDeviceCode(scopes, callback).ExecuteAsync(cancellationToken).ConfigureAwait(false);
             return this.TokenResultOrThrow(result);
         }
 
-        /// <summary>
-        /// Tries to return a cached account when the list has only one account using the preferred domain if provided.
-        /// A null return indicates one of the following.
-        /// No accounts were found in cache.
-        /// No accounts match the domain.
-        /// More than one account with the same domain was found in the list.
-        /// </summary>
-        /// <param name="preferredDomain">The preferred domain.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public async Task<IAccount> TryToGetCachedAccountAsync(string preferredDomain = null)
         {
             var accounts = await this.TryToGetCachedAccountsAsync(preferredDomain);
@@ -267,12 +214,7 @@ namespace Microsoft.Authentication.MSALWrapper
             return account;
         }
 
-        /// <summary>
-        /// Tries to get a list of cached accounts using the preferred domain if provided.
-        /// It returns null if no accounts are returned from the PCA.
-        /// </summary>
-        /// <param name="preferredDomain">The preferred domain.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public async Task<IList<IAccount>> TryToGetCachedAccountsAsync(string preferredDomain = null)
         {
             IEnumerable<IAccount> accounts = await this.pca.GetAccountsAsync().ConfigureAwait(false);
