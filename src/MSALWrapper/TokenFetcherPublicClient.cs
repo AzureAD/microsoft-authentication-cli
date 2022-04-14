@@ -60,6 +60,8 @@ namespace Microsoft.Authentication.MSALWrapper
         private readonly bool windows;
         private readonly bool windows10;
 
+        private readonly string promptHint;
+
         #region Required MSAL GUIDs
 
         /// <summary>
@@ -115,7 +117,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="verifyPersistence">
         /// Optionally choose to verify the cache persistence layer when setting up the token cache.
         /// </param>
-        public TokenFetcherPublicClient(ILogger logger, Guid resourceId, Guid clientId, Guid tenantId, string osxKeyChainSuffix = null, string preferredDomain = null, bool verifyPersistence = false)
+        /// <param name="promptHint">
+        /// The customized header text in account picker for WAM prompts.
+        /// </param>
+        public TokenFetcherPublicClient(ILogger logger, Guid resourceId, Guid clientId, Guid tenantId, string osxKeyChainSuffix = null, string preferredDomain = null, bool verifyPersistence = false, string promptHint = null)
         {
             this.windows = PlatformUtils.IsWindows(logger);
             this.windows10 = PlatformUtils.IsWindows10(logger);
@@ -124,6 +129,8 @@ namespace Microsoft.Authentication.MSALWrapper
             this.Authority = this.GetAuthority(tenantId);
             this.resourceId = resourceId;
             this.clientId = clientId;
+
+            this.promptHint = promptHint;
 
             this.osxKeyChainSuffix = osxKeyChainSuffix;
             this.verifyPersistence = verifyPersistence;
@@ -334,7 +341,9 @@ namespace Microsoft.Authentication.MSALWrapper
                         var tokenResult = await this.CompleteWithin(
                             this.interactiveAuthTimeout,
                             "Interactive Auth",
-                            (cancellationToken) => pcaWrapper.GetTokenInteractiveAsync(scopes, account, cancellationToken)) // TODO: Need to pass account here
+                            (cancellationToken) => pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(scopes, account, cancellationToken)) // TODO: Need to pass account here
                             .ConfigureAwait(false);
                         this.SetAuthenticationType(tokenResult, AuthType.Interactive);
                         return tokenResult;
@@ -347,7 +356,9 @@ namespace Microsoft.Authentication.MSALWrapper
                     var tokenResult = await this.CompleteWithin(
                         this.interactiveAuthTimeout,
                         "Interactive Auth (with extra claims)",
-                        (cancellationToken) => pcaWrapper.GetTokenInteractiveAsync(scopes, ex.Claims, cancellationToken))
+                        (cancellationToken) => pcaWrapper
+                        .WithPromptHint(this.promptHint)
+                        .GetTokenInteractiveAsync(scopes, ex.Claims, cancellationToken))
                         .ConfigureAwait(false);
                     this.SetAuthenticationType(tokenResult, AuthType.Interactive);
                     return tokenResult;
@@ -471,6 +482,11 @@ namespace Microsoft.Authentication.MSALWrapper
         private IPublicClientApplication PCABroker()
         {
             var pcaBuilder = this.PCABase();
+            pcaBuilder.WithWindowsBrokerOptions(new WindowsBrokerOptions
+            {
+                HeaderText = this.promptHint,
+            });
+
 #if NETFRAMEWORK
             pcaBuilder.WithWindowsBroker();
 #else

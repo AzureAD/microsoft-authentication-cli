@@ -26,6 +26,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
         private const string TenantOption = "--tenant";
+        private const string PromptHintOption = "--prompt-hint";
         private const string ScopeOption = "--scope";
         private const string ClearOption = "--clear";
         private const string DomainOption = "--domain";
@@ -105,6 +106,12 @@ Allowed values: [all, web, devicecode]";
         public string Tenant { get; set; }
 
         /// <summary>
+        /// Gets or sets the customized prompt hint text for WAM prompts and web mode.
+        /// </summary>
+        [Option(PromptHintOption, "The prompt hint text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
+        public string PromptHint { get; set; }
+
+        /// <summary>
         /// Gets or sets the scopes.
         /// </summary>
         [Option(ScopeOption, "Scopes to request. By default, the only scope requested is <resource ID>\\.default.\nPassing in one or more values here will override the default.", CommandOptionType.MultipleValue)]
@@ -172,6 +179,7 @@ Allowed values: [all, web, devicecode]";
                 Client = this.Client,
                 Domain = this.PreferredDomain,
                 Tenant = this.Tenant,
+                PromptHint = this.PromptHint,
                 Scopes = this.Scopes?.ToList(),
             };
 
@@ -358,7 +366,8 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.tokenFetcherOptions.Client),
                     new Guid(this.tokenFetcherOptions.Tenant),
                     osxKeyChainSuffix: Constants.AuthOSXKeyChainSuffix,
-                    preferredDomain: this.tokenFetcherOptions.Domain);
+                    preferredDomain: this.tokenFetcherOptions.Domain,
+                    promptHint: this.PromptHint);
             }
 
             return this.tokenFetcher;

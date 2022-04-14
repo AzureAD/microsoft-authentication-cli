@@ -31,6 +31,11 @@ namespace Microsoft.Authentication.AzureAuth
         public string Tenant { get; set; }
 
         /// <summary>
+        /// Gets or sets the customized prompt hint.
+        /// </summary>
+        public string PromptHint { get; set; }
+
+        /// <summary>
         /// Gets or sets the scopes.
         /// </summary>
         public List<string> Scopes { get; set; }
@@ -53,6 +58,7 @@ namespace Microsoft.Authentication.AzureAuth
                 Client = other.Client ?? this.Client,
                 Domain = other.Domain ?? this.Domain,
                 Tenant = other.Tenant ?? this.Tenant,
+                PromptHint = other.PromptHint ?? this.PromptHint,
                 Scopes = other.Scopes ?? this.Scopes,
             };
         }
