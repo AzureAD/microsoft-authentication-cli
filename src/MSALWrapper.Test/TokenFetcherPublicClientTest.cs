@@ -49,6 +49,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
 
+        private string promptHint = "test prompt hint";
+
         /// <summary>
         /// The setup.
         /// </summary>
@@ -73,7 +75,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .AddTransient<TokenFetcherPublicClient>((provider) =>
              {
                  var logger = provider.GetService<ILogger<TokenFetcherPublicClient>>();
-                 return new TokenFetcherPublicClient(logger, ResourceId, ClientId, TenantId);
+                 return new TokenFetcherPublicClient(logger, ResourceId, ClientId, TenantId, promptHint: this.promptHint);
              })
              .BuildServiceProvider();
 
@@ -372,6 +374,25 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         /// <summary>
+        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="TokenFetcherPublicClient.GetTokenNormalFlowAsync"/>.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        [Test]
+        public async Task GetTokenNormalFlowAsync_GetTokenInteractive_WithPromptHint()
+        {
+            this.SilentAuthUIRequired();
+            this.InteractiveAuthResult();
+
+            // Act
+            var tokenFetcher = this.Subject();
+            var result = await tokenFetcher.GetTokenNormalFlowAsync(this.pcaMock.Object, this.scopes, this.testAccount.Object);
+
+            // Verify
+            this.pcaMock.Verify((pca) => pca.WithPromptHint(this.promptHint), Times.Once());
+            this.pcaMock.VerifyAll();
+        }
+
+        /// <summary>
         /// The get token_ device code_ flow_ happy path.
         /// </summary>
         [Test]
@@ -556,6 +577,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "UI is required"));
+            this.SetupInteractiveAuthWithPromptHint();
         }
 
         private void SilentAuthServiceException()
@@ -626,6 +648,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaMock
                 .Setup(pca => pca.GetTokenInteractiveAsync(this.scopes, It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Throws(new OperationCanceledException());
+        }
+
+        private void SetupInteractiveAuthWithPromptHint()
+        {
+            this.pcaMock
+                .Setup(pca => pca.WithPromptHint(It.IsAny<string>()))
+                .Returns((string s) => this.pcaMock.Object);
         }
 
         private TokenFetcherPublicClient Subject() => this.serviceProvider.GetService<TokenFetcherPublicClient>();
