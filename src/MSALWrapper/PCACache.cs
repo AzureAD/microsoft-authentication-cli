@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Authentication.MSALWrapper.AuthFlows
+namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
     /// <summary>
     /// The PCA cache class.
     /// </summary>
-    internal class PCACache : IPCACache
+    internal class PCACache
     {
         // OSX
         private const string MacOSAccountName = "MSALCache";
@@ -26,10 +26,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         private static KeyValuePair<string, string> linuxKeyRingAttr1 = new KeyValuePair<string, string>("Version", "1");
         private static KeyValuePair<string, string> linuxKeyRingAttr2 = new KeyValuePair<string, string>("ProductGroup", "Microsoft Develoepr Tools");
 
-        private readonly IPublicClientApplication publicClientApplication;
         private readonly ILogger logger;
         private readonly string osxKeyChainSuffix;
-        private readonly bool verifyPersistence;
 
         private readonly string cacheDir;
         private readonly string cacheFileName;
@@ -37,19 +35,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// <summary>
         /// Initializes a new instance of the <see cref="PCACache"/> class.
         /// </summary>
-        /// <param name="publicClientApplication">The public client application.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="osxKeyChainSuffix">The osx key chain suffix.</param>
-        /// <param name="verifyPersistence">The verify persistence.</param>
-        internal PCACache(IPublicClientApplication publicClientApplication, ILogger logger, Guid tenantId, string osxKeyChainSuffix = null, bool verifyPersistence = false)
+        internal PCACache(ILogger logger, Guid tenantId, string osxKeyChainSuffix = null)
         {
-            this.publicClientApplication = publicClientApplication;
             this.logger = logger;
-
             this.osxKeyChainSuffix = string.IsNullOrWhiteSpace(osxKeyChainSuffix) ? $"{tenantId}" : $"{osxKeyChainSuffix}.{tenantId}";
-            this.verifyPersistence = verifyPersistence;
-
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             this.cacheDir = Path.Combine(appData, ".IdentityService");
             this.cacheFileName = $"msal_{tenantId}.cache";
@@ -58,8 +50,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// <summary>
         /// Sets up the token cache.
         /// </summary>
-        /// <param name="errorsList">The errors list.</param>
-        public void SetupTokenCache(List<Exception> errorsList)
+        /// <param name="userTokenCache">An <see cref="ITokenCache"/> to use.</param>
+        /// <param name="errors">The errors list to append error encountered to.</param>
+        public void SetupTokenCache(ITokenCache userTokenCache, IList<Exception> errors)
         {
             var cacheDisabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(Constants.OEAUTH_MSAL_DISABLE_CACHE));
             if (cacheDisabled)
@@ -76,22 +69,18 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
             try
             {
                 MsalCacheHelper cacher = MsalCacheHelper.CreateAsync(storageProperties).Result;
-                if (this.verifyPersistence)
-                {
-                    cacher.VerifyPersistence();
-                }
-
-                cacher.RegisterCache(this.publicClientApplication.UserTokenCache);
+                cacher.VerifyPersistence();
+                cacher.RegisterCache(userTokenCache);
             }
             catch (MsalCachePersistenceException ex)
             {
                 this.logger.LogWarning($"MSAL token cache verification failed.\n{ex.Message}\n");
-                errorsList.Add(ex);
+                errors.Add(ex);
             }
             catch (AggregateException ex) when (ex.InnerException.Message.Contains("Could not get access to the shared lock file"))
             {
                 var exceptionMessage = ex.ToFormattedString();
-                errorsList.Add(ex);
+                errors.Add(ex);
 
                 this.logger.LogError("An unexpected error occured creating the cache.");
                 throw new Exception(exceptionMessage);

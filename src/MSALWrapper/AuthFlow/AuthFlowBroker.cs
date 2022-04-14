@@ -20,16 +20,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
-
-        /// <summary>
-        /// The pca wrapper.
-        /// </summary>
-        public IPCAWrapper PCAWrapper;
-
-        /// <summary>
-        /// The public client application.
-        /// </summary>
-        public IPublicClientApplication PublicClientApplication;
+        private IPCAWrapper pcaWrapper;
 
         #region Public configurable properties
 
@@ -53,23 +44,20 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// <param name="scopes">The scopes.</param>
         /// <param name="osxKeyChainSuffix">The osx key chain suffix.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
-        /// <param name="verifyPersistence">The verify persistence.</param>
-        public AuthFlowBroker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, bool verifyPersistence = false)
+        /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
+        public AuthFlowBroker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
         {
+            this.ErrorsList = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
-
-            this.ErrorsList = new List<Exception>();
-
-            this.SetupPCAWrapper(clientId, tenantId);
-            new PCACache(this.PublicClientApplication, logger, tenantId, osxKeyChainSuffix, verifyPersistence).SetupTokenCache(this.ErrorsList);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix);
         }
 
         /// <summary>
         /// Gets the errors list.
         /// </summary>
-        public List<Exception> ErrorsList { get; }
+        public IList<Exception> ErrorsList { get; }
 
         /// <summary>
         /// Gets the jwt token for a resource.
@@ -77,7 +65,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
         public async Task<TokenResult> GetTokenAsync()
         {
-            IAccount account = await this.PCAWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                 ?? Identity.Client.PublicClientApplication.OperatingSystemAccount;
             this.logger.LogDebug($"GetTokenNormalFlowAsync: Using account '{account.Username}'");
 
@@ -91,7 +79,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
                             this.logger,
                             this.silentAuthTimeout,
                             "Get Token Silent",
-                            (cancellationToken) => this.PCAWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
+                            (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
                             this.ErrorsList)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Silent);
@@ -106,7 +94,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
                             this.logger,
                             this.interactiveAuthTimeout,
                             "Interactive Auth",
-                            (cancellationToken) => this.PCAWrapper.GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
+                            (cancellationToken) => this.pcaWrapper.GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
                             this.ErrorsList)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
@@ -121,7 +109,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
                         this.logger,
                         this.interactiveAuthTimeout,
                         "Interactive Auth (with extra claims)",
-                        (cancellationToken) => this.PCAWrapper.GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
+                        (cancellationToken) => this.pcaWrapper.GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
                         this.ErrorsList)
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
@@ -148,7 +136,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
             }
         }
 
-        private void SetupPCAWrapper(Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
@@ -165,8 +153,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
 #else
             clientBuilder.WithBroker();
 #endif
-            this.PublicClientApplication = clientBuilder.Build();
-            this.PCAWrapper = new PCAWrapper(this.logger, this.PublicClientApplication);
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.ErrorsList, tenantId, osxKeyChainSuffix);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)
