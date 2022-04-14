@@ -19,11 +19,6 @@ namespace Microsoft.Authentication.MSALWrapper
     public interface IPCAWrapper
     {
         /// <summary>
-        /// Gets a reference to the <see cref="ITokenCache"/> on the PCA.
-        /// </summary>
-        ITokenCache UserTokenCache { get; }
-
-        /// <summary>
         /// The get token silent async.
         /// </summary>
         /// <param name="scopes">
@@ -130,7 +125,7 @@ namespace Microsoft.Authentication.MSALWrapper
         private IPublicClientApplication pca;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PCAWrapper"/> class.
+        /// Initializes a new instance of the <see cref="PCAWrapper"/> class without caching.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="pca">The public client application instance.</param>
@@ -141,12 +136,24 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="PCAWrapper"/> class with x-plat caching configured.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="pca">The public client application instance.</param>
+        /// <param name="errors">The errors list to append error encountered to.</param>
+        /// <param name="tenantId">The tenant ID to help key the cache off of.</param>
+        /// <param name="osxKeyChainSuffix">An optional (can be null) suffix to further customize key chain token caches on OSX.</param>
+        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId, string osxKeyChainSuffix)
+            : this(logger, pca)
+        {
+            var cacher = new PCACache(logger, tenantId, osxKeyChainSuffix);
+            cacher.SetupTokenCache(this.pca.UserTokenCache, errors);
+        }
+
+        /// <summary>
         /// Gets or sets, The prompt hint displayed in the title bar.
         /// </summary>
         public string PromptHint { get; set; }
-
-        /// <inheritdoc/>
-        public ITokenCache UserTokenCache => this.pca.UserTokenCache;
 
         /// <inheritdoc/>
         public IPCAWrapper WithPromptHint(string promptHint)

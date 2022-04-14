@@ -39,7 +39,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         // MSAL Specific Mocks
         private Mock<IPCAWrapper> pcaWrapperMock;
-        private Mock<IPublicClientApplication> pcaClientMock;
         private Mock<IAccount> testAccount;
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
@@ -61,7 +60,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.testAccount.Setup(a => a.Username).Returns(TestUser);
 
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
-            this.pcaClientMock = new Mock<IPublicClientApplication>(MockBehavior.Strict);
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject")
             this.serviceProvider = new ServiceCollection()
@@ -75,18 +73,19 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .AddTransient<AuthFlowBroker>((provider) =>
              {
                  var logger = provider.GetService<ILogger<AuthFlowBroker>>();
-                 return new AuthFlowBroker(logger, ClientId, TenantId, this.scopes);
+                 return new AuthFlowBroker(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object);
              })
-            .AddTransient<IPCAWrapper>((provider) =>
-            {
-                var logger = provider.GetService<ILogger<PCAWrapper>>();
-                return new PCAWrapper(logger, this.pcaClientMock.Object);
-            })
              .BuildServiceProvider();
 
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
         }
+
+        /// <summary>
+        /// Get a new instance of the class under test.
+        /// </summary>
+        /// <returns>The <see cref="AuthFlowBroker"/> registered in the <see cref="Setup"/> method.</returns>
+        public AuthFlowBroker Subject() => this.serviceProvider.GetService<AuthFlowBroker>();
 
         /// <summary>
         /// The broker auth flow for the happy path.
@@ -102,7 +101,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -127,7 +126,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -152,7 +151,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             Func<Task> subject = async () => await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -176,7 +175,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert - this method should not throw for known types of excpeptions, instead return null, so
@@ -201,7 +200,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -226,7 +225,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -250,7 +249,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -276,7 +275,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -303,7 +302,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -330,7 +329,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -356,7 +355,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -384,7 +383,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
+            AuthFlowBroker authFlowBroker = this.Subject();
             var result = await authFlowBroker.GetTokenAsync();
 
             // Assert
@@ -486,16 +485,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock
                 .Setup(pca => pca.GetTokenInteractiveAsync(this.scopes, It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Throws(new OperationCanceledException());
-        }
-
-        private AuthFlowBroker Subject() => this.serviceProvider.GetService<AuthFlowBroker>();
-
-        private AuthFlowBroker MockAuthFlowBroker()
-        {
-            var authFlowBroker = this.Subject();
-            authFlowBroker.PCAWrapper = this.pcaWrapperMock.Object;
-            authFlowBroker.PublicClientApplication = this.pcaClientMock.Object;
-            return authFlowBroker;
         }
 
         private void MockAccount()
