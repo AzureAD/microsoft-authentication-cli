@@ -87,13 +87,6 @@ namespace Microsoft.Authentication.MSALWrapper
         Task<TokenResult> GetTokenDeviceCodeAsync(IEnumerable<string> scopes, Func<DeviceCodeResult, Task> callback, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Customize the title bar by prompt hint(Web mode only).
-        /// </summary>
-        /// <param name="promptHint">The prompt hint text.</param>
-        /// <returns>This.</returns>
-        IPCAWrapper WithPromptHint(string promptHint);
-
-        /// <summary>
         /// Tries to return a cached account when the list returns only one account using the preferred domain if provided.
         /// A null return indicates one of the following.
         /// No accounts were found in cache.
@@ -136,22 +129,6 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Gets or sets, The prompt hint displayed in the title bar.
-        /// </summary>
-        public string PromptHint { get; set; }
-
-        /// <summary>
-        /// Customize the title bar by prompt hint(Web mode only).
-        /// </summary>
-        /// <param name="promptHint">see <see cref="PromptHint"/>.</param>
-        /// <returns>This.</returns>
-        public IPCAWrapper WithPromptHint(string promptHint)
-        {
-            this.PromptHint = promptHint;
-            return this;
-        }
-
-        /// <summary>
         /// The get token silent async.
         /// </summary>
         /// <param name="scopes">
@@ -191,10 +168,6 @@ namespace Microsoft.Authentication.MSALWrapper
         {
             AuthenticationResult result = await this.pca
                 .AcquireTokenInteractive(scopes)
-                .WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions()
-                {
-                    Title = this.PromptHint,
-                })
                 .WithAccount(account)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -220,10 +193,6 @@ namespace Microsoft.Authentication.MSALWrapper
         {
             AuthenticationResult result = await this.pca
                 .AcquireTokenInteractive(scopes)
-                .WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions()
-                {
-                    Title = this.PromptHint,
-                })
                 .WithClaims(claims)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
