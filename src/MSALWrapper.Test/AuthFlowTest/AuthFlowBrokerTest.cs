@@ -20,7 +20,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using NUnit.Framework;
 
     /// <summary>
-    /// The broker public client test.
+    /// The broker auth flow test.
     /// </summary>
     public class AuthFlowBrokerTest
     {
@@ -43,10 +43,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private Mock<IAccount> testAccount;
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
-        private string promptHint = "test prompt hint";
 
         /// <summary>
-        /// The setup.
+        /// The test setup.
         /// </summary>
         [SetUp]
         public void Setup()
@@ -76,7 +75,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .AddTransient<AuthFlowBroker>((provider) =>
              {
                  var logger = provider.GetService<ILogger<AuthFlowBroker>>();
-                 return new AuthFlowBroker(logger, ClientId, TenantId, this.scopes, promptHint: this.promptHint);
+                 return new AuthFlowBroker(logger, ClientId, TenantId, this.scopes);
              })
             .AddTransient<IPCAWrapper>((provider) =>
             {
@@ -90,7 +89,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         /// <summary>
-        /// The broker auth flow happy path.
+        /// The broker auth flow for the happy path.
         /// </summary>
         /// <returns>
         /// The <see cref="Task"/>.
@@ -398,27 +397,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowBroker.ErrorsList[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 15 minutes.");
         }
 
-        /// <summary>
-        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="TokenFetcherPublicClient.GetTokenNormalFlowAsync"/>.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        [Test]
-        public async Task GetTokenNormalFlowAsync_GetTokenInteractive_WithPromptHint()
-        {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthResult();
-
-            this.MockAccount();
-
-            // Act
-            AuthFlowBroker authFlowBroker = this.MockAuthFlowBroker();
-            var result = await authFlowBroker.GetTokenAsync();
-
-            // Verify
-            this.pcaWrapperMock.Verify((pca) => pca.WithPromptHint(this.promptHint), Times.Once());
-            this.pcaWrapperMock.VerifyAll();
-        }
-
         private void SilentAuthResult()
         {
             this.pcaWrapperMock
@@ -431,7 +409,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "UI is required"));
-            this.SetupInteractiveAuthWithPromptHint();
         }
 
         private void SilentAuthServiceException()
@@ -521,18 +498,18 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             return authFlowBroker;
         }
 
-        private void SetupInteractiveAuthWithPromptHint()
-        {
-            this.pcaWrapperMock
-                .Setup(pca => pca.WithPromptHint(It.IsAny<string>()))
-                .Returns((string s) => this.pcaWrapperMock.Object);
-        }
-
         private void MockAccount()
         {
             this.pcaWrapperMock
                 .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
                 .ReturnsAsync(this.testAccount.Object);
+        }
+
+        private void SetupInteractiveAuthWithPromptHint()
+        {
+            this.pcaWrapperMock
+                .Setup(pca => pca.WithPromptHint(It.IsAny<string>()))
+                .Returns((string s) => this.pcaWrapperMock.Object);
         }
     }
 }

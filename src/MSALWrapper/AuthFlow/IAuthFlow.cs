@@ -11,9 +11,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
     public interface IAuthFlow
     {
         /// <summary>
-        /// The get token async.
+        /// Gets the jwt token for a resource.
         /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
         Task<TokenResult> GetTokenAsync();
     }
 }
