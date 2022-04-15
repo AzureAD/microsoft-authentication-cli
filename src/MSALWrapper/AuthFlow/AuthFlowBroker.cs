@@ -20,6 +20,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
+        private readonly string promptHint;
         private IPCAWrapper pcaWrapper;
 
         #region Public configurable properties
@@ -45,12 +46,14 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// <param name="osxKeyChainSuffix">The osx key chain suffix.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
-        public AuthFlowBroker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
+        /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
+        public AuthFlowBroker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
         {
             this.ErrorsList = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
+            this.promptHint = promptHint;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix);
         }
 
@@ -94,7 +97,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
                             this.logger,
                             this.interactiveAuthTimeout,
                             "Interactive Auth",
-                            (cancellationToken) => this.pcaWrapper.GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
+                            (cancellationToken) => this.pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
                             this.ErrorsList)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
@@ -109,7 +114,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
                         this.logger,
                         this.interactiveAuthTimeout,
                         "Interactive Auth (with extra claims)",
-                        (cancellationToken) => this.pcaWrapper.GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
+                        (cancellationToken) => this.pcaWrapper
+                        .WithPromptHint(this.promptHint)
+                        .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
                         this.ErrorsList)
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
@@ -146,7 +153,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
                     this.LogMSAL,
                     Identity.Client.LogLevel.Verbose,
                     enablePiiLogging: false,
-                    enableDefaultPlatformLogging: true);
+                    enableDefaultPlatformLogging: true)
+                .WithWindowsBrokerOptions(new WindowsBrokerOptions
+                {
+                    HeaderText = this.promptHint,
+                });
 
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();

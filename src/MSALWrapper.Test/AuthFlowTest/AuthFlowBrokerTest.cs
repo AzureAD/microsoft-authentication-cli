@@ -34,6 +34,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private static readonly Guid ClientId = new Guid("5af6def2-05ec-4cab-b9aa-323d75b5df40");
         private static readonly Guid TenantId = new Guid("8254f6f7-a09f-4752-8bd6-391adc3b912e");
 
+        private string promptHint = "test prompt hint";
+
         private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
 
@@ -73,7 +75,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .AddTransient<AuthFlowBroker>((provider) =>
              {
                  var logger = provider.GetService<ILogger<AuthFlowBroker>>();
-                 return new AuthFlowBroker(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object);
+                 return new AuthFlowBroker(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
              })
              .BuildServiceProvider();
 
@@ -396,6 +398,27 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowBroker.ErrorsList[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 15 minutes.");
         }
 
+        /// <summary>
+        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="TokenFetcherPublicClient.GetTokenNormalFlowAsync"/>.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        [Test]
+        public async Task GetTokenNormalFlowAsync_GetTokenInteractive_WithPromptHint()
+        {
+            this.SilentAuthUIRequired();
+            this.InteractiveAuthResult();
+
+            this.MockAccount();
+
+            // Act
+            AuthFlowBroker authFlowBroker = this.Subject();
+            var result = await authFlowBroker.GetTokenAsync();
+
+            // Verify
+            this.pcaWrapperMock.Verify((pca) => pca.WithPromptHint(this.promptHint), Times.Once());
+            this.pcaWrapperMock.VerifyAll();
+        }
+
         private void SilentAuthResult()
         {
             this.pcaWrapperMock
@@ -408,6 +431,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "UI is required"));
+            this.SetupInteractiveAuthWithPromptHint();
         }
 
         private void SilentAuthServiceException()
