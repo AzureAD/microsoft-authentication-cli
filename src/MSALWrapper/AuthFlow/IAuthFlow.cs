@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Authentication.MSALWrapper.AuthFlows
+namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System.Threading.Tasks;
 
     /// <summary>
-    /// The IAuthFlows interface.
+    /// The IAuthFlow interface.
     /// </summary>
     public interface IAuthFlow
     {

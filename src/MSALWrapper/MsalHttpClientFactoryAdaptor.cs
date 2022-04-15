@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Authentication.MSALWrapper.AuthFlows
+namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System.Net.Http;
     using System.Net.Http.Headers;

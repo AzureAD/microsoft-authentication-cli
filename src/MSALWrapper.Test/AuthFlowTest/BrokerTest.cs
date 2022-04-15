@@ -9,7 +9,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Authentication.MSALWrapper.AuthFlows;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
@@ -22,7 +21,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     /// <summary>
     /// The broker auth flow test.
     /// </summary>
-    public class AuthFlowBrokerTest
+    public class BrokerTest
     {
         private const string MsalServiceExceptionErrorCode = "1";
         private const string MsalServiceExceptionMessage = "MSAL Service Exception: Something bad has happened!";
@@ -72,10 +71,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                  loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                  loggingBuilder.AddNLog(loggingConfig);
              })
-             .AddTransient<AuthFlowBroker>((provider) =>
+             .AddTransient<AuthFlow.Broker>((provider) =>
              {
-                 var logger = provider.GetService<ILogger<AuthFlowBroker>>();
-                 return new AuthFlowBroker(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
+                 var logger = provider.GetService<ILogger<AuthFlow.Broker>>();
+                 return new AuthFlow.Broker(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
              })
              .BuildServiceProvider();
 
@@ -86,8 +85,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         /// <summary>
         /// Get a new instance of the class under test.
         /// </summary>
-        /// <returns>The <see cref="AuthFlowBroker"/> registered in the <see cref="Setup"/> method.</returns>
-        public AuthFlowBroker Subject() => this.serviceProvider.GetService<AuthFlowBroker>();
+        /// <returns>The <see cref="AuthFlow.Broker"/> registered in the <see cref="Setup"/> method.</returns>
+        public AuthFlow.Broker Subject() => this.serviceProvider.GetService<AuthFlow.Broker>();
 
         /// <summary>
         /// The broker auth flow for the happy path.
@@ -103,14 +102,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(this.tokenResult);
             result.AuthType.Should().Be(AuthType.Silent);
-            authFlowBroker.ErrorsList.Should().BeEmpty();
+            broker.ErrorsList.Should().BeEmpty();
         }
 
         /// <summary>
@@ -128,15 +127,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(this.tokenResult);
             result.AuthType.Should().Be(AuthType.Interactive);
-            authFlowBroker.ErrorsList.Should().HaveCount(1);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            broker.ErrorsList.Should().HaveCount(1);
+            broker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
 
         /// <summary>
@@ -153,8 +152,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            Func<Task> subject = async () => await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            Func<Task> subject = async () => await broker.GetTokenAsync();
 
             // Assert
             subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
@@ -177,15 +176,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert - this method should not throw for known types of excpeptions, instead return null, so
             // our caller can retry auth another way.
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(null);
-            authFlowBroker.ErrorsList.Should().HaveCount(1);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(MsalServiceException));
+            broker.ErrorsList.Should().HaveCount(1);
+            broker.ErrorsList[0].Should().BeOfType(typeof(MsalServiceException));
         }
 
         /// <summary>
@@ -202,15 +201,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(null);
-            authFlowBroker.ErrorsList.Should().HaveCount(1);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowBroker.ErrorsList[0].Message.Should().Be("Get Token Silent timed out after 5 minutes.");
+            broker.ErrorsList.Should().HaveCount(1);
+            broker.ErrorsList[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
+            broker.ErrorsList[0].Message.Should().Be("Get Token Silent timed out after 5 minutes.");
         }
 
         /// <summary>
@@ -227,14 +226,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(null);
-            authFlowBroker.ErrorsList.Should().HaveCount(1);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(MsalClientException));
+            broker.ErrorsList.Should().HaveCount(1);
+            broker.ErrorsList[0].Should().BeOfType(typeof(MsalClientException));
         }
 
         /// <summary>
@@ -251,14 +250,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(null);
-            authFlowBroker.ErrorsList.Should().HaveCount(1);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(NullReferenceException));
+            broker.ErrorsList.Should().HaveCount(1);
+            broker.ErrorsList[0].Should().BeOfType(typeof(NullReferenceException));
         }
 
         /// <summary>
@@ -277,15 +276,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(this.tokenResult);
             result.AuthType.Should().Be(AuthType.Interactive);
-            authFlowBroker.ErrorsList.Should().HaveCount(2);
-            authFlowBroker.ErrorsList.Should().AllBeOfType(typeof(MsalUiRequiredException));
+            broker.ErrorsList.Should().HaveCount(2);
+            broker.ErrorsList.Should().AllBeOfType(typeof(MsalUiRequiredException));
         }
 
         /// <summary>
@@ -304,16 +303,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(null);
-            authFlowBroker.ErrorsList.Should().HaveCount(3);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowBroker.ErrorsList[1].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowBroker.ErrorsList[2].Should().BeOfType(typeof(MsalServiceException));
+            broker.ErrorsList.Should().HaveCount(3);
+            broker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            broker.ErrorsList[1].Should().BeOfType(typeof(MsalUiRequiredException));
+            broker.ErrorsList[2].Should().BeOfType(typeof(MsalServiceException));
         }
 
         /// <summary>
@@ -331,15 +330,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(null);
-            authFlowBroker.ErrorsList.Should().HaveCount(2);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowBroker.ErrorsList[1].Should().BeOfType(typeof(MsalServiceException));
+            broker.ErrorsList.Should().HaveCount(2);
+            broker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            broker.ErrorsList[1].Should().BeOfType(typeof(MsalServiceException));
         }
 
         /// <summary>
@@ -357,16 +356,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(null);
-            authFlowBroker.ErrorsList.Should().HaveCount(2);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowBroker.ErrorsList[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowBroker.ErrorsList[1].Message.Should().Be("Interactive Auth timed out after 15 minutes.");
+            broker.ErrorsList.Should().HaveCount(2);
+            broker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            broker.ErrorsList[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
+            broker.ErrorsList[1].Message.Should().Be("Interactive Auth timed out after 15 minutes.");
         }
 
         /// <summary>
@@ -385,21 +384,21 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             result.Should().Be(null);
-            authFlowBroker.ErrorsList.Should().HaveCount(3);
-            authFlowBroker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowBroker.ErrorsList[1].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowBroker.ErrorsList[2].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowBroker.ErrorsList[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 15 minutes.");
+            broker.ErrorsList.Should().HaveCount(3);
+            broker.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            broker.ErrorsList[1].Should().BeOfType(typeof(MsalUiRequiredException));
+            broker.ErrorsList[2].Should().BeOfType(typeof(AuthenticationTimeoutException));
+            broker.ErrorsList[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 15 minutes.");
         }
 
         /// <summary>
-        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="AuthFlowBroker.GetTokenAsync"/>.
+        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="AuthFlow.Broker.GetTokenAsync"/>.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
         [Test]
@@ -411,8 +410,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockAccount();
 
             // Act
-            AuthFlowBroker authFlowBroker = this.Subject();
-            var result = await authFlowBroker.GetTokenAsync();
+            AuthFlow.Broker broker = this.Subject();
+            var result = await broker.GetTokenAsync();
 
             // Verify
             this.pcaWrapperMock.Verify((pca) => pca.WithPromptHint(this.promptHint), Times.Once());

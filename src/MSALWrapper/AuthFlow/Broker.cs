@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Authentication.MSALWrapper.AuthFlows
+namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
 #if NET472
     using Microsoft.Identity.Client.Desktop;
@@ -15,7 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
     /// <summary>
     /// The broker auth flow.
     /// </summary>
-    public class AuthFlowBroker : IAuthFlow
+    public class Broker : IAuthFlow
     {
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
@@ -37,7 +37,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthFlowBroker"/> class.
+        /// Initializes a new instance of the <see cref="Broker"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="clientId">The client id.</param>
@@ -47,7 +47,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlows
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
-        public AuthFlowBroker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
+        public Broker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
         {
             this.ErrorsList = new List<Exception>();
             this.logger = logger;
