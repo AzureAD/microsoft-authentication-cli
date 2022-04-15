@@ -41,7 +41,7 @@ namespace Demo.Console.NETFramework472
         /// <summary>
         /// This method executes the auth process. This method is invoked when lasso is launched.
         /// </summary>
-        /// <param name="logger"> The logger. </param>
+        /// <param name="logger">The logger.</param>
         /// <returns> The error code: 0 is normal execution, and the rest means errors during execution. </returns>
         public int OnExecute(ILogger<Program> logger)
         {
