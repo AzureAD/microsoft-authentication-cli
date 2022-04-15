@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Authentication.MSALWrapper.AuthFlows
+namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     /// <summary>
     /// Extension method to the <see cref="TokenResult"/> class.
