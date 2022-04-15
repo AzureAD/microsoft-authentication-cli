@@ -399,11 +399,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         /// <summary>
-        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="TokenFetcherPublicClient.GetTokenNormalFlowAsync"/>.
+        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="AuthFlowBroker.GetTokenAsync"/>.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
         [Test]
-        public async Task GetTokenNormalFlowAsync_GetTokenInteractive_WithPromptHint()
+        public async Task BrokerAuthFlow_GetTokenInteractiveAsync_WithPromptHint()
         {
             this.SilentAuthUIRequired();
             this.InteractiveAuthResult();
