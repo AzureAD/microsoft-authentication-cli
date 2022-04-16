@@ -33,6 +33,10 @@
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
     
+  <PropertyGroup>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+    
   <ItemGroup>
     <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
   </ItemGroup>

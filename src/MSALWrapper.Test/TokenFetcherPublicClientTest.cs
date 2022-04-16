@@ -19,9 +19,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using NLog.Targets;
     using NUnit.Framework;
 
-    /// <summary>
-    /// The token fetcher public client test.
-    /// </summary>
     public class TokenFetcherPublicClientTest
     {
         private const string MsalServiceExceptionErrorCode = "1";
@@ -51,9 +48,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         private string promptHint = "test prompt hint";
 
-        /// <summary>
-        /// The setup.
-        /// </summary>
         [SetUp]
         public void Setup()
         {
@@ -89,12 +83,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
         }
 
-        /// <summary>
-        /// The get token normal flow async_ happy path.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_HappyPath()
         {
@@ -111,12 +99,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList.Should().BeEmpty();
         }
 
-        /// <summary>
-        /// The get token normal flow async_ msal ui exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_MsalUIException()
         {
@@ -135,9 +117,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The get token normal flow async_ general_ exceptions_ are_ re thrown.
-        /// </summary>
         [Test]
         public void GetTokenNormalFlowAsync_General_Exceptions_Are_ReThrown()
         {
@@ -156,12 +135,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaMock.VerifyAll();
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token silent_ throws_ msal service exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenSilent_Throws_MsalServiceException()
         {
@@ -179,12 +152,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[0].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token silent_ throws_ operation canceled exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenSilent_Throws_OperationCanceledException()
         {
@@ -202,12 +169,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[0].Message.Should().Be("Get Token Silent timed out after 5 minutes.");
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token silent_ throws_ msal client exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenSilent_Throws_MsalClientException()
         {
@@ -224,12 +185,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[0].Should().BeOfType(typeof(MsalClientException));
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token silent_ throws_ null reference exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenSilent_Throws_NullReferenceException()
         {
@@ -246,12 +201,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[0].Should().BeOfType(typeof(NullReferenceException));
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token interactive_ throws_ msal ui exception_ for_ claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenInteractive_Throws_MsalUIException_For_Claims()
         {
@@ -271,12 +220,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList.Should().AllBeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token interactive_ throws_ msal service exception after using claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenInteractive_Throws_MsalServiceException_After_Using_Claims()
         {
@@ -297,12 +240,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[2].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token interactive_ throws_ msal service exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenInteractive_Throws_MsalServiceException()
         {
@@ -321,12 +258,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[1].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token interactive_ throws_ operation canceled exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenInteractive_Throws_OperationCanceledException()
         {
@@ -346,12 +277,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[1].Message.Should().Be("Interactive Auth timed out after 15 minutes.");
         }
 
-        /// <summary>
-        /// The get token normal flow async_ get token interactive_ throws_ operation canceled exception_ for_ claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenInteractive_Throws_OperationCanceledException_For_Claims()
         {
@@ -373,10 +298,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             tokenFetcher.ErrorsList[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 15 minutes.");
         }
 
-        /// <summary>
-        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="TokenFetcherPublicClient.GetTokenNormalFlowAsync"/>.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
         [Test]
         public async Task GetTokenNormalFlowAsync_GetTokenInteractive_WithPromptHint()
         {
@@ -392,30 +313,18 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaMock.VerifyAll();
         }
 
-        /// <summary>
-        /// The get token_ device code_ flow_ happy path.
-        /// </summary>
         [Test]
         [Ignore("Not implemented")]
         public void GetToken_DeviceCode_Flow_HappyPath()
         {
         }
 
-        /// <summary>
-        /// The get token_ device code_ msal service exception.
-        /// </summary>
         [Test]
         [Ignore("Not implemented")]
         public void GetToken_DeviceCode_MsalServiceException()
         {
         }
 
-        /// <summary>
-        /// The try to get cached account async_ no accounts.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_NoAccounts()
         {
@@ -429,12 +338,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The try to get cached account async_ null.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_Null()
         {
@@ -448,12 +351,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The try to get cached account async_ one account.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_OneAccount()
         {
@@ -470,12 +367,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeSameAs(joe);
         }
 
-        /// <summary>
-        /// The try to get cached account async_ two accounts.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_TwoAccounts()
         {
@@ -493,12 +384,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The try to get cached account async_ with preferred domain_ two accounts.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_WithPreferredDomain_TwoAccounts()
         {
@@ -514,12 +399,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeSameAs(this.userMicrosoft1);
         }
 
-        /// <summary>
-        /// The try to get cached account async_ with preferred domain_ multiple accounts.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_WithPreferredDomain_MultipleAccounts()
         {
@@ -535,9 +414,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The token fetcher_ with microsoft authority.
-        /// </summary>
         [Test]
         public void TokenFetcher_WithAuthority()
         {
