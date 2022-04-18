@@ -9,12 +9,6 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
-    
-  <ItemGroup>
-    <!-- Stylecop required items -->
-    <AdditionalFiles Include="..\..\stylecop\stylecop.json" Link="stylecop.json" />
-    <Compile Include="..\..\stylecop\GlobalSupressions.cs" Link="GlobalSupressions.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.42.0" />

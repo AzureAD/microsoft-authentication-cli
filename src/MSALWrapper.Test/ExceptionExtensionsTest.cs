@@ -10,14 +10,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using FluentAssertions;
     using NUnit.Framework;
 
-    /// <summary>
-    /// The exception extensions test.
-    /// </summary>
     internal class ExceptionExtensionsTest
     {
-        /// <summary>
-        /// The generic exception_ to formatted string.
-        /// </summary>
         [Test]
         public void GenericException_ToFormattedString()
         {
@@ -31,9 +25,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().Be(message);
         }
 
-        /// <summary>
-        /// The null exception_ to formatted string.
-        /// </summary>
         [Test]
         public void NullException_ToFormattedString()
         {
@@ -42,9 +33,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject.Should().Throw<ArgumentNullException>();
         }
 
-        /// <summary>
-        /// The aggregate exception_ to formatted string.
-        /// </summary>
         [Test]
         public void AggregateException_ToFormattedString()
         {
@@ -57,14 +45,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             exceptionMessage.Should().Be("Abra ca dabra");
         }
 
-        /// <summary>
-        /// The aggregate exception matching when clause_ to formatted string.
-        /// </summary>
-        /// <exception cref="AggregateException">
-        /// The Aggregate Exception.
-        /// </exception>
         [Test]
-        public void AggregateExceptionMatchingWhenClause_ToFormattedString()
+        public void AggregateException_MatchingWhenClause_ToFormattedString()
         {
             string message = "Could not get access to the shared lock file";
 
@@ -79,11 +61,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             }
         }
 
-        /// <summary>
-        /// The aggregate exception with inner exception un authorized access message_ to formatted string.
-        /// </summary>
         [Test]
-        public void AggregateExceptionWithInnerExceptionUnAuthorizedAccessMessage_ToFormattedString()
+        public void AggregateException_WithInnerExceptionUnAuthorizedAccessMessage_ToFormattedString()
         {
             var invalidOperationMessage = "Could not get access to the shared lock file.";
             var unAuthorizedAccessMessage = "Access to the path /Users/midoleng/.local/share/.IdentityService/msal.cache.lockfile is denied.";
@@ -108,9 +87,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().Be(expectedMessage);
         }
 
-        /// <summary>
-        /// The aggregate exception with no inner exception_ to formatted string.
-        /// </summary>
         [Test]
         public void AggregateExceptionWithNoInnerException_ToFormattedString()
         {
@@ -124,9 +100,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().Be(expectedMessage);
         }
 
-        /// <summary>
-        /// The aggregate exception with another aggregate exception_ to formatted string.
-        /// </summary>
         [Test]
         public void AggregateExceptionWithAnotherAggregateException_ToFormattedString()
         {
@@ -155,9 +128,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().Be(expectedMessage);
         }
 
-        /// <summary>
-        /// The null exception_ get all exceptions.
-        /// </summary>
         [Test]
         public void NullException_GetAllExceptions()
         {
@@ -166,9 +136,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject.Should().Throw<ArgumentNullException>();
         }
 
-        /// <summary>
-        /// The exception with inner exception_ get all exceptions.
-        /// </summary>
         [Test]
         public void ExceptionWithInnerException_GetAllExceptions()
         {
