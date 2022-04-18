@@ -7,14 +7,13 @@
 
     <!-- Stylecop warnings as errors flag for build to fail -->
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Stylecop required items -->
-    <AdditionalFiles Include="..\..\stylecop\stylecop.json" Link="stylecop.json" />
-    <Compile Include="..\..\stylecop\GlobalSupressions.cs" Link="GlobalSupressions.cs" />
-    <Compile Include="..\..\stylecop\GlobalSupressions.Test.cs" Link="GlobalSupressions.Test.cs" />
+    <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
+    <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+    <Compile Include="..\stylecop\GlobalSuppressions.Test.cs" Link="GlobalSuppressions.Test.cs" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,15 +28,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="Moq" Version="4.17.2" />
   </ItemGroup>
-    
+
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
-    
-  <PropertyGroup>
-    <NoWarn>1701;1702;1591</NoWarn>
-  </PropertyGroup>
-    
+
   <ItemGroup>
     <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
   </ItemGroup>
