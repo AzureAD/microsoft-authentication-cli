@@ -6,7 +6,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Identity.Client;
 
     /// <summary>
-    /// The mock account.
+    /// A Mock implementation for <see cref="IAccount"/>.
     /// </summary>
     public class MockAccount : IAccount
     {
@@ -34,7 +34,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public string Environment => throw new System.NotImplementedException();
 
         /// <summary>
-        /// Gets home account id.
+        /// Gets home <see cref="AccountId"/>.
         /// </summary>
         public AccountId HomeAccountId => throw new System.NotImplementedException();
     }

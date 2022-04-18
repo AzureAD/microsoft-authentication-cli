@@ -10,22 +10,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Identity.Client;
     using NUnit.Framework;
 
-    /// <summary>
-    /// The exception list to string converter test.
-    /// </summary>
     public class ExceptionListToStringConverterTest
     {
-        /// <summary>
-        /// The setup.
-        /// </summary>
         [SetUp]
         public void Setup()
         {
         }
 
-        /// <summary>
-        /// The empty exception list.
-        /// </summary>
         [Test]
         public void EmptyExceptionList()
         {
@@ -38,9 +29,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The null exception list.
-        /// </summary>
         [Test]
         public void NullExceptionList()
         {
@@ -53,9 +41,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The exception list_ with one exception.
-        /// </summary>
         [Test]
         public void ExceptionList_WithOneException()
         {
@@ -71,9 +56,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().Be("System.Exception: This is an exception");
         }
 
-        /// <summary>
-        /// The exception list_ with null valuesin exception list.
-        /// </summary>
         [Test]
         public void ExceptionList_WithNullValuesinExceptionList()
         {
@@ -91,9 +73,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 "Microsoft.Identity.Client.MsalServiceException: This is the second exception");
         }
 
-        /// <summary>
-        /// The exception list_ with many exceptions.
-        /// </summary>
         [Test]
         public void ExceptionList_WithManyExceptions()
         {
@@ -114,9 +93,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 "Microsoft.Identity.Client.MsalClientException: This is the third exception");
         }
 
-        /// <summary>
-        /// The exception list_ with exceptions containing newlines.
-        /// </summary>
         [Test]
         public void ExceptionList_WithExceptionsContainingNewlines()
         {
@@ -137,9 +113,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 "Microsoft.Identity.Client.MsalClientException: This is the third exception");
         }
 
-        /// <summary>
-        /// The exception list_ with exceptions containing tabs.
-        /// </summary>
         [Test]
         public void ExceptionList_WithExceptionsContainingTabs()
         {
