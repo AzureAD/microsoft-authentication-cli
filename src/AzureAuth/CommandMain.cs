@@ -8,7 +8,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.IO.Abstractions;
     using System.Linq;
     using System.Runtime.CompilerServices;
-
+    using System.Threading;
     using McMaster.Extensions.CommandLineUtils;
 
     using Microsoft.Authentication.MSALWrapper;
@@ -26,6 +26,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
         private const string TenantOption = "--tenant";
+        private const string PromptHintOption = "--prompt-hint";
         private const string ScopeOption = "--scope";
         private const string ClearOption = "--clear";
         private const string DomainOption = "--domain";
@@ -51,6 +52,11 @@ Allowed values: [all, web, devicecode]";
         private readonly IEnv env;
         private Alias tokenFetcherOptions;
         private ITokenFetcher tokenFetcher;
+
+        /// <summary>
+        /// The maximum time we will wait to acquire a mutex around prompting the user.
+        /// </summary>
+        private TimeSpan promptMutexTimeout = TimeSpan.FromMinutes(15);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
@@ -98,6 +104,12 @@ Allowed values: [all, web, devicecode]";
         /// </summary>
         [Option(TenantOption, "The ID of the Tenant where the client and resource entities exist in", CommandOptionType.SingleValue)]
         public string Tenant { get; set; }
+
+        /// <summary>
+        /// Gets or sets the customized prompt hint text for WAM prompts and web mode.
+        /// </summary>
+        [Option(PromptHintOption, "The prompt hint text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
+        public string PromptHint { get; set; }
 
         /// <summary>
         /// Gets or sets the scopes.
@@ -167,6 +179,7 @@ Allowed values: [all, web, devicecode]";
                 Client = this.Client,
                 Domain = this.PreferredDomain,
                 Tenant = this.Tenant,
+                PromptHint = this.PromptHint,
                 Scopes = this.Scopes?.ToList(),
             };
 
@@ -262,10 +275,51 @@ Allowed values: [all, web, devicecode]";
             try
             {
                 ITokenFetcher tokenFetcher = this.TokenFetcher();
-                TokenResult tokenResult = (this.tokenFetcherOptions.Scopes == null
-                    ? tokenFetcher.GetAccessTokenAsync(this.CombinedAuthMode)
-                    : tokenFetcher.GetAccessTokenAsync(this.tokenFetcherOptions.Scopes, this.CombinedAuthMode))
-                    .Result;
+                TokenResult tokenResult = null;
+
+                // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
+                // They may prompt many times, which is annoying and unexpected.
+                // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
+                string lockName = $"Local\\{this.Resource}_{this.Client}_{this.Tenant}";
+
+                // First parameter InitiallyOwned indicated whether this lock is owned by current thread.
+                // It should be false otherwise a dead lock could occur.
+                using (Mutex mutex = new Mutex(false, lockName))
+                {
+                    bool lockAcquired = false;
+                    try
+                    {
+                        // Wait for the other session to exit.
+                        lockAcquired = mutex.WaitOne(this.promptMutexTimeout);
+                    }
+
+                    // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
+                    catch (AbandonedMutexException)
+                    {
+                        // If another process crashes or exits accidently, we can still acquire the lock.
+                        lockAcquired = true;
+
+                        // In this case, basicly we can just leave a log warning, because the worst side effect is propmting more than once.
+                        this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
+                    }
+
+                    if (!lockAcquired)
+                    {
+                        throw new TimeoutException("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
+                    }
+
+                    try
+                    {
+                        tokenResult = (this.tokenFetcherOptions.Scopes == null
+                        ? tokenFetcher.GetAccessTokenAsync(this.CombinedAuthMode)
+                        : tokenFetcher.GetAccessTokenAsync(this.tokenFetcherOptions.Scopes, this.CombinedAuthMode))
+                        .Result;
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
 
                 this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(tokenFetcher.Errors()));
 
@@ -312,7 +366,8 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.tokenFetcherOptions.Client),
                     new Guid(this.tokenFetcherOptions.Tenant),
                     osxKeyChainSuffix: Constants.AuthOSXKeyChainSuffix,
-                    preferredDomain: this.tokenFetcherOptions.Domain);
+                    preferredDomain: this.tokenFetcherOptions.Domain,
+                    promptHint: this.PromptHint);
             }
 
             return this.tokenFetcher;
