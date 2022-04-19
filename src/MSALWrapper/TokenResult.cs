@@ -4,8 +4,6 @@
 namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using Microsoft.IdentityModel.JsonWebTokens;
 
     /// <summary>
@@ -89,11 +87,6 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets the auth type.
         /// </summary>
         public AuthType AuthType { get; internal set; }
-
-        /// <summary>
-        /// Gets the list of errors.
-        /// </summary>
-        public IList<Exception> Errors { get; internal set; }
 
         /// <summary>
         /// The to string.
