@@ -68,22 +68,22 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Gets the token.
         /// </summary>
-        public string Token { get; private set; }
+        public string Token { get; internal set; }
 
         /// <summary>
         /// Gets the user.
         /// </summary>
-        public string User { get; private set; }
+        public string User { get; internal set; }
 
         /// <summary>
         /// Gets the display name.
         /// </summary>
-        public string DisplayName { get; private set; }
+        public string DisplayName { get; internal set; }
 
         /// <summary>
         /// Gets the valid for timespan.
         /// </summary>
-        public TimeSpan ValidFor { get; private set; }
+        public TimeSpan ValidFor { get; internal set; }
 
         /// <summary>
         /// Gets the auth type.
@@ -93,7 +93,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Gets the list of errors.
         /// </summary>
-        public IList<Exception> Errors { get; internal set; } = new List<Exception>();
+        public IList<Exception> Errors { get; internal set; }
 
         /// <summary>
         /// The to string.
