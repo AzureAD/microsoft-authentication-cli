@@ -32,6 +32,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
+        public void TokenResult_HasErrorList()
+        {
+            this.subject.Errors.Should().BeEmpty();
+        }
+
+        [Test]
         public void TokenResult_ToString()
         {
             this.subject.ToString().Should().Be("Token cache warm for kyrader@microsoft.com (John Doe)");
