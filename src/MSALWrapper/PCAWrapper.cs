@@ -141,7 +141,7 @@ namespace Microsoft.Authentication.MSALWrapper
         {
             if (result == null || string.IsNullOrEmpty(result.AccessToken))
             {
-                throw new NullAuthenticationResultException();
+                return null;
             }
 
             return new TokenResult(new JsonWebToken(result.AccessToken));
