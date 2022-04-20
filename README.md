@@ -63,7 +63,7 @@ changes take effect.
 
 # Using AzureAuth
 
-* Documentation on how to use AzureAuth CLI is available [here](examples/USAGE.md).
+* Instructions on using AzureAuth CLI in your applications is available [here](examples/USAGE.md).
 
 # Data Collection
 
