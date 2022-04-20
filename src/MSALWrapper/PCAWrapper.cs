@@ -65,7 +65,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public async Task<TokenResult> GetTokenSilentAsync(IEnumerable<string> scopes, IAccount account, CancellationToken cancellationToken)
         {
             AuthenticationResult result = await this.pca.AcquireTokenSilent(scopes, account).ExecuteAsync(cancellationToken).ConfigureAwait(false);
-            return this.TokenResultOrThrow(result);
+            return this.TokenResult(result);
         }
 
         /// <inheritdoc/>
@@ -80,7 +80,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 .WithAccount(account)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
-            return this.TokenResultOrThrow(result);
+            return this.TokenResult(result);
         }
 
         /// <inheritdoc/>
@@ -95,14 +95,14 @@ namespace Microsoft.Authentication.MSALWrapper
                 .WithClaims(claims)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
-            return this.TokenResultOrThrow(result);
+            return this.TokenResult(result);
         }
 
         /// <inheritdoc/>
         public async Task<TokenResult> GetTokenDeviceCodeAsync(IEnumerable<string> scopes, Func<DeviceCodeResult, Task> callback, CancellationToken cancellationToken)
         {
             AuthenticationResult result = await this.pca.AcquireTokenWithDeviceCode(scopes, callback).ExecuteAsync(cancellationToken).ConfigureAwait(false);
-            return this.TokenResultOrThrow(result);
+            return this.TokenResult(result);
         }
 
         /// <inheritdoc/>
@@ -137,7 +137,7 @@ namespace Microsoft.Authentication.MSALWrapper
             return accounts.ToList();
         }
 
-        private TokenResult TokenResultOrThrow(AuthenticationResult result)
+        private TokenResult TokenResult(AuthenticationResult result)
         {
             if (result == null || string.IsNullOrEmpty(result.AccessToken))
             {
