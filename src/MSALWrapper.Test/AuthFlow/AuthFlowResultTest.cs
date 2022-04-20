@@ -1,17 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace MSALWrapper.Test.AuthFlow
+namespace Microsoft.Authentication.MSALWrapper.Test
 {
-    using System;
-    using System.Collections.Generic;
-
     using FluentAssertions;
 
     using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Authentication.MSALWrapper.AuthFlow;
-    using Microsoft.Identity.Client;
-    using Microsoft.IdentityModel.JsonWebTokens;
 
     using NUnit.Framework;
 
