@@ -83,11 +83,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Silent);
 
-                        return new AuthFlowResult
-                        {
-                            Errors = this.errors,
-                            TokenResult = tokenResult,
-                        };
+                        return new AuthFlowResult(tokenResult, this.errors);
                     }
                     catch (MsalUiRequiredException ex)
                     {
@@ -104,11 +100,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
 
-                        return new AuthFlowResult
-                        {
-                            Errors = this.errors,
-                            TokenResult = tokenResult,
-                        };
+                        return new AuthFlowResult(tokenResult, this.errors);
                     }
                 }
                 catch (MsalUiRequiredException ex)
@@ -126,46 +118,26 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
 
-                    return new AuthFlowResult
-                    {
-                        Errors = this.errors,
-                        TokenResult = tokenResult,
-                    };
+                    return new AuthFlowResult(tokenResult, this.errors);
                 }
             }
             catch (MsalServiceException ex)
             {
                 this.logger.LogWarning($"MSAL Service Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
-
-                return new AuthFlowResult
-                {
-                    Errors = this.errors,
-                    TokenResult = null,
-                };
             }
             catch (MsalClientException ex)
             {
                 this.logger.LogWarning($"Msal Client Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
-
-                return new AuthFlowResult
-                {
-                    Errors = this.errors,
-                    TokenResult = null,
-                };
             }
             catch (NullReferenceException ex)
             {
                 this.logger.LogWarning($"Msal unexpected null reference! (Not Expected)\n{ex.Message}");
                 this.errors.Add(ex);
-
-                return new AuthFlowResult
-                {
-                    Errors = this.errors,
-                    TokenResult = null,
-                };
             }
+
+            return new AuthFlowResult(null, this.errors);
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
