@@ -61,6 +61,10 @@ curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/
 of currently running processes, so you'll need to relaunch applications (or source your shell profile) before the `$PATH`
 changes take effect.
 
+# Using AzureAuth
+
+* Documentation on how to use AzureAuth CLI is available [here](examples/USAGE.md).
+
 # Data Collection
 
 The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use
