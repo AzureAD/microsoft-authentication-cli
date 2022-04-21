@@ -40,7 +40,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 var result = await authFlow.GetTokenAsync();
                 if (result == null)
                 {
-                    authFlowResult.Errors.Add(new Exception());
+                    authFlowResult.Errors.Add(new Exception("This is a catastrophic failure. AuthFlow result is null!"));
                 }
                 else
                 {

@@ -88,8 +88,53 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task SingleAuthFlow_Returns_Null()
+        public async Task SingleAuthFlow_Returns_Null_TokenResult()
         {
+            var authFlowResult = new AuthFlowResult(null, null);
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            result.Should().NotBeNull();
+            result.Success.Should().BeFalse();
+            result.Errors.Should().BeNullOrEmpty();
+        }
+
+        [Test]
+        public async Task SingleAuthFlow_Returns_Null_TokenResult_With_Errors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1."),
+            };
+            var authFlowResult = new AuthFlowResult(null, errors1);
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            result.Should().NotBeNull();
+            result.Success.Should().BeFalse();
+            result.Errors.Should().HaveCount(1);
+            result.Errors.Should().BeEquivalentTo(errors1);
+        }
+
+        [Test]
+        public async Task SingleAuthFlow_Returns_Null_AuthFlowResult()
+        {
+            var errors1 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
 
@@ -102,6 +147,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().NotBeNull();
             result.Success.Should().BeFalse();
             result.Errors.Should().HaveCount(1);
+            result.Errors.Should().BeEquivalentTo(errors1);
         }
 
         [Test]
@@ -156,11 +202,86 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Errors.Should().BeEquivalentTo(errors1);
         }
 
-        [Ignore("Not yet!")]
         [Test]
-        public async Task AuthFlowExecutor_HasTwoAuthFlows_Returns_Null_AuthFlowResult()
+        public async Task HasTwoAuthFlows_Returns_Null_AuthFlowResult()
         {
-            var authFlowResult = new AuthFlowResult(this.tokenResult, null);
+            var errors1 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
+            var authFlowResult = new AuthFlowResult(null, null);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            result.TokenResult.Should().BeNull();
+            result.Success.Should().BeFalse();
+            result.Errors.Should().HaveCount(1);
+            result.Errors.Should().BeEquivalentTo(errors1);
+        }
+
+        [Test]
+        public async Task HasTwoAuthFlows_Returns_Null_AuthFlowResult_With_Errors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
+
+            var errors2 = new[]
+            {
+                new Exception("Exception 1"),
+                new Exception("Exception 2"),
+            };
+
+            var authFlowResult = new AuthFlowResult(null, errors2);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            result.TokenResult.Should().BeNull();
+            result.Success.Should().BeFalse();
+            result.Errors.Should().HaveCount(3);
+            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
+            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
+            result.Errors[2].Should().BeEquivalentTo(errors2[1]);
+        }
+
+        [Test]
+        public async Task HasTwoAuthFlows_Returns_Null_AuthFlowResult_With_TokenResultAndErrors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
+
+            var errors2 = new[]
+            {
+                new Exception("Exception 1"),
+                new Exception("Exception 2"),
+            };
+
+            var authFlowResult = new AuthFlowResult(this.tokenResult, errors2);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
@@ -177,8 +298,266 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow2.VerifyAll();
             result.TokenResult.Should().Be(this.tokenResult);
             result.Success.Should().BeTrue();
+            result.Errors.Should().HaveCount(3);
+            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
+            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
+            result.Errors[2].Should().BeEquivalentTo(errors2[1]);
+        }
 
-            // result.Errors.Should().NotBeNullOrEmpty();
+        [Test]
+        public async Task HasThreeAuthFlows_Returns_Null_TokenResult()
+        {
+            var authFlowResult1 = new AuthFlowResult(null, null);
+            var authFlowResult2 = new AuthFlowResult(null, null);
+            var authFlowResult3 = new AuthFlowResult(this.tokenResult, null);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            authFlow3.VerifyAll();
+            result.TokenResult.Should().Be(this.tokenResult);
+            result.Success.Should().BeTrue();
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task HasThreeAuthFlows_Returns_Null_TokenResult_With_Errors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1."),
+            };
+
+            var errors2 = new[]
+            {
+                new Exception("Exception 2."),
+            };
+
+            var errors3 = new[]
+            {
+                new Exception("Exception 3."),
+                new Exception("Exception 4."),
+            };
+
+            var authFlowResult1 = new AuthFlowResult(null, errors1);
+            var authFlowResult2 = new AuthFlowResult(null, errors2);
+            var authFlowResult3 = new AuthFlowResult(this.tokenResult, errors3);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            authFlow3.VerifyAll();
+            result.TokenResult.Should().Be(this.tokenResult);
+            result.Success.Should().BeTrue();
+            result.Errors.Should().HaveCount(4);
+            result.Errors[0].Should().BeOfType(typeof(Exception));
+            result.Errors[1].Should().BeOfType(typeof(Exception));
+            result.Errors[2].Should().BeOfType(typeof(Exception));
+            result.Errors[3].Should().BeOfType(typeof(Exception));
+            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
+            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
+            result.Errors[2].Should().BeEquivalentTo(errors3[0]);
+            result.Errors[3].Should().BeEquivalentTo(errors3[1]);
+        }
+
+        [Test]
+        public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult()
+        {
+            var errors1 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
+
+            var authFlowResult1 = new AuthFlowResult(null, null);
+            var authFlowResult2 = new AuthFlowResult(null, null);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            authFlow3.VerifyAll();
+            result.TokenResult.Should().BeNull();
+            result.Success.Should().BeFalse();
+            result.Errors.Should().HaveCount(1);
+            result.Errors.Should().BeEquivalentTo(errors1);
+        }
+
+        [Test]
+        public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_Errors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1"),
+            };
+
+            var errors2 = new[]
+            {
+                new Exception("Exception 2"),
+            };
+
+            var errors3 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
+
+            var authFlowResult1 = new AuthFlowResult(null, errors1);
+            var authFlowResult2 = new AuthFlowResult(null, errors2);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            authFlow3.VerifyAll();
+            result.TokenResult.Should().BeNull();
+            result.Success.Should().BeFalse();
+            result.Errors.Should().HaveCount(3);
+            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
+            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
+            result.Errors[2].Should().BeEquivalentTo(errors3[0]);
+        }
+
+        [Test]
+        public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_Errors_InTheSecondAuthFlow()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1"),
+            };
+
+            var errors2 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
+
+            var errors3 = new[]
+            {
+                new Exception("Exception 2"),
+            };
+
+            var authFlowResult1 = new AuthFlowResult(null, errors1);
+            var authFlowResult3 = new AuthFlowResult(null, errors3);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            authFlow3.VerifyAll();
+            result.TokenResult.Should().BeNull();
+            result.Success.Should().BeFalse();
+            result.Errors.Should().HaveCount(3);
+            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
+            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
+            result.Errors[2].Should().BeEquivalentTo(errors3[0]);
+        }
+
+        [Test]
+        public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_TokenResultAndErrors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1"),
+            };
+
+            var errors2 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
+
+            var errors3 = new[]
+            {
+                new Exception("Exception 2"),
+                new Exception("Exception 3"),
+            };
+
+            var authFlowResult1 = new AuthFlowResult(null, errors1);
+            var authFlowResult3 = new AuthFlowResult(this.tokenResult, errors3);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            authFlow3.VerifyAll();
+            result.TokenResult.Should().Be(this.tokenResult);
+            result.Success.Should().BeTrue();
+            result.Errors.Should().HaveCount(4);
+            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
+            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
+            result.Errors[2].Should().BeEquivalentTo(errors3[0]);
+            result.Errors[3].Should().BeEquivalentTo(errors3[1]);
         }
 
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
