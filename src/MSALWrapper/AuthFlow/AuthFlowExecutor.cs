@@ -23,8 +23,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="authFlows">The list of auth flows.</param>
         public AuthFlowExecutor(ILogger logger, IEnumerable<IAuthFlow> authFlows)
         {
-            this.logger = logger;
-            this.authflows = authFlows;
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.authflows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
         }
 
         /// <summary>

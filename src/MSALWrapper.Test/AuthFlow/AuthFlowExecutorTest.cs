@@ -28,6 +28,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
         private TokenResult tokenResult;
+        private IEnumerable<IAuthFlow> authFlows;
 
         /// <summary>
         /// The test setup.
@@ -40,6 +41,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.logTarget = new MemoryTarget("memory_target");
             loggingConfig.AddTarget(this.logTarget);
             loggingConfig.AddRuleForAllLevels(this.logTarget);
+            this.authFlows = new List<IAuthFlow>();
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject")
             this.serviceProvider = new ServiceCollection()
@@ -54,6 +56,44 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
+        }
+
+        [Test]
+        public void ConstructorWith_BothNullArgs()
+        {
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, null);
+
+            // Assert
+            authFlowExecutor.Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public void ConstructorWith_Null_Logger()
+        {
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows);
+
+            // Assert
+            authFlowExecutor.Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public void ConstructorWith_Null_AuthFlows()
+        {
+            var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null);
+
+            // Assert
+            authFlowExecutor.Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public void ConstructorWith_Valid_Arguments()
+        {
+            var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows);
+
+            // Assert
+            authFlowExecutor.Should().NotThrow<ArgumentNullException>();
         }
 
         [Test]
