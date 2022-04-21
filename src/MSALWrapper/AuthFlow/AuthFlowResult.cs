@@ -39,5 +39,18 @@ namespace Microsoft.Authentication.MSALWrapper
         {
             get { return this.TokenResult != null; }
         }
+
+        /// <summary>
+        /// Adds the errors from the attempted auth flows to the main error list on Auth flow executor.
+        /// </summary>
+        /// <param name="authFlowResult">A <see cref="MSALWrapper.AuthFlowResult"/> that creates a main list of errors after attempting all the auth flows in the list.</param>
+        /// <param name="result">A <see cref="MSALWrapper.AuthFlowResult"/> that collects errors from the attempted auth flows at a time.</param>
+        internal static void AddErrorsToAuthFlowExecutorList(AuthFlowResult authFlowResult, AuthFlowResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                authFlowResult.Errors.Add(error);
+            }
+        }
     }
 }

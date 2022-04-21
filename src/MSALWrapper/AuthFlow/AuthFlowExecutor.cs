@@ -5,7 +5,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
 
@@ -34,30 +33,28 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            AuthFlowResult authFlowResult = new AuthFlowResult(null, new List<Exception>());
+            AuthFlowResult result = new AuthFlowResult(null, new List<Exception>());
             foreach (var authFlow in this.authflows)
             {
-                var result = await authFlow.GetTokenAsync();
-                if (result == null)
+                var attempt = await authFlow.GetTokenAsync();
+                if (attempt == null)
                 {
-                    authFlowResult.Errors.Add(new Exception("This is a catastrophic failure. AuthFlow result is null!"));
+                    result.Errors.Add(new Exception("This is a catastrophic failure. AuthFlow result is null!"));
+                    this.logger.LogError($"This is a catastrophic failure. AuthFlow result is null!");
                 }
                 else
                 {
-                    foreach (var error in result.Errors)
-                    {
-                        authFlowResult.Errors.Add(error);
-                    }
+                    AuthFlowResult.AddErrorsToAuthFlowExecutorList(result, attempt);
 
-                    if (result.Success)
+                    if (attempt.Success)
                     {
-                        authFlowResult.TokenResult = result.TokenResult;
+                        result.TokenResult = attempt.TokenResult;
                         break;
                     }
                 }
             }
 
-            return authFlowResult;
+            return result;
         }
     }
 }
