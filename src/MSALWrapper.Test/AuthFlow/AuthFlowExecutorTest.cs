@@ -25,14 +25,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     /// </summary>
     public class AuthFlowExecutorTest
     {
-        private const string TestUser = "user@microsoft.com";
-
         private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
-
-        // MSAL Specific Mocks
-        private Mock<IPCAWrapper> pcaWrapperMock;
-        private Mock<IAccount> testAccount;
         private TokenResult tokenResult;
 
         /// <summary>
@@ -46,12 +40,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.logTarget = new MemoryTarget("memory_target");
             loggingConfig.AddTarget(this.logTarget);
             loggingConfig.AddRuleForAllLevels(this.logTarget);
-
-            // MSAL Mocks
-            this.testAccount = new Mock<IAccount>(MockBehavior.Strict);
-            this.testAccount.Setup(a => a.Username).Returns(TestUser);
-
-            this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject")
             this.serviceProvider = new ServiceCollection()
@@ -102,7 +90,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow1.VerifyAll();
             result.Should().NotBeNull();
             result.Success.Should().BeFalse();
-            result.Errors.Should().BeNullOrEmpty();
+            result.Errors.Should().BeEmpty();
         }
 
         [Test]
@@ -262,9 +250,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().BeNull();
             result.Success.Should().BeFalse();
             result.Errors.Should().HaveCount(3);
-            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
-            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
-            result.Errors[2].Should().BeEquivalentTo(errors2[1]);
+            result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors2[1] });
         }
 
         [Test]
@@ -299,9 +285,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().Be(this.tokenResult);
             result.Success.Should().BeTrue();
             result.Errors.Should().HaveCount(3);
-            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
-            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
-            result.Errors[2].Should().BeEquivalentTo(errors2[1]);
+            result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors2[1] });
         }
 
         [Test]
@@ -376,20 +360,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().Be(this.tokenResult);
             result.Success.Should().BeTrue();
             result.Errors.Should().HaveCount(4);
-            result.Errors[0].Should().BeOfType(typeof(Exception));
-            result.Errors[1].Should().BeOfType(typeof(Exception));
-            result.Errors[2].Should().BeOfType(typeof(Exception));
-            result.Errors[3].Should().BeOfType(typeof(Exception));
-            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
-            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
-            result.Errors[2].Should().BeEquivalentTo(errors3[0]);
-            result.Errors[3].Should().BeEquivalentTo(errors3[1]);
+            result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors3[0], errors3[1] });
         }
 
         [Test]
         public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult()
         {
-            var errors1 = new[]
+            var expectedError = new[]
             {
                 new Exception("This is a catastrophic failure. AuthFlow result is null!"),
             };
@@ -417,7 +394,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().BeNull();
             result.Success.Should().BeFalse();
             result.Errors.Should().HaveCount(1);
-            result.Errors.Should().BeEquivalentTo(errors1);
+            result.Errors.Should().BeEquivalentTo(expectedError);
         }
 
         [Test]
@@ -461,9 +438,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().BeNull();
             result.Success.Should().BeFalse();
             result.Errors.Should().HaveCount(3);
-            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
-            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
-            result.Errors[2].Should().BeEquivalentTo(errors3[0]);
+            result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors3[0] });
         }
 
         [Test]
@@ -507,9 +482,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().BeNull();
             result.Success.Should().BeFalse();
             result.Errors.Should().HaveCount(3);
-            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
-            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
-            result.Errors[2].Should().BeEquivalentTo(errors3[0]);
+            result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors3[0] });
         }
 
         [Test]
@@ -554,10 +527,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().Be(this.tokenResult);
             result.Success.Should().BeTrue();
             result.Errors.Should().HaveCount(4);
-            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
-            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
-            result.Errors[2].Should().BeEquivalentTo(errors3[0]);
-            result.Errors[3].Should().BeEquivalentTo(errors3[1]);
+            result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors3[0], errors3[1] });
         }
 
         [Test]
@@ -601,9 +571,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().Be(this.tokenResult);
             result.Success.Should().BeTrue();
             result.Errors.Should().HaveCount(3);
-            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
-            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
-            result.Errors[2].Should().BeEquivalentTo(errors2[1]);
+            result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors2[1] });
         }
 
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
