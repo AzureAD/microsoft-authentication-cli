@@ -337,10 +337,10 @@ Allowed values: [all, web, devicecode]";
                         this.logger.LogSuccess(tokenResult.ToString());
                         break;
                     case OutputMode.Token:
-                        this.logger.LogInformation(tokenResult.Token);
+                        Console.Write(tokenResult.Token);
                         break;
                     case OutputMode.Json:
-                        this.logger.LogInformation(tokenResult.ToJson());
+                        Console.Write(tokenResult.ToJson());
                         break;
                     case OutputMode.None:
                         break;
