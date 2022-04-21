@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Rename the `--auth-mode` flag to `--mode`.
+- Update to MSAL 4.43.1.
 
 ### Removed
 - The `-t`, `-c`, `-d`, `-m`, and `-o` short flags.
