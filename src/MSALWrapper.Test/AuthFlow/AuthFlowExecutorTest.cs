@@ -560,6 +560,52 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Errors[3].Should().BeEquivalentTo(errors3[1]);
         }
 
+        [Test]
+        public async Task HasThreeAuthFlows_Returns_Early_With_TokenResultAndErrors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1"),
+            };
+
+            var errors2 = new[]
+            {
+                new Exception("Exception 2"),
+                new Exception("Exception 3"),
+            };
+
+            var errors3 = new[]
+            {
+                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+            };
+
+            var authFlowResult1 = new AuthFlowResult(null, errors1);
+            var authFlowResult2 = new AuthFlowResult(this.tokenResult, errors2);
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+
+            // Act
+            var authFlow = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            result.TokenResult.Should().Be(this.tokenResult);
+            result.Success.Should().BeTrue();
+            result.Errors.Should().HaveCount(3);
+            result.Errors[0].Should().BeEquivalentTo(errors1[0]);
+            result.Errors[1].Should().BeEquivalentTo(errors2[0]);
+            result.Errors[2].Should().BeEquivalentTo(errors2[1]);
+        }
+
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
