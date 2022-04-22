@@ -118,7 +118,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task SingleAuthFlow_Returns_Null_TokenResult()
         {
-            var authFlowResult = new AuthFlowResult(null, null);
+            var authFlowResult = new AuthFlowResult();
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
@@ -181,7 +181,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task HasTwoAuthFlows_Returns_Null_TokenResult()
         {
-            var authFlowResult1 = new AuthFlowResult(null, null);
+            var authFlowResult1 = new AuthFlowResult();
             var authFlowResult2 = new AuthFlowResult(this.tokenResult, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
@@ -237,7 +237,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             {
                 new Exception("This is a catastrophic failure. AuthFlow result is null!"),
             };
-            var authFlowResult = new AuthFlowResult(null, null);
+            var authFlowResult = new AuthFlowResult();
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
@@ -331,8 +331,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task HasThreeAuthFlows_Returns_Null_TokenResult()
         {
-            var authFlowResult1 = new AuthFlowResult(null, null);
-            var authFlowResult2 = new AuthFlowResult(null, null);
+            var authFlowResult1 = new AuthFlowResult();
+            var authFlowResult2 = new AuthFlowResult();
             var authFlowResult3 = new AuthFlowResult(this.tokenResult, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
@@ -411,8 +411,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new Exception("This is a catastrophic failure. AuthFlow result is null!"),
             };
 
-            var authFlowResult1 = new AuthFlowResult(null, null);
-            var authFlowResult2 = new AuthFlowResult(null, null);
+            var authFlowResult1 = new AuthFlowResult();
+            var authFlowResult2 = new AuthFlowResult();
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
