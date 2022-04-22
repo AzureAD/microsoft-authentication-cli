@@ -29,6 +29,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         #region Public configurable properties
 
         /// <summary>
+        /// The silent auth timeout.
+        /// </summary>
+        private TimeSpan silentAuthTimeout = TimeSpan.FromMinutes(5);
+
+        /// <summary>
         /// The device code flow timeout.
         /// </summary>
         private TimeSpan deviceCodeFlowTimeout = TimeSpan.FromMinutes(15);
@@ -61,21 +66,46 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
+                ?? null;
+            this.logger.LogDebug($"GetTokenNormalFlowAsync: Using account '{account.Username}'");
+
             try
             {
-                var tokenResult = await TaskExecutor.CompleteWithin(
-                            this.logger,
-                            this.deviceCodeFlowTimeout,
-                            "Get Token using Device Code",
-                            (cancellationToken) => this.pcaWrapper.GetTokenDeviceCodeAsync(
+                try
+                {
+                    var tokenResult = await TaskExecutor.CompleteWithin(
+                        this.logger,
+                        this.silentAuthTimeout,
+                        "Get Token Silent",
+                        (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(
                             this.scopes,
-                            this.ShowDeviceCodeInTty,
+                            account,
                             cancellationToken),
-                            this.errors)
+                        this.errors)
                         .ConfigureAwait(false);
-                tokenResult.SetAuthenticationType(AuthType.DeviceCodeFlow);
+                    tokenResult.SetAuthenticationType(AuthType.Silent);
 
-                return new AuthFlowResult(tokenResult, this.errors);
+                    return new AuthFlowResult(tokenResult, this.errors);
+                }
+                catch (MsalUiRequiredException ex)
+                {
+                    this.errors.Add(ex);
+                    this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
+                    var tokenResult = await TaskExecutor.CompleteWithin(
+                        this.logger,
+                        this.deviceCodeFlowTimeout,
+                        "Get Token using Device Code",
+                        (cancellationToken) => this.pcaWrapper.GetTokenDeviceCodeAsync(
+                        this.scopes,
+                        this.ShowDeviceCodeInTty,
+                        cancellationToken),
+                        this.errors)
+                        .ConfigureAwait(false);
+                    tokenResult.SetAuthenticationType(AuthType.DeviceCodeFlow);
+
+                    return new AuthFlowResult(tokenResult, this.errors);
+                }
             }
             catch (MsalException ex)
             {
