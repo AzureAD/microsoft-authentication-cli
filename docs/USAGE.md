@@ -29,7 +29,26 @@ You always need to pass at least these three arguments in order to authenticate 
 "Shelling out" (executing as a subprocess) to AzureAuth CLI is highly recommended to have the best possible authentication experience. 
 This insulates your application from potentially lots of dependency headaches, and churn as the authentication libraries used under the hood update, as do the means of authenticating.
 
-Sample python code available [here](../examples/python/).
+### Output formats
+Use the option `--output` to get the token in the desired formats. Available choices:
+1. `--output token` returns token in plain text.
+2. `--output json` returns a JSON string of the following format:
+    ```json
+    {
+        "user": "<harryp@hogwarts.com>",
+        "display_name": "Harry Potter",
+        "token": "<encoded token>",
+        "expiration_date": "<expiration date in unix format>"
+    }
+    ```
+3. `--output status` returns the status of the authentication and the cache.
+
+### Examples
+1. Sample command to authenticate your client to a resource under a tenant. 
+    ```
+    azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
+    ```
+2. Sample python code available [here](../examples/python/).
 
 ## AzureAuth as a library
 If you cannot shell out for any reason, [MSALWrapper](../src/MSALWrapper/) library can be used in your application. Following are the code samples.
