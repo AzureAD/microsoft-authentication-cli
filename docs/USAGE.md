@@ -63,11 +63,7 @@ If you cannot shell out for any reason, [MSALWrapper](../src/MSALWrapper/) libra
 2. [Demo.Console.NETFramework472](../examples/Demo.Console.NETFramework472/).
 
 ## Command Line Options
-Use the command `azureauth --help` to understand the command line options available when using the CLI. Sample command to authenticate your client to a resource under a tenant. 
-
-```
-azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
-```
+Use the command `azureauth --help` to understand the command line options available when using the CLI. 
 
 The CLI provides a convenient way to take input arguments without requiring to type out long GUIDs, using a config file. It consists of alias/es corresponding to predefined command line options.
 
