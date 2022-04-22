@@ -44,7 +44,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 }
                 else
                 {
-                    AuthFlowResult.AddErrorsToAuthFlowExecutorList(result, attempt);
+                    result.AddErrors(attempt.Errors);
 
                     if (attempt.Success)
                     {

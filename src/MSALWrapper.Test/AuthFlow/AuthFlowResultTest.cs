@@ -20,7 +20,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWithnullArgs()
         {
-            var subject = new AuthFlowResult(null, null);
+            var subject = new AuthFlowResult();
             subject.Success.Should().BeFalse();
             subject.TokenResult.Should().BeNull();
             subject.Errors.Should().BeEmpty();
@@ -36,6 +36,20 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject.Success.Should().BeTrue();
             subject.TokenResult.Should().Be(tokenResult);
             subject.Errors.Should().BeEmpty();
+        }
+
+        [Test]
+        public void AddErrors()
+        {
+            var subject = new AuthFlowResult();
+            var errors = new List<Exception>
+            {
+                new ArgumentException("something can't be null"),
+                new NullReferenceException("you cannot get there from here"),
+            };
+
+            subject.AddErrors(errors);
+            subject.Errors.Should().BeEquivalentTo(errors);
         }
     }
 }
