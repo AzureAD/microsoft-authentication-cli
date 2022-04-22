@@ -3,6 +3,7 @@
 
 namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
+    using System;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using Microsoft.Identity.Client;
@@ -12,11 +13,36 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     internal class MsalHttpClientFactoryAdaptor : IMsalHttpClientFactory
     {
+        private HttpClient instance;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MsalHttpClientFactoryAdaptor"/> class.
+        /// Creates an instance of msal http client factory adaptor.
+        /// </summary>
+        /// <param name="instance">A http client.</param>
+        public MsalHttpClientFactoryAdaptor(HttpClient instance)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+
+            this.instance = instance;
+        }
+
+        /// <inheritdoc/>
+        public HttpClient GetHttpClient()
+        {
+            // MSAL calls this method each time it wants to use an HTTP client.
+            // We ensure we only create a single instance to avoid socket exhaustion.
+            return this.instance;
+        }
+
         /// <summary>
         /// Gets the msal http client.
         /// </summary>
         /// <returns>An instance of <see cref="HttpClient"/>.</returns>
-        public HttpClient GetHttpClient()
+        public HttpClient CreateHttpClient()
         {
             // MSAL calls this method each time it wants to use an HTTP client.
             // We ensure we only create a single instance to avoid socket exhaustion.
