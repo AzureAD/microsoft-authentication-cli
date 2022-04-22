@@ -14,7 +14,7 @@ WORKSPACE = Path(os.environ['WORKSPACE'])
 TENANT_ID = os.environ['TENANT_ID']
 KEY_CODE = os.environ['KEY_CODE']
 
-esrp_tool = os.path.join("esrp", "tools", "EsrpClient.exe")
+esrp_tool = os.environ['ESRP_CLIENT']
 SOURCE = WORKSPACE / "win10-x64"
 DESTINATION = WORKSPACE
 
@@ -54,9 +54,9 @@ input_json = {
 	"SignBatches": [
 		{
 			"SourceLocationType": "UNC",
-			"SourceRootDirectory": SOURCE,
+			"SourceRootDirectory": str(SOURCE),
 			"DestinationLocationType": "UNC",
-			"DestinationRootDirectory": DESTINATION,
+			"DestinationRootDirectory": str(DESTINATION),
 			"SignRequestFiles": [
 				{
 					"CustomerCorrelationId": "01A7F55F-6CDD-4123-B255-77E6F212CDAD", 

@@ -21,6 +21,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly string promptHint;
+        private readonly IList<Exception> errors;
         private IPCAWrapper pcaWrapper;
 
         #region Public configurable properties
@@ -49,7 +50,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
         public Broker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
         {
-            this.ErrorsList = new List<Exception>();
+            this.errors = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
@@ -58,15 +59,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <summary>
-        /// Gets the errors list.
-        /// </summary>
-        public IList<Exception> ErrorsList { get; }
-
-        /// <summary>
         /// Gets the jwt token for a resource.
         /// </summary>
         /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
-        public async Task<TokenResult> GetTokenAsync()
+        public async Task<AuthFlowResult> GetTokenAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                 ?? Identity.Client.PublicClientApplication.OperatingSystemAccount;
@@ -83,15 +79,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             this.silentAuthTimeout,
                             "Get Token Silent",
                             (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
-                            this.ErrorsList)
+                            this.errors)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Silent);
 
-                        return tokenResult;
+                        return new AuthFlowResult(tokenResult, this.errors);
                     }
                     catch (MsalUiRequiredException ex)
                     {
-                        this.ErrorsList.Add(ex);
+                        this.errors.Add(ex);
                         this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                         var tokenResult = await TaskExecutor.CompleteWithin(
                             this.logger,
@@ -100,15 +96,16 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             (cancellationToken) => this.pcaWrapper
                             .WithPromptHint(this.promptHint)
                             .GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
-                            this.ErrorsList)
+                            this.errors)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
-                        return tokenResult;
+
+                        return new AuthFlowResult(tokenResult, this.errors);
                     }
                 }
                 catch (MsalUiRequiredException ex)
                 {
-                    this.ErrorsList.Add(ex);
+                    this.errors.Add(ex);
                     this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                     var tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
@@ -117,30 +114,30 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         (cancellationToken) => this.pcaWrapper
                         .WithPromptHint(this.promptHint)
                         .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
-                        this.ErrorsList)
+                        this.errors)
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
-                    return tokenResult;
+
+                    return new AuthFlowResult(tokenResult, this.errors);
                 }
             }
             catch (MsalServiceException ex)
             {
                 this.logger.LogWarning($"MSAL Service Exception! (Not expected)\n{ex.Message}");
-                this.ErrorsList.Add(ex);
-                return null;
+                this.errors.Add(ex);
             }
             catch (MsalClientException ex)
             {
                 this.logger.LogWarning($"Msal Client Exception! (Not expected)\n{ex.Message}");
-                this.ErrorsList.Add(ex);
-                return null;
+                this.errors.Add(ex);
             }
             catch (NullReferenceException ex)
             {
                 this.logger.LogWarning($"Msal unexpected null reference! (Not Expected)\n{ex.Message}");
-                this.ErrorsList.Add(ex);
-                return null;
+                this.errors.Add(ex);
             }
+
+            return new AuthFlowResult(null, this.errors);
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
@@ -164,7 +161,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 #else
             clientBuilder.WithBroker();
 #endif
-            return new PCAWrapper(this.logger, clientBuilder.Build(), this.ErrorsList, tenantId, osxKeyChainSuffix);
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)

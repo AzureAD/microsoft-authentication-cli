@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.42.0" />
+    <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.43.1" />
     <PackageReference Include="Microsoft.Office.Lasso" Version="2022.1.6.1" />
   </ItemGroup>
 

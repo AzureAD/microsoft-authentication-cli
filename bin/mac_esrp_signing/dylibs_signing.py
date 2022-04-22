@@ -15,17 +15,17 @@ WORKSPACE = Path(os.environ["WORKSPACE"])
 TENANT_ID = os.environ['TENANT_ID']
 KEY_CODE = os.environ['KEY_CODE']
 
-esrp_tool = os.path.join("esrp", "tools", "EsrpClient.exe")
+esrp_tool = os.environ['ESRP_CLIENT']
 SOURCE =  WORKSPACE / "osx-x64"
 DESTINATION = WORKSPACE / "Mac_signed"
 
 zip_file = SOURCE / "mac_dylibs.zip"
-extensions = [".dylib",".a",".Cli"]
+extensions = [".dylib"]
 
  # zipping the files
 with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zip_obj:
     for path in Path(SOURCE).iterdir():
-        if path.suffix in extensions and path.is_file():
+        if (path.name == "azureauth" or path.suffix in extensions) and path.is_file():
             zip_obj.write(path, path.relative_to(SOURCE))
 
 if not zip_file.exists(): 
@@ -56,9 +56,9 @@ input_json = {
 	"SignBatches": [
 		{
 			"SourceLocationType": "UNC",
-			"SourceRootDirectory": SOURCE,
+			"SourceRootDirectory": str(SOURCE),
 			"DestinationLocationType": "UNC",
-			"DestinationRootDirectory": DESTINATION,
+			"DestinationRootDirectory": str(DESTINATION),
 			"SignRequestFiles": [
 				{
 					"CustomerCorrelationId": "01A7F55F-6CDD-4123-B255-77E6F212CDAD", 
