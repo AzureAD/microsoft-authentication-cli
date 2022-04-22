@@ -39,8 +39,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 var attempt = await authFlow.GetTokenAsync();
                 if (attempt == null)
                 {
-                    result.Errors.Add(new Exception("This is a catastrophic failure. AuthFlow result is null!"));
-                    this.logger.LogDebug($"This is a catastrophic failure. AuthFlow result is null!");
+                    var oopsMessage = $"Auth flow '{authFlow.GetType().Name}' returned a null AuthFlowResult.";
+                    result.Errors.Add(new Exception(oopsMessage));
+                    this.logger.LogDebug(oopsMessage);
                 }
                 else
                 {

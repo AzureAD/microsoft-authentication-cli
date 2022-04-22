@@ -25,6 +25,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     /// </summary>
     public class AuthFlowExecutorTest
     {
+        private const string NullAuthFlowResultExceptionMessage = "Auth flow 'IAuthFlowProxy' returned a null AuthFlowResult.";
+
         private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
         private TokenResult tokenResult;
@@ -161,7 +163,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+                new Exception(NullAuthFlowResultExceptionMessage),
             };
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
@@ -235,7 +237,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+                new Exception(NullAuthFlowResultExceptionMessage),
             };
             var authFlowResult = new AuthFlowResult();
 
@@ -263,7 +265,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+                new Exception(NullAuthFlowResultExceptionMessage),
             };
 
             var errors2 = new[]
@@ -298,7 +300,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+                new Exception(NullAuthFlowResultExceptionMessage),
             };
 
             var errors2 = new[]
@@ -408,7 +410,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var expectedError = new[]
             {
-                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+                new Exception(NullAuthFlowResultExceptionMessage),
             };
 
             var authFlowResult1 = new AuthFlowResult();
@@ -452,7 +454,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors3 = new[]
             {
-                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+                new Exception(NullAuthFlowResultExceptionMessage),
             };
 
             var authFlowResult1 = new AuthFlowResult(null, errors1);
@@ -491,7 +493,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors2 = new[]
             {
-                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+                new Exception(NullAuthFlowResultExceptionMessage),
             };
 
             var errors3 = new[]
@@ -535,7 +537,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors2 = new[]
             {
-                new Exception("This is a catastrophic failure. AuthFlow result is null!"),
+                new Exception(NullAuthFlowResultExceptionMessage),
             };
 
             var errors3 = new[]
