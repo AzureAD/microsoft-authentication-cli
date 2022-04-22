@@ -68,7 +68,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                 ?? null;
-            this.logger.LogDebug($"GetTokenNormalFlowAsync: Using account '{account.Username}'");
+            this.logger.LogDebug($"Trying Silent Auth: Using account '{account.Username}'");
 
             try
             {
