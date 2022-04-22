@@ -12,9 +12,9 @@ You need to [register](https://docs.microsoft.com/en-us/azure/active-directory/d
 "Shelling out" (executing as a subprocess) to AzureAuth CLI is highly recommended to have the best possible authentication experience. 
 This insulates your application from potentially lots of dependency headaches, and churn as the authentication libraries used under the hood update, as do the means of authenticating.
 
-Sample python code available [here](python/).
+Sample python code available [here](../examples/python/).
 
 ## AzureAuth as a library
 If you cannot shell out for any reason, [MSALWrapper](../src/MSALWrapper/) library can be used in your application. Following are the code samples.
-1. [Demo.Console.NET6](Demo.Console.NET6/).
-2. [Demo.Console.NETFramework472](Demo.Console.NETFramework472/).
+1. [Demo.Console.NET6](../examples/Demo.Console.NET6/).
+2. [Demo.Console.NETFramework472](../examples/Demo.Console.NETFramework472/).
