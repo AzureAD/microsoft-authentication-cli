@@ -3,10 +3,27 @@
 AzureAuth CLI usage depends on the type of application. AzureAuth currently supports public client authentication i.e., applications running in a user context. Read [Public and confidential client apps (MSAL) - Microsoft identity platform | Microsoft Docs](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications).
 
 ## Requirements
-You need to [register](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app) your application. You may need to have the following information ready inorder to use the AzureAuth CLI. This information can be found in the Azure portal.
+This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet). This means it does not provide any client ID (aka app registration) by default. You must register and configure your own app registration to authenticate with.
+
+### Configure your App Registration
+1. You can follow [this quick start guide](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app) to setup your application.
+In order to support public client auth modes you must also add redirect URIs under "Mobile and Desktop applications" in the Authentication blade of your app registration in the Azure Portal.
+2. To support WAM (the Windows broker), you must add
+   ```
+   ms-appx-web://microsoft.aad.brokerplugin/<CLIENT_ID>
+   ```
+3. To support system web browser, you must add
+   ```
+   http://localhost
+   ```
+   (Note - do not use `https` here, this is for local redirect and TLS won't work here.)
+4. In the bottom of the Authentication Blade, enable the "Allow public client flows" setting.
+
+### Required Arguments to the CLI
+You always need to pass at least these three arguments in order to authenticate as something (client id), to something (resource ID), within some AAD tenant. These IDs can be found in the Azure Portal on the Overview of each application/resource/tenant in the AAD section.
 1. A client ID. It is a unique application (client) ID assigned to your app by Azure AD when the app was registered.
-2. A resource ID. It is a unique ID representing the resource to which your app needs to be authenticated. 
-3. A tenant ID. 
+2. A resource ID. It is a unique ID representing the resource which you want to authenticate to.
+3. A tenant ID. (This is found on the main AAD page within the Azure Portal)
 
 ## Shelling out to AzureAuth CLI
 "Shelling out" (executing as a subprocess) to AzureAuth CLI is highly recommended to have the best possible authentication experience. 
