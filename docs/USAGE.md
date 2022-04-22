@@ -38,8 +38,8 @@ Use the option `--output` to get the token in the desired formats. Available cho
 2. `--output json` returns a JSON string of the following format:
     ```json
     {
-        "user": "<harryp@hogwarts.com>",
-        "display_name": "Harry Potter",
+        "user": "<user@example.com>",
+        "display_name": "User Name",
         "token": "<encoded token>",
         "expiration_date": "<expiration date in unix format>"
     }
