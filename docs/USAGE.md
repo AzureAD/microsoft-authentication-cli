@@ -45,6 +45,9 @@ Use the option `--output` to get the token in the desired formats. Available cho
     }
     ```
 3. `--output status` returns the status of the authentication and the cache.
+4. `--output none` returns nothing.
+
+Use the option `--help` to understand the other options available when using the CLI. 
 
 ### Examples
 1. Sample command to authenticate your client to a resource under a tenant. 
