@@ -40,7 +40,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 if (attempt == null)
                 {
                     result.Errors.Add(new Exception("This is a catastrophic failure. AuthFlow result is null!"));
-                    this.logger.LogError($"This is a catastrophic failure. AuthFlow result is null!");
+                    this.logger.LogDebug($"This is a catastrophic failure. AuthFlow result is null!");
                 }
                 else
                 {
