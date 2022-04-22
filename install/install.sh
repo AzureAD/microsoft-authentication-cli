@@ -80,7 +80,7 @@ tar -xf $tarball -C $target_directory
 
 # The files extracted from the tarball are all executable, but only two need to be.
 chmod -x ${target_directory}/*
-chmod +x ${target_directory}/{azureauth,createdump}
+chmod +x ${target_directory}/azureauth
 
 verbose "Removing ${tarball}"
 rm $tarball
