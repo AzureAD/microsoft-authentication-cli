@@ -12,10 +12,18 @@ namespace Microsoft.Authentication.MSALWrapper
     public class AuthFlowResult
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="AuthFlowResult"/> class with a null TokenResult and empty error list.
+        /// </summary>
+        public AuthFlowResult()
+            : this(null, null)
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AuthFlowResult"/> class.
         /// </summary>
         /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
-        /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result.</param>
+        /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result. Will initialize a new empty List if null is given.</param>
         public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors)
         {
             this.TokenResult = tokenResult;
@@ -41,15 +49,14 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Adds the errors from the attempted auth flows to the main error list on Auth flow executor.
+        /// Add the given errors to the <see cref="Errors"/> list.
         /// </summary>
-        /// <param name="authFlowResult">A <see cref="MSALWrapper.AuthFlowResult"/> that creates a main list of errors after attempting all the auth flows in the list.</param>
-        /// <param name="result">A <see cref="MSALWrapper.AuthFlowResult"/> that collects errors from the attempted auth flows at a time.</param>
-        internal static void AddErrorsToAuthFlowExecutorList(AuthFlowResult authFlowResult, AuthFlowResult result)
+        /// <param name="errors">The errors to add.</param>
+        public void AddErrors(IEnumerable<Exception> errors)
         {
-            foreach (var error in result.Errors)
+            foreach (var error in errors)
             {
-                authFlowResult.Errors.Add(error);
+                this.Errors.Add(error);
             }
         }
     }
