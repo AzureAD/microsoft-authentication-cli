@@ -137,6 +137,12 @@ namespace Microsoft.Authentication.MSALWrapper
             return accounts.ToList();
         }
 
+        /// <inheritdoc/>
+        public async Task RemoveAsync(IAccount account)
+        {
+            await this.pca.RemoveAsync(account);
+        }
+
         private TokenResult TokenResultOrNull(AuthenticationResult result)
         {
             if (result == null || string.IsNullOrEmpty(result.AccessToken))
@@ -146,5 +152,6 @@ namespace Microsoft.Authentication.MSALWrapper
 
             return new TokenResult(new JsonWebToken(result.AccessToken));
         }
+
     }
 }

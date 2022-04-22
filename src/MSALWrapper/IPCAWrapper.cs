@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.Authentication.MSALWrapper
@@ -108,5 +108,12 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <returns>The <see cref="Task"/>.</returns>
         Task<IList<IAccount>> TryToGetCachedAccountsAsync(string preferredDomain = null);
+
+        /// <summary>
+        /// Remove an account from the file cache.
+        /// </summary>
+        /// <param name="account">IAccount to remove.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task RemoveAsync(IAccount account);
     }
 }
