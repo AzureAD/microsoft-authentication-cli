@@ -42,9 +42,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
 
-        /// <summary>
-        /// The test setup.
-        /// </summary>
         [SetUp]
         public void Setup()
         {
@@ -57,7 +54,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // MSAL Mocks
             this.testAccount = new Mock<IAccount>(MockBehavior.Strict);
             this.testAccount.Setup(a => a.Username).Returns(TestUser);
-
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject")
@@ -80,20 +76,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
         }
 
-        /// <summary>
-        /// Get a new instance of the class under test.
-        /// </summary>
-        /// <returns>The <see cref="AuthFlow.Web"/> registered in the <see cref="Setup"/> method.</returns>
         public AuthFlow.Web Subject() => this.serviceProvider.GetService<AuthFlow.Web>();
 
-        /// <summary>
-        /// The web auth flow for the happy path.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
-        public async Task WebAuthFlow_HappyPath()
+        public async Task WebAuthFlow_CachedToken()
         {
             this.SilentAuthResult();
 
@@ -110,12 +96,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().BeEmpty();
         }
 
-        /// <summary>
-        /// The web auth flow get token silent returns null token result.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_ReturnsNull()
         {
@@ -133,12 +113,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().BeEmpty();
         }
 
-        /// <summary>
-        /// The web auth flow throws MSAL UI exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_MsalUIException()
         {
@@ -159,12 +133,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The web auth flow throws MSAL UI exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_MsalUIException_InteractiveAuthResultReturnsNullWithoutClaims()
         {
@@ -184,9 +152,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The web auth flow throws general exception.
-        /// </summary>
         [Test]
         public void WebAuthFlow_General_Exceptions_Are_ReThrown()
         {
@@ -208,12 +173,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
         }
 
-        /// <summary>
-        /// The web auth flow throws MSAL Service exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_MsalServiceException()
         {
@@ -233,12 +192,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The web auth flow get token silent throws operation canceled exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_OperationCanceledException()
         {
@@ -258,12 +211,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 5 minutes.");
         }
 
-        /// <summary>
-        /// The web auth flow get token silent throws Msal Client exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_MsalClientException()
         {
@@ -282,12 +229,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
         }
 
-        /// <summary>
-        /// The web auth flow get token silent throws null reference exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_NullReferenceException()
         {
@@ -306,12 +247,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(NullReferenceException));
         }
 
-        /// <summary>
-        /// The web auth flow get token interactive throws MSAL UI exception for Claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_MsalUIException_For_Claims()
         {
@@ -333,12 +268,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The web auth flow throws MSAL UI exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_MsalUIException_InteractiveAuthResultReturnsNullWithClaims()
         {
@@ -359,12 +288,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The web auth flow get token interactive throws MSAL service exception after using Claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_MsalServiceException_After_Using_Claims()
         {
@@ -387,12 +310,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[2].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The web auth flow get token interactive throws MSAL service exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_MsalServiceException()
         {
@@ -413,12 +330,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The web auth flow get token interactive throws operation canceled exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_OperationCanceledException()
         {
@@ -440,12 +351,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[1].Message.Should().Be("Interactive Auth timed out after 15 minutes.");
         }
 
-        /// <summary>
-        /// The web auth flow get token interactive throws operation canceled exception for claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_OperationCanceledException_For_Claims()
         {
