@@ -47,16 +47,45 @@ Use the option `--output` to get the token in the desired formats. Available cho
 3. `--output status` returns the status of the authentication and the cache.
 4. `--output none` returns nothing.
 
-Use the option `--help` to understand the other options available when using the CLI. 
+See [command line options](#command-line-options) to understand more available options.
 
 ### Examples
-1. Sample command to authenticate your client to a resource under a tenant. 
-    ```
-    azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
-    ```
-2. Sample python code available [here](../examples/python/).
+1. Sample python code available [here](../examples/python/).
+2. Sample command to authenticate your client to a resource under a tenant. 
+
+```
+azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
+```
 
 ## AzureAuth as a library
 If you cannot shell out for any reason, [MSALWrapper](../src/MSALWrapper/) library can be used in your application. Following are the code samples.
 1. [Demo.Console.NET6](../examples/Demo.Console.NET6/).
 2. [Demo.Console.NETFramework472](../examples/Demo.Console.NETFramework472/).
+
+## Command Line Options
+Use the command `azureauth --help` to understand the command line options available when using the CLI. Sample command to authenticate your client to a resource under a tenant. 
+
+```
+azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
+```
+
+The CLI provides a convenient way to take input arguments without requiring to type out long GUIDs, using a config file. It consists of alias/es corresponding to predefined command line options.
+
+Sample config .toml file:
+```toml
+[alias1]
+resource = "499b84ac-1321-427f-aa17-267ca6975798"
+client = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1"
+tenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"
+mode = "web"
+
+[alias2]
+resource = "83f99c8b-901a-4722-804f-d204e58f05ca"
+client = "e76cd6b3-bc0b-41ae-9a40-326d8cbdb987"
+tenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"
+```
+
+Usage:
+```
+azureauth --alias alias1 --config-file <path to the config file>
+```
