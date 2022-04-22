@@ -142,24 +142,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return new AuthFlowResult(null, this.errors);
         }
 
-        private static HttpClient CreateHttpClient()
-        {
-            HttpClientHandler handler = new HttpClientHandler();
-
-            var client = new HttpClient(handler);
-
-            // Add default headers
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
-            {
-                NoCache = true,
-            };
-
-            return client;
-        }
-
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
         {
-            var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor(CreateHttpClient());
+            var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =
                 PublicClientApplicationBuilder
                 .Create($"{clientId}")
