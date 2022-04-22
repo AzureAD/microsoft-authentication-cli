@@ -52,10 +52,9 @@ See [command line options](#command-line-options) to understand more available o
 ### Examples
 1. Sample python code available [here](../examples/python/).
 2. Sample command to authenticate your client to a resource under a tenant. 
-
-```
-azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
-```
+    ```
+    azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
+    ```
 
 ## AzureAuth as a library
 If you cannot shell out for any reason, [MSALWrapper](../src/MSALWrapper/) library can be used in your application. Following are the code samples.
