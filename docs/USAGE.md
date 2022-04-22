@@ -1,6 +1,9 @@
 # Usage
-
-AzureAuth CLI usage depends on the type of application. AzureAuth currently supports public client authentication i.e., applications running in a user context. Read [Public and confidential client apps (MSAL) - Microsoft identity platform | Microsoft Docs](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications).
+AzureAuth is a generic Azure Active Directory credential provider. It currently supports the following modes of [public client authentication](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications) (i.e., authenticating a human user.)
+* WAM (Windows Only)
+* Embedded Web View (Windows Only)
+* System Web Browser (Used on OSX in-place of Embedded Web View)
+* Device Code Flow (no GUI, terminal interface only).
 
 ## Requirements
 This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet). This means it does not provide any client ID (aka app registration) by default. You must register and configure your own app registration to authenticate with.
