@@ -130,12 +130,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
             catch (MsalClientException ex)
             {
-                this.logger.LogWarning($"Msal Client Exception! (Not expected)\n{ex.Message}");
+                this.logger.LogWarning($"MSAL Client Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
             }
             catch (NullReferenceException ex)
             {
-                this.logger.LogWarning($"Msal unexpected null reference! (Not Expected)\n{ex.Message}");
+                this.logger.LogWarning($"MSAL unexpected null reference! (Not Expected)\n{ex.Message}");
                 this.errors.Add(ex);
             }
 
