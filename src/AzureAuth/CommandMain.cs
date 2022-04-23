@@ -333,6 +333,7 @@ Allowed values: [all, web, devicecode]";
                     }
                 }
 
+                // But what if result is null? The compiler cannot ensure it won't be (yet).
                 this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(result.Errors));
 
                 if (!result.Success)
