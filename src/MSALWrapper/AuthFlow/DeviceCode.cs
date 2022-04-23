@@ -133,7 +133,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
         {
-            var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor(CreateHttpClient());
+            var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =
                 PublicClientApplicationBuilder
                 .Create($"{clientId}")

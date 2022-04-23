@@ -152,6 +152,5 @@ namespace Microsoft.Authentication.MSALWrapper
 
             return new TokenResult(new JsonWebToken(result.AccessToken));
         }
-
     }
 }
