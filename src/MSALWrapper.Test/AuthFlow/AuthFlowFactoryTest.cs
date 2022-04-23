@@ -88,6 +88,7 @@ namespace MSALWrapper.Test
             subject.First().GetType().Name.Should().Be(typeof(Web).Name);
         }
 
+#if PlatformWindows
         [Test]
         public void Broker_Only()
         {
@@ -97,6 +98,7 @@ namespace MSALWrapper.Test
             subject.Should().HaveCount(1);
             subject.First().GetType().Name.Should().Be(typeof(Broker).Name);
         }
+#endif
 
         [Test]
         public void DeviceCode_Only()
