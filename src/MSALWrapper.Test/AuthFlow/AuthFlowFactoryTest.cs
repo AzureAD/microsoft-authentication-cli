@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace MSALWrapper.Test.AuthFlow
+namespace MSALWrapper.Test
 {
     using System;
     using System.Collections.Generic;
@@ -31,7 +31,6 @@ namespace MSALWrapper.Test.AuthFlow
         private ServiceProvider serviceProvider;
         private Mock<IPCAWrapper> pcaWrapperMock;
         private ILogger logger;
-        private AuthMode authMode;
         private IEnumerable<string> scopes;
         private string osxKeyChainSuffix;
         private string preferredDomain;
@@ -58,10 +57,9 @@ namespace MSALWrapper.Test.AuthFlow
              })
              .BuildServiceProvider();
 
-            this.pcaWrapperMock = new Mock<IPCAWrapper>();
+            this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
 
             this.logger = this.serviceProvider.GetService<ILogger<AuthFlowFactory>>();
-            this.authMode = AuthMode.Broker;
             this.scopes = new[] { $"{ResourceId}/.default" };
             this.osxKeyChainSuffix = "azureauth";
             this.preferredDomain = "contoso.com";
@@ -69,12 +67,9 @@ namespace MSALWrapper.Test.AuthFlow
             this.promptHint = "Log into Contoso!";
         }
 
-        [Test]
-        public void JustBroker()
-        {
-            IEnumerable<IAuthFlow> subject = AuthFlowFactory.Create(
+        public IEnumerable<IAuthFlow> Subject(AuthMode mode) => AuthFlowFactory.Create(
                 this.logger,
-                this.authMode,
+                mode,
                 ClientId,
                 TenantId,
                 this.scopes,
@@ -83,8 +78,53 @@ namespace MSALWrapper.Test.AuthFlow
                 this.pcaWrapper,
                 this.promptHint);
 
+        [Test]
+        public void Web_Only()
+        {
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Web);
+
+            this.pcaWrapperMock.VerifyAll();
+            subject.Should().HaveCount(1);
+            subject.First().GetType().Name.Should().Be(typeof(Web).Name);
+        }
+
+        [Test]
+        public void Broker_Only()
+        {
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
+
+            this.pcaWrapperMock.VerifyAll();
             subject.Should().HaveCount(1);
             subject.First().GetType().Name.Should().Be(typeof(Broker).Name);
+        }
+
+        [Test]
+        public void DeviceCode_Only()
+        {
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.DeviceCode);
+
+            this.pcaWrapperMock.VerifyAll();
+            subject.Should().HaveCount(1);
+            subject.First().GetType().Name.Should().Be(typeof(DeviceCode).Name);
+        }
+
+        [Test]
+        [Platform("win")]
+        public void AllModes()
+        {
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
+
+            this.pcaWrapperMock.VerifyAll();
+            subject.Should().HaveCount(3);
+            subject
+                .Select(flow => flow.GetType().Name)
+                .Should()
+                .BeEquivalentTo(new[]
+                {
+                    typeof(Broker).Name,
+                    typeof(Web).Name,
+                    typeof(DeviceCode).Name,
+                });
         }
     }
 }
