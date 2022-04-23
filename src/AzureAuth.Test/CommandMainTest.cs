@@ -362,42 +362,6 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// summary to be removed later.
-        /// </summary>
-        [Test]
-        public void TestOnExecuteErrorsAreCollectedOnFailure()
-        {
-            // Configure the token fetcher to:
-            // 1. return no auth result
-            this.tokenFetcherMock
-                .Setup(tf => tf.GetAccessTokenAsync(It.IsAny<AuthMode>()))
-                .ReturnsAsync((TokenResult)null);
-
-            // 2. return a list of exceptions
-            var errorKey = "error_list";
-            var errorMessage = "horse-staple-battery";
-            var errors = new List<Exception>()
-            {
-                new AuthenticationTimeoutException(errorMessage),
-            };
-
-            this.tokenFetcherMock.Setup(tf => tf.Errors()).Returns(errors);
-
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-
-            // Act
-            subject.OnExecute().Should().Be(1);
-
-            // Assert
-            this.tokenFetcherMock.VerifyAll();
-            this.eventData.Properties.Should().ContainKey(errorKey);
-            this.eventData.Properties[errorKey].Should().Contain(errorMessage);
-        }
-
-        /// <summary>
         /// The root path.
         /// </summary>
         /// <param name="filename">
