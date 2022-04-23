@@ -9,10 +9,13 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
+
     using McMaster.Extensions.CommandLineUtils;
 
     using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Identity.Client;
     using Microsoft.Office.Lasso.Extensions;
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
@@ -51,7 +54,7 @@ Allowed values: [all, web, devicecode]";
         private readonly IFileSystem fileSystem;
         private readonly IEnv env;
         private Alias tokenFetcherOptions;
-        private ITokenFetcher tokenFetcher;
+        private IAuthFlow authFlow;
 
         /// <summary>
         /// The maximum time we will wait to acquire a mutex around prompting the user.
@@ -80,11 +83,11 @@ Allowed values: [all, web, devicecode]";
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="env">The environment interface.</param>
-        /// <param name="tokenFetcher">An injected ITokenFetcher (defined for testability).</param>
-        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env, ITokenFetcher tokenFetcher)
+        /// <param name="authFlow">An injected <see cref="IAuthFlow"/> (defined for testability).</param>
+        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env, IAuthFlow authFlow)
             : this(eventData, logger, fileSystem, env)
         {
-            this.tokenFetcher = tokenFetcher;
+            this.authFlow = authFlow;
         }
 
         /// <summary>
@@ -266,7 +269,19 @@ Allowed values: [all, web, devicecode]";
 
         private int ClearLocalCache()
         {
-            this.TokenFetcher().ClearCacheAsync().Wait();
+            var pca = PublicClientApplicationBuilder.Create(this.Client).Build();
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.Tenant), "azureauth");
+
+            var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
+            while (accounts.Any())
+            {
+                var account = accounts.First();
+                this.logger.LogInformation($"Removing {account.Username} from the cache...");
+                pcaWrapper.RemoveAsync(account).Wait();
+                accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
+                this.logger.LogInformation("Cleared.");
+            }
+
             return 0;
         }
 
@@ -274,8 +289,8 @@ Allowed values: [all, web, devicecode]";
         {
             try
             {
-                ITokenFetcher tokenFetcher = this.TokenFetcher();
-                TokenResult tokenResult = null;
+                IAuthFlow authFlow = this.AuthFlow();
+                AuthFlowResult result = null;
 
                 // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
                 // They may prompt many times, which is annoying and unexpected.
@@ -310,10 +325,7 @@ Allowed values: [all, web, devicecode]";
 
                     try
                     {
-                        tokenResult = (this.tokenFetcherOptions.Scopes == null
-                        ? tokenFetcher.GetAccessTokenAsync(this.CombinedAuthMode)
-                        : tokenFetcher.GetAccessTokenAsync(this.tokenFetcherOptions.Scopes, this.CombinedAuthMode))
-                        .Result;
+                        result = authFlow.GetTokenAsync().Result;
                     }
                     finally
                     {
@@ -321,26 +333,26 @@ Allowed values: [all, web, devicecode]";
                     }
                 }
 
-                this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(tokenFetcher.Errors()));
+                this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(result.Errors));
 
-                if (tokenResult == null)
+                if (!result.Success)
                 {
                     this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
                     return 1;
                 }
 
-                this.eventData.Add("auth_type", $"{tokenResult.AuthType}");
+                this.eventData.Add("auth_type", $"{result.TokenResult.AuthType}");
 
                 switch (this.Output)
                 {
                     case OutputMode.Status:
-                        this.logger.LogSuccess(tokenResult.ToString());
+                        this.logger.LogSuccess(result.TokenResult.ToString());
                         break;
                     case OutputMode.Token:
-                        Console.Write(tokenResult.Token);
+                        Console.Write(result.TokenResult.Token);
                         break;
                     case OutputMode.Json:
-                        Console.Write(tokenResult.ToJson());
+                        Console.Write(result.TokenResult.ToJson());
                         break;
                     case OutputMode.None:
                         break;
@@ -356,21 +368,14 @@ Allowed values: [all, web, devicecode]";
             return 0;
         }
 
-        private ITokenFetcher TokenFetcher()
+        private IAuthFlow AuthFlow()
         {
-            if (this.tokenFetcher == null)
+            if (this.authFlow == null)
             {
-                return new TokenFetcherPublicClient(
-                    this.logger,
-                    new Guid(this.tokenFetcherOptions.Resource),
-                    new Guid(this.tokenFetcherOptions.Client),
-                    new Guid(this.tokenFetcherOptions.Tenant),
-                    osxKeyChainSuffix: Constants.AuthOSXKeyChainSuffix,
-                    preferredDomain: this.tokenFetcherOptions.Domain,
-                    promptHint: this.PromptHint);
+                throw new NotImplementedException("coming soon");
             }
 
-            return this.tokenFetcher;
+            return this.authFlow;
         }
     }
 }
