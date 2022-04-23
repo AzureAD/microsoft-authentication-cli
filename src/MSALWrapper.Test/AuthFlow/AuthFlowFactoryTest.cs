@@ -109,8 +109,8 @@ namespace MSALWrapper.Test
         }
 
         [Test]
-        [Platform("win")]
-        public void AllModes()
+        [Platform("Win")]
+        public void AllModes_Windows()
         {
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
@@ -122,6 +122,24 @@ namespace MSALWrapper.Test
                 .BeEquivalentTo(new[]
                 {
                     typeof(Broker).Name,
+                    typeof(Web).Name,
+                    typeof(DeviceCode).Name,
+                });
+        }
+
+        [Test]
+        [Platform("MacOsX")]
+        public void AllModes_Mac()
+        {
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
+
+            this.pcaWrapperMock.VerifyAll();
+            subject.Should().HaveCount(2);
+            subject
+                .Select(flow => flow.GetType().Name)
+                .Should()
+                .BeEquivalentTo(new[]
+                {
                     typeof(Web).Name,
                     typeof(DeviceCode).Name,
                 });
