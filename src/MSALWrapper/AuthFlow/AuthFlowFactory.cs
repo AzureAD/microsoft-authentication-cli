@@ -36,10 +36,23 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             IPCAWrapper pcaWrapper,
             string promptHint)
         {
-            return new[]
+            List<IAuthFlow> flows = new List<IAuthFlow>();
+            if (authMode.IsWeb())
             {
-                new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint),
-            };
+                flows.Add(new Web(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
+            }
+
+            if (authMode.IsDeviceCode())
+            {
+                flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
+            }
+
+            if (authMode.IsBroker())
+            {
+                flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
+            }
+
+            return flows;
         }
     }
 }
