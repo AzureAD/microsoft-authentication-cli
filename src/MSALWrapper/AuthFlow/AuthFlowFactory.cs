@@ -20,10 +20,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="clientId">The client id.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="scopes">The scopes.</param>
-        /// <param name="osxKeyChainSuffix">A suffix to customize the OSX msal cache.</param>
         /// <param name="preferredDomain">Preferred domain to use when filtering cached accounts.</param>
-        /// <param name="pcaWrapper">An injected PCAWrapper to use.</param>
         /// <param name="promptHint">A prompt hint to contextualize an auth prompt if given.</param>
+        /// <param name="osxKeyChainSuffix">A suffix to customize the OSX msal cache.</param>
+        /// <param name="pcaWrapper">An (optional) injected PCAWrapper to use.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IAuthFlow"/> instances.</returns>
         public static IEnumerable<IAuthFlow> Create(
             ILogger logger,
@@ -31,10 +31,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             Guid clientId,
             Guid tenantId,
             IEnumerable<string> scopes,
-            string osxKeyChainSuffix,
             string preferredDomain,
-            IPCAWrapper pcaWrapper,
-            string promptHint)
+            string promptHint,
+            string osxKeyChainSuffix,
+            IPCAWrapper pcaWrapper = null)
         {
             List<IAuthFlow> flows = new List<IAuthFlow>();
             if (authMode.IsWeb())

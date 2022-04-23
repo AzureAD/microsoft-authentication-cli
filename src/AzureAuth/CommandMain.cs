@@ -53,7 +53,7 @@ Allowed values: [all, web, devicecode]";
         private readonly ILogger<CommandMain> logger;
         private readonly IFileSystem fileSystem;
         private readonly IEnv env;
-        private Alias tokenFetcherOptions;
+        private Alias authSettings;
         private IAuthFlow authFlow;
 
         /// <summary>
@@ -162,7 +162,7 @@ Allowed values: [all, web, devicecode]";
         /// </summary>
         public Alias TokenFetcherOptions
         {
-            get { return this.tokenFetcherOptions; }
+            get { return this.authSettings; }
         }
 
         private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
@@ -221,7 +221,7 @@ Allowed values: [all, web, devicecode]";
             }
 
             // Set the token fetcher options so they can be used later on.
-            this.tokenFetcherOptions = evaluatedOptions;
+            this.authSettings = evaluatedOptions;
 
             // Evaluation is a two-part task. Parse, then validate. Validation is complex, so we call a separate helper.
             return this.ValidateOptions();
@@ -246,19 +246,19 @@ Allowed values: [all, web, devicecode]";
         private bool ValidateOptions()
         {
             bool validOptions = true;
-            if (string.IsNullOrEmpty(this.tokenFetcherOptions.Resource))
+            if (string.IsNullOrEmpty(this.authSettings.Resource))
             {
                 this.logger.LogError($"The {ResourceOption} field is required.");
                 validOptions = false;
             }
 
-            if (string.IsNullOrEmpty(this.tokenFetcherOptions.Client))
+            if (string.IsNullOrEmpty(this.authSettings.Client))
             {
                 this.logger.LogError($"The {ClientOption} field is required.");
                 validOptions = false;
             }
 
-            if (string.IsNullOrEmpty(this.tokenFetcherOptions.Tenant))
+            if (string.IsNullOrEmpty(this.authSettings.Tenant))
             {
                 this.logger.LogError($"The {TenantOption} field is required.");
                 validOptions = false;
@@ -269,8 +269,8 @@ Allowed values: [all, web, devicecode]";
 
         private int ClearLocalCache()
         {
-            var pca = PublicClientApplicationBuilder.Create(this.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.Tenant), "azureauth");
+            var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth");
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
@@ -373,7 +373,20 @@ Allowed values: [all, web, devicecode]";
         {
             if (this.authFlow == null)
             {
-                throw new NotImplementedException("coming soon");
+                // TODO: Really we need to get rid of Resource
+                var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
+
+                var authFlows = AuthFlowFactory.Create(
+                    this.logger,
+                    this.CombinedAuthMode,
+                    new Guid(this.authSettings.Client),
+                    new Guid(this.authSettings.Tenant),
+                    scopes,
+                    this.PreferredDomain,
+                    this.authSettings.PromptHint,
+                    Constants.AuthOSXKeyChainSuffix);
+
+                this.authFlow = new AuthFlowExecutor(this.logger, authFlows);
             }
 
             return this.authFlow;
