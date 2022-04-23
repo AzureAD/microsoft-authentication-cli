@@ -73,10 +73,10 @@ namespace MSALWrapper.Test
                 ClientId,
                 TenantId,
                 this.scopes,
-                this.osxKeyChainSuffix,
                 this.preferredDomain,
-                this.pcaWrapper,
-                this.promptHint);
+                this.promptHint,
+                this.osxKeyChainSuffix,
+                this.pcaWrapper);
 
         [Test]
         public void Web_Only()

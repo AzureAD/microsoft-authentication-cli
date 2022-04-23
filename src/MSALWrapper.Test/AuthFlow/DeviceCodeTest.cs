@@ -7,16 +7,20 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+
     using FluentAssertions;
+
     using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
+
     using Moq;
+
     using NLog.Extensions.Logging;
     using NLog.Targets;
+
     using NUnit.Framework;
 
     internal class DeviceCodeTest
@@ -99,6 +103,24 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Silent);
             authFlowResult.Errors.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task DeviceCodeAuthFlow_NoAccount()
+        {
+            this.pcaWrapperMock.Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>())).ReturnsAsync((IAccount)null);
+            this.SilentAuthUIRequired();
+            this.DeviceCodeAuthResult();
+
+            // Act
+            AuthFlow.DeviceCode deviceCode = this.Subject();
+            var authFlowResult = await deviceCode.GetTokenAsync();
+
+            // Assert
+            this.pcaWrapperMock.VerifyAll();
+            authFlowResult.TokenResult.Should().Be(this.tokenResult);
+            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.DeviceCodeFlow);
+            authFlowResult.Errors.Should().HaveCount(1);
         }
 
         [Test]
@@ -213,7 +235,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private void SilentAuthUIRequired()
         {
             this.pcaWrapperMock
-                .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
+                .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, It.IsAny<IAccount>(), It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "UI is required"));
         }
 

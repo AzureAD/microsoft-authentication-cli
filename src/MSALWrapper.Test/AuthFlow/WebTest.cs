@@ -97,6 +97,24 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
+        public async Task WebAuthFlow_NoAccount()
+        {
+            this.pcaWrapperMock.Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>())).ReturnsAsync((IAccount)null);
+            this.SilentAuthUIRequired();
+            this.InteractiveAuthResult();
+
+            // Act
+            AuthFlow.Web deviceCode = this.Subject();
+            var authFlowResult = await deviceCode.GetTokenAsync();
+
+            // Assert
+            this.pcaWrapperMock.VerifyAll();
+            authFlowResult.TokenResult.Should().Be(this.tokenResult);
+            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Interactive);
+            authFlowResult.Errors.Should().HaveCount(1);
+        }
+
+        [Test]
         public async Task WebAuthFlow_GetTokenSilent_ReturnsNull()
         {
             this.SilentAuthReturnsNull();
@@ -391,7 +409,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private void SilentAuthUIRequired()
         {
             this.pcaWrapperMock
-                .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
+                .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, It.IsAny<IAccount>(), It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "UI is required"));
             this.SetupInteractiveAuthWithPromptHint();
         }
@@ -427,7 +445,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private void InteractiveAuthResult()
         {
             this.pcaWrapperMock
-               .Setup((pca) => pca.GetTokenInteractiveAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
+               .Setup((pca) => pca.GetTokenInteractiveAsync(this.scopes, It.IsAny<IAccount>(), It.IsAny<CancellationToken>()))
                .ReturnsAsync(this.tokenResult);
         }
 

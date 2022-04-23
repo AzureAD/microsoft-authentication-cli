@@ -66,9 +66,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
-                ?? null;
-            this.logger.LogDebug($"Trying Silent Auth: Using account '{account.Username}'");
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
+
+            if (account != null)
+            {
+                this.logger.LogDebug($"Using cached account '{account.Username}'");
+            }
 
             try
             {
