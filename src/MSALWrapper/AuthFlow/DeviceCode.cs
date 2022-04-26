@@ -66,9 +66,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
-                ?? null;
-            this.logger.LogDebug($"Trying Silent Auth: Using account '{account.Username}'");
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
+
+            if (account != null)
+            {
+                this.logger.LogDebug($"Using cached account '{account.Username}'");
+            }
 
             try
             {
@@ -133,7 +136,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
         {
-            var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor(CreateHttpClient());
+            var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =
                 PublicClientApplicationBuilder
                 .Create($"{clientId}")

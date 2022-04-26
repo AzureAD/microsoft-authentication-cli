@@ -66,7 +66,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                 ?? Identity.Client.PublicClientApplication.OperatingSystemAccount;
-            this.logger.LogDebug($"GetTokenNormalFlowAsync: Using account '{account.Username}'");
+            this.logger.LogDebug($"Using cached account '{account.Username}'");
 
             try
             {

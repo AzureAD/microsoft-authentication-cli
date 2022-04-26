@@ -3,9 +3,9 @@
 
 namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
-    using System;
     using System.Net.Http;
     using System.Net.Http.Headers;
+
     using Microsoft.Identity.Client;
 
     /// <summary>
@@ -19,15 +19,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Initializes a new instance of the <see cref="MsalHttpClientFactoryAdaptor"/> class.
         /// Creates an instance of msal http client factory adaptor.
         /// </summary>
-        /// <param name="instance">A http client.</param>
-        public MsalHttpClientFactoryAdaptor(HttpClient instance)
+        public MsalHttpClientFactoryAdaptor()
         {
-            if (instance == null)
-            {
-                throw new ArgumentNullException(nameof(instance));
-            }
-
-            this.instance = instance;
+            this.instance = NewClient();
         }
 
         /// <inheritdoc/>
@@ -48,6 +42,21 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // We ensure we only create a single instance to avoid socket exhaustion.
             HttpClientHandler handler = new HttpClientHandler();
             var client = new HttpClient(handler);
+            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+            {
+                NoCache = true,
+            };
+
+            return client;
+        }
+
+        private static HttpClient NewClient()
+        {
+            HttpClientHandler handler = new HttpClientHandler();
+
+            var client = new HttpClient(handler);
+
+            // Add default headers
             client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
             {
                 NoCache = true,
