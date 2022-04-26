@@ -17,7 +17,11 @@ $releaseName = "azureauth-${version}-win10-x64"
 $releaseFile = "${releaseName}.zip"
 $releaseUrl = "https://github.com/${repo}/releases/download/${version}/$releaseFile"
 
-$azureauthDirectory = ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "Programs", "AzureAuth"))
+$azureauthDirectory = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_INSTALL_DIRECTORY)) {
+    ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "Programs", "AzureAuth"))
+} else {
+    $Env:AZUREAUTH_INSTALL_DIRECTORY
+}
 $extractedDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $releaseName))
 $targetDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $version))
 $latestDirectory = ([System.IO.Path]::Combine($azureauthDirectory, "latest"))
