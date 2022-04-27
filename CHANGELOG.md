@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fixed a bug where device code flow authentication would not use the file cache to first attempt to get a cached token silently, causing it to always prompt.
+- Fixed a bug where the Windows installation script could encounter errors renaming the extracted directory.
 
+### Changed
+- The installation scripts now extract to directories named after the release artifact from GitHub.
+- The `latest` directory is now a [directory junction](https://docs.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions#junctions) on Windows.
+ 
 ### Removed
 - Removed sample projects that used the old `TokenFetcherPublicClient` api from the MSALWrapper project.
 
