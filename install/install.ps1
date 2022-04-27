@@ -30,6 +30,11 @@ $zipFile = ([System.IO.Path]::Combine($azureauthDirectory, $releaseFile))
 Write-Verbose "Creating ${azureauthDirectory}"
 $null = New-Item -ItemType Directory -Force -Path $azureauthDirectory
 
+# Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
+if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
+    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
+}
+
 Write-Verbose "Downloading ${releaseUrl} to ${zipFile}"
 $client = New-Object System.Net.WebClient
 $client.DownloadFile($releaseUrl, $zipFile)
