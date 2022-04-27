@@ -28,14 +28,19 @@ namespace Microsoft.Authentication.MSALWrapper
         Broker = 1 << 2,
 
         /// <summary>
+        /// IWA - Integrated Windows Authentication.
+        /// </summary>
+        IWA = 1 << 3,
+
+        /// <summary>
         /// All auth modes.
         /// </summary>
-        All = Broker | Web | DeviceCode,
+        All = Broker | IWA | Web | DeviceCode,
 
         /// <summary>
         /// The default.
         /// </summary>
-        Default = Broker,
+        Default = Broker | IWA | Web,
 #else
         /// <summary>
         /// The all mode.
@@ -55,14 +60,10 @@ namespace Microsoft.Authentication.MSALWrapper
     public static class AuthModeExtensions
     {
         /// <summary>
-        /// The is broker.
+        /// Is Broker Enabled.
         /// </summary>
-        /// <param name="authMode">
-        /// The auth mode.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
+        /// <param name="authMode">The <see cref="AuthMode"/>.</param>
+        /// <returns>true or false.</returns>
         public static bool IsBroker(this AuthMode authMode)
         {
 #if PlatformWindows
@@ -73,28 +74,34 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// The is web.
+        /// Is IWA Enabled.
         /// </summary>
-        /// <param name="authMode">
-        /// The auth mode.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
+        /// <param name="authMode">The <see cref="AuthMode"/>.</param>
+        /// <returns>true or false.</returns>
+        public static bool IsIWA(this AuthMode authMode)
+        {
+#if PlatformWindows
+            return (AuthMode.IWA & authMode) == AuthMode.IWA;
+#else
+            return false;
+#endif
+        }
+
+        /// <summary>
+        /// Is Web enabled.
+        /// </summary>
+        /// <param name="authMode">The <see cref="AuthMode"/>.</param>
+        /// <returns>true or false.</returns>
         public static bool IsWeb(this AuthMode authMode)
         {
             return (AuthMode.Web & authMode) == AuthMode.Web;
         }
 
         /// <summary>
-        /// The is device code.
+        /// Is Device Code enabled.
         /// </summary>
-        /// <param name="authMode">
-        /// The auth mode.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
+        /// <param name="authMode">The <see cref="AuthMode"/>.</param>
+        /// <returns>true or false.</returns>
         public static bool IsDeviceCode(this AuthMode authMode)
         {
             return (AuthMode.DeviceCode & authMode) == AuthMode.DeviceCode;

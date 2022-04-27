@@ -37,6 +37,16 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             IPCAWrapper pcaWrapper = null)
         {
             List<IAuthFlow> flows = new List<IAuthFlow>();
+            if (authMode.IsBroker())
+            {
+                flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
+            }
+
+            if (authMode.IsIWA())
+            {
+                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes));
+            }
+
             if (authMode.IsWeb())
             {
                 flows.Add(new Web(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
@@ -45,11 +55,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             if (authMode.IsDeviceCode())
             {
                 flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
-            }
-
-            if (authMode.IsBroker())
-            {
-                flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
             }
 
             return flows;
