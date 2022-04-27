@@ -18,7 +18,8 @@ The CLI is designed for authenticating and returning an access token for public 
 ## Windows
 
 On Windows we provide a PowerShell bootstrap script, which will download and extract the application to
-`%LOCALAPPDATA%\Programs\AzureAuth` and automatically add the `azureauth` binary to your `$PATH`. We don't currently
+`%LOCALAPPDATA%\Programs\AzureAuth` and automatically add the `azureauth` binary to your `$PATH`. You can set an
+alternative installation location via the `$AZUREAUTH_INSTALL_DIRECTORY` environment variable. We don't currently
 provide a means of downloading the latest release, so you **must** specify your desired version via the
 `$AZUREAUTH_VERSION` environment variable.
 
@@ -46,8 +47,9 @@ relaunch applications before the `$PATH` changes take effect.
 ## macOS
 
 On macOS we provide a shell bootstrap script, which will download and extract the application to `$HOME/.azureauth`
-and automatically add the `azureauth` binary to your `$PATH`. We don't currently provide a means of downloading the
-latest release, so you **must** specify your desired version via the `$AZUREAUTH_VERSION` environment variable.
+and automatically add the `azureauth` binary to your `$PATH`. You can set an alternative installation location via the
+`$AZUREAUTH_INSTALL_DIRECTORY` environment variable. We don't currently provide a means of downloading the latest
+release, so you **must** specify your desired version via the `$AZUREAUTH_VERSION` environment variable.
 
 To install the application, run
 
