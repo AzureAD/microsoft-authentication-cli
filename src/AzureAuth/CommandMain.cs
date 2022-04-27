@@ -38,6 +38,8 @@ namespace Microsoft.Authentication.AzureAuth
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
 
+        private const string PromptHintPrefix = "AzureAuth";
+
 #if PlatformWindows
         private const string AuthModeHelperText = @"Authentication mode. Default: broker.
 You can use any combination of modes with multiple instances of the -m flag.
@@ -110,6 +112,7 @@ Allowed values: [all, web, devicecode]";
 
         /// <summary>
         /// Gets or sets the customized prompt hint text for WAM prompts and web mode.
+        /// By default there is "AzureAuth" as prefix.
         /// </summary>
         [Option(PromptHintOption, "The prompt hint text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
         public string PromptHint { get; set; }
@@ -376,6 +379,12 @@ Allowed values: [all, web, devicecode]";
                 // TODO: Really we need to get rid of Resource
                 var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
 
+                string promptHint = PromptHintPrefix;
+                if (string.IsNullOrEmpty(promptHint))
+                {
+                    promptHint = $"{PromptHintPrefix}: {promptHint}";
+                }
+
                 var authFlows = AuthFlowFactory.Create(
                     this.logger,
                     this.CombinedAuthMode,
@@ -383,7 +392,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Tenant),
                     scopes,
                     this.PreferredDomain,
-                    this.authSettings.PromptHint,
+                    promptHint,
                     Constants.AuthOSXKeyChainSuffix);
 
                 this.authFlow = new AuthFlowExecutor(this.logger, authFlows);
