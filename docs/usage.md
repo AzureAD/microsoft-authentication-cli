@@ -69,15 +69,18 @@ The CLI provides a convenient way to take input arguments without requiring to t
 Sample config .toml file:
 ```toml
 [alias1]
-resource = "499b84ac-1321-427f-aa17-267ca6975798"
-client = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1"
-tenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"
-mode = "web"
+# The resource ID
+resource = "67eeda51-3891-4101-a0e3-bf0c64047157"
+# The client ID
+client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
+domain = "contoso.com"
+tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
 
 [alias2]
-resource = "83f99c8b-901a-4722-804f-d204e58f05ca"
-client = "e76cd6b3-bc0b-41ae-9a40-326d8cbdb987"
-tenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"
+resource = "ab7e45b7-ea4c-458c-97bd-670ccb543376"
+client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
+domain = "fabrikam.com"
+tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
 ```
 
 Usage:
