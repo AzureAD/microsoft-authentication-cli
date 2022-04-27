@@ -380,9 +380,9 @@ Allowed values: [all, web, devicecode]";
                 var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
 
                 string promptHint = PromptHintPrefix;
-                if (string.IsNullOrEmpty(promptHint))
+                if (!string.IsNullOrEmpty(this.authSettings.PromptHint))
                 {
-                    promptHint = $"{PromptHintPrefix}: {promptHint}";
+                    promptHint = $"{PromptHintPrefix}: {this.authSettings.PromptHint}";
                 }
 
                 var authFlows = AuthFlowFactory.Create(
