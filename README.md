@@ -65,7 +65,7 @@ changes take effect.
 
 # Using AzureAuth
 
-* Instructions on using AzureAuth CLI in your applications is available [here](docs/usage.md).
+* Instructions on using AzureAuth CLI in your applications are available [here](docs/usage.md).
 
 # Data Collection
 
