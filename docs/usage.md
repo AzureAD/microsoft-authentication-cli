@@ -79,7 +79,7 @@ Use the option `--output` to get the token in the desired formats. Available cho
 3. `--output status` returns the status of the authentication and the cache.
 4. `--output none` returns nothing.
 
-See [command line options](#command-line-options) to understand more available options.
+Use the command `azureauth --help` to understand more available options.
 
 ### Examples
 1. Sample python code available [here](../examples/python/).
