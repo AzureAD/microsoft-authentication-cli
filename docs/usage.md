@@ -22,11 +22,43 @@ In order to support public client auth modes you must also add redirect URIs und
    (Note - do not use `https` here, this is for local redirect and TLS won't work here.)
 4. In the bottom of the Authentication Blade, enable the "Allow public client flows" setting.
 
-### Required Arguments to the CLI
-You always need to pass at least these three arguments in order to authenticate as something (client id), to something (resource ID), within some AAD tenant. These IDs can be found in the Azure Portal on the Overview of each application/resource/tenant in the AAD section.
+### Arguments to the CLI
+You always need to pass at least these three arguments in order to authenticate as something (client id), to something (resource ID), within some AAD tenant. These IDs can be found in the Azure Portal on the Overview of each application/resource/tenant in the AAD section. 
 1. A client ID. It is a unique application (client) ID assigned to your app by Azure AD when the app was registered.
 2. A resource ID. It is a unique ID representing the resource which you want to authenticate to.
 3. A tenant ID. (This is found on the main AAD page within the Azure Portal)
+
+They can either be provided explicitly on the CLI or they can be given implicitly as part of a configuration file when given an alias.
+
+#### Using config file
+AzureAuth config files use the [TOML](https://toml.io/en/) file format. Here is a sample config file.
+
+```toml
+[alias1]
+# The resource ID
+resource = "67eeda51-3891-4101-a0e3-bf0c64047157"
+# The client ID
+client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
+domain = "contoso.com"
+tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
+
+[alias2]
+resource = "ab7e45b7-ea4c-458c-97bd-670ccb543376"
+client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
+domain = "fabrikam.com"
+tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
+```
+
+Usage:
+```
+azureauth --alias alias1 --config-file <path to the config file>
+```
+
+or if you set the environment variable `$AZUREAUTH_CONFIG` to the config file path, you can omit the option `--config-file` and use the below command.
+
+```
+azureauth --alias alias1
+```
 
 ## Shelling out to AzureAuth CLI
 "Shelling out" (executing as a subprocess) to AzureAuth CLI is highly recommended to have the best possible authentication experience. 
@@ -55,35 +87,3 @@ See [command line options](#command-line-options) to understand more available o
     ```
     azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
     ```
-
-## AzureAuth as a library
-If you cannot shell out for any reason, [MSALWrapper](../src/MSALWrapper/) library can be used in your application. Following are the code samples.
-1. [Demo.Console.NET6](../examples/Demo.Console.NET6/).
-2. [Demo.Console.NETFramework472](../examples/Demo.Console.NETFramework472/).
-
-## Command Line Options
-Use the command `azureauth --help` to understand the command line options available when using the CLI. 
-
-The CLI provides a convenient way to take input arguments without requiring to type out long GUIDs, using a config file. It consists of alias/es corresponding to predefined command line options.
-
-Sample config .toml file:
-```toml
-[alias1]
-# The resource ID
-resource = "67eeda51-3891-4101-a0e3-bf0c64047157"
-# The client ID
-client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
-domain = "contoso.com"
-tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
-
-[alias2]
-resource = "ab7e45b7-ea4c-458c-97bd-670ccb543376"
-client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
-domain = "fabrikam.com"
-tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
-```
-
-Usage:
-```
-azureauth --alias alias1 --config-file <path to the config file>
-```
