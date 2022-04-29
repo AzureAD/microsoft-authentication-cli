@@ -112,7 +112,6 @@ Allowed values: [all, web, devicecode]";
 
         /// <summary>
         /// Gets or sets the customized prompt hint text for WAM prompts and web mode.
-        /// By default there is "AzureAuth" as prefix.
         /// </summary>
         [Option(PromptHintOption, "The prompt hint text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
         public string PromptHint { get; set; }
@@ -169,6 +168,23 @@ Allowed values: [all, web, devicecode]";
         }
 
         private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
+
+        /// <summary>
+        /// Get the combination of the prefix <see cref="PromptHintPrefix"/> with user-supplied option.
+        /// By default "AzureAuth" is the prefix.
+        /// </summary>
+        /// <param name="promptHintOption">The prompt hint provided by users.</param>
+        /// <returns>the combined value.</returns>
+        public static string GetActualPromptHint(string promptHintOption)
+        {
+            string promptHint = PromptHintPrefix;
+            if (!string.IsNullOrEmpty(promptHintOption))
+            {
+                promptHint = $"{PromptHintPrefix}: {promptHintOption}";
+            }
+
+            return promptHint;
+        }
 
         /// <summary>
         /// This method evaluates whether the options are valid or not.
@@ -379,12 +395,6 @@ Allowed values: [all, web, devicecode]";
                 // TODO: Really we need to get rid of Resource
                 var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
 
-                string promptHint = PromptHintPrefix;
-                if (!string.IsNullOrEmpty(this.authSettings.PromptHint))
-                {
-                    promptHint = $"{PromptHintPrefix}: {this.authSettings.PromptHint}";
-                }
-
                 var authFlows = AuthFlowFactory.Create(
                     this.logger,
                     this.CombinedAuthMode,
@@ -392,7 +402,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Tenant),
                     scopes,
                     this.PreferredDomain,
-                    promptHint,
+                    GetActualPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
 
                 this.authFlow = new AuthFlowExecutor(this.logger, authFlows);
