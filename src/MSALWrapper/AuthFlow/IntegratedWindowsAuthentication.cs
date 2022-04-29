@@ -38,9 +38,18 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <inheritdoc/>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            var result = await this.pca.AcquireTokenByIntegratedWindowsAuth(this.scopes).ExecuteAsync().ConfigureAwait(false);
-            var tokenResult = new TokenResult(new JsonWebToken(result.AccessToken));
-            return new AuthFlowResult(tokenResult, null);
+            var result = new AuthFlowResult();
+            try
+            {
+                var authResult = await this.pca.AcquireTokenByIntegratedWindowsAuth(this.scopes).ExecuteAsync().ConfigureAwait(false);
+                result.TokenResult = new TokenResult(new JsonWebToken(authResult.AccessToken));
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogDebug($"{this.GetType().Name} failed:\n{ex}");
+            }
+
+            return result;
         }
     }
 }
