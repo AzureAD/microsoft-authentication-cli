@@ -6,6 +6,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
 
     /// <summary>
@@ -36,6 +37,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             AuthFlowResult result = new AuthFlowResult(null, new List<Exception>());
             foreach (var authFlow in this.authflows)
             {
+                var authFlowName = authFlow.GetType().Name;
+                this.logger.LogDebug($"Starting {authFlowName}...");
+
                 var attempt = await authFlow.GetTokenAsync();
                 if (attempt == null)
                 {
@@ -47,6 +51,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     result.AddErrors(attempt.Errors);
 
+                    this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
                     if (attempt.Success)
                     {
                         result.TokenResult = attempt.TokenResult;
