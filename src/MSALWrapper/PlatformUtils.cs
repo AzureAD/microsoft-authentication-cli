@@ -86,8 +86,19 @@ namespace Microsoft.Authentication.MSALWrapper
             return (int)osvi.DwMajorVersion == 10;
 #else
             logger.LogTrace("IsWindows10: Using NetStandard Check");
-            var os = Environment.OSVersion;
-            return os.Version.Major == 10 && os.Version.Minor == 0;
+            try
+            {
+                var os = Environment.OSVersion;
+                logger.LogTrace($"{os}");
+                logger.LogTrace($"{os.Version}");
+
+                return os.Version.Major == 10 && os.Version.Minor == 0;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning($"IsWindows10 check failed:\n{ex}");
+                return false;
+            }
 #endif
         }
 
