@@ -33,9 +33,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
+
             AuthFlowResult result = new AuthFlowResult(null, new List<Exception>());
             foreach (var authFlow in this.authflows)
             {
+                var authFlowName = authFlow.GetType().Name;
+                this.logger.LogDebug($"Starting {authFlowName}...");
+
                 var attempt = await authFlow.GetTokenAsync();
                 if (attempt == null)
                 {
@@ -49,8 +53,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
                     if (attempt.Success)
                     {
+                        this.logger.LogDebug($"{authFlowName} succeeded!");
                         result.TokenResult = attempt.TokenResult;
                         break;
+                    }
+                    else {
+                        this.logger.LogDebug($"{authFlowName} failed :(");
                     }
                 }
             }
