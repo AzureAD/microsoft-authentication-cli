@@ -37,12 +37,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             IPCAWrapper pcaWrapper = null)
         {
             List<IAuthFlow> flows = new List<IAuthFlow>();
-            if (authMode.IsBroker())
+            if (authMode.IsBroker() && PlatformUtils.IsWindows10(logger))
             {
                 flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
             }
 
-            if (authMode.IsIWA())
+            if (authMode.IsIWA() && PlatformUtils.IsWindows(logger))
             {
                 flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes));
             }
