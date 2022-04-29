@@ -13,9 +13,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationTimeoutException"/> class.
         /// </summary>
-        /// <param name="message">
-        /// The message.
-        /// </param>
+        /// <param name="message">/// The message./// </param>
         public AuthenticationTimeoutException(string message)
             : base(message)
         {
