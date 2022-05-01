@@ -30,15 +30,9 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Initializes a new instance of the <see cref="PlatformInformation"/> struct.
         /// </summary>
-        /// <param name="osType">
-        /// The os type.
-        /// </param>
-        /// <param name="cpuArch">
-        /// The cpu arch.
-        /// </param>
-        /// <param name="clrVersion">
-        /// The clr version.
-        /// </param>
+        /// <param name="osType">/// The os type./// </param>
+        /// <param name="cpuArch">/// The cpu arch./// </param>
+        /// <param name="clrVersion">/// The clr version./// </param>
         public PlatformInformation(string osType, string cpuArch, string clrVersion)
         {
             this.OperatingSystemType = osType;
@@ -55,12 +49,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The method that checks for windows.
         /// </summary>
-        /// <param name="logger">
-        /// The logger.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
+        /// <param name="logger">/// The logger./// </param>
+        /// <returns>/// The <see cref="bool"/>./// </returns>
         public static bool IsWindows10(ILogger logger)
         {
             if (!IsWindows(logger))
@@ -94,12 +84,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Check if the current Operating System is Windows.
         /// </summary>
-        /// <param name="logger">
-        /// The logger.
-        /// </param>
-        /// <returns>
-        /// True if running on Windows, false otherwise.
-        /// </returns>
+        /// <param name="logger">/// The logger./// </param>
+        /// <returns>/// True if running on Windows, false otherwise./// </returns>
         public static bool IsWindows(ILogger logger)
         {
 #if NETFRAMEWORK
