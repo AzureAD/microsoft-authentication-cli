@@ -44,9 +44,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
 
-        /// <summary>
-        /// The test setup.
-        /// </summary>
         [SetUp]
         public void Setup()
         {
@@ -81,10 +78,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
         }
 
-        /// <summary>
-        /// Get a new instance of the class under test.
-        /// </summary>
-        /// <returns>The <see cref="AuthFlow.DeviceCode"/> registered in the <see cref="Setup"/> method.</returns>
         public AuthFlow.DeviceCode Subject() => this.serviceProvider.GetService<AuthFlow.DeviceCode>();
 
         [Test]
