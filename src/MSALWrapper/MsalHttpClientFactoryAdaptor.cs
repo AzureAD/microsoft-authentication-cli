@@ -24,7 +24,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.instance = NewClient();
         }
 
-        /// <inheritdoc/>
         public HttpClient GetHttpClient()
         {
             // MSAL calls this method each time it wants to use an HTTP client.
@@ -50,6 +49,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return client;
         }
 
+        /// <summary>
+        /// Creates a new Client
+        /// </summary>
+        /// <returns>An instance of <see cref="HttpClient"/>.</returns>
         private static HttpClient NewClient()
         {
             HttpClientHandler handler = new HttpClientHandler();
