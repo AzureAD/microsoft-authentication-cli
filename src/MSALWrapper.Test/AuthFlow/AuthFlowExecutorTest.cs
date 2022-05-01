@@ -20,9 +20,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using NLog.Targets;
     using NUnit.Framework;
 
-    /// <summary>
-    /// The main auth flow test.
-    /// </summary>
     public class AuthFlowExecutorTest
     {
         private const string NullAuthFlowResultExceptionMessage = "Auth flow 'IAuthFlowProxy' returned a null AuthFlowResult.";
@@ -32,9 +29,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private TokenResult tokenResult;
         private IEnumerable<IAuthFlow> authFlows;
 
-        /// <summary>
-        /// The test setup.
-        /// </summary>
         [SetUp]
         public void Setup()
         {
