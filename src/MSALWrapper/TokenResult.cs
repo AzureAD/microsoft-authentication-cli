@@ -39,9 +39,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Initializes a new instance of the <see cref="TokenResult"/> class.
         /// </summary>
-        /// <param name="jwt">
-        /// The jwt.
-        /// </param>
+        /// <param name="jwt">/// The jwt./// </param>
         public TokenResult(JsonWebToken jwt)
         {
             this.JWT = jwt;
@@ -91,9 +89,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The to string.
         /// </summary>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
+        /// <returns>/// The <see cref="string"/>./// </returns>
         public override string ToString()
         {
             return $"Token cache warm for {this.User} ({this.DisplayName})";
@@ -102,9 +98,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The method to convert to json.
         /// </summary>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
+        /// <returns>/// The <see cref="string"/>./// </returns>
         public string ToJson()
         {
             var unixTime = this.jwt.ValidTo.Subtract(unixEpochStart).TotalSeconds;
