@@ -15,61 +15,42 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// A number of exceptions are thrown and this method stores the list of exception messages.
         /// </summary>
-        /// <returns>
-        /// Returns a list of exceptions.
-        /// </returns>
+        /// <returns>/// Returns a list of exceptions./// </returns>
         IEnumerable<Exception> Errors();
 
         /// <summary>
         /// The get access token async.
         /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
+        /// <returns>/// The <see cref="Task"/>./// </returns>
         Task<TokenResult> GetAccessTokenAsync();
 
         /// <summary>
         /// The get access token async.
         /// </summary>
-        /// <param name="authMode">
-        /// The auth mode.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
+        /// <param name="authMode">/// The auth mode./// </param>
+        /// <returns>/// The <see cref="Task"/>./// </returns>
         Task<TokenResult> GetAccessTokenAsync(AuthMode authMode);
 
         /// <summary>
         /// The get access token async.
         /// </summary>
-        /// <param name="scopes">
-        /// The scopes.
-        /// </param>
-        /// <param name="authMode">
-        /// The auth mode.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
+        /// <param name="scopes">/// The scopes./// </param>
+        /// <param name="authMode">/// The auth mode./// </param>
+        /// <returns>/// The <see cref="Task"/>.
         /// </returns>
         Task<TokenResult> GetAccessTokenAsync(IEnumerable<string> scopes, AuthMode authMode);
 
         /// <summary>
         /// The get access token async.
         /// </summary>
-        /// <param name="scopes">
-        /// The scopes.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
+        /// <param name="scopes">/// The scopes./// </param>
+        /// <returns>/// The <see cref="Task"/>./// </returns>
         Task<TokenResult> GetAccessTokenAsync(IEnumerable<string> scopes);
 
         /// <summary>
         /// Clear the local token cache for the current public client application.
         /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
+        /// <returns>/// The <see cref="Task"/>./// </returns>
         Task ClearCacheAsync();
     }
 }
