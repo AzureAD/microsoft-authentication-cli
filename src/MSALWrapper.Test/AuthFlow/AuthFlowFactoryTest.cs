@@ -184,10 +184,11 @@ namespace MSALWrapper.Test
         }
 
         [Test]
-        public void DefaultModes_Not_Win10Or11()
+        [Platform("MacOsx")]
+        public void DefaultModes_Not_Windows()
         {
-            this.MockIsWindows10Or11(false);
-
+            // On non-windows platforms the Default Authmode doesn't contain "Broker" as an option to start with.
+            // so we short circuit checking the platform and expect it to not be called.
             var subject = this.Subject(AuthMode.Default);
 
             this.platformUtilsMock.VerifyAll();
