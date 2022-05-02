@@ -57,7 +57,7 @@ release_url="https://github.com/${repo}/releases/download/${version}/${release_f
 
 : ${AZUREAUTH_INSTALL_DIRECTORY="${HOME}/.azureauth"}
 azureauth_directory="${AZUREAUTH_INSTALL_DIRECTORY}"
-target_directory="${azureauth_directory}/${version}"
+target_directory="${azureauth_directory}/$(release_name)"
 latest_directory="${azureauth_directory}/latest"
 tarball="${azureauth_directory}/${release_file}"
 
