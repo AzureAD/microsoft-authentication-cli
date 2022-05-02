@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Logging;
@@ -35,6 +36,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         public async Task<AuthFlowResult> GetTokenAsync()
         {
             AuthFlowResult result = new AuthFlowResult(null, new List<Exception>());
+
+            if (this.authflows.Count() == 0)
+            {
+                this.logger.LogWarning("Warning: There are 0 auth modes to execute!");
+            }
+
             foreach (var authFlow in this.authflows)
             {
                 var authFlowName = authFlow.GetType().Name;
