@@ -28,7 +28,7 @@ You always need to pass at least these three arguments in order to authenticate 
 2. A resource ID. It is a unique ID representing the resource which you want to authenticate to.
 3. A tenant ID. (This is found on the main AAD page within the Azure Portal)
 
-They can either be provided explicitly on the CLI or they can be given implicitly as part of a configuration file when given an alias.
+They can either be provided explicitly on the CLI or they can be given implicitly as part of a config file when given an alias.
 
 #### Using config file
 AzureAuth config files use the [TOML](https://toml.io/en/) file format. Here is a sample config file.
