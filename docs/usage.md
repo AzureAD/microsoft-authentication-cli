@@ -54,7 +54,7 @@ Usage:
 azureauth --alias alias1 --config-file <path to the config file>
 ```
 
-or if you set the environment variable `$AZUREAUTH_CONFIG` to the config file path, you can omit the option `--config-file` and use the below command.
+or if you set the environment variable `AZUREAUTH_CONFIG` to the config file path, you can omit the option `--config-file` and use the below command.
 
 ```
 azureauth --alias alias1
