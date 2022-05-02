@@ -370,7 +370,7 @@ invalid_key = ""this is not a valid alias key""
         {
             string promptHintOption = "Test Prompt Hint";
 
-            CommandMain.GetActualPromptHint(promptHintOption)
+            CommandMain.PrefixedPromptHint(promptHintOption)
                 .Should().BeEquivalentTo($"{PromptHintPrefix}: {promptHintOption}");
         }
 
@@ -380,7 +380,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestPromptHintPrefixWithoutOption()
         {
-            CommandMain.GetActualPromptHint(null)
+            CommandMain.PrefixedPromptHint(null)
                 .Should().BeEquivalentTo(PromptHintPrefix);
         }
 
