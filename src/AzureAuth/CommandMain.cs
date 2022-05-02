@@ -170,20 +170,21 @@ Allowed values: [all, web, devicecode]";
         private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
 
         /// <summary>
-        /// Get the combination of the prefix <see cref="PromptHintPrefix"/> with user-supplied option.
-        /// By default "AzureAuth" is the prefix.
-        /// </summary>
-        /// <param name="promptHintOption">The prompt hint provided by users.</param>
-        /// <returns>the combined value.</returns>
-        public static string GetActualPromptHint(string promptHintOption)
-        {
-            string promptHint = PromptHintPrefix;
-            if (!string.IsNullOrEmpty(promptHintOption))
-            {
-                promptHint = $"{PromptHintPrefix}: {promptHintOption}";
-            }
+        /// Combine the <see cref="PromptHintPrefix"/> with the caller provided prompt hint.
 
-            return promptHint;
+        /// </summary>
+        /// <param name="promptHintOption">The provided prompt hint.</param>
+
+        /// <returns>The combined prefix and prompt hint or just the prefix if no prompt hint was given.</returns>
+
+        public static string PrefixedPromptHint(string promptHint)
+
+        {
+            if (string.IsNullOrEmpty(promptHintOption))
+            {
+                return PromptHintPrefix;
+            }
+            return $"{PromptHintPrefix}: {promptHintOption}";
         }
 
         /// <summary>
