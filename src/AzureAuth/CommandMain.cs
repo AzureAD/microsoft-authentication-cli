@@ -171,20 +171,17 @@ Allowed values: [all, web, devicecode]";
 
         /// <summary>
         /// Combine the <see cref="PromptHintPrefix"/> with the caller provided prompt hint.
-
         /// </summary>
-        /// <param name="promptHintOption">The provided prompt hint.</param>
-
+        /// <param name="promptHint">The provided prompt hint.</param>
         /// <returns>The combined prefix and prompt hint or just the prefix if no prompt hint was given.</returns>
-
         public static string PrefixedPromptHint(string promptHint)
-
         {
-            if (string.IsNullOrEmpty(promptHintOption))
+            if (string.IsNullOrEmpty(promptHint))
             {
                 return PromptHintPrefix;
             }
-            return $"{PromptHintPrefix}: {promptHintOption}";
+
+            return $"{PromptHintPrefix}: {promptHint}";
         }
 
         /// <summary>
@@ -403,7 +400,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Tenant),
                     scopes,
                     this.PreferredDomain,
-                    GetActualPromptHint(this.authSettings.PromptHint),
+                    PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
 
                 this.authFlow = new AuthFlowExecutor(this.logger, authFlows);
