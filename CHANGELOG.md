@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The installation scripts now extract to directories named after the release artifact from GitHub.
 - The `latest` directory is now a [directory junction](https://docs.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions#junctions) on Windows.
-- The Option `--prompt-hint` will have a prefix `AzureAuth` by default.
+- The Option `--prompt-hint` will have a prefix `AzureAuth`.
 
 ### Removed
 - Removed sample projects that used the old `TokenFetcherPublicClient` api from the MSALWrapper project.
