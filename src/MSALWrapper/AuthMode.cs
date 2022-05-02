@@ -35,7 +35,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The default.
         /// </summary>
-        Default = Broker,
+        Default = Broker | Web,
 #else
         /// <summary>
         /// The all mode.
