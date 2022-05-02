@@ -4,7 +4,9 @@
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using FluentAssertions;
+
     using Microsoft.Authentication.MSALWrapper;
+
     using NUnit.Framework;
 
     internal class AuthModeTest
@@ -86,7 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject.IsBroker().Should().Be(expected);
         }
 
-                [Test]
+        [Test]
         public void NonWindowsDefaultModes()
         {
             var subject = AuthMode.Default;
