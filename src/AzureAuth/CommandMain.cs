@@ -257,6 +257,11 @@ Allowed values: [all, web, devicecode]";
                 return 1;
             }
 
+            this.eventData.Add("settings_client", this.authSettings.Client);
+            this.eventData.Add("settings_tenant", this.authSettings.Resource);
+            this.eventData.Add("settings_resource", this.authSettings.Tenant);
+            this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
+
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
         }
 
