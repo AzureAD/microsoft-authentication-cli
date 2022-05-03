@@ -56,8 +56,12 @@ namespace MSALWrapper.Test
              })
              .BuildServiceProvider();
 
+            // Always setup Mock with behavior strict - which fails tests on first use of non-mocked behavior.
+            // Reminder: If adding a new Mock - also call VerifyAll() in the TearDown method below to assert that
+            // all mocked calls were called.
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
             this.platformUtilsMock = new Mock<IPlatformUtils>(MockBehavior.Strict);
+
             this.logger = this.serviceProvider.GetService<ILogger<AuthFlowFactory>>();
             this.scopes = new[] { $"{ResourceId}/.default" };
             this.osxKeyChainSuffix = "azureauth";
@@ -68,6 +72,9 @@ namespace MSALWrapper.Test
         [TearDown]
         public void TearDown()
         {
+            // Verify all mocks used by the test here to prevent any individual test from
+            // forgetting to do this.
+            // Reminder: Add a call to VerifyAll() for any new mocks used.
             this.pcaWrapperMock.VerifyAll();
             this.platformUtilsMock.VerifyAll();
         }
