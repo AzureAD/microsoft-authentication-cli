@@ -8,133 +8,54 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// The platform information.
+    /// A class for checking platform information.
     /// </summary>
-    public struct PlatformInformation
+    public class PlatformUtils : IPlatformUtils
     {
-        /// <summary>
-        /// The operating system type.
-        /// </summary>
-        public readonly string OperatingSystemType;
+        private ILogger logger;
+        private Lazy<bool> isWindows;
+        private Lazy<bool> isWindows10;
 
         /// <summary>
-        /// The cpu architecture.
+        /// Initializes a new instance of the <see cref="PlatformUtils"/> class.
         /// </summary>
-        public readonly string CpuArchitecture;
-
-        /// <summary>
-        /// The clr version.
-        /// </summary>
-        public readonly string ClrVersion;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PlatformInformation"/> struct.
-        /// </summary>
-        /// <param name="osType">
-        /// The os type.
-        /// </param>
-        /// <param name="cpuArch">
-        /// The cpu arch.
-        /// </param>
-        /// <param name="clrVersion">
-        /// The clr version.
-        /// </param>
-        public PlatformInformation(string osType, string cpuArch, string clrVersion)
+        /// <param name="logger">An <see cref="ILogger"/> to use.</param>
+        public PlatformUtils(ILogger logger)
         {
-            this.OperatingSystemType = osType;
-            this.CpuArchitecture = cpuArch;
-            this.ClrVersion = clrVersion;
-        }
-    }
-
-    /// <summary>
-    /// The platform utils.
-    /// </summary>
-    internal static class PlatformUtils
-    {
-        /// <summary>
-        /// The method that checks for windows.
-        /// </summary>
-        /// <param name="logger">
-        /// The logger.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public static bool IsWindows10(ILogger logger)
-        {
-            if (!IsWindows(logger))
-            {
-                return false;
-            }
-
-#if NETFRAMEWORK
-            logger.LogTrace("IsWindows10: Using NetFramework Check");
-
-            // Implementation of version checking was taken from:
-            // https://github.com/dotnet/runtime/blob/6578f257e3be2e2144a65769706e981961f0130c/src/libraries/System.Private.CoreLib/src/System/Environment.Windows.cs#L110-L122
-            //
-            // Note that we cannot use Environment.OSVersion in .NET Framework (or Core versions less than 5.0) as
-            // the implementation in those versions "lies" about Windows versions > 8.1 if there is no application manifest.
-            if (RtlGetVersionEx(out RTL_OSVERSIONINFOEX osvi) != 0)
-            {
-                logger.LogTrace($"IsWindows10: osvi was not 0 it was {osvi}");
-                return false;
-            }
-
-            logger.LogTrace($"IsWindows10: osvi.dwMajorVersion is {osvi.DwMajorVersion}");
-            return (int)osvi.DwMajorVersion == 10;
-#else
-            logger.LogTrace("IsWindows10: Using NetStandard Check");
-            var os = Environment.OSVersion;
-            return os.Version.Major == 10 && os.Version.Minor == 0;
-#endif
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.isWindows = new Lazy<bool>(() => this.CheckWindows());
+            this.isWindows10 = new Lazy<bool>(() => this.CheckWindows10());
         }
 
-        /// <summary>
-        /// Check if the current Operating System is Windows.
-        /// </summary>
-        /// <param name="logger">
-        /// The logger.
-        /// </param>
-        /// <returns>
-        /// True if running on Windows, false otherwise.
-        /// </returns>
-        public static bool IsWindows(ILogger logger)
+        /// <inheritdoc/>
+        public bool IsWindows10Or11()
         {
-#if NETFRAMEWORK
-            logger.LogTrace($"IsWindows: Using NetFramework : Environment.OSVersion.Platform == PlatformID.Win32NT = {Environment.OSVersion.Platform == PlatformID.Win32NT}");
-            return Environment.OSVersion.Platform == PlatformID.Win32NT;
-#else
-            logger.LogTrace($"IsWindows: Using NetStandard : RuntimeInformation.IsOSPlatform(OSPlatform.Windows) = {RuntimeInformation.IsOSPlatform(OSPlatform.Windows)}");
+            return this.isWindows10.Value;
+        }
+
+        /// <inheritdoc/>
+        public bool IsWindows()
+        {
+            return this.isWindows.Value;
+        }
+
+        private bool CheckWindows()
+        {
+            this.logger.LogTrace($"IsWindows: RuntimeInformation.IsOSPlatform(OSPlatform.Windows) = {RuntimeInformation.IsOSPlatform(OSPlatform.Windows)}");
             return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#endif
         }
 
-        #region Windows Native Version APIs
-
-        // Interop code sourced from the .NET Runtime as of version 5.0:
-        // https://github.com/dotnet/runtime/blob/6578f257e3be2e2144a65769706e981961f0130c/src/libraries/Common/src/Interop/Windows/NtDll/Interop.RtlGetVersion.cs
-        [DllImport("ntdll.dll", ExactSpelling = true)]
-        private static extern int RtlGetVersion(ref RTL_OSVERSIONINFOEX lpVersionInformation);
-
-        private static unsafe int RtlGetVersionEx(out RTL_OSVERSIONINFOEX osvi)
+        private bool CheckWindows10()
         {
-            osvi = default;
-            osvi.DwOSVersionInfoSize = (uint)sizeof(RTL_OSVERSIONINFOEX);
-            return RtlGetVersion(ref osvi);
-        }
+            if (!this.IsWindows())
+            {
+                return false;
+            }
 
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        private unsafe struct RTL_OSVERSIONINFOEX
-        {
-            internal uint DwOSVersionInfoSize;
-            internal uint DwMajorVersion;
-            internal uint DwMinorVersion;
-            internal uint DwBuildNumber;
-            internal uint DwPlatformId;
-            internal fixed char SzCSDVersion[128];
+            var os = Environment.OSVersion;
+            var isWin10 = os.Version.Major == 10 && os.Version.Minor == 0;
+            this.logger.LogTrace($"IsWindows10: {isWin10}");
+            return isWin10;
         }
-#endregion
     }
 }

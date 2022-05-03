@@ -4,31 +4,27 @@
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using FluentAssertions;
+
     using Microsoft.Authentication.MSALWrapper;
+
     using NUnit.Framework;
 
     internal class AuthModeTest
     {
-#if !PlatformWindows
-        [Test]
-        public void AllIsAll()
-        {
-            (AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
-        }
-
-        [TestCase(AuthMode.All, false)]
-        [TestCase(AuthMode.Web, false)]
-        [TestCase(AuthMode.DeviceCode, false)]
-        public void BrokerIsExpected(AuthMode subject, bool expected)
-        {
-            subject.IsBroker().Should().Be(expected);
-        }
-#else
-
+#if PlatformWindows
         [Test]
         public void AllIsAll()
         {
             (AuthMode.Broker | AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
+        }
+
+        [Test]
+        public void WindowsDefaultModes()
+        {
+            var subject = AuthMode.Default;
+            subject.IsBroker().Should().BeTrue();
+            subject.IsWeb().Should().BeTrue();
+            subject.IsDeviceCode().Should().BeFalse();
         }
 
         [TestCase(AuthMode.All, true)]
@@ -76,6 +72,29 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var subject = AuthMode.Web | AuthMode.DeviceCode;
 
             subject.IsBroker().Should().BeFalse();
+        }
+#else
+        [Test]
+        public void AllIsAll()
+        {
+            (AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
+        }
+
+        [TestCase(AuthMode.All, false)]
+        [TestCase(AuthMode.Web, false)]
+        [TestCase(AuthMode.DeviceCode, false)]
+        public void BrokerIsExpected(AuthMode subject, bool expected)
+        {
+            subject.IsBroker().Should().Be(expected);
+        }
+
+        [Test]
+        public void NonWindowsDefaultModes()
+        {
+            var subject = AuthMode.Default;
+            subject.IsBroker().Should().BeFalse();
+            subject.IsWeb().Should().BeTrue();
+            subject.IsDeviceCode().Should().BeFalse();
         }
 #endif
     }
