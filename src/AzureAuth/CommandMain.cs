@@ -254,12 +254,17 @@ Allowed values: [all, web, devicecode]";
         {
             if (!this.EvaluateOptions())
             {
+                this.eventData.Add("validargs", false);
                 return 1;
             }
 
+            this.eventData.Add("validargs", true);
             this.eventData.Add("settings_client", this.authSettings.Client);
             this.eventData.Add("settings_tenant", this.authSettings.Resource);
             this.eventData.Add("settings_resource", this.authSettings.Tenant);
+            this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
+
+            // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();

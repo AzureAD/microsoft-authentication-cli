@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug where the Windows installation script could encounter errors renaming the extracted directory.
 
 ### Changed
+- Telemetry: If enabled, collect the app registration ids being used and whether args were valid.
 - The installation scripts now extract to directories named after the release artifact from GitHub.
 - The `latest` directory is now a [directory junction](https://docs.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions#junctions) on Windows.
 - The Option `--prompt-hint` will have a prefix `AzureAuth`.
