@@ -134,10 +134,10 @@ else:
 with zipfile.ZipFile(signed_zip_file, 'r') as zipObj:
    zipObj.extractall(DESTINATION)
 
-signed_zip_file.unlink()
+Path(signed_zip_file).unlink()
 
 #list of signed files
-signed_binaries = [f for f in DESTINATION if os.path.isfile(f)]
+signed_binaries = [f for f in DESTINATION.iterdir() if os.path.isfile(f)]
 
 if not signed_binaries: 
 	sys.exit("Error: no signed files found")
