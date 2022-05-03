@@ -40,8 +40,14 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             logger = logger ?? throw new ArgumentNullException(nameof(logger));
             platformUtils = platformUtils ?? new PlatformUtils(logger);
+
+            // This is a list. The order in which flows get added is very important
+            // as it sets the order in which auth flows will be attempted.
             List<IAuthFlow> flows = new List<IAuthFlow>();
 
+            // This check silently fails on winserver if broker has been requested.
+            // Future: Consider making AuthMode platform aware at Runtime.
+            // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
             if (authMode.IsBroker() && platformUtils.IsWindows10Or11())
             {
                 flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
