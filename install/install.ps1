@@ -31,7 +31,7 @@ $null = New-Item -ItemType Directory -Force -Path $azureauthDirectory
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
 if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
-    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 | [Net.ServicePointManager]::SecurityProtocol
 }
 
 Write-Verbose "Downloading ${releaseUrl} to ${zipFile}"
