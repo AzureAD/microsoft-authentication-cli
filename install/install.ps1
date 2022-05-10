@@ -56,6 +56,9 @@ if (Test-Path -Path $latestDirectory) {
 Write-Verbose "Linking ${latestDirectory} to ${extractedDirectory}"
 cmd.exe /Q /C "mklink /J $latestDirectory $extractedDirectory"
 
+Write-Verbose "Removing ${zipFile}"
+Remove-Item -Force $zipFile
+
 # Permanently add the latest directory to the current user's $PATH (if it's not already there).
 # Note that this will only take effect when a new terminal is started.
 $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
@@ -65,8 +68,5 @@ if ($currentPath -NotMatch 'AzureAuth') {
     $newPath = "${currentPath};${latestDirectory}"
     Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
 }
-
-Write-Verbose "Removing ${zipFile}"
-Remove-Item -Force $zipFile
 
 Write-Output "Installed azureauth $version!"
