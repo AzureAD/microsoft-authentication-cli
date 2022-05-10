@@ -55,6 +55,9 @@ if (Test-Path -Path $latestDirectory) {
 # We use a directory junction here because not all Windows users will have permissions to create a symlink.
 Write-Verbose "Linking ${latestDirectory} to ${extractedDirectory}"
 cmd.exe /Q /C "mklink /J $latestDirectory $extractedDirectory"
+if (!$?) {
+    Write-Error "Linking failed!"
+}
 
 Write-Verbose "Removing ${zipFile}"
 Remove-Item -Force $zipFile
