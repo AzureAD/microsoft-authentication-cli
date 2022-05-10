@@ -49,7 +49,8 @@ if (Test-Path -Path $latestDirectory) {
 
 # We use a directory junction here because not all Windows users will have permissions to create a symlink.
 # We create this junction with cmd.exe's mklink because it has a stable interface across all active versions of Windows and Windows Server,
-# while PowerShell's New-Item has breaking changes and doesn't have the -Target param in 4.0 (the default PowerSehll on Win Server 2012).
+# while PowerShell's New-Item has breaking changes and doesn't have the -Target param in 4.0 (the default PowerShell on Win Server 2012).
+
 Write-Verbose "Linking ${latestDirectory} to ${extractedDirectory}"
 cmd.exe /Q /C "mklink /J $latestDirectory $extractedDirectory" > $null
 if (!$?) {
