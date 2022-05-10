@@ -26,18 +26,20 @@ provide a means of downloading the latest release, so you **must** specify your 
 To install the application, run
 
 ```powershell
-# v0.2.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = 'v0.2.0'
+# v0.3.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = 'v0.3.0'
+[Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
 iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1) } -Verbose"
 ```
 
 Or, if you want a method more resilient to failure than `Invoke-Expression`, run
 
 ```powershell
-# v0.2.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = 'v0.2.0'
+# v0.3.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = 'v0.3.0'
 $script = "${env:TEMP}\install.ps1"
 $url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1'
+[Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
 Invoke-WebRequest $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
 ```
 
@@ -54,14 +56,18 @@ release, so you **must** specify your desired version via the `$AZUREAUTH_VERSIO
 To install the application, run
 
 ```bash
-# v0.2.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-export AZUREAUTH_VERSION='v0.2.0'
+# v0.3.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+export AZUREAUTH_VERSION='v0.3.0'
 curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.sh | sh
 ```
 
 **Note**: The script currently only updates the `$PATH` in `~/.bashrc` and `~/.zshrc`. It does not update the environment
 of currently running processes, so you'll need to relaunch applications (or source your shell profile) before the `$PATH`
 changes take effect.
+
+# Using AzureAuth
+
+Instructions on using AzureAuth CLI in your applications are available [here](docs/usage.md).
 
 # Data Collection
 

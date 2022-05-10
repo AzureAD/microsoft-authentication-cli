@@ -23,7 +23,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="preferredDomain">Preferred domain to use when filtering cached accounts.</param>
         /// <param name="promptHint">A prompt hint to contextualize an auth prompt if given.</param>
         /// <param name="osxKeyChainSuffix">A suffix to customize the OSX msal cache.</param>
-        /// <param name="pcaWrapper">An (optional) injected PCAWrapper to use.</param>
+        /// <param name="pcaWrapper">An optional injected <see cref="IPCAWrapper"/> to use.</param>
+        /// <param name="platformUtils">An optional injected <see cref="IPlatformUtils"/> to use.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IAuthFlow"/> instances.</returns>
         public static IEnumerable<IAuthFlow> Create(
             ILogger logger,
@@ -34,9 +35,24 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             string preferredDomain,
             string promptHint,
             string osxKeyChainSuffix,
-            IPCAWrapper pcaWrapper = null)
+            IPCAWrapper pcaWrapper = null,
+            IPlatformUtils platformUtils = null)
         {
+            logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            platformUtils = platformUtils ?? new PlatformUtils(logger);
+
+            // This is a list. The order in which flows get added is very important
+            // as it sets the order in which auth flows will be attempted.
             List<IAuthFlow> flows = new List<IAuthFlow>();
+
+            // This check silently fails on winserver if broker has been requested.
+            // Future: Consider making AuthMode platform aware at Runtime.
+            // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
+            if (authMode.IsBroker() && platformUtils.IsWindows10Or11())
+            {
+                flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
+            }
+
             if (authMode.IsWeb())
             {
                 flows.Add(new Web(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
@@ -45,11 +61,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             if (authMode.IsDeviceCode())
             {
                 flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
-            }
-
-            if (authMode.IsBroker())
-            {
-                flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
             }
 
             return flows;

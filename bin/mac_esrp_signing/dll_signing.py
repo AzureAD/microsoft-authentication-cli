@@ -21,7 +21,7 @@ DESTINATION = WORKSPACE
 files = []
 extensions = [".dll"]
 for path in Path(SOURCE).iterdir():
-     if (path.name == "azureauth" or path.suffix in extensions) and path.is_file():
+    if path.suffix in extensions and path.is_file():
         files.append(path)
 
 #empty list check

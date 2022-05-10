@@ -5,14 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v0.3.0] - 2022-05-03
 ### Fixed
+- Fixed a bug to support running on Windows Server 2012 & 2016 by default (default auth mode for Windows is now broker + web).
 - Fixed a bug where device code flow authentication would not use the file cache to first attempt to get a cached token silently, causing it to always prompt.
 - Fixed a bug where the Windows installation script could encounter errors renaming the extracted directory.
 
 ### Changed
+- Telemetry: If enabled, collect the app registration ids being used and whether args were valid.
+- The default for `--mode` on Windows is now `broker` + `web` (formerly just `broker`).
 - The installation scripts now extract to directories named after the release artifact from GitHub.
 - The `latest` directory is now a [directory junction](https://docs.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions#junctions) on Windows.
- 
+- The Option `--prompt-hint` will have a prefix `AzureAuth`.
+
 ### Removed
 - Removed sample projects that used the old `TokenFetcherPublicClient` api from the MSALWrapper project.
 
@@ -34,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/v0.1.0

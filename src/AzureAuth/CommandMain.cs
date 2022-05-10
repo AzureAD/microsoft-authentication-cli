@@ -38,14 +38,16 @@ namespace Microsoft.Authentication.AzureAuth
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
 
+        private const string PromptHintPrefix = "AzureAuth";
+
 #if PlatformWindows
-        private const string AuthModeHelperText = @"Authentication mode. Default: broker.
-You can use any combination of modes with multiple instances of the -m flag.
+        private const string AuthModeHelperText = @"Authentication mode. Default: broker, with web fallback.
+You can use any combination of modes with multiple instances of the --mode flag.
 Allowed values: [all, broker, web, devicecode]";
 
 #else
         private const string AuthModeHelperText = @"Authentication mode. Default: web.
-You can use any combination with multiple instances of the -m flag.
+You can use any combination with multiple instances of the --mode flag.
 Allowed values: [all, web, devicecode]";
 #endif
 
@@ -168,6 +170,21 @@ Allowed values: [all, web, devicecode]";
         private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
 
         /// <summary>
+        /// Combine the <see cref="PromptHintPrefix"/> with the caller provided prompt hint.
+        /// </summary>
+        /// <param name="promptHint">The provided prompt hint.</param>
+        /// <returns>The combined prefix and prompt hint or just the prefix if no prompt hint was given.</returns>
+        public static string PrefixedPromptHint(string promptHint)
+        {
+            if (string.IsNullOrEmpty(promptHint))
+            {
+                return PromptHintPrefix;
+            }
+
+            return $"{PromptHintPrefix}: {promptHint}";
+        }
+
+        /// <summary>
         /// This method evaluates whether the options are valid or not.
         /// </summary>
         /// <returns>
@@ -237,8 +254,18 @@ Allowed values: [all, web, devicecode]";
         {
             if (!this.EvaluateOptions())
             {
+                this.eventData.Add("validargs", false);
                 return 1;
             }
+
+            this.eventData.Add("validargs", true);
+            this.eventData.Add("settings_client", this.authSettings.Client);
+            this.eventData.Add("settings_tenant", this.authSettings.Resource);
+            this.eventData.Add("settings_resource", this.authSettings.Tenant);
+            this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
+
+            // Small bug in Lasso - Add does not accept a null IEnumerable here.
+            this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
         }
@@ -383,7 +410,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Tenant),
                     scopes,
                     this.PreferredDomain,
-                    this.authSettings.PromptHint,
+                    PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
 
                 this.authFlow = new AuthFlowExecutor(this.logger, authFlows);

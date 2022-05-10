@@ -22,8 +22,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>/// All auth modes./// </summary>
         All = Broker | Web | DeviceCode,
 
-        /// <summary>/// The default./// </summary>
-        Default = Broker,
+        /// <summary>
+        /// The default.
+        /// </summary>
+        Default = Broker | Web,
 #else
         /// <summary>/// The all mode./// </summary>
         All = Web | DeviceCode,
