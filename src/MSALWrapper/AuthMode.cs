@@ -5,21 +5,21 @@ namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
 
-    /// <summary>/// The auth mode./// </summary>
+    /// <summary>The auth mode.</summary>
     [Flags]
     public enum AuthMode : short
     {
-        /// <summary>/// The web./// </summary>
+        /// <summary>The web.</summary>
         Web = 1 << 0,
 
-        /// <summary>/// The device code./// </summary>
+        /// <summary>The device code.</summary>
         DeviceCode = 1 << 1,
 
 #if PlatformWindows
-        /// <summary>/// The broker./// </summary>
+        /// <summary>The broker.</summary>
         Broker = 1 << 2,
 
-        /// <summary>/// All auth modes./// </summary>
+        /// <summary>All auth modes.</summary>
         All = Broker | Web | DeviceCode,
 
         /// <summary>
@@ -27,20 +27,20 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         Default = Broker | Web,
 #else
-        /// <summary>/// The all mode./// </summary>
+        /// <summary>The all mode.</summary>
         All = Web | DeviceCode,
 
-        /// <summary>/// The default mode./// </summary>
+        /// <summary>The default mode.</summary>
         Default = Web,
 #endif
     }
 
-    /// <summary>/// The auth mode extensions./// </summary>
+    /// <summary>The auth mode extensions.</summary>
     public static class AuthModeExtensions
     {
-        /// <summary>/// Checks if AuthMode is broker./// </summary>
-        /// <param name="authMode">/// The auth mode./// </param>
-        /// <returns>/// The <see cref="bool"/>./// </returns>
+        /// <summary>Checks if AuthMode is broker.</summary>
+        /// <param name="authMode">The auth mode.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
         public static bool IsBroker(this AuthMode authMode)
         {
 #if PlatformWindows
@@ -50,17 +50,17 @@ namespace Microsoft.Authentication.MSALWrapper
 #endif
         }
 
-        /// <summary>/// Checks if AuthMode is web./// </summary>
-        /// <param name="authMode">/// The auth mode./// </param>
-        /// <returns>/// The <see cref="bool"/>./// </returns>
+        /// <summary>/// Checks if AuthMode is web.</summary>
+        /// <param name="authMode">/// The auth mode.</param>
+        /// <returns>/// The <see cref="bool"/>.</returns>
         public static bool IsWeb(this AuthMode authMode)
         {
             return (AuthMode.Web & authMode) == AuthMode.Web;
         }
 
-        /// <summary>/// Checks if AuthMode is device code./// </summary>
-        /// <param name="authMode">/// The auth mode./// </param>
-        /// <returns>/// The <see cref="bool"/>./// </returns>
+        /// <summary>/// Checks if AuthMode is device code.</summary>
+        /// <param name="authMode">/// The auth mode.</param>
+        /// <returns>/// The <see cref="bool"/>.</returns>
         public static bool IsDeviceCode(this AuthMode authMode)
         {
             return (AuthMode.DeviceCode & authMode) == AuthMode.DeviceCode;

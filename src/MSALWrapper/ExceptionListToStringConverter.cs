@@ -15,8 +15,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Executes the convertion.
         /// </summary>
-        /// <param name="exceptions">/// The exceptions./// </param>
-        /// <returns>/// The <see cref="string"/>./// </returns>
+        /// <param name="exceptions">/// The exceptions.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         public static string Execute(IEnumerable<Exception> exceptions)
         {
             if (exceptions == null || exceptions.Count() == 0)
@@ -28,10 +28,10 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Converts exceptions to a single string
+        /// Converts exceptions to a single string.
         /// </summary>
-        /// <param name="ex">/// The exceptions./// </param>
-        /// <returns>/// The <see cref="string"/>./// </returns>
+        /// <param name="ex">The exceptions.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         private static string SingleLineException(Exception ex)
         {
             if (ex != null)

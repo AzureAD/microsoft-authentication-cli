@@ -16,8 +16,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The get azure user name.
         /// </summary>
-        /// <param name="jwt">/// The jwt./// </param>
-        /// <returns>/// The <see cref="string"/>./// </returns>
+        /// <param name="jwt">The jwt.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         public static string GetAzureUserName(this JsonWebToken jwt)
         {
             string idp = jwt.TryGetClaim("idp", out Claim idpClaim)
@@ -43,8 +43,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The get display name.
         /// </summary>
-        /// <param name="jwt">/// The jwt./// </param>
-        /// <returns>/// The <see cref="string"/>./// </returns>
+        /// <param name="jwt">The jwt.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         public static string GetDisplayName(this JsonWebToken jwt)
         {
             jwt.TryGetClaim("name", out Claim name);

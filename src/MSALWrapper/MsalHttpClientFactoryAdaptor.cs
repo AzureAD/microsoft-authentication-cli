@@ -51,7 +51,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <summary>
-        /// Creates a new Client
+        /// Creates a new Client.
         /// </summary>
         /// <returns>An instance of <see cref="HttpClient"/>.</returns>
         private static HttpClient NewClient()

@@ -18,37 +18,37 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Get token silent async.
         /// </summary>
-        /// <param name="scopes">/// The scopes./// </param>
-        /// <param name="account">/// The account./// </param>
-        /// <param name="cancellationToken">/// The cancellation token./// </param>
-        /// <returns>/// The <see cref="Task"/>./// </returns>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="account">The account.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         Task<TokenResult> GetTokenSilentAsync(IEnumerable<string> scopes, IAccount account, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get token interactive async.
         /// </summary>
-        /// <param name="scopes">/// The scopes./// </param>
-        /// <param name="account">/// The account./// </param>
-        /// <param name="cancellationToken">/// The cancellation token./// </param>
-        /// <returns>/// The <see cref="Task"/>./// </returns>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="account">The account.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         Task<TokenResult> GetTokenInteractiveAsync(IEnumerable<string> scopes, IAccount account, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get token interactive async.
         /// </summary>
-        /// <param name="scopes">/// The scopes./// </param>
-        /// <param name="claims">/// The claims./// </param>
-        /// <param name="cancellationToken">/// The cancellation token./// </param>
-        /// <returns>/// The <see cref="Task"/>./// </returns>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="claims">The claims.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         Task<TokenResult> GetTokenInteractiveAsync(IEnumerable<string> scopes, string claims, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get token device code async.
         /// </summary>
-        /// <param name="scopes">/// The scopes./// </param>
-        /// <param name="callback">/// The callback./// </param>
-        /// <param name="cancellationToken">/// The cancellation token./// </param>
-        /// <returns>/// The <see cref="Task"/>./// </returns>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="callback">The callback.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         Task<TokenResult> GetTokenDeviceCodeAsync(IEnumerable<string> scopes, Func<DeviceCodeResult, Task> callback, CancellationToken cancellationToken);
 
         /// <summary>
