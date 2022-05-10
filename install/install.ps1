@@ -29,11 +29,6 @@ $zipFile = ([System.IO.Path]::Combine($azureauthDirectory, $releaseFile))
 Write-Verbose "Creating ${azureauthDirectory}"
 $null = New-Item -ItemType Directory -Force -Path $azureauthDirectory
 
-# Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
-if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
-}
-
 Write-Verbose "Downloading ${releaseUrl} to ${zipFile}"
 $client = New-Object System.Net.WebClient
 $client.DownloadFile($releaseUrl, $zipFile)
@@ -53,6 +48,8 @@ if (Test-Path -Path $latestDirectory) {
 }
 
 # We use a directory junction here because not all Windows users will have permissions to create a symlink.
+# We create this junction with cmd.exe's mklink because it has a stable interface across all active versions of Windows and Windows Server,
+# while PowerShell's New-Item has breaking changes and doesn't have the -Target param in 4.0 (the default PowerSehll on Win Server 2012).
 Write-Verbose "Linking ${latestDirectory} to ${extractedDirectory}"
 cmd.exe /Q /C "mklink /J $latestDirectory $extractedDirectory" > $null
 if (!$?) {
