@@ -54,7 +54,7 @@ if (Test-Path -Path $latestDirectory) {
 
 # We use a directory junction here because not all Windows users will have permissions to create a symlink.
 Write-Verbose "Linking ${latestDirectory} to ${extractedDirectory}"
-cmd.exe /Q /C "mklink /J $latestDirectory $extractedDirectory"
+cmd.exe /Q /C "mklink /J $latestDirectory $extractedDirectory" > $null
 if (!$?) {
     Write-Error "Linking failed!"
 }
