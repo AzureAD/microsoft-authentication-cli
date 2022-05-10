@@ -31,7 +31,7 @@ $null = New-Item -ItemType Directory -Force -Path $azureauthDirectory
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
 if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 | [Net.ServicePointManager]::SecurityProtocol
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
 }
 
 Write-Verbose "Downloading ${releaseUrl} to ${zipFile}"
@@ -54,10 +54,7 @@ if (Test-Path -Path $latestDirectory) {
 
 # We use a directory junction here because not all Windows users will have permissions to create a symlink.
 Write-Verbose "Linking ${latestDirectory} to ${extractedDirectory}"
-$null = New-Item -Path $latestDirectory -Target $extractedDirectory -ItemType Junction
-
-Write-Verbose "Removing ${zipFile}"
-Remove-Item -Force $zipFile
+cmd.exe /Q /C "mklink /J $latestDirectory $extractedDirectory"
 
 # Permanently add the latest directory to the current user's $PATH (if it's not already there).
 # Note that this will only take effect when a new terminal is started.
@@ -68,5 +65,8 @@ if ($currentPath -NotMatch 'AzureAuth') {
     $newPath = "${currentPath};${latestDirectory}"
     Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
 }
+
+Write-Verbose "Removing ${zipFile}"
+Remove-Item -Force $zipFile
 
 Write-Output "Installed azureauth $version!"
