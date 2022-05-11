@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
@@ -163,7 +164,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
             };
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
@@ -237,7 +238,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
             };
             var authFlowResult = new AuthFlowResult();
 
@@ -265,7 +266,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
             };
 
             var errors2 = new[]
@@ -300,7 +301,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
             };
 
             var errors2 = new[]
@@ -410,7 +411,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var expectedError = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
             };
 
             var authFlowResult1 = new AuthFlowResult();
@@ -454,7 +455,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors3 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
             };
 
             var authFlowResult1 = new AuthFlowResult(null, errors1);
@@ -493,7 +494,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors2 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
             };
 
             var errors3 = new[]
@@ -537,7 +538,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors2 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
             };
 
             var errors3 = new[]
@@ -614,6 +615,29 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Success.Should().BeTrue();
             result.Errors.Should().HaveCount(3);
             result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors2[1] });
+        }
+
+        [Test]
+        public async Task HasBadAuthFlow_Returns_With_BadImplementationException()
+        {
+            // Setup
+            var badAuthflow = new Mock<IAuthFlow>(MockBehavior.Strict);
+            badAuthflow.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+
+            var errors = new[]
+            {
+                new BadAuthFlowImplementException(NullAuthFlowResultExceptionMessage),
+            };
+
+            // Act
+            var authFlow = this.Subject(new[] { badAuthflow.Object });
+            var result = await authFlow.GetTokenAsync();
+
+            // Assert
+            badAuthflow.VerifyAll();
+            result.Success.Should().BeFalse();
+            result.Errors.Should().HaveCount(1);
+            result.Errors.Should().BeEquivalentTo(errors);
         }
 
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
