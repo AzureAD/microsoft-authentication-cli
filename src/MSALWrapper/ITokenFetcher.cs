@@ -51,7 +51,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Clear the local token cache for the current public client application.
         /// </summary>
-        /// <returns>/// The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task"/>.</returns>
         Task ClearCacheAsync();
     }
 }
