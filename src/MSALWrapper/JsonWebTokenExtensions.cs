@@ -9,7 +9,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.IdentityModel.JsonWebTokens;
 
     /// <summary>
-    /// json web token extensions.
+    /// Json web token extensions.
     /// </summary>
     internal static class JsonWebTokenExtensions
     {
