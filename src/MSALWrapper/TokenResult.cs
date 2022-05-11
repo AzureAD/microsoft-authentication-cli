@@ -87,7 +87,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public AuthType AuthType { get; internal set; }
 
         /// <summary>
-        /// To string that shows successful authentication for user
+        /// To string that shows successful authentication for user.
         /// </summary>
         /// <returns>The <see cref="string"/>.</returns>
         public override string ToString()

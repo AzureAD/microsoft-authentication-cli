@@ -33,7 +33,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <summary>
-        /// Creates a new http client
+        /// Creates a new http client.
         /// </summary>
         /// <returns>An instance of <see cref="HttpClient"/>.</returns>
         public HttpClient CreateHttpClient()
