@@ -7,28 +7,28 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.IdentityModel.JsonWebTokens;
 
     /// <summary>
-    /// The auth type.
+    /// Auth type.
     /// </summary>
     public enum AuthType
     {
         /// <summary>
-        /// The silent.
+        /// Silent auth type.
         /// </summary>
         Silent,
 
         /// <summary>
-        /// The interactive.
+        /// Interactive auth type.
         /// </summary>
         Interactive,
 
         /// <summary>
-        /// The device code flow.
+        /// Device code flow auth type.
         /// </summary>
         DeviceCodeFlow,
     }
 
     /// <summary>
-    /// The token result.
+    /// Token result.
     /// </summary>
     public class TokenResult
     {
@@ -87,7 +87,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public AuthType AuthType { get; internal set; }
 
         /// <summary>
-        /// The to string.
+        /// To string that shows successful authentication for user
         /// </summary>
         /// <returns>The <see cref="string"/>.</returns>
         public override string ToString()
@@ -96,7 +96,7 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// The method to convert to json.
+        /// Converts the jwt to a string.
         /// </summary>
         /// <returns>The <see cref="string"/>.</returns>
         public string ToJson()

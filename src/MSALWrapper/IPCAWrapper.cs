@@ -10,8 +10,8 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.Identity.Client;
 
     /// <summary>
-    /// Not for use outside of Microsoft.Office.Auth.ForConsole.
-    /// This interface is what our token fetcher uses for it's core business logic.
+    /// Not for use outside of Microsoft.Authentication.MSALWrapper.
+    /// This interface is what our Authflows use for it's core business logic.
     /// </summary>
     public interface IPCAWrapper
     {

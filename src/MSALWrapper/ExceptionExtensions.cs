@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// The exceptions extensions.
+/// Exceptions extensions.
 /// </summary>
 public static class ExceptionsExtensions
 {
@@ -34,7 +34,7 @@ public static class ExceptionsExtensions
     }
 
     /// <summary>
-    /// The get all exceptions.
+    /// Extracts all inner exceptions.
     /// </summary>
     /// <param name="exception">The exception.</param>
     /// <returns>The <see cref="IEnumerable"/>.</returns>

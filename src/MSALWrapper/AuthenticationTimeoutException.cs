@@ -6,7 +6,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using System;
 
     /// <summary>
-    /// The authentication timeout exception.
+    /// Authentication timeout exception.
     /// </summary>
     public class AuthenticationTimeoutException : Exception
     {

@@ -13,7 +13,7 @@ namespace Microsoft.Authentication.MSALWrapper
     public static class ExceptionListToStringConverter
     {
         /// <summary>
-        /// Executes the convertion.
+        /// Executes the convertion of exceptions to a string.
         /// </summary>
         /// <param name="exceptions">/// The exceptions.</param>
         /// <returns>The <see cref="string"/>.</returns>

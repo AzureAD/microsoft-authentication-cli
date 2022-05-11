@@ -9,12 +9,12 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.IdentityModel.JsonWebTokens;
 
     /// <summary>
-    /// The json web token extensions.
+    /// json web token extensions.
     /// </summary>
     internal static class JsonWebTokenExtensions
     {
         /// <summary>
-        /// The get azure user name.
+        /// Get azure user name.
         /// </summary>
         /// <param name="jwt">The jwt.</param>
         /// <returns>The <see cref="string"/>.</returns>
@@ -41,7 +41,7 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// The get display name.
+        /// Get display name.
         /// </summary>
         /// <param name="jwt">The jwt.</param>
         /// <returns>The <see cref="string"/>.</returns>
