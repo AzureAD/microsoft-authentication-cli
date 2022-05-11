@@ -44,8 +44,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The get access token async.
         /// </summary>
-        /// <param name="scopes">/// The scopes.</param>
-        /// <returns>/// The <see cref="Task"/>.</returns>
+        /// <param name="scopes">The scopes.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         Task<TokenResult> GetAccessTokenAsync(IEnumerable<string> scopes);
 
         /// <summary>
