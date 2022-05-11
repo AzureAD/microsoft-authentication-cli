@@ -28,7 +28,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// The get access token async.
         /// </summary>
         /// <param name="authMode">/// The auth mode.</param>
-        /// <returns>/// The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task"/>.</returns>
         Task<TokenResult> GetAccessTokenAsync(AuthMode authMode);
 
         /// <summary>
