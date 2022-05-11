@@ -15,7 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Executes the convertion of exceptions to a string.
         /// </summary>
-        /// <param name="exceptions">/// The exceptions.</param>
+        /// <param name="exceptions">The exceptions.</param>
         /// <returns>The <see cref="string"/>.</returns>
         public static string Execute(IEnumerable<Exception> exceptions)
         {

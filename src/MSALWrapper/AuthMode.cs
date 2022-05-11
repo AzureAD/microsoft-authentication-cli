@@ -71,8 +71,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Checks if authMode is web.
         /// </summary>
-        /// <param name="authMode">/// The auth mode.</param>
-        /// <returns>/// The <see cref="bool"/>.</returns>
+        /// <param name="authMode">The auth mode.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
         public static bool IsWeb(this AuthMode authMode)
         {
             return (AuthMode.Web & authMode) == AuthMode.Web;
@@ -81,8 +81,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Checks if authMode is device code.
         /// </summary>
-        /// <param name="authMode">/// The auth mode.</param>
-        /// <returns>/// The <see cref="bool"/>.</returns>
+        /// <param name="authMode">The auth mode.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
         public static bool IsDeviceCode(this AuthMode authMode)
         {
             return (AuthMode.DeviceCode & authMode) == AuthMode.DeviceCode;
