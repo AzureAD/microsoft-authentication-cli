@@ -6,7 +6,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using System;
 
     /// <summary>
-    /// The auth modes.
+    /// Auth modes.
     /// </summary>
     [Flags]
     public enum AuthMode : short
