@@ -50,7 +50,7 @@ namespace Microsoft.Authentication.MSALWrapper
     }
 
     /// <summary>
-    /// The auth mode extensions.
+    /// Auth mode extensions.
     /// </summary>
     public static class AuthModeExtensions
     {
