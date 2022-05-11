@@ -34,8 +34,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The get access token async.
         /// </summary>
-        /// <param name="scopes">/// The scopes.</param>
-        /// <param name="authMode">/// The auth mode.</param>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="authMode">The auth mode.</param>
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
