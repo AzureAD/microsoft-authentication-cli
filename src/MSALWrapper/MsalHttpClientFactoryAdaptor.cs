@@ -33,7 +33,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <summary>
-        /// Gets the msal http client.
+        /// Create a new http client.
         /// </summary>
         /// <returns>An instance of <see cref="HttpClient"/>.</returns>
         public HttpClient CreateHttpClient()
@@ -50,6 +50,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return client;
         }
 
+        /// <summary>
+        /// Create a new Client.
+        /// </summary>
+        /// <returns>An instance of <see cref="HttpClient"/>.</returns>
         private static HttpClient NewClient()
         {
             HttpClientHandler handler = new HttpClientHandler();

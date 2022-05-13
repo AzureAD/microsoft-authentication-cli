@@ -61,7 +61,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <summary>
-        /// Gets the token for a resource.
+        /// Get a token for a resource.
         /// </summary>
         /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
