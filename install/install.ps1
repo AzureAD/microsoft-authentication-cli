@@ -52,7 +52,7 @@ if (Test-Path -Path $latestDirectory) {
 # while PowerShell's New-Item has breaking changes and doesn't have the -Target param in 4.0 (the default PowerShell on Win Server 2012).
 
 Write-Verbose "Linking ${latestDirectory} to ${extractedDirectory}"
-cmd.exe /Q /C "mklink /J $latestDirectory $extractedDirectory" > $null
+cmd.exe /Q /C "mklink /J `"$latestDirectory`" `"$extractedDirectory`"" > $null
 if (!$?) {
     Write-Error "Linking failed!"
 }
