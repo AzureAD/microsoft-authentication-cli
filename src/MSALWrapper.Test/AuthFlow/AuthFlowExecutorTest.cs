@@ -616,29 +616,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Errors.Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors2[1] });
         }
 
-        [Test]
-        public async Task HasNullResultAuthFlow_Returns_With_BadImplementationException()
-        {
-            // Setup
-            var nullTokenResultAuthflow = new Mock<IAuthFlow>(MockBehavior.Strict);
-            nullTokenResultAuthflow.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
-
-            var errors = new[]
-            {
-                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-            };
-
-            // Act
-            var authFlow = this.Subject(new[] { nullTokenResultAuthflow.Object });
-            var result = await authFlow.GetTokenAsync();
-
-            // Assert
-            nullTokenResultAuthflow.VerifyAll();
-            result.Success.Should().BeFalse();
-            result.Errors.Should().HaveCount(1);
-            result.Errors.Should().BeEquivalentTo(errors);
-        }
-
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
