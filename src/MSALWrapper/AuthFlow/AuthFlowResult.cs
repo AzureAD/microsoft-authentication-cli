@@ -31,17 +31,17 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Get a token result.
+        /// Gets a token result.
         /// </summary>
         public TokenResult TokenResult { get; internal set; }
 
         /// <summary>
-        /// Get a list of errors.
+        /// Gets a list of errors.
         /// </summary>
         public IList<Exception> Errors { get; internal set; }
 
         /// <summary>
-        /// Get a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.
+        /// Gets a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.
         /// </summary>
         public bool Success
         {
