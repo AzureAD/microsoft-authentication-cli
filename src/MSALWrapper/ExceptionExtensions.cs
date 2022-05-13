@@ -7,21 +7,16 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// The exceptions extensions.
+/// Exceptions extensions.
 /// </summary>
 public static class ExceptionsExtensions
 {
     /// <summary>
-    /// The to formatted string.
+    /// Convert exception to formatted string.
     /// </summary>
-    /// <param name="exception">
-    /// The exception.
-    /// </param>
-    /// <returns>
-    /// The <see cref="string"/>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">.
-    /// </exception>
+    /// <param name="exception">The exception.</param>
+    /// <returns>The <see cref="string"/>.</returns>
+    /// <exception cref="ArgumentNullException">.</exception>
     public static string ToFormattedString(this Exception exception)
     {
         if (exception == null)
@@ -39,17 +34,11 @@ public static class ExceptionsExtensions
     }
 
     /// <summary>
-    /// The get all exceptions.
+    /// Extracts all inner exceptions.
     /// </summary>
-    /// <param name="exception">
-    /// The exception.
-    /// </param>
-    /// <returns>
-    /// The <see cref="IEnumerable"/>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Argument Null Exception.
-    /// </exception>
+    /// <param name="exception">The exception.</param>
+    /// <returns>The <see cref="IEnumerable"/>.</returns>
+    /// <exception cref="ArgumentNullException">Argument Null Exception.</exception>
     public static IEnumerable<Exception> GetAllExceptions(this Exception exception)
     {
         if (exception == null)

@@ -30,7 +30,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <summary>
-        /// Gets the auth flow result.
+        /// Get a auth flow result.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
