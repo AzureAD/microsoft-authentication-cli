@@ -140,8 +140,8 @@ def main() -> None:
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
 
-    source_path = Path(args.source)
-    destination_path = Path(args.destination)
+    source_path = Path(args.source).resolve()
+    destination_path = Path(args.destination).resolve()
     auth_path = Path("auth.json")
     policy_path = Path("policy.json")
     input_path = Path("input.json")
