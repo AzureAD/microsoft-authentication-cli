@@ -6,6 +6,9 @@ import os
 import subprocess
 import sys
 from collections.abc import Iterator
+from collections.abc import Generator
+from contextlib import ExitStack
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -40,8 +43,24 @@ def sign_tool_verify(key_code: str) -> JSON:
     }
 
 
+def sign_request_file(
+    source: Path,
+    destination: Path,
+    customer_correlation_id: str,
+) -> JSON:
+    """Return the JSON for a `SignRequestFiles` entry."""
+    return {
+        "CustomerCorrelationId": customer_correlation_id,
+        "SourceLocation": source.name,
+        "DestinationLocation": destination.name,
+    }
+
+
 def batch(
-    source: Path, destination: Path, files: list[JSON], operations: list[JSON]
+    source: Path,
+    destination: Path,
+    files: list[JSON],
+    operations: list[JSON],
 ) -> JSON:
     """Return a single signing batch for a given set of files and operations."""
     return {
@@ -54,17 +73,17 @@ def batch(
     }
 
 
+@contextmanager
 def windows_batches(
-    source: Path, destination: Path, key_code: str, customer_correlation_id: str
-) -> list[JSON]:
+    source: Path,
+    destination: Path,
+    key_code: str,
+    customer_correlation_id: str,
+) -> Generator[JSON, None, None]:
     """Return the JSON signing batches for the Windows platform."""
     extensions = [".exe", ".dll"]
     files = [
-        {
-            "CustomerCorrelationId": customer_correlation_id,
-            "SourceLocation": path.name,
-            "DestinationLocation": path.name,
-        }
+        sign_request_file(path, path, customer_correlation_id)
         for path in source.iterdir()
         if path.suffix in extensions and path.is_file()
     ]
@@ -74,12 +93,10 @@ def windows_batches(
         sign_tool_verify(key_code),
     ]
 
-    return [batch(source, destination, files, operations)]
-
-
-def esrp_input(batches: list[JSON]) -> JSON:
-    """Return the top-level JSON for an ESRPClient.exe input file."""
-    return {"Version": "1.0.0", "SignBatches": batches}
+    yield {
+        "Version": "1.0.0",
+        "SignBatches": [batch(source, destination, files, operations)],
+    }
 
 
 def auth(tenant_id: str, client_id: str) -> JSON:
@@ -109,6 +126,15 @@ def policy() -> JSON:
         "Intent": "Product Release",
         "ContentType": "Signed Binaries",
     }
+
+
+@contextmanager
+def json_tempfile(path: Path, data: JSON) -> Generator[None, None, None]:
+    """Create a JSON file with the given data and later remove it."""
+    with path.open(mode="w") as file:
+        json.dump(obj=data, fp=file, indent=2)
+    yield
+    path.unlink()
 
 
 def parse_args() -> argparse.Namespace:
@@ -147,12 +173,13 @@ def main() -> None:
     input_path = Path("input.json")
     output_path = Path("output.json")
 
-    # 3. Determine platform & generate signing batches.
-    batches = []
-
+    # 3. Determine platform & create a batchmaker.
+    # 
+    # Note that the batchmaker is not the batches themselves, but a context
+    # manager which will yield them.
     match args.platform.lower():
         case "windows":
-            batches = windows_batches(
+            batchmaker = windows_batches(
                 source=source_path,
                 destination=destination_path,
                 key_code=key_code,
@@ -164,22 +191,7 @@ def main() -> None:
             # This should be unreachable because of argparse, but let's be safe.
             sys.exit(f"Error: Invalid platform: {args.platform}")
 
-    # 4. Create input.json
-    with input_path.open(mode="w") as file:
-        obj = esrp_input(batches=batches)
-        json.dump(obj=obj, fp=file, indent=2)
-
-    # 5. Create auth.json
-    with auth_path.open(mode="w") as file:
-        obj = auth(tenant_id=tenant_id, client_id=aad_id)
-        json.dump(obj=obj, fp=file, indent=2)
-
-    # 6. Create policy.json.
-    with policy_path.open(mode="w") as file:
-        obj = policy()
-        json.dump(obj=obj, fp=file, indent=2)
-
-    # 7. Run ESRPClient.
+    # 4. Create the necessary context and run ESRPClient.
     esrp_args = [
         args.esrp_client,
         "sign",
@@ -195,9 +207,21 @@ def main() -> None:
         "Verbose",
     ]
 
-    subprocess.run(esrp_args)
+    with ExitStack() as stack:
+        # Generate auth.json.
+        auth_json = auth(tenant_id, aad_id)
+        stack.enter_context(json_tempfile(auth_path, auth_json))
 
-    # 8. TODO: Maybe clean up any temporary files?
+        # Generate policy.json.
+        policy_json = policy()
+        stack.enter_context(json_tempfile(policy_path, policy_json))
+
+        # Generate input.json (and any supporting intermediate files).
+        batches = stack.enter_context(batchmaker)
+        stack.enter_context(json_tempfile(input_path, batches))
+
+        # subprocess.run(esrp_args)
+        print(f"Running {esrp_args}")
 
 
 if __name__ == "__main__":
