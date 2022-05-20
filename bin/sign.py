@@ -98,7 +98,7 @@ def batch(
 def windows_batches(
     source: Path,
     destination: Path,
-    key_code: str,
+    key_codes: dict[str, str],
     customer_correlation_id: str,
 ) -> Generator[JSON, None, None]:
     """Yield the JSON signing batches for the win-x64 runtime."""
@@ -108,6 +108,7 @@ def windows_batches(
         if path.suffix in [".exe", ".dll"] and path.is_file()
     ]
 
+    key_code = key_codes["authenticode"]
     operations = [sign_tool_sign(key_code), sign_tool_verify(key_code)]
 
     # Yield the batches to ESRPClient.exe signing.
@@ -121,7 +122,7 @@ def windows_batches(
 def osx_batches(
     source: Path,
     destination: Path,
-    key_code: str,
+    key_codes: dict[str, str],
     customer_correlation_id: str,
 ) -> Generator[JSON, None, None]:
     """Yield the JSON signing batches for the osx-x64 and osx-arm64 runtimes."""
@@ -143,8 +144,13 @@ def osx_batches(
     dll_files = [sign_request_file(dll, dll, customer_correlation_id) for dll in dlls]
     dylib_files = [sign_request_file(dylibs_zip, dylibs_zip, customer_correlation_id)]
 
-    dll_operations = [sign_tool_sign(key_code), sign_tool_verify(key_code)]
-    dylib_operations = [mac_app_developer_sign(key_code)]
+    authenticode_key_code = key_codes["authenticode"]
+    mac_key_code = key_codes["mac"]
+    dll_operations = [
+        sign_tool_sign(authenticode_key_code),
+        sign_tool_verify(authenticode_key_code),
+    ]
+    dylib_operations = [mac_app_developer_sign(mac_key_code)]
 
     # Yield the batches to ESRPClient.exe signing.
     yield {
@@ -241,12 +247,17 @@ def main() -> None:
     try:
         aad_id = os.environ["SIGNING_AAD_ID"]
         tenant_id = os.environ["SIGNING_TENANT_ID"]
-        key_code = os.environ["SIGNING_KEY_CODE"]
+        # This key code is used for signing .exes and .dlls on both Windows and Mac.
+        authenticode_key_code = os.environ["SIGNING_AUTHENTICODE_KEY_CODE"]
+        # This key code is used for signing .dylibs on Macs.
+        mac_key_code = os.environ["SIGNING_MAC_KEY_CODE"]
         customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
+
+    key_codes = {"authenticode": authenticode_key_code, "mac": mac_key_code}
 
     source_path = args.source.resolve()
     destination_path = args.destination.resolve()
@@ -261,14 +272,14 @@ def main() -> None:
             batchmaker = windows_batches(
                 source=source_path,
                 destination=destination_path,
-                key_code=key_code,
+                key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
             )
         case "osx-x64" | "osx-arm64":
             batchmaker = osx_batches(
                 source=source_path,
                 destination=destination_path,
-                key_code=key_code,
+                key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
             )
         case _:
