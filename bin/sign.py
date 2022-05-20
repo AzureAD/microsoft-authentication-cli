@@ -1,10 +1,12 @@
 """A script which wraps ESRPClient.exe for code signing."""
 
-import argparse
 import json
 import os
 import subprocess
 import sys
+from argparse import ArgumentParser
+from argparse import ArgumentDefaultsHelpFormatter
+from argparse import Namespace
 from collections.abc import Iterator
 from collections.abc import Generator
 from contextlib import ExitStack
@@ -198,17 +200,32 @@ def json_tempfile(path: Path, data: JSON) -> Generator[None, None, None]:
     path.unlink()
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args() -> Namespace:
     """Parse and return command line arguments."""
     cwd = Path.cwd()
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser(
+        description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter
+    )
 
-    parser.add_argument("esrp_client")
-    parser.add_argument("--source", default=str(cwd))
-    parser.add_argument("--destination", default=str(cwd))
+    parser.add_argument("esrp_client", help="the path to the ESRPClient.exe binary")
+    parser.add_argument(
+        "--source",
+        metavar="SRC",
+        help="the source path",
+        type=Path,
+        default=str(cwd),
+    )
+    parser.add_argument(
+        "--destination",
+        metavar="DST",
+        help="the destination path",
+        type=Path,
+        default=str(cwd),
+    )
     parser.add_argument(
         "--runtime",
         choices=["win-x64", "osx-x64", "osx-arm64"],
+        help="the runtime of the build in source",
         default="win-x64",
     )
 
@@ -231,8 +248,8 @@ def main() -> None:
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
 
-    source_path = Path(args.source).resolve()
-    destination_path = Path(args.destination).resolve()
+    source_path = args.source.resolve()
+    destination_path = args.destination.resolve()
     auth_path = Path("auth.json")
     policy_path = Path("policy.json")
     input_path = Path("input.json")
