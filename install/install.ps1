@@ -66,7 +66,7 @@ $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
 $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
 if ($currentPath -NotMatch 'AzureAuth') {
     Write-Verbose "Updating `$PATH to include ${latestDirectory}"
-    $newPath = if($currentPath -Match $null) {
+    $newPath = if ($currentPath -Match $null) {
         "${latestDirectory}"
     } else {
         "${currentPath};${latestDirectory}"
