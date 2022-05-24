@@ -67,9 +67,9 @@ $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ea 0).Path
 if ($currentPath -NotMatch 'AzureAuth') {
     Write-Verbose "Updating `$PATH to include ${latestDirectory}"
     $newPath = if($currentPath -Match $null) {
-        ${latestDirectory}
+        "${latestDirectory}"
     } else {
-        ${currentPath};${latestDirectory}
+        "${currentPath};${latestDirectory}"
     }
     Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
 }
