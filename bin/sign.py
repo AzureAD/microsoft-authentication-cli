@@ -93,7 +93,7 @@ def windows_batches(
 ) -> Generator[JSON, None, None]:
     """Yield the JSON signing batches for the win-x64 runtime."""
     files = [
-        sign_request_file(path, path, customer_correlation_id)
+        sign_request_file(path, customer_correlation_id)
         for path in source.iterdir()
         if path.suffix in [".exe", ".dll"] and path.is_file()
     ]
@@ -130,8 +130,8 @@ def osx_batches(
         for path in dylibs:
             file.write(path, path.relative_to(source))
 
-    dll_files = [sign_request_file(dll, dll, customer_correlation_id) for dll in dlls]
-    dylib_files = [sign_request_file(dylibs_zip, dylibs_zip, customer_correlation_id)]
+    dll_files = [sign_request_file(dll, customer_correlation_id) for dll in dlls]
+    dylib_files = [sign_request_file(dylibs_zip, customer_correlation_id)]
 
     authenticode_key_code = key_codes["authenticode"]
     mac_key_code = key_codes["mac"]
