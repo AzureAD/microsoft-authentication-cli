@@ -6,9 +6,11 @@ namespace Microsoft.Authentication.MSALWrapper
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.Identity.Client.Extensions.Msal;
+    using Microsoft.IdentityModel.Tokens;
 
     /// <summary>
     /// The PCA cache class.
@@ -46,6 +48,11 @@ namespace Microsoft.Authentication.MSALWrapper
             this.cacheDir = Path.Combine(appData, ".IdentityService");
 
             var azureAuthCacheFile = Environment.GetEnvironmentVariable(Constants.AZUREAUTH_CACHE_FILE);
+            if (!azureAuthCacheFile.Intersect(Path.GetInvalidFileNameChars()).IsNullOrEmpty())
+            {
+                throw new ArgumentException($"Environment variable '{Constants.AZUREAUTH_CACHE_FILE}' Contains invalid path characters.");
+            }
+
             this.cacheFileName = string.IsNullOrWhiteSpace(azureAuthCacheFile) ? $"msal_{tenantId}.cache" : azureAuthCacheFile;
         }
 
