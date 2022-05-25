@@ -44,7 +44,16 @@ namespace Microsoft.Authentication.MSALWrapper
             this.osxKeyChainSuffix = string.IsNullOrWhiteSpace(osxKeyChainSuffix) ? $"{tenantId}" : $"{osxKeyChainSuffix}.{tenantId}";
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             this.cacheDir = Path.Combine(appData, ".IdentityService");
-            this.cacheFileName = $"msal_{tenantId}.cache";
+
+            var azureAuthCacheFile = Environment.GetEnvironmentVariable(Constants.AZUREAUTH_CACHE_FILE);
+            if (string.IsNullOrEmpty(azureAuthCacheFile))
+            {
+                this.cacheFileName = $"msal_{tenantId}.cache";
+            }
+            else
+            {
+                this.cacheFileName = azureAuthCacheFile;
+            }
         }
 
         /// <summary>

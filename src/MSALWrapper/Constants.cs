@@ -31,5 +31,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// The name of an environment variable used to disable file cache configuration.
         /// </summary>
         internal const string OEAUTH_MSAL_DISABLE_CACHE = "OEAUTH_MSAL_DISABLE_CACHE";
+
+        /// <summary>
+        /// The name of an environment variable used to override the cache file path.
+        /// </summary>
+        internal const string AZUREAUTH_CACHE_FILE = "AZUREAUTH_CACHE_FILE";
     }
 }
