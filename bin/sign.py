@@ -229,16 +229,16 @@ def main() -> None:
         aad_id = os.environ["SIGNING_AAD_ID"]
         tenant_id = os.environ["SIGNING_TENANT_ID"]
         # This key code is used for signing .exes and .dlls on both Windows and Mac.
-        authenticode_key_code = os.environ["SIGNING_AUTHENTICODE_KEY_CODE"]
+        key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
         # This key code is used for signing .dylibs on Macs.
-        mac_key_code = os.environ["SIGNING_MAC_KEY_CODE"]
+        key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
         customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
 
-    key_codes = {"authenticode": authenticode_key_code, "mac": mac_key_code}
+    key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac}
 
     source_path = args.source.resolve()
     auth_path = Path("auth.json")
