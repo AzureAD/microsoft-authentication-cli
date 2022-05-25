@@ -46,14 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper
             this.cacheDir = Path.Combine(appData, ".IdentityService");
 
             var azureAuthCacheFile = Environment.GetEnvironmentVariable(Constants.AZUREAUTH_CACHE_FILE);
-            if (string.IsNullOrEmpty(azureAuthCacheFile))
-            {
-                this.cacheFileName = $"msal_{tenantId}.cache";
-            }
-            else
-            {
-                this.cacheFileName = azureAuthCacheFile;
-            }
+            this.cacheFileName = string.IsNullOrWhiteSpace(azureAuthCacheFile) ? $"msal_{tenantId}.cache" : azureAuthCacheFile;
         }
 
         /// <summary>
