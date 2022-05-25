@@ -63,10 +63,14 @@ Remove-Item -Force $zipFile
 # Permanently add the latest directory to the current user's $PATH (if it's not already there).
 # Note that this will only take effect when a new terminal is started.
 $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
-$currentPath = (Get-ItemProperty -Path $registryPath -Name PATH).Path
+$currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
 if ($currentPath -NotMatch 'AzureAuth') {
     Write-Verbose "Updating `$PATH to include ${latestDirectory}"
-    $newPath = "${currentPath};${latestDirectory}"
+    $newPath = if ($currentPath -Match $null) {
+        "${latestDirectory}"
+    } else {
+        "${currentPath};${latestDirectory}"
+    }
     Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
 }
 
