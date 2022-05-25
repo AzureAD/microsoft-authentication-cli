@@ -64,31 +64,22 @@ def sign_tool_verify(key_code: str) -> JSON:
     }
 
 
-def sign_request_file(
-    source: Path,
-    destination: Path,
-    customer_correlation_id: str,
-) -> JSON:
+def sign_request_file(source: Path, customer_correlation_id: str) -> JSON:
     """Return the JSON for a `SignRequestFiles` entry."""
     return {
         "CustomerCorrelationId": customer_correlation_id,
         "SourceLocation": source.name,
-        "DestinationLocation": destination.name,
+        "DestinationLocation": source.name,
     }
 
 
-def batch(
-    source: Path,
-    destination: Path,
-    files: list[JSON],
-    operations: list[JSON],
-) -> JSON:
+def batch(source: Path, files: list[JSON], operations: list[JSON]) -> JSON:
     """Return a single signing batch for a given set of files and operations."""
     return {
         "SourceLocationType": "UNC",
         "SourceRootDirectory": str(source),
         "DestinationLocationType": "UNC",
-        "DestinationRootDirectory": str(destination),
+        "DestinationRootDirectory": str(source),
         "SignRequestFiles": files,
         "SigningInfo": {"Operations": operations},
     }
@@ -97,7 +88,6 @@ def batch(
 @contextmanager
 def windows_batches(
     source: Path,
-    destination: Path,
     key_codes: dict[str, str],
     customer_correlation_id: str,
 ) -> Generator[JSON, None, None]:
@@ -114,14 +104,13 @@ def windows_batches(
     # Yield the batches to ESRPClient.exe signing.
     yield {
         "Version": "1.0.0",
-        "SignBatches": [batch(source, destination, files, operations)],
+        "SignBatches": [batch(source, files, operations)],
     }
 
 
 @contextmanager
 def osx_batches(
     source: Path,
-    destination: Path,
     key_codes: dict[str, str],
     customer_correlation_id: str,
 ) -> Generator[JSON, None, None]:
@@ -156,15 +145,14 @@ def osx_batches(
     yield {
         "Version": "1.0.0",
         "SignBatches": [
-            batch(source, destination, dll_files, dll_operations),
-            batch(source, destination, dylib_files, dylib_operations),
+            batch(source, dll_files, dll_operations),
+            batch(source, dylib_files, dylib_operations),
         ],
     }
 
     # At this point signing is finished. Extract the signed dylibs.
-    dylibs_zip = destination / dylibs_zip.name
     with ZipFile(dylibs_zip, mode="r") as file:
-        file.extractall(destination)
+        file.extractall(source)
     dylibs_zip.unlink()
 
 
@@ -222,13 +210,6 @@ def parse_args() -> Namespace:
         default=str(cwd),
     )
     parser.add_argument(
-        "--destination",
-        metavar="DST",
-        help="the destination path",
-        type=Path,
-        default=str(cwd),
-    )
-    parser.add_argument(
         "--runtime",
         choices=["win-x64", "osx-x64", "osx-arm64"],
         help="the runtime of the build in source",
@@ -260,7 +241,6 @@ def main() -> None:
     key_codes = {"authenticode": authenticode_key_code, "mac": mac_key_code}
 
     source_path = args.source.resolve()
-    destination_path = args.destination.resolve()
     auth_path = Path("auth.json")
     policy_path = Path("policy.json")
     input_path = Path("input.json")
@@ -271,14 +251,12 @@ def main() -> None:
         case "win-x64":
             batchmaker = windows_batches(
                 source=source_path,
-                destination=destination_path,
                 key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
             )
         case "osx-x64" | "osx-arm64":
             batchmaker = osx_batches(
                 source=source_path,
-                destination=destination_path,
                 key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
             )
