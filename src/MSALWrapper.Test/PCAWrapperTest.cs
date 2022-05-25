@@ -5,6 +5,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
@@ -158,7 +160,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void CustomizedCacheFileWithInvalidCharacter()
         {
             // Setup
-            string filenameWithInvalidCharacter = "filename_with_invalid_character?";
+            string filenameWithInvalidCharacter = "filename_with_invalid_character" + Path.GetInvalidFileNameChars().First();
             Environment.SetEnvironmentVariable(Constants.AZUREAUTH_CACHE_FILE, filenameWithInvalidCharacter);
             this.pcaClientMock.Setup(pca => pca.UserTokenCache).Returns(new Mock<ITokenCache>(MockBehavior.Loose).Object);
 
