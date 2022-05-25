@@ -198,7 +198,8 @@ def parse_args() -> Namespace:
     """Parse and return command line arguments."""
     cwd = Path.cwd()
     parser = ArgumentParser(
-        description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter
+        description=__doc__,
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
     parser.add_argument("esrp_client", help="the path to the ESRPClient.exe binary")
