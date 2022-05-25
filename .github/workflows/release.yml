@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         # We build on Linux, but don't yet ship Linux because we can't easily sign those releases.
-        runtime: [linux-x64, osx-x64, osx-arm64, win-x64]
+        runtime: [linux-x64, osx-x64, osx-arm64, win10-x64]
         include:
           - runtime: linux-x64
             os: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
             os: macos-latest
           - runtime: osx-arm64
             os: macos-latest
-          - runtime: win-x64
+          - runtime: win10-x64
             os: windows-latest
     steps:
     - name: Checkout
@@ -58,15 +58,15 @@ jobs:
       uses: actions/download-artifact@v3
     - name: Install Zip
       run: sudo apt install -y zip
-    - name: Create win-x64 archive
+    - name: Create win10-x64 archive
       run: |
-        cd azureauth-${{ github.event.inputs.version }}-win-x64
-        zip ../azureauth-${{ github.event.inputs.version }}-win-x64.zip *
-    - name: Upload win-x64 artifact
+        cd azureauth-${{ github.event.inputs.version }}-win10-x64
+        zip ../azureauth-${{ github.event.inputs.version }}-win10-x64.zip *
+    - name: Upload win10-x64 artifact
       uses: actions/upload-artifact@v3
       with:
-        name: azureauth-${{ github.event.inputs.version }}-win-x64.zip
-        path: azureauth-${{ github.event.inputs.version }}-win-x64.zip
+        name: azureauth-${{ github.event.inputs.version }}-win10-x64.zip
+        path: azureauth-${{ github.event.inputs.version }}-win10-x64.zip
     - name: Create osx-x64 archive
       run: |
         cd azureauth-${{ github.event.inputs.version }}-osx-x64
@@ -96,10 +96,10 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Download win-x64 artifact
+    - name: Download win10-x64 artifact
       uses: actions/download-artifact@v3
       with:
-        name: azureauth-${{ github.event.inputs.version }}-win-x64.zip
+        name: azureauth-${{ github.event.inputs.version }}-win10-x64.zip
     - name: Download osx-x64 artifact
       uses: actions/download-artifact@v3
       with:
@@ -116,6 +116,6 @@ jobs:
         tag_name: ${{ github.event.inputs.version }}
         prerelease: ${{ github.event.inputs.prerelease }}
         files: |
-          azureauth-${{ github.event.inputs.version }}-win-x64.zip
+          azureauth-${{ github.event.inputs.version }}-win10-x64.zip
           azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
           azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
