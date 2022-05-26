@@ -58,7 +58,7 @@ jobs:
         path: dist/${{ matrix.runtime }}
 
   sign:
-    # This step has to run on Windows because ESRPClient.exe is currently only availabe for that platform.
+    # This step has to run on Windows because ESRPClient.exe is currently only available for that platform.
     runs-on: windows-latest
     needs: [build]
     steps:
