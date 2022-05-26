@@ -202,7 +202,11 @@ def parse_args() -> Namespace:
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
-    parser.add_argument("esrp_client", help="the path to the ESRPClient.exe binary")
+    parser.add_argument(
+        "esrp_client",
+        help="the path to the ESRPClient.exe binary",
+        type=Path
+    )
     parser.add_argument(
         "--source",
         metavar="SRC",
@@ -241,11 +245,12 @@ def main() -> None:
 
     key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac}
 
+    esrp_path = args.esrp_client.resolve()
     source_path = args.source.resolve()
-    auth_path = Path("auth.json")
-    policy_path = Path("policy.json")
-    input_path = Path("input.json")
-    output_path = Path("output.json")
+    auth_path = Path("auth.json").resolve()
+    policy_path = Path("policy.json").resolve()
+    input_path = Path("input.json").resolve()
+    output_path = Path("output.json").resolve()
 
     # 3. Determine runtime & create a batchmaker.
     match args.runtime.lower():
@@ -267,7 +272,7 @@ def main() -> None:
 
     # 4. Create the necessary context and run ESRPClient.
     esrp_args = [
-        args.esrp_client,
+        str(esrp_path),
         "sign",
         "-a",
         str(auth_path),
