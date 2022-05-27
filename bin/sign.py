@@ -19,11 +19,11 @@ from zipfile import ZIP_DEFLATED
 JSON = dict[str, Any]  # A naive type alias for JSON.
 
 
-def mac_app_developer_sign(key_code: str) -> JSON:
-    """Return the JSON for a `MacAppDeveloperSign` operation."""
+def sign_operation(key_code: str, operation: str) -> JSON:
+    """Return the JSON signing operation for a given key code/operation."""
     return {
         "KeyCode": key_code,
-        "OperationCode": "MacAppDeveloperSign",
+        "OperationCode": operation,
         "Parameters": {
             "OpusName": "Microsoft",
             "OpusInfo": "http://www.microsoft.com",
@@ -34,23 +34,16 @@ def mac_app_developer_sign(key_code: str) -> JSON:
         "ToolName": "sign",
         "ToolVersion": "1.0",
     }
+
+
+def mac_app_developer_sign(key_code: str) -> JSON:
+    """Return the JSON for a `MacAppDeveloperSign` operation."""
+    return sign_operation(key_code, operation="MacAppDeveloperSign")
 
 
 def sign_tool_sign(key_code: str) -> JSON:
     """Return the JSON for a `SigntoolSign` operation."""
-    return {
-        "KeyCode": key_code,
-        "OperationCode": "SigntoolSign",
-        "Parameters": {
-            "OpusName": "Microsoft",
-            "OpusInfo": "http://www.microsoft.com",
-            "FileDigest": '/fd "SHA256"',
-            "PageHash": "/NPH",
-            "TimeStamp": '/tr "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer" /td sha256',
-        },
-        "ToolName": "sign",
-        "ToolVersion": "1.0",
-    }
+    return sign_operation(key_code, operation="SigntoolSign")
 
 
 def sign_tool_verify(key_code: str) -> JSON:
