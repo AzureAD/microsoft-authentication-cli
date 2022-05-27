@@ -15,12 +15,16 @@ on:
         type: boolean
 
 jobs:
+  # Special request from @kyle-rader and @goagain, so no one can create an invalid release.
   validate:
     runs-on: ubuntu-latest
     steps:
-    # Special request from @kyle-rader, so no one can accidentally omit a 'v'.
+    - name: Setup Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
     - name: Validate version
-      run: echo ${{ github.event.inputs.version }} | grep 'v.*' || (echo "Version must start with a v (e.g., v0.1.0)"; false)
+      run: echo ${{ github.event.inputs.version }} | python .\bin\version.py
 
   build:
     runs-on: ${{ matrix.os }}
