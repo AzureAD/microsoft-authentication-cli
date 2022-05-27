@@ -1,4 +1,4 @@
-"""TODO"""
+"""A script which validates strings as mostly SemVer compliant. We add a 'v'."""
 
 import re
 import sys
@@ -12,7 +12,7 @@ import sys
 MOSTLY_SEMVER = re.compile(r"^v(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")
 
 def main() -> None:
-    """TODO"""
+    """Validate user input."""
     version = input("Enter a version: ")
     match MOSTLY_SEMVER.match(version):
         case None:
