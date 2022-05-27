@@ -205,7 +205,7 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "esrp_client",
         help="the path to the ESRPClient.exe binary",
-        type=Path
+        type=Path,
     )
     parser.add_argument(
         "--source",
