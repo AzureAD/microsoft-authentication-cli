@@ -199,7 +199,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         name: ${{ github.event.inputs.version }}
-        body: "Release ${{ github.event.inputs.version }}."
+        body: "Release ${{ github.event.inputs.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ github.event.inputs.version }}/CHANGELOG.md) for updates."
         tag_name: ${{ github.event.inputs.version }}
         prerelease: ${{ github.event.inputs.prerelease }}
         files: |
