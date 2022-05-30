@@ -52,6 +52,7 @@ namespace Microsoft.Authentication.MSALWrapper
             {
                 throw new ArgumentNullException($"{nameof(cacheFileName)} should not be null or whitespace.");
             }
+
             this.cacheFileName = cacheFileName;
         }
 
