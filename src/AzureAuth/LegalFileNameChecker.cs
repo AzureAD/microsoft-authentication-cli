@@ -7,7 +7,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Linq;
 
     /// <summary>
-    /// A helper class for <see cref="LegalFileNameAttribute"/>
+    /// A helper class for <see cref="LegalFileNameAttribute"/>.
     /// </summary>
     internal static class LegalFileNameChecker
     {

@@ -85,7 +85,10 @@ invalid_key = ""this is not a valid alias key""
             // Meaning all param types are also registered with the DI service provider.
             this.tokenFetcherMock = new Mock<ITokenFetcher>(MockBehavior.Strict);
 
-            this.envMock = new Mock<IEnv>(MockBehavior.Loose);
+            this.envMock = new Mock<IEnv>(MockBehavior.Strict);
+
+            // Environment variables should be null by default.
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject").
             this.serviceProvider = new ServiceCollection()
