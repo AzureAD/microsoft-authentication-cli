@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Environment variable `AZUREAUTH_CACHE_FILE` to support custom cache file name.
+- Environment variable `AZUREAUTH_CACHE_FILE` and option `--cache-filename` to support custom cache file name.
 
 ## [v0.3.0] - 2022-05-03
 ### Fixed
