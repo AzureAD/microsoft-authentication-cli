@@ -37,7 +37,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string OutputOption = "--output";
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
-
+        private const string CacheFileNameOption = "--cache-filename";
         private const string PromptHintPrefix = "AzureAuth";
 
 #if PlatformWindows
@@ -160,6 +160,13 @@ Allowed values: [all, web, devicecode]";
         public string ConfigFilePath { get; set; }
 
         /// <summary>
+        /// Gets or sets the cache file name.
+        /// </summary>
+        [LegalFileName]
+        [Option(CacheFileNameOption, "The file name of cache", CommandOptionType.SingleOrNoValue)]
+        public string CacheFileName { get; set; }
+
+        /// <summary>
         /// Gets the token fetcher options.
         /// </summary>
         public Alias TokenFetcherOptions
@@ -240,6 +247,13 @@ Allowed values: [all, web, devicecode]";
             // Set the token fetcher options so they can be used later on.
             this.authSettings = evaluatedOptions;
 
+            // Use the option `--cache-filename` first, then use the environment variable `AZUREAUTH_CACHE_FILE`. If neither exists, the default value is used.
+            if (string.IsNullOrEmpty(this.CacheFileName))
+            {
+                string envCacheFile = this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE);
+                this.CacheFileName = string.IsNullOrEmpty(envCacheFile) ? $"msal_{this.Tenant}.cache" : envCacheFile;
+            }
+
             // Evaluation is a two-part task. Parse, then validate. Validation is complex, so we call a separate helper.
             return this.ValidateOptions();
         }
@@ -291,13 +305,19 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
+            if (!LegalFileNameChecker.IsValidFilename(this.CacheFileName))
+            {
+                this.logger.LogError($"The {CacheFileNameOption} field or environment varable {nameof(EnvVars.AZUREAUTH_CACHE_FILE)} is invalid");
+                validOptions = false;
+            }
+
             return validOptions;
         }
 
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth");
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), this.CacheFileName, "azureauth");
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())

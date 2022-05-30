@@ -42,10 +42,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="errors">The errors list to append error encountered to.</param>
         /// <param name="tenantId">The tenant ID to help key the cache off of.</param>
         /// <param name="osxKeyChainSuffix">An optional (can be null) suffix to further customize key chain token caches on OSX.</param>
-        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId, string osxKeyChainSuffix)
+        /// <param name="cacheFileName">The cache filename.</param>
+        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId, string osxKeyChainSuffix, string cacheFileName)
             : this(logger, pca)
         {
-            var cacher = new PCACache(logger, tenantId, osxKeyChainSuffix);
+            var cacher = new PCACache(logger, tenantId, cacheFileName, osxKeyChainSuffix);
             cacher.SetupTokenCache(this.pca.UserTokenCache, errors);
         }
 

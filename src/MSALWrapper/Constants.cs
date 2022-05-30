@@ -16,11 +16,6 @@ namespace Microsoft.Authentication.MSALWrapper
         public const string AuthOSXKeyChainSuffix = "azureauth";
 
         /// <summary>
-        /// The name of an environment variable used to override the cache file path.
-        /// </summary>
-        public const string AZUREAUTH_CACHE_FILE = "AZUREAUTH_CACHE_FILE";
-
-        /// <summary>
         /// The aad oauth redirect uri.
         /// </summary>
         public static readonly Uri AadOAuthRedirectUri = new Uri("urn:ietf:wg:oauth:2.0:oob");

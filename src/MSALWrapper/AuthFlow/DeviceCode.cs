@@ -50,14 +50,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
-        public DeviceCode(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
+        /// <param name="cacheFileName">The cache file name.</param>
+        public DeviceCode(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null, string cacheFileName = null)
         {
             this.errors = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix, cacheFileName);
         }
 
         /// <summary>
@@ -134,7 +135,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return client;
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFileName)
         {
             var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =
@@ -149,7 +150,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     .WithHttpClientFactory(httpFactoryAdaptor)
                     .WithRedirectUri(Constants.AadRedirectUri.ToString());
 
-            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix);
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix, cacheFileName);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)

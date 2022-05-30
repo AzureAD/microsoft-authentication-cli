@@ -39,21 +39,15 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="tenantId">The tenant id.</param>
+        /// <param name="cacheFileName">The cache file name.</param>
         /// <param name="osxKeyChainSuffix">The osx key chain suffix.</param>
-        internal PCACache(ILogger logger, Guid tenantId, string osxKeyChainSuffix = null)
+        internal PCACache(ILogger logger, Guid tenantId, string cacheFileName, string osxKeyChainSuffix = null)
         {
             this.logger = logger;
             this.osxKeyChainSuffix = string.IsNullOrWhiteSpace(osxKeyChainSuffix) ? $"{tenantId}" : $"{osxKeyChainSuffix}.{tenantId}";
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             this.cacheDir = Path.Combine(appData, ".IdentityService");
-
-            var azureAuthCacheFile = Environment.GetEnvironmentVariable(Constants.AZUREAUTH_CACHE_FILE);
-            if (!azureAuthCacheFile.Intersect(Path.GetInvalidFileNameChars()).IsNullOrEmpty())
-            {
-                throw new ArgumentException($"Environment variable '{Constants.AZUREAUTH_CACHE_FILE}' Contains invalid path characters.");
-            }
-
-            this.cacheFileName = string.IsNullOrWhiteSpace(azureAuthCacheFile) ? $"msal_{tenantId}.cache" : azureAuthCacheFile;
+            this.cacheFileName = cacheFileName;
         }
 
         /// <summary>

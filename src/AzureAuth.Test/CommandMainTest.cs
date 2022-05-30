@@ -5,8 +5,10 @@ namespace Microsoft.Authentication.AzureAuth.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.IO.Abstractions;
     using System.IO.Abstractions.TestingHelpers;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
@@ -83,7 +85,7 @@ invalid_key = ""this is not a valid alias key""
             // Meaning all param types are also registered with the DI service provider.
             this.tokenFetcherMock = new Mock<ITokenFetcher>(MockBehavior.Strict);
 
-            this.envMock = new Mock<IEnv>(MockBehavior.Strict);
+            this.envMock = new Mock<IEnv>(MockBehavior.Loose);
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject").
             this.serviceProvider = new ServiceCollection()
@@ -382,6 +384,69 @@ invalid_key = ""this is not a valid alias key""
         {
             CommandMain.PrefixedPromptHint(null)
                 .Should().BeEquivalentTo(PromptHintPrefix);
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        [Test]
+        public void TestCacheFileOptionWithNormalFilename()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            subject.CacheFileName = "normal";
+            subject.EvaluateOptions().Should().BeTrue();
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        [Test]
+        public void TestCacheFileOptionWithInvalidFileCharacter()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            subject.CacheFileName = "invalid char" + Path.GetInvalidFileNameChars().First();
+            subject.EvaluateOptions().Should().BeFalse();
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        [Test]
+        public void TestCacheFileOptionWithNormalFilenameFromEnv()
+        {
+            string filenameFromEnv = "normal_file_name_from_env";
+            this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE_FILE")).Returns(filenameFromEnv);
+
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            subject.EvaluateOptions().Should().BeTrue();
+            subject.CacheFileName.Should().Be(filenameFromEnv);
+        }
+
+        /// <summary>
+        /// .
+        /// </summary>
+        [Test]
+        public void TestCacheFileOptionWithNoParameter()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            subject.EvaluateOptions().Should().BeTrue();
+            subject.CacheFileName.Should().Be($"msal_{subject.Tenant}.cache");
         }
 
         /// <summary>

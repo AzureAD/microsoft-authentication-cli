@@ -156,46 +156,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        [Test]
-        public void CustomizedCacheFileWithInvalidCharacter()
-        {
-            // Setup
-            string filenameWithInvalidCharacter = "filename_with_invalid_character/";
-            Environment.SetEnvironmentVariable(Constants.AZUREAUTH_CACHE_FILE, filenameWithInvalidCharacter);
-            this.pcaClientMock.Setup(pca => pca.UserTokenCache).Returns(new Mock<ITokenCache>(MockBehavior.Loose).Object);
-
-            // Act
-            Action action = () => new PCAWrapper(
-                this.serviceProvider.GetService<ILogger<PCAWrapper>>(),
-                this.pcaClientMock.Object,
-                new List<Exception>(),
-                Guid.NewGuid(),
-                null);
-
-            // Assert
-            action.Should().Throw<ArgumentException>();
-        }
-
-        [Test]
-        public void CustomizedCacheFileWithValidCharacter()
-        {
-            // Setup
-            string filenameWithInvalidCharacter = "normal_file_name";
-            Environment.SetEnvironmentVariable(Constants.AZUREAUTH_CACHE_FILE, filenameWithInvalidCharacter);
-            this.pcaClientMock.Setup(pca => pca.UserTokenCache).Returns(new Mock<ITokenCache>(MockBehavior.Loose).Object);
-
-            // Act
-            Action action = () => new PCAWrapper(
-                this.serviceProvider.GetService<ILogger<PCAWrapper>>(),
-                this.pcaClientMock.Object,
-                new List<Exception>(),
-                Guid.NewGuid(),
-                null);
-
-            // Assert
-            action.Should().NotThrow();
-        }
-
         private void MockAccounts(IEnumerable<IAccount> accounts)
         {
             this.pcaClientMock
