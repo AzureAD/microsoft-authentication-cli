@@ -56,7 +56,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, cacheFilename, osxKeyChainSuffix);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix, cacheFilename);
         }
 
         /// <summary>
