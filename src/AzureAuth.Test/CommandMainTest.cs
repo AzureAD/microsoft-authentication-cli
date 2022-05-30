@@ -390,7 +390,7 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// .
+        /// The test to evaluate a normal customized cache file name.
         /// </summary>
         [Test]
         public void TestCacheFileOptionWithNormalFilename()
@@ -405,7 +405,7 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// .
+        /// The test to evaluate an invalid customized cache file name.
         /// </summary>
         [Test]
         public void TestCacheFileOptionWithInvalidFileCharacter()
@@ -420,7 +420,7 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// .
+        /// The test to evaluate a normal customized cache file name in enviromental variables.
         /// </summary>
         [Test]
         public void TestCacheFileOptionWithNormalFilenameFromEnv()
@@ -438,7 +438,7 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// .
+        /// The test to evaluate a default cache file name.
         /// </summary>
         [Test]
         public void TestCacheFileOptionWithNoParameter()
