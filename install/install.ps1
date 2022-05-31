@@ -44,7 +44,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 if (Test-Path -Path $latestDirectory) {
     Write-Verbose "Removing pre-existing latest directory at ${latestDirectory}"
-    Remove-Item -Force -Recurse $latestDirectory
+    [io.directory]::Delete($latestDirectory)
 }
 
 # We use a directory junction here because not all Windows users will have permissions to create a symlink.
