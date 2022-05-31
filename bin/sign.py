@@ -209,9 +209,9 @@ def parse_args() -> Namespace:
     )
     parser.add_argument(
         "--runtime",
-        choices=["win-x64", "osx-x64", "osx-arm64"],
+        choices=["win10-x64", "osx-x64", "osx-arm64"],
         help="the runtime of the build in source",
-        default="win-x64",
+        default="win10-x64",
     )
 
     return parser.parse_args()
