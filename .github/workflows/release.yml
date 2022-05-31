@@ -19,12 +19,14 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Setup Python
       uses: actions/setup-python@v3
       with:
         python-version: '3.10'
     - name: Validate version
-      run: echo ${{ github.event.inputs.version }} | python .\bin\version.py
+      run: echo ${{ github.event.inputs.version }} | python ./bin/version.py
 
   build:
     runs-on: ${{ matrix.os }}
@@ -45,10 +47,20 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+    - name: Setup .NET 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+        source-url: https://office.pkgs.visualstudio.com/DefaultCollection/_packaging/Office/nuget/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Setup .NET 6
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
+        source-url: https://office.pkgs.visualstudio.com/DefaultCollection/_packaging/Office/nuget/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Install dependencies
       run: dotnet restore --runtime ${{ matrix.runtime }}
     - name: Test
