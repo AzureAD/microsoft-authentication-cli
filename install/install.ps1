@@ -44,6 +44,8 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 if (Test-Path -Path $latestDirectory) {
     Write-Verbose "Removing pre-existing latest directory at ${latestDirectory}"
+    
+    # We use IO.Directory::Delete instead of Remove-Item because on Windows Server 2012 with PowerShell 4.0 the latter will not work.
     [IO.Directory]::Delete($latestDirectory)
 }
 
