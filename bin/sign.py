@@ -247,7 +247,7 @@ def main() -> None:
 
     # 3. Determine runtime & create a batchmaker.
     match args.runtime.lower():
-        case "win-x64":
+        case "win10-x64":
             batchmaker = windows_batches(
                 source=source_path,
                 key_codes=key_codes,
