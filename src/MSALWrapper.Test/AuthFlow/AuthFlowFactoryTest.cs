@@ -36,6 +36,7 @@ namespace MSALWrapper.Test
         private string osxKeyChainSuffix;
         private string preferredDomain;
         private string promptHint;
+        private string cacheFileName = $"msal_{TenantId}.cache";
 
         [SetUp]
         public void Setup()
@@ -85,6 +86,7 @@ namespace MSALWrapper.Test
                 ClientId,
                 TenantId,
                 this.scopes,
+                this.cacheFileName,
                 this.preferredDomain,
                 this.promptHint,
                 this.osxKeyChainSuffix,

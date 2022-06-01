@@ -429,6 +429,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Client),
                     new Guid(this.authSettings.Tenant),
                     scopes,
+                    this.CacheFileName,
                     this.PreferredDomain,
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);

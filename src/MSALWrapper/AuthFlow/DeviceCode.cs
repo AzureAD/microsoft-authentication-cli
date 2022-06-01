@@ -46,12 +46,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="clientId">The client id.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="scopes">The scopes.</param>
+        /// <param name="cacheFileName">The cache file name.</param>
         /// <param name="osxKeyChainSuffix">The osx key chain suffix.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
-        /// <param name="cacheFileName">The cache file name.</param>
-        public DeviceCode(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null, string cacheFileName = null)
+        public DeviceCode(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string cacheFileName, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
         {
             this.errors = new List<Exception>();
             this.logger = logger;
