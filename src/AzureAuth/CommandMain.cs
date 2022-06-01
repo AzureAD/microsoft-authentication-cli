@@ -37,7 +37,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string OutputOption = "--output";
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
-        private const string CacheFileNameOption = "--cache-filename";
+        private const string CacheFileNameOption = "--cache";
         private const string PromptHintPrefix = "AzureAuth";
 
 #if PlatformWindows
