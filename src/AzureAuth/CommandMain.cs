@@ -163,7 +163,7 @@ Allowed values: [all, web, devicecode]";
         /// Gets or sets the cache file name.
         /// </summary>
         [LegalFileName]
-        [Option(CacheFileNameOption, "The file name of cache", CommandOptionType.SingleOrNoValue)]
+        [Option(CacheFileNameOption, "Override the default cache file location.", CommandOptionType.SingleOrNoValue)]
         public string CacheFileName { get; set; }
 
         /// <summary>
