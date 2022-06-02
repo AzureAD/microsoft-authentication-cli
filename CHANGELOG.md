@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed a bug where the tenant and resource ids were swapped in the telemetry events.
 
+### Changed
+- Update to MSAL 4.44.0.
+
 ## [v0.3.0] - 2022-05-03
 ### Fixed
 - Fixed a bug to support running on Windows Server 2012 & 2016 by default (default auth mode for Windows is now broker + web).
