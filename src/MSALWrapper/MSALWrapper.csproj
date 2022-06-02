@@ -3,7 +3,7 @@
   <PropertyGroup>
     <!-- Package Naming, Building, & Versioning -->
     <PackageId>Microsoft.Authentication.MSALWrapper</PackageId>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <RootNamespace>Microsoft.Authentication.MSALWrapper</RootNamespace>
 
     <PackageOutputPath>../</PackageOutputPath>
