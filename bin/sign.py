@@ -158,12 +158,12 @@ def auth(tenant_id: str, client_id: str) -> JSON:
         "ClientId": client_id,
         "AuthCert": {
             "SubjectName": f"CN={client_id}.microsoft.com",
-            "StoreLocation": "CurrentUser",
+            "StoreLocation": "LocalMachine",
             "StoreName": "My",
         },
         "RequestSigningCert": {
             "SubjectName": f"CN={client_id}",
-            "StoreLocation": "CurrentUser",
+            "StoreLocation": "LocalMachine",
             "StoreName": "My",
         },
     }
