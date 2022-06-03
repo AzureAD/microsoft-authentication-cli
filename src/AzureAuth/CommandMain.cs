@@ -37,7 +37,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string OutputOption = "--output";
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
-        private const string CacheFileNameOption = "--cache";
+        private const string CacheOption = "--cache";
         private const string PromptHintPrefix = "AzureAuth";
 
 #if PlatformWindows
@@ -163,7 +163,7 @@ Allowed values: [all, web, devicecode]";
         /// Gets or sets the cache file name.
         /// </summary>
         [LegalFileName]
-        [Option(CacheFileNameOption, "Override the default cache file location.", CommandOptionType.SingleOrNoValue)]
+        [Option(CacheOption, "Override the default cache file location.", CommandOptionType.SingleOrNoValue)]
         public string CacheFileName { get; set; }
 
         /// <summary>
@@ -251,7 +251,7 @@ Allowed values: [all, web, devicecode]";
             if (string.IsNullOrEmpty(this.CacheFileName))
             {
                 string envCacheFile = this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE);
-                this.CacheFileName = string.IsNullOrEmpty(envCacheFile) ? $"msal_{this.Tenant}.cache" : envCacheFile;
+                this.CacheFileName = string.IsNullOrEmpty(envCacheFile) ? $"msal_{this.authSettings.Tenant}.cache" : envCacheFile;
             }
 
             // Evaluation is a two-part task. Parse, then validate. Validation is complex, so we call a separate helper.
@@ -307,7 +307,7 @@ Allowed values: [all, web, devicecode]";
 
             if (!LegalFileNameChecker.IsValidFilename(this.CacheFileName))
             {
-                this.logger.LogError($"The {CacheFileNameOption} field or environment varable {nameof(EnvVars.AZUREAUTH_CACHE_FILE)} is invalid");
+                this.logger.LogError($"The {CacheOption} field or environment varable {EnvVars.AZUREAUTH_CACHE_FILE} is invalid");
                 validOptions = false;
             }
 
