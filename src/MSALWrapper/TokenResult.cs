@@ -32,8 +32,6 @@ namespace Microsoft.Authentication.MSALWrapper
     /// </summary>
     public class TokenResult
     {
-        private static DateTime unixEpochStart = new DateTime(1970, 1, 1);
-
         private JsonWebToken jwt;
 
         /// <summary>
@@ -101,7 +99,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <returns>The <see cref="string"/>.</returns>
         public string ToJson()
         {
-            var unixTime = this.jwt.ValidTo.Subtract(unixEpochStart).TotalSeconds;
+            var unixTime = ((DateTimeOffset)this.jwt.ValidTo).ToUnixTimeSeconds();
 
             return $@"{{
     ""user"": ""{this.User}"",
