@@ -110,11 +110,11 @@ jobs:
           ESRP_REQ_CERT_VERSION: ${{ secrets.AZURE_VAULT_ESRP_REQ_CERT_VERSION }}
         run: |
           az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" --version "$env:ESRP_AAD_CERT_VERSION" -f cert.pfx
-          certutil -f -importpfx cert.pfx
+          certutil -f -user -importpfx cert.pfx
           Remove-Item cert.pfx
 
           az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" --version "$env:ESRP_REQ_CERT_VERSION" -f cert.pfx
-          certutil -f -importpfx cert.pfx
+          certutil -f -user -importpfx cert.pfx
           Remove-Item cert.pfx
       # We download all artifacts and overwrite them with signed files, but only upload ones which we can properly sign.
       - name: Download all artifacts
