@@ -276,7 +276,7 @@ def main() -> None:
         "-o",
         str(output_path),
         "-l",
-        "Verbose",
+        "Progress",
     ]
 
     # All temporary files created in this context should be cleaned up.
