@@ -158,6 +158,7 @@ jobs:
     - name: Create osx-x64 archive
       run: |
         cd azureauth-${{ github.event.inputs.version }}-osx-x64
+        chmod +x azureauth createdump *.dylib
         tar -czf ../azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz *
     - name: Upload osx-x64 artifact
       uses: actions/upload-artifact@v3
@@ -167,6 +168,7 @@ jobs:
     - name: Create osx-arm64 archive
       run: |
         cd azureauth-${{ github.event.inputs.version }}-osx-arm64
+        chmod +x azureauth createdump *.dylib
         tar -czf ../azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz *
     - name: Upload osx-arm64 artifact
       uses: actions/upload-artifact@v3
