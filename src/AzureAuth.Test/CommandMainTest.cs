@@ -449,7 +449,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.CacheFileName.Should().Be($"msal_{subject.Tenant}.cache");
+            subject.CacheFileName.Should().Be(CommandMain.DefaultCacheFilename(subject.Tenant));
         }
 
         /// <summary>

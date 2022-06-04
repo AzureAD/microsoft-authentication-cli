@@ -191,6 +191,16 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
+        /// Get the default cache file name by tenant ID.
+        /// </summary>
+        /// <param name="tenantId">The tenant id.</param>
+        /// <returns>The default cache file name.</returns>
+        public static string DefaultCacheFilename(string tenantId)
+        {
+            return $"msal_{tenantId}.cache";
+        }
+
+        /// <summary>
         /// This method evaluates whether the options are valid or not.
         /// </summary>
         /// <returns>
@@ -246,11 +256,11 @@ Allowed values: [all, web, devicecode]";
             // Set the token fetcher options so they can be used later on.
             this.authSettings = evaluatedOptions;
 
-            // Use the option `--cache-filename` first, then use the environment variable `AZUREAUTH_CACHE_FILE`. If neither exists, the default value is used.
+            // Use the option `--cache` first, then use the environment variable `AZUREAUTH_CACHE_FILE`. If neither exists, the default value is used.
             if (string.IsNullOrEmpty(this.CacheFileName))
             {
                 string envCacheFile = this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE);
-                this.CacheFileName = string.IsNullOrEmpty(envCacheFile) ? $"msal_{this.authSettings.Tenant}.cache" : envCacheFile;
+                this.CacheFileName = string.IsNullOrEmpty(envCacheFile) ? DefaultCacheFilename(this.authSettings.Tenant) : envCacheFile;
             }
 
             // Evaluation is a two-part task. Parse, then validate. Validation is complex, so we call a separate helper.
@@ -276,7 +286,7 @@ Allowed values: [all, web, devicecode]";
             this.eventData.Add("settings_resource", this.authSettings.Resource);
             this.eventData.Add("settings_tenant", this.authSettings.Tenant);
             this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
-
+            this.eventData.Add("settings_cachefilename", this.CacheFileName);
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
@@ -304,7 +314,7 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
-            if (!LegalFileNameChecker.IsValidFilename(this.CacheFileName))
+            if (!this.CacheFileName.IsValidFilename())
             {
                 this.logger.LogError($"The {CacheOption} field or environment varable {EnvVars.AZUREAUTH_CACHE_FILE} is invalid");
                 validOptions = false;
