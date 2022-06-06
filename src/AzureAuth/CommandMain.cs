@@ -176,7 +176,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets the cache file name by given parameters or environment variables.
         /// </summary>
-        public string ProcessedCacheFilename
+        public string WrappedCacheFilename
         {
             get
             {
@@ -294,7 +294,7 @@ Allowed values: [all, web, devicecode]";
             this.eventData.Add("settings_resource", this.authSettings.Resource);
             this.eventData.Add("settings_tenant", this.authSettings.Tenant);
             this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
-            this.eventData.Add("settings_cachefilename", this.ProcessedCacheFilename);
+            this.eventData.Add("settings_cachefilename", this.WrappedCacheFilename);
 
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
@@ -323,7 +323,7 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
-            if (!this.ProcessedCacheFilename.IsValidFilename())
+            if (!this.WrappedCacheFilename.IsValidFilename())
             {
                 this.logger.LogError($"The option {CacheOption}=`{this.CacheFileName}` or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` is not a valid file name.");
                 validOptions = false;
@@ -335,7 +335,7 @@ Allowed values: [all, web, devicecode]";
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth", this.ProcessedCacheFilename);
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth", this.WrappedCacheFilename);
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
@@ -447,7 +447,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Client),
                     new Guid(this.authSettings.Tenant),
                     scopes,
-                    this.ProcessedCacheFilename,
+                    this.WrappedCacheFilename,
                     this.PreferredDomain,
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);

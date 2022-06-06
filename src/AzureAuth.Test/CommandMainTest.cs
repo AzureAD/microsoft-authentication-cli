@@ -402,7 +402,7 @@ invalid_key = ""this is not a valid alias key""
 
             subject.CacheFileName = "normal";
             subject.EvaluateOptions().Should().BeTrue();
-            subject.ProcessedCacheFilename.Should().Be("normal");
+            subject.WrappedCacheFilename.Should().Be("normal");
         }
 
         /// <summary>
@@ -435,7 +435,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.ProcessedCacheFilename.Should().Be(filenameFromEnv);
+            subject.WrappedCacheFilename.Should().Be(filenameFromEnv);
         }
 
         /// <summary>
@@ -456,7 +456,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.ProcessedCacheFilename.Should().Be("normal_file_name_from_option");
+            subject.WrappedCacheFilename.Should().Be("normal_file_name_from_option");
         }
 
         /// <summary>
@@ -471,7 +471,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.ProcessedCacheFilename.Should().Be($"msal_{subject.Tenant}.cache");
+            subject.WrappedCacheFilename.Should().Be($"msal_{subject.Tenant}.cache");
         }
 
         /// <summary>
