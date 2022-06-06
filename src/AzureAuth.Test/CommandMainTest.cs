@@ -402,6 +402,7 @@ invalid_key = ""this is not a valid alias key""
 
             subject.CacheFileName = "normal";
             subject.EvaluateOptions().Should().BeTrue();
+            subject.ProcessedCacheFilename.Should().Be("normal");
         }
 
         /// <summary>
@@ -420,7 +421,7 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// The test to evaluate a normal customized cache file name in enviromental variables.
+        /// The test to evaluate a normal customized cache file name in enviroment variables.
         /// </summary>
         [Test]
         public void TestCacheFileOptionWithNormalFilenameFromEnv()
@@ -435,6 +436,27 @@ invalid_key = ""this is not a valid alias key""
 
             subject.EvaluateOptions().Should().BeTrue();
             subject.ProcessedCacheFilename.Should().Be(filenameFromEnv);
+        }
+
+        /// <summary>
+        /// The test to evaluate the cache file name when both enviroment variable and option exist.
+        /// Ideally use option first.
+        /// </summary>
+        [Test]
+        public void TestCacheFileOptionWithFilenameFromEnvAndOption()
+        {
+            string filenameFromEnv = "normal_file_name_from_env";
+            this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE_FILE")).Returns(filenameFromEnv);
+
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.CacheFileName = "normal_file_name_from_option";
+
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            subject.EvaluateOptions().Should().BeTrue();
+            subject.ProcessedCacheFilename.Should().Be("normal_file_name_from_option");
         }
 
         /// <summary>
