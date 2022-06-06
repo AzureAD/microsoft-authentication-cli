@@ -173,6 +173,31 @@ Allowed values: [all, web, devicecode]";
             get { return this.authSettings; }
         }
 
+        /// <summary>
+        /// Gets the cache file name by given parameters or environment variables.
+        /// </summary>
+        public string ProcessedCacheFilename
+        {
+            get
+            {
+                // Check command parameter first.
+                if (!string.IsNullOrEmpty(this.CacheFileName))
+                {
+                    return this.CacheFileName;
+                }
+
+                // Check environment variable.
+                string envCacheFile = this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE);
+                if (!string.IsNullOrEmpty(envCacheFile))
+                {
+                    return envCacheFile;
+                }
+
+                // Use default cache file name.
+                return $"msal_{this.authSettings.Tenant}.cache";
+            }
+        }
+
         private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
 
         /// <summary>
@@ -188,16 +213,6 @@ Allowed values: [all, web, devicecode]";
             }
 
             return $"{PromptHintPrefix}: {promptHint}";
-        }
-
-        /// <summary>
-        /// Get the default cache file name by tenant ID.
-        /// </summary>
-        /// <param name="tenantId">The tenant id.</param>
-        /// <returns>The default cache file name.</returns>
-        public static string DefaultCacheFilename(string tenantId)
-        {
-            return $"msal_{tenantId}.cache";
         }
 
         /// <summary>
@@ -256,13 +271,6 @@ Allowed values: [all, web, devicecode]";
             // Set the token fetcher options so they can be used later on.
             this.authSettings = evaluatedOptions;
 
-            // Use the option `--cache` first, then use the environment variable `AZUREAUTH_CACHE_FILE`. If neither exists, the default value is used.
-            if (string.IsNullOrEmpty(this.CacheFileName))
-            {
-                string envCacheFile = this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE);
-                this.CacheFileName = string.IsNullOrEmpty(envCacheFile) ? DefaultCacheFilename(this.authSettings.Tenant) : envCacheFile;
-            }
-
             // Evaluation is a two-part task. Parse, then validate. Validation is complex, so we call a separate helper.
             return this.ValidateOptions();
         }
@@ -286,7 +294,8 @@ Allowed values: [all, web, devicecode]";
             this.eventData.Add("settings_resource", this.authSettings.Resource);
             this.eventData.Add("settings_tenant", this.authSettings.Tenant);
             this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
-            this.eventData.Add("settings_cachefilename", this.CacheFileName);
+            this.eventData.Add("settings_cachefilename", this.ProcessedCacheFilename);
+
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
@@ -314,9 +323,9 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
-            if (!this.CacheFileName.IsValidFilename())
+            if (!this.ProcessedCacheFilename.IsValidFilename())
             {
-                this.logger.LogError($"The {CacheOption} field or environment varable {EnvVars.AZUREAUTH_CACHE_FILE} is invalid");
+                this.logger.LogError($"The option {CacheOption}=`{this.CacheFileName}` or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` is not a valid file name.");
                 validOptions = false;
             }
 
@@ -326,7 +335,7 @@ Allowed values: [all, web, devicecode]";
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), this.CacheFileName, "azureauth");
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), this.ProcessedCacheFilename, "azureauth");
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
@@ -438,7 +447,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Client),
                     new Guid(this.authSettings.Tenant),
                     scopes,
-                    this.CacheFileName,
+                    this.ProcessedCacheFilename,
                     this.PreferredDomain,
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
