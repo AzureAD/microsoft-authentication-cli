@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Environment variable `AZUREAUTH_CACHE_FILE` and option `--cache` to support custom cache file name.
+
+## [v0.3.1] - 2022-06-06
 ### Fixed
 - Fixed a bug where the tenant and resource ids were swapped in the telemetry events.
 
@@ -44,7 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.3.1...HEAD
+[v0.3.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/v0.1.0
