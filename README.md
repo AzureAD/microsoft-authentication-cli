@@ -1,5 +1,11 @@
 # Microsoft Authentication CLI
 
+![Tests](https://shields.io/github/workflow/status/AzureAD/microsoft-authentication-cli/Build%20and%20Test/main?style=flat-square)
+![Release](https://shields.io/github/v/release/AzureAD/microsoft-authentication-cli?display_name=tag&include_prereleases&sort=semver&style=flat-square)
+![License](https://shields.io/badge/license-MIT-purple?style=flat-square)
+
+---
+
 `AzureAuth` is a CLI wrapper for performing AAD Authentication. It makes use of [MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) for authentication and [MSAL Extensions](https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet) for caching.
 
 The CLI is designed for authenticating and returning an access token for public client AAD applications. This acts like a credential provider for Azure Devops and any other [public client app](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications).
