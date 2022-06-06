@@ -5,9 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [v0.3.1] - 2022-06-06
+## [0.3.1] - 2022-06-06
 ### Fixed
 - Fixed a bug where the tenant and resource ids were swapped in the telemetry events.
+
+### Changed
+- The version schema no longer has a `v` prefix (e.g. `v0.3.1` is now expressed as `0.3.1`).
 
 ## [v0.3.0] - 2022-05-03
 ### Fixed
@@ -43,8 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.3.1...HEAD
-[v0.3.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.3.0...v0.3.1
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.3.1...HEAD
+[0.3.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.3.0...0.3.1
 [v0.3.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/v0.1.0
