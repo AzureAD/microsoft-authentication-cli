@@ -40,7 +40,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private Mock<IPCAWrapper> pcaWrapperMock;
         private Mock<IAccount> testAccount;
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
-        private string cacheFilePath = $"msal_{TenantId}.cache";
+        private string cacheFilePath = $"test_cache_file";
         private TokenResult tokenResult;
 
         [SetUp]
