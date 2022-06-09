@@ -38,8 +38,6 @@ $client.DownloadFile($releaseUrl, $zipFile)
 taskkill /f /im azureauth.exe 2>&1 | Out-Null
 if ($?) {
     Write-Verbose "Stopped a previously running azureauth instance"
-} else {
-    Write-Verbose "Unable to find or stop any previously running azureauth instances"
 }
 
 if (Test-Path -Path $extractedDirectory) {
