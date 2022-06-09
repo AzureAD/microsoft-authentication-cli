@@ -7,9 +7,9 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Linq;
 
     /// <summary>
-    /// LegalFileNameChecker is a helper class to check if a filename is legal.
+    /// <see cref="LegalFileChecker"/> is a helper class to check if a filename is legal.
     /// </summary>
-    internal static class LegalFileNameChecker
+    internal static class LegalFileChecker
     {
         /// <summary>
         /// Check if the given file name valid.
@@ -26,6 +26,27 @@ namespace Microsoft.Authentication.AzureAuth
             }
 
             if (filename.Intersect(Path.GetInvalidFileNameChars()).Any())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check if the given file path valid.
+        /// </summary>
+        /// <param name="filePath">the file path.</param>
+        /// <returns>
+        /// Whether the file name valid.
+        /// </returns>
+        public static bool IsValidFilePath(this string filePath)
+        {
+            try
+            {
+                new FileInfo(filePath);
+            }
+            catch
             {
                 return false;
             }

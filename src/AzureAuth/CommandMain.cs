@@ -163,7 +163,7 @@ Allowed values: [all, web, devicecode]";
         /// Gets or sets the cache file name.
         /// </summary>
         [Option(CacheOption, "Override the default cache file location.", CommandOptionType.SingleValue)]
-        public string CacheFileName { get; set; }
+        public string CacheFilePath { get; set; }
 
         /// <summary>
         /// Gets the token fetcher options.
@@ -176,14 +176,14 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets the cache file name by given parameters or environment variables.
         /// </summary>
-        public string WrappedCacheFilename
+        public string WrappedCacheFilePath
         {
             get
             {
                 // Check command parameter first.
-                if (!string.IsNullOrEmpty(this.CacheFileName))
+                if (!string.IsNullOrEmpty(this.CacheFilePath))
                 {
-                    return this.CacheFileName;
+                    return this.CacheFilePath;
                 }
 
                 // Check environment variable.
@@ -294,7 +294,7 @@ Allowed values: [all, web, devicecode]";
             this.eventData.Add("settings_resource", this.authSettings.Resource);
             this.eventData.Add("settings_tenant", this.authSettings.Tenant);
             this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
-            this.eventData.Add("settings_cachefilename", this.WrappedCacheFilename);
+            this.eventData.Add("settings_cachefile", this.WrappedCacheFilePath);
 
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
@@ -323,9 +323,9 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
-            if (!this.WrappedCacheFilename.IsValidFilename())
+            if (!this.WrappedCacheFilePath.IsValidFilePath())
             {
-                this.logger.LogError($"The option {CacheOption}=`{this.CacheFileName}` or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` is not a valid file name.");
+                this.logger.LogError($"The option {CacheOption}=`{this.CacheFilePath}` or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` is not a valid file name.");
                 validOptions = false;
             }
 
@@ -335,7 +335,7 @@ Allowed values: [all, web, devicecode]";
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth", this.WrappedCacheFilename);
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth", this.WrappedCacheFilePath);
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
@@ -447,7 +447,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Client),
                     new Guid(this.authSettings.Tenant),
                     scopes,
-                    this.WrappedCacheFilename,
+                    this.WrappedCacheFilePath,
                     this.PreferredDomain,
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);

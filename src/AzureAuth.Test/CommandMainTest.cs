@@ -400,9 +400,9 @@ invalid_key = ""this is not a valid alias key""
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
-            subject.CacheFileName = "normal";
+            subject.CacheFilePath = "normal";
             subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilename.Should().Be("normal");
+            subject.WrappedCacheFilePath.Should().Be("normal");
         }
 
         /// <summary>
@@ -416,7 +416,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
-            subject.CacheFileName = "invalid char" + Path.GetInvalidFileNameChars().First();
+            subject.CacheFilePath = "invalid char" + Path.GetInvalidFileNameChars().First();
             subject.EvaluateOptions().Should().BeFalse();
         }
 
@@ -435,7 +435,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilename.Should().Be(filenameFromEnv);
+            subject.WrappedCacheFilePath.Should().Be(filenameFromEnv);
         }
 
         /// <summary>
@@ -449,14 +449,14 @@ invalid_key = ""this is not a valid alias key""
             this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE_FILE")).Returns(filenameFromEnv);
 
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.CacheFileName = "normal_file_name_from_option";
+            subject.CacheFilePath = "normal_file_name_from_option";
 
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilename.Should().Be("normal_file_name_from_option");
+            subject.WrappedCacheFilePath.Should().Be("normal_file_name_from_option");
         }
 
         /// <summary>
@@ -471,7 +471,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilename.Should().Be($"msal_{subject.Tenant}.cache");
+            subject.WrappedCacheFilePath.Should().Be($"msal_{subject.Tenant}.cache");
         }
 
         /// <summary>
