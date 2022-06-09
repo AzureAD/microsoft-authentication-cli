@@ -33,6 +33,13 @@ Write-Verbose "Downloading ${releaseUrl} to ${zipFile}"
 $client = New-Object System.Net.WebClient
 $client.DownloadFile($releaseUrl, $zipFile)
 
+# A running instance of azureauth can cause installation to fail, so we try to kill any running instances first.
+# We suppress taskkill output here because this is a best effort attempt and we don't want the user to see its output.
+taskkill /f /im azureauth.exe 2>&1 | Out-Null
+if ($?) {
+    Write-Verbose "Stopped a previously running azureauth instance"
+}
+
 if (Test-Path -Path $extractedDirectory) {
     Write-Verbose "Removing pre-existing extracted directory at ${extractedDirectory}"
     Remove-Item -Force -Recurse $extractedDirectory
