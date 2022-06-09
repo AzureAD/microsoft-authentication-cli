@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Environment variable `AZUREAUTH_CACHE_FILE` and option `--cache` to support custom cache file name.
 
-## [v0.3.1] - 2022-06-06
+## [0.3.1] - 2022-06-07
 ### Fixed
 - Fixed a bug where the tenant and resource ids were swapped in the telemetry events.
 

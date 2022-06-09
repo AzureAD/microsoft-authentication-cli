@@ -147,9 +147,7 @@ jobs:
     - name: Install Zip
       run: sudo apt install -y zip
     - name: Create win10-x64 archive
-      run: |
-        cd azureauth-${{ github.event.inputs.version }}-win10-x64
-        zip ../azureauth-${{ github.event.inputs.version }}-win10-x64.zip *
+      run: zip -r azureauth-${{ github.event.inputs.version }}-win10-x64.zip azureauth-${{ github.event.inputs.version }}-win10-x64
     - name: Upload win10-x64 artifact
       uses: actions/upload-artifact@v3
       with:
