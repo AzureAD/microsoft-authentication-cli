@@ -42,7 +42,7 @@ They can either be provided explicitly on the CLI or they can be given implicitl
 AzureAuth config files use the [TOML](https://toml.io/en/) file format. Here is a sample config file.
 
 ```toml
-[alias1]
+[alias.alias1]
 # The resource ID
 resource = "67eeda51-3891-4101-a0e3-bf0c64047157"
 # The client ID
@@ -50,7 +50,7 @@ client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
 domain = "contoso.com"
 tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
 
-[alias2]
+[alias.alias2]
 resource = "ab7e45b7-ea4c-458c-97bd-670ccb543376"
 client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
 domain = "fabrikam.com"
@@ -59,10 +59,10 @@ tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
 
 Usage:
 ```
-azureauth --alias alias1 --config-file <path to the config file>
+azureauth --alias alias1 --config <path to the config file>
 ```
 
-or if you set the environment variable `AZUREAUTH_CONFIG` to the config file path, you can omit the option `--config-file` and use the below command.
+or if you set the environment variable `AZUREAUTH_CONFIG` to the config file path, you can omit the option `--config` and use the below command.
 
 ```
 azureauth --alias alias1
