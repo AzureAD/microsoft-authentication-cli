@@ -390,7 +390,7 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// The test to evaluate a normal customized cache file name.
+        /// The test to evaluate a normal customized cache file path.
         /// </summary>
         [Test]
         public void TestCacheFileOptionWithNormalFilename()
@@ -406,7 +406,7 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// The test to evaluate an invalid customized cache file name.
+        /// The test to evaluate an invalid customized cache file path.
         /// </summary>
         [Test]
         public void TestCacheFileOptionWithInvalidFileCharacter()
@@ -416,12 +416,12 @@ invalid_key = ""this is not a valid alias key""
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
-            subject.CacheFilePath = "invalid char" + Path.GetInvalidPathChars().First();
+            subject.CacheFilePath = "C:\\invalid char :.cache";
             subject.EvaluateOptions().Should().BeFalse();
         }
 
         /// <summary>
-        /// The test to evaluate a normal customized cache file name in enviroment variables.
+        /// The test to evaluate a relative cache file name in enviroment variables.
         /// </summary>
         [Test]
         public void TestCacheFileOptionWithNormalFilenameFromEnv()
@@ -434,8 +434,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
-            subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilePath.Should().Be(filenameFromEnv);
+            subject.EvaluateOptions().Should().BeFalse();
         }
 
         /// <summary>
@@ -445,18 +444,18 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestCacheFileOptionWithFilenameFromEnvAndOption()
         {
-            string filenameFromEnv = "normal_file_name_from_env";
+            string filenameFromEnv = "C:\\test\\absolute_from_env.cache";
             this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE_FILE")).Returns(filenameFromEnv);
 
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.CacheFilePath = "normal_file_name_from_option";
+            subject.CacheFilePath = "C:\\test\\absolute_from_option.cache";
 
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilePath.Should().Be("normal_file_name_from_option");
+            subject.WrappedCacheFilePath.Should().Be("C:\\test\\absolute_from_option.cache");
         }
 
         /// <summary>
@@ -487,14 +486,14 @@ invalid_key = ""this is not a valid alias key""
 
             string path = "../test/relative.cache";
             subject.CacheFilePath = path;
-            subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilePath.Should().Be(path);
+            subject.EvaluateOptions().Should().BeFalse();
         }
 
         /// <summary>
         /// The test to evaluate a Window absolute cache path.
         /// </summary>
         [Test]
+        [Platform("Win")] // Only valid on Windows
         public void TestCacheFileOptionWithWindowsAbsolutePath()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
@@ -502,24 +501,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
-            string path = "C:\\test\\relative.cache";
-            subject.CacheFilePath = path;
-            subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilePath.Should().Be(path);
-        }
-
-        /// <summary>
-        /// The test to evaluate a Unix like absolute cache path.
-        /// </summary>
-        [Test]
-        public void TestCacheFileOptionWithUnixAbsolutePath()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-
-            string path = "/usr/bin/relative.cache";
+            string path = "C:\\test\\absolute.cache";
             subject.CacheFilePath = path;
             subject.EvaluateOptions().Should().BeTrue();
             subject.WrappedCacheFilePath.Should().Be(path);
