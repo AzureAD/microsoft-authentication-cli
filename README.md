@@ -35,7 +35,7 @@ To install the application, run
 # 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
 $env:AZUREAUTH_VERSION = '0.3.1'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1) } -Verbose"
+iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1) } -Verbose"
 ```
 
 Or, if you want a method more resilient to failure than `Invoke-Expression`, run
@@ -44,7 +44,7 @@ Or, if you want a method more resilient to failure than `Invoke-Expression`, run
 # 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
 $env:AZUREAUTH_VERSION = '0.3.1'
 $script = "${env:TEMP}\install.ps1"
-$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1'
+$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Invoke-WebRequest $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
 ```
@@ -64,7 +64,7 @@ To install the application, run
 ```bash
 # 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
 export AZUREAUTH_VERSION='0.3.1'
-curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.sh | sh
+curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/$AZUREAUTH_VERSION/install/install.sh | sh
 ```
 
 **Note**: The script currently only updates the `$PATH` in `~/.bashrc` and `~/.zshrc`. It does not update the environment
