@@ -29,7 +29,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Interactive Windows auth flow auth type.
         /// </summary>
-        InteractiveWindowsAuthFlow,
+        IntegratedWindowsAuthenticationFlow,
     }
 
     /// <summary>
