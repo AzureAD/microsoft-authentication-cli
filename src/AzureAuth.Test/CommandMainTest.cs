@@ -22,7 +22,6 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using NLog.Extensions.Logging;
     using NLog.Targets;
     using NUnit.Framework;
-    using Windows.ApplicationModel.Background;
 
     /// <summary>
     /// The command main test.
