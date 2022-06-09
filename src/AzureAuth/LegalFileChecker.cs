@@ -42,6 +42,16 @@ namespace Microsoft.Authentication.AzureAuth
         /// </returns>
         public static bool IsValidFilePath(this string filePath)
         {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return false;
+            }
+
+            if (filePath.Intersect(Path.GetInvalidPathChars()).Any())
+            {
+                return false;
+            }
+
             try
             {
                 new FileInfo(filePath);
