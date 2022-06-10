@@ -28,14 +28,19 @@ namespace Microsoft.Authentication.MSALWrapper
         Broker = 1 << 2,
 
         /// <summary>
+        /// Integrated Windows auth mode.
+        /// </summary>
+        IWA = 1 << 3,
+
+        /// <summary>
         /// All auth modes.
         /// </summary>
-        All = Broker | Web | DeviceCode,
+        All = IWA | Broker | Web | DeviceCode,
 
         /// <summary>
         /// Default auth mode.
         /// </summary>
-        Default = Broker | Web,
+        Default = IWA | Broker | Web,
 #else
         /// <summary>
         /// All auth modes.
@@ -86,6 +91,20 @@ namespace Microsoft.Authentication.MSALWrapper
         public static bool IsDeviceCode(this AuthMode authMode)
         {
             return (AuthMode.DeviceCode & authMode) == AuthMode.DeviceCode;
+        }
+
+        /// <summary>
+        /// Checks if authMode is IWA Enabled.
+        /// </summary>
+        /// <param name="authMode">The <see cref="AuthMode"/>.</param>
+        /// <returns>true or false.</returns>
+        public static bool IsIWA(this AuthMode authMode)
+        {
+#if PlatformWindows
+            return (AuthMode.IWA & authMode) == AuthMode.IWA;
+#else
+            return false;
+#endif
         }
     }
 }
