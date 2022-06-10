@@ -64,7 +64,27 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private void SendTelemetryEvent(AuthFlowResult attempt)
         {
             var eventData = attempt.EventData;
+            var errorListJSON = this.ToJSON(attempt.Errors);
+            eventData.Add("errors", errorListJSON);
 
+            if (attempt.Success)
+            {
+                if (attempt.TokenResult.AuthType == AuthType.Silent)
+                {
+                    eventData.Add("is_silent", true);
+                }
+                else
+                {
+                    eventData.Add("is_silent", false);
+                }
+
+                
+            }
+        }
+
+        private string ToJSON(IList<Exception> errors)
+        {
+            throw new NotImplementedException();
         }
     }
 }
