@@ -71,28 +71,14 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             var eventData = attempt.EventData;
             var errorListJSON = ExceptionListToStringConverter.SerializeExceptions(attempt.Errors);
             eventData.Add("errors", errorListJSON);
-            eventData.Add("auth_mode", authFlowName);
+            eventData.Add("success", attempt.Success);
 
             if (attempt.Success)
             {
-                if (attempt.TokenResult.AuthType == AuthType.Silent)
-                {
-                    eventData.Add("is_silent", true);
-                }
-                else
-                {
-                    eventData.Add("is_silent", false);
-                }
-
-                var correlationID = attempt.TokenResult.CorrelationID.ToString();
+                string correlationID = attempt.TokenResult.CorrelationID.ToString();
                 attempt.CorrelationIDs.Add(correlationID);
-                eventData.Add("correlation_ids", attempt.CorrelationIDs);
+                eventData.Add("msal_correlation_ids", attempt.CorrelationIDs);
                 eventData.Add("token_validity_hours", attempt.TokenResult.ValidFor.Hours);
-                eventData.Add("success", true);
-            }
-            else
-            {
-                eventData.Add("success", false);
             }
 
             this.telemetryService.SendEvent($"authflow_{authFlowName}", eventData);

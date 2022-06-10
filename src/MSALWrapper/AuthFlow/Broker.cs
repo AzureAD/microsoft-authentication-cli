@@ -72,6 +72,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                 ?? Identity.Client.PublicClientApplication.OperatingSystemAccount;
             this.logger.LogDebug($"Using cached account '{account.Username}'");
+            this.eventData.Add("auth_mode", "Broker");
 
             try
             {
@@ -87,6 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             this.errors)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Silent);
+                        this.eventData.Add("is_silent", true);
 
                         return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                     }
@@ -105,6 +107,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             this.errors)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
+                        this.eventData.Add("is_silent", false);
 
                         return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                     }
@@ -124,6 +127,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.errors)
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
+                    this.eventData.Add("is_silent", false);
 
                     return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                 }
