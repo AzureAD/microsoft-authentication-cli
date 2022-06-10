@@ -27,7 +27,8 @@ namespace Microsoft.Authentication.MSALWrapper
         DeviceCodeFlow,
 
         /// <summary>
-        /// Interactive Windows auth flow auth type.
+        /// Integrated Windows auth flow auth type.
+
         /// </summary>
         IntegratedWindowsAuthenticationFlow,
     }
