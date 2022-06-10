@@ -85,7 +85,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public void WebOrDeviceCodeIsNotBrokerAndIWA()
+        public void WebOrDeviceCodeIsNotBrokerOrIWA()
         {
             var subject = AuthMode.Web | AuthMode.DeviceCode;
 
