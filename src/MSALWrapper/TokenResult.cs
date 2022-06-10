@@ -35,16 +35,17 @@ namespace Microsoft.Authentication.MSALWrapper
         private static DateTime unixEpochStart = new DateTime(1970, 1, 1);
 
         private JsonWebToken jwt;
+        private Guid correlationID;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TokenResult"/> class.
         /// </summary>
-        /// <param name="jwt">
-        /// The jwt.
-        /// </param>
-        public TokenResult(JsonWebToken jwt)
+        /// <param name="jwt">The jwt.</param>
+        /// <param name="correlationID">The correlation ID.</param>
+        public TokenResult(JsonWebToken jwt, Guid correlationID)
         {
             this.JWT = jwt;
+            this.correlationID = correlationID;
         }
 
         /// <summary>

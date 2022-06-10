@@ -11,6 +11,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
+    using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
     /// The broker auth flow.
@@ -22,6 +23,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly string preferredDomain;
         private readonly string promptHint;
         private readonly IList<Exception> errors;
+        private readonly EventData eventData;
         private IPCAWrapper pcaWrapper;
 
         #region Public configurable properties
@@ -56,6 +58,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix);
+            this.eventData = new EventData();
         }
 
         /// <summary>
@@ -67,6 +70,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                 ?? Identity.Client.PublicClientApplication.OperatingSystemAccount;
             this.logger.LogDebug($"Using cached account '{account.Username}'");
+            this.eventData.Add("auth_mode", "Broker");
 
             try
             {
@@ -83,7 +87,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Silent);
 
-                        return new AuthFlowResult(tokenResult, this.errors);
+                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                     }
                     catch (MsalUiRequiredException ex)
                     {
@@ -100,7 +104,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
 
-                        return new AuthFlowResult(tokenResult, this.errors);
+                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                     }
                 }
                 catch (MsalUiRequiredException ex)
@@ -118,7 +122,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
 
-                    return new AuthFlowResult(tokenResult, this.errors);
+                    return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                 }
             }
             catch (MsalServiceException ex)
@@ -137,7 +141,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
             }
 
-            return new AuthFlowResult(null, this.errors);
+            return new AuthFlowResult(null, this.errors, this.eventData);
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)

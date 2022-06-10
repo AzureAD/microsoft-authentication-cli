@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
     /// The auth flows class.
@@ -37,6 +38,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             foreach (var authFlow in this.authflows)
             {
                 var attempt = await authFlow.GetTokenAsync();
+                this.SendTelemetryEvent(attempt);
+
                 if (attempt == null)
                 {
                     var oopsMessage = $"Auth flow '{authFlow.GetType().Name}' returned a null AuthFlowResult.";
@@ -56,6 +59,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
 
             return result;
+        }
+
+        private void SendTelemetryEvent(AuthFlowResult attempt)
+        {
+            var eventData = attempt.EventData;
+
         }
     }
 }
