@@ -41,6 +41,11 @@ if ($ProcessCheck -ne $null)
 {
     Write-Verbose "Stopping any currently running azureauth instances"
     taskkill /f /im azureauth.exe 2>&1 | Out-Null
+
+    # After killing the process it is still possible for there there to be locks on the files it was using (including
+    # its own DLLs). The OS may take an indeterminate amount of time to clean those up, but so far we've observed 1
+    # second to be enough.
+    Start-Sleep -Seconds 1
 }
 
 if (Test-Path -Path $extractedDirectory) {
