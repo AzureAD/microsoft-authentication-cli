@@ -29,7 +29,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWithNonNullArgs()
         {
-            var tokenResult = new TokenResult(new JsonWebToken(FakeToken));
+            var tokenResult = new TokenResult(new JsonWebToken(FakeToken), Guid.NewGuid());
             var errors = new List<Exception>();
             AuthFlowResult subject = new AuthFlowResult(tokenResult, errors);
 

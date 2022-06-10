@@ -131,5 +131,23 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 "System.Exception: This is the second exception\n" +
                 "System.Exception: This is the third exception");
         }
+
+        [Test]
+        public void SerializeExceptions_Test()
+        {
+            List<Exception> exceptions = new List<Exception>();
+            string result = ExceptionListToStringConverter.SerializeExceptions(exceptions);
+            string expected = "[]";
+            result.Should().Be(expected);
+
+            exceptions.Add(null);
+            result = ExceptionListToStringConverter.SerializeExceptions(exceptions);
+            expected = "[null]";
+            result.Should().Be(expected);
+
+            exceptions.Add(new Exception("Random Exception"));
+            result = ExceptionListToStringConverter.SerializeExceptions(exceptions);
+            result.Should().Contain("\"Message\":\"Random Exception\"");
+        }
     }
 }

@@ -24,6 +24,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly string promptHint;
         private readonly IList<Exception> errors;
         private readonly EventData eventData;
+        private readonly IList<string> correlationIDs;
         private IPCAWrapper pcaWrapper;
 
         #region Public configurable properties
@@ -59,6 +60,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.promptHint = promptHint;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix);
             this.eventData = new EventData();
+            this.correlationIDs = new List<string>();
         }
 
         /// <summary>
@@ -70,7 +72,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                 ?? Identity.Client.PublicClientApplication.OperatingSystemAccount;
             this.logger.LogDebug($"Using cached account '{account.Username}'");
-            this.eventData.Add("auth_mode", "Broker");
 
             try
             {
@@ -87,14 +88,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Silent);
 
-                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
+                        return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                     }
                     catch (MsalUiRequiredException ex)
                     {
                         this.errors.Add(ex);
-                        this.eventData.Properties.TryGetValue("correlation_ids", out string correlation_ids);
-                        correlation_ids += ex.CorrelationId?.ToString();
-                        this.eventData.Add("correlation_ids", correlation_ids);
+                        this.correlationIDs.Add(ex.CorrelationId?.ToString());
                         this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                         var tokenResult = await TaskExecutor.CompleteWithin(
                             this.logger,
@@ -107,15 +106,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
 
-                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
+                        return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                     }
                 }
                 catch (MsalUiRequiredException ex)
                 {
                     this.errors.Add(ex);
-                    this.eventData.Properties.TryGetValue("correlation_ids", out string correlation_ids);
-                    correlation_ids += ex.CorrelationId?.ToString();
-                    this.eventData.Add("correlation_ids", correlation_ids);
+                    this.correlationIDs.Add(ex.CorrelationId?.ToString());
                     this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                     var tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
@@ -128,16 +125,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
 
-                    return new AuthFlowResult(tokenResult, this.errors, this.eventData);
+                    return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                 }
             }
             catch (MsalServiceException ex)
             {
                 this.logger.LogWarning($"MSAL Service Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
-                this.eventData.Properties.TryGetValue("correlation_ids", out string correlation_ids);
-                correlation_ids += ex.CorrelationId?.ToString();
-                this.eventData.Add("correlation_ids", correlation_ids);
             }
             catch (MsalClientException ex)
             {
@@ -150,7 +144,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
             }
 
-            return new AuthFlowResult(null, this.errors, this.eventData);
+            return new AuthFlowResult(null, this.errors, this.eventData, this.correlationIDs);
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)

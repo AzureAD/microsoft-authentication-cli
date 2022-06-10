@@ -46,5 +46,15 @@ namespace Microsoft.Authentication.MSALWrapper
                 return "null";
             }
         }
+
+        /// <summary>
+        /// A method to serialize the exceptions to a JSON string.
+        /// </summary>
+        /// <param name="exceptions">The exceptions to be serialized.</param>
+        /// <returns>Returns a JSON string.</returns>
+        public static string SerializeExceptions(IList<Exception> exceptions)
+        {
+            return System.Text.Json.JsonSerializer.Serialize(exceptions);
+        }
     }
 }

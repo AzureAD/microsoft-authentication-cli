@@ -390,7 +390,7 @@ Allowed values: [all, web, devicecode]";
                     this.authSettings.PromptHint,
                     Constants.AuthOSXKeyChainSuffix);
 
-                this.authFlow = new AuthFlowExecutor(this.logger, authFlows);
+                this.authFlow = new AuthFlowExecutor(this.logger, this.telemetryService, authFlows);
             }
 
             return this.authFlow;

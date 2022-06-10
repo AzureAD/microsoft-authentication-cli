@@ -57,13 +57,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .BuildServiceProvider();
 
             // Mock successful token result
-            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
+            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
         [Test]
         public void ConstructorWith_BothNullArgs()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, null);
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, null, null);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -72,7 +72,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWith_Null_Logger()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows);
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, null, this.authFlows);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -82,7 +82,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Null_AuthFlows()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null);
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null,  null);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -92,7 +92,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Valid_Arguments()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows);
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, this.authFlows);
 
             // Assert
             authFlowExecutor.Should().NotThrow<ArgumentNullException>();
@@ -619,7 +619,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            return new AuthFlowExecutor(logger, authFlows);
+            return new AuthFlowExecutor(logger, null, authFlows);
         }
     }
 }

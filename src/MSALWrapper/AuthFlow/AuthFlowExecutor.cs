@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
@@ -16,15 +17,18 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     {
         private readonly IEnumerable<IAuthFlow> authflows;
         private readonly ILogger logger;
+        private readonly ITelemetryService telemetryService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthFlowExecutor"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
+        /// <param name="telemetryService">The telemetry service.</param>
         /// <param name="authFlows">The list of auth flows.</param>
-        public AuthFlowExecutor(ILogger logger, IEnumerable<IAuthFlow> authFlows)
+        public AuthFlowExecutor(ILogger logger, ITelemetryService telemetryService, IEnumerable<IAuthFlow> authFlows)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.telemetryService = telemetryService ?? throw new ArgumentNullException(nameof(telemetryService));
             this.authflows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
         }
 
@@ -38,11 +42,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             foreach (var authFlow in this.authflows)
             {
                 var attempt = await authFlow.GetTokenAsync();
-                this.SendTelemetryEvent(attempt);
+                string authFlowName = authFlow.GetType().Name;
+                this.SendTelemetryEvent(attempt, authFlowName);
 
                 if (attempt == null)
                 {
-                    var oopsMessage = $"Auth flow '{authFlow.GetType().Name}' returned a null AuthFlowResult.";
+                    var oopsMessage = $"Auth flow '{authFlowName}' returned a null AuthFlowResult.";
                     result.Errors.Add(new Exception(oopsMessage));
                     this.logger.LogDebug(oopsMessage);
                 }
@@ -61,11 +66,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return result;
         }
 
-        private void SendTelemetryEvent(AuthFlowResult attempt)
+        private void SendTelemetryEvent(AuthFlowResult attempt, string authFlowName)
         {
             var eventData = attempt.EventData;
-            var errorListJSON = this.ToJSON(attempt.Errors);
+            var errorListJSON = ExceptionListToStringConverter.SerializeExceptions(attempt.Errors);
             eventData.Add("errors", errorListJSON);
+            eventData.Add("auth_mode", authFlowName);
 
             if (attempt.Success)
             {
@@ -78,10 +84,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     eventData.Add("is_silent", false);
                 }
 
-                eventData.Properties.TryGetValue("correlation_ids", out string correlation_ids);
-                correlation_ids += attempt.TokenResult.CorrelationID.ToString();
-                eventData.Add("correlation_ids", correlation_ids);
-
+                var correlationID = attempt.TokenResult.CorrelationID.ToString();
+                attempt.CorrelationIDs.Add(correlationID);
+                eventData.Add("correlation_ids", attempt.CorrelationIDs);
                 eventData.Add("token_validity_hours", attempt.TokenResult.ValidFor.Hours);
                 eventData.Add("success", true);
             }
@@ -89,11 +94,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 eventData.Add("success", false);
             }
-        }
 
-        private string ToJSON(IList<Exception> errors)
-        {
-            throw new NotImplementedException();
+            this.telemetryService.SendEvent($"authflow_{authFlowName}", eventData);
         }
     }
 }

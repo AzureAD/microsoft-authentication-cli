@@ -35,7 +35,6 @@ namespace Microsoft.Authentication.MSALWrapper
         private static DateTime unixEpochStart = new DateTime(1970, 1, 1);
 
         private JsonWebToken jwt;
-        private Guid correlationID;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TokenResult"/> class.
