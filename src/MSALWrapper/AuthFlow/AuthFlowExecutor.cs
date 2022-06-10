@@ -78,7 +78,16 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     eventData.Add("is_silent", false);
                 }
 
-                
+                eventData.Properties.TryGetValue("correlation_ids", out string correlation_ids);
+                correlation_ids += attempt.TokenResult.CorrelationID.ToString();
+                eventData.Add("correlation_ids", correlation_ids);
+
+                eventData.Add("token_validity_hours", attempt.TokenResult.ValidFor.Hours);
+                eventData.Add("success", true);
+            }
+            else
+            {
+                eventData.Add("success", false);
             }
         }
 

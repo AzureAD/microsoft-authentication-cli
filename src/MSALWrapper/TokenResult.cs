@@ -45,7 +45,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public TokenResult(JsonWebToken jwt, Guid correlationID)
         {
             this.JWT = jwt;
-            this.correlationID = correlationID;
+            this.CorrelationID = correlationID;
         }
 
         /// <summary>
@@ -88,6 +88,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets the auth type.
         /// </summary>
         public AuthType AuthType { get; internal set; }
+
+        /// <summary>
+        /// Gets the correlation ID.
+        /// </summary>
+        public Guid CorrelationID { get; internal set; }
 
         /// <summary>
         /// The to string.

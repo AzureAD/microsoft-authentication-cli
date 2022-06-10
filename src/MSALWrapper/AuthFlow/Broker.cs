@@ -92,6 +92,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     catch (MsalUiRequiredException ex)
                     {
                         this.errors.Add(ex);
+                        this.eventData.Properties.TryGetValue("correlation_ids", out string correlation_ids);
+                        correlation_ids += ex.CorrelationId?.ToString();
+                        this.eventData.Add("correlation_ids", correlation_ids);
                         this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                         var tokenResult = await TaskExecutor.CompleteWithin(
                             this.logger,
@@ -110,6 +113,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 catch (MsalUiRequiredException ex)
                 {
                     this.errors.Add(ex);
+                    this.eventData.Properties.TryGetValue("correlation_ids", out string correlation_ids);
+                    correlation_ids += ex.CorrelationId?.ToString();
+                    this.eventData.Add("correlation_ids", correlation_ids);
                     this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                     var tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
@@ -129,6 +135,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 this.logger.LogWarning($"MSAL Service Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
+                this.eventData.Properties.TryGetValue("correlation_ids", out string correlation_ids);
+                correlation_ids += ex.CorrelationId?.ToString();
+                this.eventData.Add("correlation_ids", correlation_ids);
             }
             catch (MsalClientException ex)
             {

@@ -34,6 +34,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Office.Lasso" Version="2022.1.6.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,4 +48,7 @@
     <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.43.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Microsoft.Office.Lasso" />
+  </ItemGroup>
 </Project>
