@@ -91,7 +91,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         tokenResult.SetAuthenticationType(AuthType.Silent);
                         this.correlationIDs.Add(tokenResult.CorrelationID.ToString());
                         this.PopulateEventData();
-                        return new AuthFlowResult(tokenResult, this.eventData);
+                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                         ////return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                     }
                     catch (MsalUiRequiredException ex)
@@ -112,7 +112,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.interactivePromptsCount += 1;
                         this.PopulateEventData();
 
-                        return new AuthFlowResult(tokenResult, this.eventData);
+                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                         ////return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                     }
                 }
@@ -134,8 +134,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.interactivePromptsCount += 1;
                     this.PopulateEventData();
 
-                    return new AuthFlowResult(tokenResult, this.eventData);
-                    ////return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
+                    return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                 }
             }
             catch (MsalServiceException ex)
@@ -157,13 +156,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.PopulateEventData();
             }
 
-            return new AuthFlowResult(null, this.eventData);
-            ////return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
+            return new AuthFlowResult(null, this.errors, this.eventData);
         }
 
         private void PopulateEventData()
         {
-            this.eventData.Add("errors", ExceptionListToStringConverter.SerializeExceptions(this.errors));
             this.eventData.Add("msal_correlation_ids", this.correlationIDs);
             this.eventData.Measures.Add("no_of_interactive_prompts", this.interactivePromptsCount);
         }

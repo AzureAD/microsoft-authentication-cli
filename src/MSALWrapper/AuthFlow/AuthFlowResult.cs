@@ -16,7 +16,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Initializes a new instance of the <see cref="AuthFlowResult"/> class with a null TokenResult and empty error list.
         /// </summary>
         public AuthFlowResult()
-            ////: this(null, null)
+        : this(null, null, null)
         {
         }
 
@@ -25,36 +25,12 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
         /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result. Will initialize a new empty List if null is given.</param>
-        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors)
-        {
-            this.TokenResult = tokenResult;
-            this.Errors = errors ?? new List<Exception>();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AuthFlowResult"/> class.
-        /// </summary>
-        /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
         /// <param name="eventData">An instance of <see cref="EventData"/>.</param>
-        public AuthFlowResult(TokenResult tokenResult, EventData eventData)
-        {
-            this.TokenResult = tokenResult;
-            this.EventData = eventData ?? new EventData();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AuthFlowResult"/> class.
-        /// </summary>
-        /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
-        /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result. Will initialize a new empty List if null is given.</param>
-        /// <param name="eventData">An instance of <see cref="EventData"/>.</param>
-        /// <param name="correlationIDs">A list of Correlation IDs.</param>
-        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors, EventData eventData, IList<string> correlationIDs)
+        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors, EventData eventData)
         {
             this.TokenResult = tokenResult;
             this.Errors = errors ?? new List<Exception>();
             this.EventData = eventData ?? new EventData();
-            this.CorrelationIDs = correlationIDs;
         }
 
         /// <summary>
@@ -71,11 +47,6 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets the telemetry event data.
         /// </summary>
         public EventData EventData { get; internal set; }
-
-        /// <summary>
-        /// Gets the list of correlation IDs.
-        /// </summary>
-        public IList<string> CorrelationIDs { get; internal set; }
 
         /// <summary>
         /// Gets a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.

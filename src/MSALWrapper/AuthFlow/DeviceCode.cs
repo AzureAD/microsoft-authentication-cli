@@ -97,7 +97,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     tokenResult.SetAuthenticationType(AuthType.Silent);
                     this.correlationIDs.Add(tokenResult.CorrelationID.ToString());
                     this.PopulateEventData();
-                    return new AuthFlowResult(tokenResult, this.eventData);
+                    return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                 }
                 catch (MsalUiRequiredException ex)
                 {
@@ -117,7 +117,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     tokenResult.SetAuthenticationType(AuthType.DeviceCodeFlow);
                     this.interactivePromptsCount += 1;
                     this.PopulateEventData();
-                    return new AuthFlowResult(tokenResult, this.eventData);
+                    return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                 }
             }
             catch (MsalException ex)
@@ -127,7 +127,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.PopulateEventData();
             }
 
-            return new AuthFlowResult(null, this.errors);
+            return new AuthFlowResult(null, this.errors, this.eventData);
         }
 
         private static HttpClient CreateHttpClient()

@@ -40,7 +40,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            AuthFlowResult result = new AuthFlowResult(null, new List<Exception>());
+            AuthFlowResult result = new AuthFlowResult(null, new List<Exception>(), new EventData());
 
             if (this.authflows.Count() == 0)
             {
@@ -58,13 +58,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 if (attempt == null)
                 {
                     var oopsMessage = $"Auth flow '{authFlowName}' returned a null AuthFlowResult.";
-                    result.Errors.Add(new Exception(oopsMessage));
+                    result.Errors.Add(new NullTokenResultException(oopsMessage));
                     this.logger.LogDebug(oopsMessage);
                 }
                 else
                 {
-                    result.AddErrors(attempt.Errors);
-
                     this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
                     if (attempt.Success)
                     {
@@ -81,6 +79,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             var eventData = attempt.EventData;
             eventData.Add("success", attempt.Success);
+            eventData.Add("errors", ExceptionListToStringConverter.SerializeExceptions(attempt.Errors));
 
             if (attempt.Success)
             {

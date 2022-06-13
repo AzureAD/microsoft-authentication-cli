@@ -97,7 +97,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.correlationIDs.Add(tokenResult.CorrelationID.ToString());
                         this.PopulateEventData();
 
-                        return new AuthFlowResult(tokenResult, this.errors);
+                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                     }
                     catch (MsalUiRequiredException ex)
                     {
@@ -117,7 +117,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.interactivePromptsCount += 1;
                         this.PopulateEventData();
 
-                        return new AuthFlowResult(tokenResult, this.errors);
+                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                     }
                 }
                 catch (MsalUiRequiredException ex)
@@ -138,7 +138,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.interactivePromptsCount += 1;
                     this.PopulateEventData();
 
-                    return new AuthFlowResult(tokenResult, this.errors);
+                    return new AuthFlowResult(tokenResult, this.errors, this.eventData);
                 }
             }
             catch (MsalServiceException ex)
@@ -160,7 +160,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.PopulateEventData();
             }
 
-            return new AuthFlowResult(null, this.errors);
+            return new AuthFlowResult(null, this.errors, this.eventData);
         }
 
         private void PopulateEventData()
