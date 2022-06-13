@@ -104,6 +104,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.errors.Add(ex);
                         this.correlationIDs.Add(ex.CorrelationId?.ToString());
                         this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
+                        this.interactivePromptsCount += 1;
                         var tokenResult = await TaskExecutor.CompleteWithin(
                             this.logger,
                             this.interactiveAuthTimeout,
@@ -114,7 +115,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             this.errors)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
-                        this.interactivePromptsCount += 1;
                         this.PopulateEventData();
 
                         return new AuthFlowResult(tokenResult, this.errors, this.eventData);
@@ -125,6 +125,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.errors.Add(ex);
                     this.correlationIDs.Add(ex.CorrelationId?.ToString());
                     this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
+                    this.interactivePromptsCount += 1;
                     var tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
                         this.interactiveAuthTimeout,
@@ -135,7 +136,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.errors)
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
-                    this.interactivePromptsCount += 1;
                     this.PopulateEventData();
 
                     return new AuthFlowResult(tokenResult, this.errors, this.eventData);
@@ -165,7 +165,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
         private void PopulateEventData()
         {
-            this.eventData.Add("errors", ExceptionListToStringConverter.SerializeExceptions(this.errors));
             this.eventData.Add("msal_correlation_ids", this.correlationIDs);
             this.eventData.Measures.Add("no_of_interactive_prompts", this.interactivePromptsCount);
         }

@@ -63,6 +63,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 }
                 else
                 {
+                    result.AddErrors(attempt.Errors);
+
                     this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
                     if (attempt.Success)
                     {
