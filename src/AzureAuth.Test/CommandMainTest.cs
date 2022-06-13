@@ -51,6 +51,7 @@ invalid_key = ""this is not a valid alias key""
 
         private const string RootDriveWindows = @"Z:\";
         private const string RootDriveUnix = "/";
+        private const string PromptHintPrefix = "AzureAuth";
 
         private CommandExecuteEventData eventData;
         private IFileSystem fileSystem;
@@ -359,6 +360,28 @@ invalid_key = ""this is not a valid alias key""
 
             subject.EvaluateOptions().Should().BeTrue();
             subject.TokenFetcherOptions.Should().BeEquivalentTo(expected);
+        }
+
+        /// <summary>
+        /// The test to ensure the prompt hint text has a valid prefix with user's option.
+        /// </summary>
+        [Test]
+        public void TestPromptHintPrefix()
+        {
+            string promptHintOption = "Test Prompt Hint";
+
+            CommandMain.PrefixedPromptHint(promptHintOption)
+                .Should().BeEquivalentTo($"{PromptHintPrefix}: {promptHintOption}");
+        }
+
+        /// <summary>
+        /// The test to ensure the prompt hint text has a valid prefix without user's option.
+        /// </summary>
+        [Test]
+        public void TestPromptHintPrefixWithoutOption()
+        {
+            CommandMain.PrefixedPromptHint(null)
+                .Should().BeEquivalentTo(PromptHintPrefix);
         }
 
         /// <summary>

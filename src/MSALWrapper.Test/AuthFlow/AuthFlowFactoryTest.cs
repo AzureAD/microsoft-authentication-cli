@@ -27,14 +27,14 @@ namespace MSALWrapper.Test
         private static readonly Guid ClientId = new Guid("5af6def2-05ec-4cab-b9aa-323d75b5df40");
         private static readonly Guid TenantId = new Guid("8254f6f7-a09f-4752-8bd6-391adc3b912e");
 
+        private Mock<IPCAWrapper> pcaWrapperMock;
+        private Mock<IPlatformUtils> platformUtilsMock;
         private MemoryTarget logTarget;
         private ServiceProvider serviceProvider;
-        private Mock<IPCAWrapper> pcaWrapperMock;
         private ILogger logger;
         private IEnumerable<string> scopes;
         private string osxKeyChainSuffix;
         private string preferredDomain;
-        private IPCAWrapper pcaWrapper;
         private string promptHint;
 
         [SetUp]
@@ -46,7 +46,6 @@ namespace MSALWrapper.Test
             loggingConfig.AddTarget(this.logTarget);
             loggingConfig.AddRuleForAllLevels(this.logTarget);
 
-            // Setup Dependency Injection container to provide logger and out class under test (the "subject")
             this.serviceProvider = new ServiceCollection()
              .AddLogging(loggingBuilder =>
              {
@@ -57,14 +56,27 @@ namespace MSALWrapper.Test
              })
              .BuildServiceProvider();
 
+            // Always setup Mock with behavior strict - which fails tests on first use of non-mocked behavior.
+            // Reminder: If adding a new Mock - also call VerifyAll() in the TearDown method below to assert that
+            // all mocked calls were called.
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
+            this.platformUtilsMock = new Mock<IPlatformUtils>(MockBehavior.Strict);
 
             this.logger = this.serviceProvider.GetService<ILogger<AuthFlowFactory>>();
             this.scopes = new[] { $"{ResourceId}/.default" };
             this.osxKeyChainSuffix = "azureauth";
             this.preferredDomain = "contoso.com";
-            this.pcaWrapper = this.pcaWrapperMock.Object;
             this.promptHint = "Log into Contoso!";
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Verify all mocks used by the test here to prevent any individual test from
+            // forgetting to do this.
+            // Reminder: Add a call to VerifyAll() for any new mocks used.
+            this.pcaWrapperMock.VerifyAll();
+            this.platformUtilsMock.VerifyAll();
         }
 
         public IEnumerable<IAuthFlow> Subject(AuthMode mode) => AuthFlowFactory.Create(
@@ -76,14 +88,14 @@ namespace MSALWrapper.Test
                 this.preferredDomain,
                 this.promptHint,
                 this.osxKeyChainSuffix,
-                this.pcaWrapper);
+                pcaWrapper: this.pcaWrapperMock.Object,
+                platformUtils: this.platformUtilsMock.Object);
 
         [Test]
         public void Web_Only()
         {
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Web);
 
-            this.pcaWrapperMock.VerifyAll();
             subject.Should().HaveCount(1);
             subject.First().GetType().Name.Should().Be(typeof(Web).Name);
         }
@@ -92,11 +104,40 @@ namespace MSALWrapper.Test
         [Test]
         public void Broker_Only()
         {
+            this.MockIsWindows10Or11(true);
+
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
 
-            this.pcaWrapperMock.VerifyAll();
             subject.Should().HaveCount(1);
             subject.First().GetType().Name.Should().Be(typeof(Broker).Name);
+        }
+
+        [Test]
+        public void Windows10Or11_Defaults()
+        {
+            this.MockIsWindows10Or11(true);
+
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
+
+            subject.Should().HaveCount(2);
+
+            // BeEquivalentTo doesn't assert order for a list :(
+            // so explicitly assert the first and second item names.
+            var names = subject.Select(a => a.GetType().Name).ToList();
+            names[0].Should().Be(typeof(Broker).Name);
+            names[1].Should().Be(typeof(Web).Name);
+        }
+
+        [Test]
+        public void Windows_Defaults()
+        {
+            this.MockIsWindows10Or11(false);
+
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
+
+            subject.Should().HaveCount(1);
+            var names = subject.Select(a => a.GetType().Name).ToList();
+            names[0].Should().Be(typeof(Web).Name);
         }
 #endif
 
@@ -114,6 +155,8 @@ namespace MSALWrapper.Test
         [Platform("Win")]
         public void AllModes_Windows()
         {
+            this.MockIsWindows10Or11(true);
+
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
             this.pcaWrapperMock.VerifyAll();
@@ -145,6 +188,26 @@ namespace MSALWrapper.Test
                     typeof(Web).Name,
                     typeof(DeviceCode).Name,
                 });
+        }
+
+        [Test]
+        [Platform("MacOsx")]
+        public void DefaultModes_Not_Windows()
+        {
+            // On non-windows platforms the Default Authmode doesn't contain "Broker" as an option to start with.
+            // so we short circuit checking the platform and expect it to not be called.
+            var subject = this.Subject(AuthMode.Default);
+
+            this.platformUtilsMock.VerifyAll();
+            subject.Select(async => async.GetType().Name).Should().BeEquivalentTo(new[]
+            {
+                typeof(Web).Name,
+            });
+        }
+
+        private void MockIsWindows10Or11(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsWindows10Or11()).Returns(value);
         }
     }
 }

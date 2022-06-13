@@ -20,9 +20,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using NLog.Targets;
     using NUnit.Framework;
 
-    /// <summary>
-    /// The main auth flow test.
-    /// </summary>
     public class AuthFlowExecutorTest
     {
         private const string NullAuthFlowResultExceptionMessage = "Auth flow 'IAuthFlowProxy' returned a null AuthFlowResult.";
@@ -32,9 +29,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private TokenResult tokenResult;
         private IEnumerable<IAuthFlow> authFlows;
 
-        /// <summary>
-        /// The test setup.
-        /// </summary>
         [SetUp]
         public void Setup()
         {
@@ -163,7 +157,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
@@ -237,7 +231,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
             var authFlowResult = new AuthFlowResult();
 
@@ -265,7 +259,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
 
             var errors2 = new[]
@@ -300,7 +294,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var errors1 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
 
             var errors2 = new[]
@@ -410,7 +404,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var expectedError = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
 
             var authFlowResult1 = new AuthFlowResult();
@@ -454,7 +448,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors3 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
 
             var authFlowResult1 = new AuthFlowResult(null, errors1);
@@ -493,7 +487,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors2 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
 
             var errors3 = new[]
@@ -537,7 +531,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             var errors2 = new[]
             {
-                new Exception(NullAuthFlowResultExceptionMessage),
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
 
             var errors3 = new[]

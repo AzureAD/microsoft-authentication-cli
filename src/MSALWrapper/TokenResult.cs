@@ -7,28 +7,33 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.IdentityModel.JsonWebTokens;
 
     /// <summary>
-    /// The auth type.
+    /// Auth type.
     /// </summary>
     public enum AuthType
     {
         /// <summary>
-        /// The silent.
+        /// Silent auth type.
         /// </summary>
         Silent,
 
         /// <summary>
-        /// The interactive.
+        /// Interactive auth type.
         /// </summary>
         Interactive,
 
         /// <summary>
-        /// The device code flow.
+        /// Device code flow auth type.
         /// </summary>
         DeviceCodeFlow,
+
+        /// <summary>
+        /// Integrated Windows auth flow auth type.
+        /// </summary>
+        IntegratedWindowsAuthenticationFlow,
     }
 
     /// <summary>
-    /// The token result.
+    /// Token result.
     /// </summary>
     public class TokenResult
     {
@@ -94,22 +99,18 @@ namespace Microsoft.Authentication.MSALWrapper
         public Guid CorrelationID { get; internal set; }
 
         /// <summary>
-        /// The to string.
+        /// To string that shows successful authentication for user.
         /// </summary>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
+        /// <returns>The <see cref="string"/>.</returns>
         public override string ToString()
         {
             return $"Token cache warm for {this.User} ({this.DisplayName})";
         }
 
         /// <summary>
-        /// The method to convert to json.
+        /// Converts the jwt to a string.
         /// </summary>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
+        /// <returns>The <see cref="string"/>.</returns>
         public string ToJson()
         {
             var unixTime = this.jwt.ValidTo.Subtract(unixEpochStart).TotalSeconds;

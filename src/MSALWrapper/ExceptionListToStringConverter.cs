@@ -13,14 +13,10 @@ namespace Microsoft.Authentication.MSALWrapper
     public static class ExceptionListToStringConverter
     {
         /// <summary>
-        /// The execute.
+        /// Executes the convertion of exceptions to a string.
         /// </summary>
-        /// <param name="exceptions">
-        /// The exceptions.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
+        /// <param name="exceptions">The exceptions.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         public static string Execute(IEnumerable<Exception> exceptions)
         {
             if (exceptions == null || exceptions.Count() == 0)
@@ -31,6 +27,11 @@ namespace Microsoft.Authentication.MSALWrapper
             return string.Join("\n", exceptions.Select(SingleLineException));
         }
 
+        /// <summary>
+        /// Converts exceptions to a single string.
+        /// </summary>
+        /// <param name="ex">The exceptions.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         private static string SingleLineException(Exception ex)
         {
             if (ex != null)

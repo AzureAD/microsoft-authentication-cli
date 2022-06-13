@@ -4,34 +4,42 @@
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using FluentAssertions;
+
     using Microsoft.Authentication.MSALWrapper;
+
     using NUnit.Framework;
 
     internal class AuthModeTest
     {
-#if !PlatformWindows
+#if PlatformWindows
         [Test]
         public void AllIsAll()
         {
-            (AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
+            (AuthMode.IWA | AuthMode.Broker | AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
         }
-
-        [TestCase(AuthMode.All, false)]
-        [TestCase(AuthMode.Web, false)]
-        [TestCase(AuthMode.DeviceCode, false)]
-        public void BrokerIsExpected(AuthMode subject, bool expected)
-        {
-            subject.IsBroker().Should().Be(expected);
-        }
-#else
 
         [Test]
-        public void AllIsAll()
+        public void WindowsDefaultModes()
         {
-            (AuthMode.Broker | AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
+            var subject = AuthMode.Default;
+            subject.IsIWA().Should().BeTrue();
+            subject.IsBroker().Should().BeTrue();
+            subject.IsWeb().Should().BeTrue();
+            subject.IsDeviceCode().Should().BeFalse();
         }
 
         [TestCase(AuthMode.All, true)]
+        [TestCase(AuthMode.IWA, true)]
+        [TestCase(AuthMode.Broker, false)]
+        [TestCase(AuthMode.Web, false)]
+        [TestCase(AuthMode.DeviceCode, false)]
+        public void IWAIsExpected(AuthMode subject, bool expected)
+        {
+            subject.IsIWA().Should().Be(expected);
+        }
+
+        [TestCase(AuthMode.All, true)]
+        [TestCase(AuthMode.IWA, false)]
         [TestCase(AuthMode.Broker, true)]
         [TestCase(AuthMode.Web, false)]
         [TestCase(AuthMode.DeviceCode, false)]
@@ -41,6 +49,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [TestCase(AuthMode.All, true)]
+        [TestCase(AuthMode.IWA, false)]
         [TestCase(AuthMode.Broker, false)]
         [TestCase(AuthMode.Web, true)]
         [TestCase(AuthMode.DeviceCode, false)]
@@ -50,6 +59,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [TestCase(AuthMode.All, true)]
+        [TestCase(AuthMode.IWA, false)]
         [TestCase(AuthMode.Broker, false)]
         [TestCase(AuthMode.Web, false)]
         [TestCase(AuthMode.DeviceCode, true)]
@@ -68,14 +78,43 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject = AuthMode.Broker | AuthMode.Web;
             subject.IsBroker().Should().BeTrue();
             subject.IsWeb().Should().BeTrue();
+
+            subject = AuthMode.IWA | AuthMode.Broker;
+            subject.IsIWA().Should().BeTrue();
+            subject.IsBroker().Should().BeTrue();
         }
 
         [Test]
-        public void WebOrDeviceCodeIsNotbroker()
+        public void WebOrDeviceCodeIsNotBrokerOrIWA()
         {
             var subject = AuthMode.Web | AuthMode.DeviceCode;
 
             subject.IsBroker().Should().BeFalse();
+            subject.IsIWA().Should().BeFalse();
+        }
+#else
+        [Test]
+        public void AllIsAll()
+        {
+            (AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
+        }
+
+        [TestCase(AuthMode.All, false)]
+        [TestCase(AuthMode.Web, false)]
+        [TestCase(AuthMode.DeviceCode, false)]
+        public void BrokerIsExpected(AuthMode subject, bool expected)
+        {
+            subject.IsBroker().Should().Be(expected);
+        }
+
+        [Test]
+        public void NonWindowsDefaultModes()
+        {
+            var subject = AuthMode.Default;
+            subject.IsIWA().Should().BeFalse();
+            subject.IsBroker().Should().BeFalse();
+            subject.IsWeb().Should().BeTrue();
+            subject.IsDeviceCode().Should().BeFalse();
         }
 #endif
     }

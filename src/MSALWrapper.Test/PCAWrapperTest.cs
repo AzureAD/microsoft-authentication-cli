@@ -17,9 +17,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using NLog.Targets;
     using NUnit.Framework;
 
-    /// <summary>
-    /// The PCA wrapper test for trying to get accounts.
-    /// </summary>
     public class PCAWrapperTest
     {
         private const string TestUser = "user@microsoft.com";
@@ -36,9 +33,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private Mock<IAccount> testAccount;
         private TokenResult tokenResult;
 
-        /// <summary>
-        /// The setup.
-        /// </summary>
         [SetUp]
         public void Setup()
         {
@@ -74,12 +68,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
-        /// <summary>
-        /// The test to get cached account when there are no accounts.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_NoAccounts()
         {
@@ -94,12 +82,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The test to get cached account when null.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_Null()
         {
@@ -113,12 +95,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The test to get cached account when one account.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_OneAccount()
         {
@@ -134,12 +110,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeSameAs(joe);
         }
 
-        /// <summary>
-        /// The test to get cached account when two accounts.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_TwoAccounts()
         {
@@ -156,12 +126,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeNull();
         }
 
-        /// <summary>
-        /// The test to get cached account when two accounts with preferred domain.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_TwoAccounts_WithPreferredDomain()
         {
@@ -176,12 +140,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeSameAs(this.userMicrosoft1);
         }
 
-        /// <summary>
-        /// The test to get cached account when multiple accounts with preferred domain.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task TryToGetCachedAccountAsync_MultipleAccounts_WithPreferredDomain()
         {

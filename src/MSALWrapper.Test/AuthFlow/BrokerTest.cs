@@ -19,9 +19,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using NLog.Targets;
     using NUnit.Framework;
 
-    /// <summary>
-    /// The broker auth flow test.
-    /// </summary>
     public class BrokerTest
     {
         private const string MsalServiceExceptionErrorCode = "1";
@@ -45,9 +42,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
 
-        /// <summary>
-        /// The test setup.
-        /// </summary>
         [SetUp]
         public void Setup()
         {
@@ -83,18 +77,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
-        /// <summary>
-        /// Get a new instance of the class under test.
-        /// </summary>
-        /// <returns>The <see cref="AuthFlow.Broker"/> registered in the <see cref="Setup"/> method.</returns>
         public AuthFlow.Broker Subject() => this.serviceProvider.GetService<AuthFlow.Broker>();
 
-        /// <summary>
-        /// The broker auth flow for the happy path.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_HappyPath()
         {
@@ -113,12 +97,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().BeEmpty();
         }
 
-        /// <summary>
-        /// The broker auth flow get token silent returns null token result.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_ReturnsNull()
         {
@@ -136,12 +114,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().BeEmpty();
         }
 
-        /// <summary>
-        /// The broker auth flow throws MSAL UI exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_MsalUIException()
         {
@@ -162,12 +134,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The broker auth flow throws MSAL UI exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_MsalUIException_InteractiveAuthResultReturnsNullWithoutClaims()
         {
@@ -187,9 +153,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The broker auth flow throws general exception.
-        /// </summary>
         [Test]
         public void BrokerAuthFlow_General_Exceptions_Are_ReThrown()
         {
@@ -211,12 +174,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
         }
 
-        /// <summary>
-        /// The broker auth flow throws MSAL Service exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_MsalServiceException()
         {
@@ -236,12 +193,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The broker auth flow get token silent throws operation canceled exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_OperationCanceledException()
         {
@@ -261,12 +212,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 5 minutes.");
         }
 
-        /// <summary>
-        /// The broker auth flow get token silent throws Msal Client exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_MsalClientException()
         {
@@ -285,12 +230,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
         }
 
-        /// <summary>
-        /// The broker auth flow get token silent throws null reference exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_NullReferenceException()
         {
@@ -309,12 +248,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(NullReferenceException));
         }
 
-        /// <summary>
-        /// The broker auth flow get token interactive throws MSAL UI exception for Claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_MsalUIException_For_Claims()
         {
@@ -336,12 +269,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The broker auth flow throws MSAL UI exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_MsalUIException_InteractiveAuthResultReturnsNullWithClaims()
         {
@@ -362,12 +289,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
         }
 
-        /// <summary>
-        /// The broker auth flow get token interactive throws MSAL service exception after using Claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_MsalServiceException_After_Using_Claims()
         {
@@ -390,12 +311,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[2].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The broker auth flow get token interactive throws MSAL service exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_MsalServiceException()
         {
@@ -416,12 +331,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalServiceException));
         }
 
-        /// <summary>
-        /// The broker auth flow get token interactive throws operation canceled exception.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_OperationCanceledException()
         {
@@ -443,12 +352,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[1].Message.Should().Be("Interactive Auth timed out after 15 minutes.");
         }
 
-        /// <summary>
-        /// The broker auth flow get token interactive throws operation canceled exception for claims.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_OperationCanceledException_For_Claims()
         {
@@ -472,10 +375,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 15 minutes.");
         }
 
-        /// <summary>
-        /// Ensure <see cref="IPCAWrapper.WithPromptHint"/> be invoked in <see cref="AuthFlow.Broker.GetTokenAsync"/>.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractiveAsync_WithPromptHint()
         {

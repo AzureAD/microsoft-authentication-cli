@@ -47,12 +47,12 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Gets the token result.
+        /// Gets a token result.
         /// </summary>
         public TokenResult TokenResult { get; internal set; }
 
         /// <summary>
-        /// Gets the list of errors.
+        /// Gets a list of errors.
         /// </summary>
         public IList<Exception> Errors { get; internal set; }
 

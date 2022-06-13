@@ -13,7 +13,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.IdentityModel.JsonWebTokens;
 
     /// <summary>
-    /// Not for use outside of Microsoft.Office.Auth.ForConsole.
+    /// Not for use outside of Microsoft.Authentication.MSALWrapper.
     /// This wrapper enables us to mock pca behavior which we cannot do with the MSAL
     /// provided IPublicClientApplication interface since all there methods return instances of non-mockable param builders
     /// that must be called to get the actual authentication result objects.

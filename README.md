@@ -1,5 +1,11 @@
 # Microsoft Authentication CLI
 
+![Tests](https://shields.io/github/workflow/status/AzureAD/microsoft-authentication-cli/Build%20and%20Test/main?style=flat-square)
+![Release](https://shields.io/github/v/release/AzureAD/microsoft-authentication-cli?display_name=tag&include_prereleases&sort=semver&style=flat-square)
+![License](https://shields.io/badge/license-MIT-purple?style=flat-square)
+
+---
+
 `AzureAuth` is a CLI wrapper for performing AAD Authentication. It makes use of [MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) for authentication and [MSAL Extensions](https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet) for caching.
 
 The CLI is designed for authenticating and returning an access token for public client AAD applications. This acts like a credential provider for Azure Devops and any other [public client app](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications).
@@ -26,18 +32,20 @@ provide a means of downloading the latest release, so you **must** specify your 
 To install the application, run
 
 ```powershell
-# v0.2.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = 'v0.2.0'
-iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1) } -Verbose"
+# 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = '0.3.1'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1) } -Verbose"
 ```
 
 Or, if you want a method more resilient to failure than `Invoke-Expression`, run
 
 ```powershell
-# v0.2.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = 'v0.2.0'
+# 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = '0.3.1'
 $script = "${env:TEMP}\install.ps1"
-$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.ps1'
+$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Invoke-WebRequest $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
 ```
 
@@ -54,9 +62,9 @@ release, so you **must** specify your desired version via the `$AZUREAUTH_VERSIO
 To install the application, run
 
 ```bash
-# v0.2.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-export AZUREAUTH_VERSION='v0.2.0'
-curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/install.sh | sh
+# 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+export AZUREAUTH_VERSION='0.3.1'
+curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/$AZUREAUTH_VERSION/install/install.sh | sh
 ```
 
 **Note**: The script currently only updates the `$PATH` in `~/.bashrc` and `~/.zshrc`. It does not update the environment

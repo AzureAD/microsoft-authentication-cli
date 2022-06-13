@@ -87,7 +87,8 @@ verbose "Removing ${tarball}"
 rm $tarball
 
 verbose "Linking ${latest_directory} to ${target_directory}"
-ln -sf $target_directory $latest_directory
+# It's very important we use -n and -f here or the symlink won't actually be overwritten during upgrades.
+ln -snf $target_directory $latest_directory
 
 # We currently only support automatically appending $PATH modifications for the default
 # Bash and ZSH profiles as the syntax is identical.

@@ -29,14 +29,24 @@ $zipFile = ([System.IO.Path]::Combine($azureauthDirectory, $releaseFile))
 Write-Verbose "Creating ${azureauthDirectory}"
 $null = New-Item -ItemType Directory -Force -Path $azureauthDirectory
 
-# Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
-if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
-    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
-}
-
 Write-Verbose "Downloading ${releaseUrl} to ${zipFile}"
 $client = New-Object System.Net.WebClient
 $client.DownloadFile($releaseUrl, $zipFile)
+
+# A running instance of azureauth can cause installation to fail, so we try to kill any running instances first.
+# We suppress taskkill output here because this is a best effort attempt and we don't want the user to see its output.
+# Here, Get-Process is used to first determine whether there is an existing azureauth process. If there is, kill the existing process first.
+$ProcessCheck = Get-Process -Name azureauth -ErrorAction SilentlyContinue -ErrorVariable ProcessError
+if ($ProcessCheck -ne $null)
+{
+    Write-Verbose "Stopping any currently running azureauth instances"
+    taskkill /f /im azureauth.exe 2>&1 | Out-Null
+
+    # After killing the process it is still possible for there there to be locks on the files it was using (including
+    # its own DLLs). The OS may take an indeterminate amount of time to clean those up, but so far we've observed 1
+    # second to be enough.
+    Start-Sleep -Seconds 1
+}
 
 if (Test-Path -Path $extractedDirectory) {
     Write-Verbose "Removing pre-existing extracted directory at ${extractedDirectory}"
@@ -49,12 +59,20 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 if (Test-Path -Path $latestDirectory) {
     Write-Verbose "Removing pre-existing latest directory at ${latestDirectory}"
-    Remove-Item -Force -Recurse $latestDirectory
+    
+    # We use IO.Directory::Delete instead of Remove-Item because on Windows Server 2012 with PowerShell 4.0 the latter will not work.
+    [IO.Directory]::Delete($latestDirectory)
 }
 
 # We use a directory junction here because not all Windows users will have permissions to create a symlink.
+# We create this junction with cmd.exe's mklink because it has a stable interface across all active versions of Windows and Windows Server,
+# while PowerShell's New-Item has breaking changes and doesn't have the -Target param in 4.0 (the default PowerShell on Win Server 2012).
+
 Write-Verbose "Linking ${latestDirectory} to ${extractedDirectory}"
-$null = New-Item -Path $latestDirectory -Target $extractedDirectory -ItemType Junction
+cmd.exe /Q /C "mklink /J `"$latestDirectory`" `"$extractedDirectory`"" > $null
+if (!$?) {
+    Write-Error "Linking failed!"
+}
 
 Write-Verbose "Removing ${zipFile}"
 Remove-Item -Force $zipFile
@@ -62,10 +80,14 @@ Remove-Item -Force $zipFile
 # Permanently add the latest directory to the current user's $PATH (if it's not already there).
 # Note that this will only take effect when a new terminal is started.
 $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
-$currentPath = (Get-ItemProperty -Path $registryPath -Name PATH).Path
+$currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
 if ($currentPath -NotMatch 'AzureAuth') {
     Write-Verbose "Updating `$PATH to include ${latestDirectory}"
-    $newPath = "${currentPath};${latestDirectory}"
+    $newPath = if ($currentPath -Match $null) {
+        "${latestDirectory}"
+    } else {
+        "${currentPath};${latestDirectory}"
+    }
     Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
 }
 

@@ -10,17 +10,25 @@ This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/mic
 
 ### Configure your App Registration
 1. You can follow [this quick start guide](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app) to setup your application.
-In order to support public client auth modes you must also add redirect URIs under "Mobile and Desktop applications" in the Authentication blade of your app registration in the Azure Portal.
-2. To support WAM (the Windows broker), you must add
-   ```
-   ms-appx-web://microsoft.aad.brokerplugin/<CLIENT_ID>
-   ```
-3. To support system web browser, you must add
-   ```
-   http://localhost
-   ```
-   (Note - do not use `https` here, this is for local redirect and TLS won't work here.)
-4. In the bottom of the Authentication Blade, enable the "Allow public client flows" setting.
+2. To support **WAM** (the Windows broker):
+    1. In the menu of the app properties, select **Authentication**.
+    2. Under Platform configurations, select **Add a platform**.
+    3. In the Configure platforms pane, select **Mobile and desktop applications**.
+    4. In the Configure Desktop + devices pane, under Custom redirect URIs, specify   
+         ```
+         ms-appx-web://Microsoft.AAD.BrokerPlugin/<ClientID>  
+         ``` 
+    5. Select Configure.
+3. To support **system web browser**:
+    1. In the menu of the app properties, select **Authentication**.
+    2. Under Platform configurations, select **Add a platform**.
+    3. In the Configure platforms pane, select **Web** and enter
+        ```
+         http://localhost
+        ```
+        (Note - do not use `https` here, this is for local redirect and TLS won't work here.)
+    5. Select Configure.
+4. In order to support public client auth modes enable the **"Allow public client flows"** setting, in the bottom of the Authentication Blade, 
 
 ### Arguments to the CLI
 You always need to pass at least these three arguments in order to authenticate as something (client id), to something (resource ID), within some AAD tenant. These IDs can be found in the Azure Portal on the Overview of each application/resource/tenant in the AAD section. 
@@ -34,7 +42,7 @@ They can either be provided explicitly on the CLI or they can be given implicitl
 AzureAuth config files use the [TOML](https://toml.io/en/) file format. Here is a sample config file.
 
 ```toml
-[alias1]
+[alias.alias1]
 # The resource ID
 resource = "67eeda51-3891-4101-a0e3-bf0c64047157"
 # The client ID
@@ -42,7 +50,7 @@ client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
 domain = "contoso.com"
 tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
 
-[alias2]
+[alias.alias2]
 resource = "ab7e45b7-ea4c-458c-97bd-670ccb543376"
 client = "73e5793e-8f71-4da2-9f71-575cb3019b37"
 domain = "fabrikam.com"
@@ -51,10 +59,10 @@ tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
 
 Usage:
 ```
-azureauth --alias alias1 --config-file <path to the config file>
+azureauth --alias alias1 --config <path to the config file>
 ```
 
-or if you set the environment variable `AZUREAUTH_CONFIG` to the config file path, you can omit the option `--config-file` and use the below command.
+or if you set the environment variable `AZUREAUTH_CONFIG` to the config file path, you can omit the option `--config` and use the below command.
 
 ```
 azureauth --alias alias1
