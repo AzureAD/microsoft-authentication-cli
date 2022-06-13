@@ -92,7 +92,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.correlationIDs.Add(tokenResult.CorrelationID.ToString());
                         this.PopulateEventData();
                         return new AuthFlowResult(tokenResult, this.errors, this.eventData);
-                        ////return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                     }
                     catch (MsalUiRequiredException ex)
                     {
@@ -113,7 +112,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.PopulateEventData();
 
                         return new AuthFlowResult(tokenResult, this.errors, this.eventData);
-                        ////return new AuthFlowResult(tokenResult, this.errors, this.eventData, this.correlationIDs);
                     }
                 }
                 catch (MsalUiRequiredException ex)

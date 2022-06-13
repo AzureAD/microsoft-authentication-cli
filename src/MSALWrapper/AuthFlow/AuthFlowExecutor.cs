@@ -40,7 +40,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            AuthFlowResult result = new AuthFlowResult(null, new List<Exception>(), new EventData());
+            AuthFlowResult result = new AuthFlowResult(null, new List<Exception>());
 
             if (this.authflows.Count() == 0)
             {
