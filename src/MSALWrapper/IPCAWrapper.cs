@@ -52,6 +52,14 @@ namespace Microsoft.Authentication.MSALWrapper
         Task<TokenResult> GetTokenDeviceCodeAsync(IEnumerable<string> scopes, Func<DeviceCodeResult, Task> callback, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Get token integrated windows authentication async.
+        /// </summary>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        Task<TokenResult> GetTokenIntegratedWindowsAuthenticationAsync(IEnumerable<string> scopes, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Customize the title bar by prompt hint(Web mode only).
         /// </summary>
         /// <param name="promptHint">The prompt hint text.</param>
