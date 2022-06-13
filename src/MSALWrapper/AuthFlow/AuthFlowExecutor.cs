@@ -53,7 +53,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogDebug($"Starting {authFlowName}...");
 
                 var attempt = await authFlow.GetTokenAsync();
-                string authFlowName = authFlow.GetType().Name;
                 this.SendTelemetryEvent(attempt, authFlowName);
 
                 if (attempt == null)
@@ -81,16 +80,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private void SendTelemetryEvent(AuthFlowResult attempt, string authFlowName)
         {
             var eventData = attempt.EventData;
-            var errorListJSON = ExceptionListToStringConverter.SerializeExceptions(attempt.Errors);
-            eventData.Add("errors", errorListJSON);
             eventData.Add("success", attempt.Success);
 
             if (attempt.Success)
             {
-                string correlationID = attempt.TokenResult.CorrelationID.ToString();
-                attempt.CorrelationIDs.Add(correlationID);
-                eventData.Add("msal_correlation_ids", attempt.CorrelationIDs);
                 eventData.Add("token_validity_hours", attempt.TokenResult.ValidFor.Hours);
+                eventData.Add("is_silent", attempt.TokenResult.AuthType == AuthType.Silent);
             }
 
             this.telemetryService.SendEvent($"authflow_{authFlowName}", eventData);
