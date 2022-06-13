@@ -30,7 +30,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         public AuthFlowExecutor(ILogger logger, ITelemetryService telemetryService, IEnumerable<IAuthFlow> authFlows)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.telemetryService = telemetryService ?? throw new ArgumentNullException(nameof(telemetryService));
+            this.telemetryService = telemetryService;
             this.authflows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
         }
 

@@ -55,7 +55,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public void ConstructorWith_BothNullArgs()
+        public void ConstructorWith_AllNullArgs()
         {
             Action authFlowExecutor = () => new AuthFlowExecutor(null, null, null);
 
