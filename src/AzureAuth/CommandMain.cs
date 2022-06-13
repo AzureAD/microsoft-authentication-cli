@@ -68,7 +68,7 @@ Allowed values: [all, web, devicecode]";
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
-        /// <param name="telemetryService">Instance of <see cref="ITelemetryService"/> class to send customEvents to App Insights.</param>
+        /// <param name="telemetryService">Instance of <see cref="ITelemetryService"/> class to send customEvents to the App Insights.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="env">The environment interface.</param>
