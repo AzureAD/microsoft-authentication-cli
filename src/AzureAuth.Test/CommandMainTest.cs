@@ -393,6 +393,7 @@ invalid_key = ""this is not a valid alias key""
         /// The test to evaluate a normal customized cache file path.
         /// </summary>
         [Test]
+        [Platform("Win")] // Only valid on Windows
         public void TestCacheFileOptionWithNormalFilePath()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
