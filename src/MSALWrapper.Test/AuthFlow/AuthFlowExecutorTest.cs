@@ -80,7 +80,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Null_AuthFlows()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, null);
+            var telemetryService = this.serviceProvider.GetService<ITelemetryService>();
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, telemetryService, null);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -628,7 +629,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            return new AuthFlowExecutor(logger, null, authFlows);
+            return new AuthFlowExecutor(logger, this.telemetryServiceMock, authFlows);
         }
     }
 }
