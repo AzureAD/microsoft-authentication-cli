@@ -9,6 +9,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Logging;
+    using Microsoft.Office.Lasso.Interfaces;
+    using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
     /// The auth flows class.
@@ -17,15 +19,18 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     {
         private readonly IEnumerable<IAuthFlow> authflows;
         private readonly ILogger logger;
+        private readonly ITelemetryService telemetryService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthFlowExecutor"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
+        /// <param name="telemetryService">The telemetry service.</param>
         /// <param name="authFlows">The list of auth flows.</param>
-        public AuthFlowExecutor(ILogger logger, IEnumerable<IAuthFlow> authFlows)
+        public AuthFlowExecutor(ILogger logger, ITelemetryService telemetryService, IEnumerable<IAuthFlow> authFlows)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.telemetryService = telemetryService;
             this.authflows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
         }
 
@@ -48,9 +53,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogDebug($"Starting {authFlowName}...");
 
                 var attempt = await authFlow.GetTokenAsync();
+                this.SendTelemetryEvent(attempt, authFlowName);
+
                 if (attempt == null)
                 {
-                    var oopsMessage = $"Auth flow '{authFlow.GetType().Name}' returned a null AuthFlowResult.";
+                    var oopsMessage = $"Auth flow '{authFlowName}' returned a null AuthFlowResult.";
                     result.Errors.Add(new NullTokenResultException(oopsMessage));
                     this.logger.LogDebug(oopsMessage);
                 }
@@ -68,6 +75,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
 
             return result;
+        }
+
+        private void SendTelemetryEvent(AuthFlowResult attempt, string authFlowName)
+        {
+            // will be implemented in the next PR
+            return;
         }
     }
 }

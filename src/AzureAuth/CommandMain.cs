@@ -57,6 +57,7 @@ Allowed values: [all, web, devicecode]";
         private readonly IEnv env;
         private Alias authSettings;
         private IAuthFlow authFlow;
+        private ITelemetryService telemetryService;
 
         /// <summary>
         /// The maximum time we will wait to acquire a mutex around prompting the user.
@@ -67,12 +68,14 @@ Allowed values: [all, web, devicecode]";
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
+        /// <param name="telemetryService">Instance of <see cref="ITelemetryService"/> class to send customEvents to the App Insights.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="env">The environment interface.</param>
-        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env)
+        public CommandMain(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env)
         {
             this.eventData = eventData;
+            this.telemetryService = telemetryService;
             this.logger = logger;
             this.fileSystem = fileSystem;
             this.env = env;
@@ -82,12 +85,13 @@ Allowed values: [all, web, devicecode]";
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
+        /// <param name="telemetryService">Instance of <see cref="ITelemetryService"/> class to send customEvents to App Insights.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="env">The environment interface.</param>
         /// <param name="authFlow">An injected <see cref="IAuthFlow"/> (defined for testability).</param>
-        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env, IAuthFlow authFlow)
-            : this(eventData, logger, fileSystem, env)
+        public CommandMain(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env, IAuthFlow authFlow)
+            : this(eventData, telemetryService, logger, fileSystem, env)
         {
             this.authFlow = authFlow;
         }
@@ -413,7 +417,7 @@ Allowed values: [all, web, devicecode]";
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
 
-                this.authFlow = new AuthFlowExecutor(this.logger, authFlows);
+                this.authFlow = new AuthFlowExecutor(this.logger, this.telemetryService, authFlows);
             }
 
             return this.authFlow;
