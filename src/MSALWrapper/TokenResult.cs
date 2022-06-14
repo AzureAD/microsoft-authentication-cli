@@ -45,9 +45,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Initializes a new instance of the <see cref="TokenResult"/> class.
         /// </summary>
         /// <param name="jwt">The jwt.</param>
-        public TokenResult(JsonWebToken jwt)
+        /// <param name="correlationID">The correlation ID.</param>
+        public TokenResult(JsonWebToken jwt, Guid correlationID)
         {
             this.JWT = jwt;
+            this.CorrelationID = correlationID;
         }
 
         /// <summary>
@@ -90,6 +92,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets the auth type.
         /// </summary>
         public AuthType AuthType { get; internal set; }
+
+        /// <summary>
+        /// Gets the correlation ID.
+        /// </summary>
+        public Guid CorrelationID { get; internal set; }
 
         /// <summary>
         /// To string that shows successful authentication for user.

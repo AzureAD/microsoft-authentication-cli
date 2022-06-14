@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
     /// The Auth Flow result.
@@ -15,7 +16,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Initializes a new instance of the <see cref="AuthFlowResult"/> class with a null TokenResult and empty error list.
         /// </summary>
         public AuthFlowResult()
-            : this(null, null)
+        : this(null, null)
         {
         }
 
@@ -31,6 +32,19 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AuthFlowResult"/> class.
+        /// </summary>
+        /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
+        /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result. Will initialize a new empty List if null is given.</param>
+        /// <param name="eventData">An instance of <see cref="EventData"/>.</param>
+        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors, EventData eventData)
+        {
+            this.TokenResult = tokenResult;
+            this.Errors = errors ?? new List<Exception>();
+            this.EventData = eventData ?? new EventData();
+        }
+
+        /// <summary>
         /// Gets a token result.
         /// </summary>
         public TokenResult TokenResult { get; internal set; }
@@ -39,6 +53,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets a list of errors.
         /// </summary>
         public IList<Exception> Errors { get; internal set; }
+
+        /// <summary>
+        /// Gets the telemetry event data.
+        /// </summary>
+        public EventData EventData { get; internal set; }
 
         /// <summary>
         /// Gets a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.

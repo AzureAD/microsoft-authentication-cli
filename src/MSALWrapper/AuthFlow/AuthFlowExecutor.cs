@@ -79,8 +79,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
         private void SendTelemetryEvent(AuthFlowResult attempt, string authFlowName)
         {
-            // will be implemented in the next PR
-            return;
+            var eventData = attempt.EventData;
+            eventData.Add("success", attempt.Success);
+            eventData.Add("errors", ExceptionListToStringConverter.SerializeExceptions(attempt.Errors));
+
+            if (attempt.Success)
+            {
+                eventData.Add("token_validity_hours", attempt.TokenResult.ValidFor.Hours);
+                eventData.Add("is_silent", attempt.TokenResult.AuthType == AuthType.Silent);
+            }
+
+            this.telemetryService.SendEvent($"authflow_{authFlowName}", eventData);
         }
     }
 }
