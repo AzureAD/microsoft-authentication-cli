@@ -70,7 +70,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWith_Null_Logger()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, null, this.authFlows);
+            var telemetryService = this.serviceProvider.GetService<ITelemetryService>();
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, telemetryService, this.authFlows);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
