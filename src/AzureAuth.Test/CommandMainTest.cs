@@ -8,7 +8,6 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using System.IO;
     using System.IO.Abstractions;
     using System.IO.Abstractions.TestingHelpers;
-    using System.Linq;
     using System.Runtime.InteropServices;
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;

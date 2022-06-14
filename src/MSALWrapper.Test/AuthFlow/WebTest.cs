@@ -41,7 +41,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private Mock<IAccount> testAccount;
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
-        private string cacheFilePath = $"test_cache_file";
+        private string cacheFilePath = $"Z:/test_cache_file.cache";
 
         [SetUp]
         public void Setup()

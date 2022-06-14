@@ -5,11 +5,8 @@ namespace Microsoft.Authentication.AzureAuth
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Threading;
 
     using McMaster.Extensions.CommandLineUtils;
@@ -18,7 +15,6 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
-    using Microsoft.Office.Lasso;
     using Microsoft.Office.Lasso.Extensions;
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
