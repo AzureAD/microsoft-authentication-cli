@@ -36,7 +36,7 @@ namespace MSALWrapper.Test
         private string osxKeyChainSuffix;
         private string preferredDomain;
         private string promptHint;
-        private string cacheFilePath = $"msal_{TenantId}.cache";
+        private string cacheFilePath = $"Z:/test_cache_file.cache";
 
         [SetUp]
         public void Setup()
