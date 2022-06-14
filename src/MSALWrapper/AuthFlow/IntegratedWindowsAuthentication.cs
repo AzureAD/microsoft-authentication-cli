@@ -33,7 +33,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The intercative windows auth flow timeout.
         /// </summary>
-        private TimeSpan interactiveWindowsAuthTimeout = TimeSpan.FromMinutes(15);
+        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromMinutes(15);
         #endregion
 
         /// <summary>
@@ -109,8 +109,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     var tokenResult = await TaskExecutor.CompleteWithin(
                                     this.logger,
-                                    this.interactiveWindowsAuthTimeout,
-                                    "Get Token Interactive Windows Authentication",
+                                    this.integratedWindowsAuthTimeout,
+                                    "Get Token Integrated Windows Authentication",
                                     (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
                                     this.errors)
                                     .ConfigureAwait(false);
