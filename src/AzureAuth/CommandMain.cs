@@ -335,7 +335,9 @@ Allowed values: [all, web, devicecode]";
 
             if (!this.CacheFilePath.IsValidAbsoluteFilePath())
             {
-                this.logger.LogError($"The option {CacheOption}=`{this.CacheFilePath}` or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` is not a valid file name.");
+                this.logger.LogError($"The option {CacheOption}=`{this.CacheFilePath}` " +
+                    $"or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` " +
+                    $"is not a valid absolute file path.");
                 validOptions = false;
             }
 
