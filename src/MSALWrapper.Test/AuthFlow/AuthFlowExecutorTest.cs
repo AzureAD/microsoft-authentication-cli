@@ -15,6 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
+    using Microsoft.Office.Lasso.Interfaces;
     using Moq;
     using NLog.Extensions.Logging;
     using NLog.Targets;
@@ -28,6 +29,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private MemoryTarget logTarget;
         private TokenResult tokenResult;
         private IEnumerable<IAuthFlow> authFlows;
+        private Mock<ITelemetryService> telemetryServiceMock;
 
         [SetUp]
         public void Setup()
@@ -38,6 +40,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             loggingConfig.AddTarget(this.logTarget);
             loggingConfig.AddRuleForAllLevels(this.logTarget);
             this.authFlows = new List<IAuthFlow>();
+            this.telemetryServiceMock = new Mock<ITelemetryService>();
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject")
             this.serviceProvider = new ServiceCollection()
@@ -48,6 +51,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                  loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                  loggingBuilder.AddNLog(loggingConfig);
              })
+             .AddSingleton(this.telemetryServiceMock.Object)
              .BuildServiceProvider();
 
             // Mock successful token result
@@ -83,10 +87,21 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public void ConstructorWith_Valid_Arguments()
+        public void ConstructorWith_Null_TelemetryService()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
             Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, this.authFlows);
+
+            // Assert
+            authFlowExecutor.Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public void ConstructorWith_Valid_Arguments()
+        {
+            var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
+            var telemetryService = this.serviceProvider.GetService<ITelemetryService>();
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, telemetryService, this.authFlows);
 
             // Assert
             authFlowExecutor.Should().NotThrow<ArgumentNullException>();
