@@ -169,7 +169,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the cache file name. Only available on Windows.
         /// </summary>
-        [Option(CacheOption, "Override the default cache file location. Only available on Windows.", CommandOptionType.SingleValue, ShowInHelpText = IsWindows)]
+        [Option(CacheOption, "Override the default cache file location. This option is only available on Windows.", CommandOptionType.SingleValue, ShowInHelpText = IsWindows)]
         [LegalFilePath]
         public string CacheFilePath
         {
