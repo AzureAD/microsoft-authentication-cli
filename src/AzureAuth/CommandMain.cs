@@ -63,6 +63,7 @@ Allowed values: [all, web, devicecode]";
         /// The maximum time we will wait to acquire a mutex around prompting the user.
         /// </summary>
         private TimeSpan promptMutexTimeout = TimeSpan.FromMinutes(15);
+        private string cacheFilePath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
@@ -164,27 +165,14 @@ Allowed values: [all, web, devicecode]";
         /// Gets or sets the cache file name.
         /// </summary>
         [Option(CacheOption, "Override the default cache file location.", CommandOptionType.SingleValue)]
-        public string CacheFilePath { get; set; }
-
-        /// <summary>
-        /// Gets the token fetcher options.
-        /// </summary>
-        public Alias TokenFetcherOptions
-        {
-            get { return this.authSettings; }
-        }
-
-        /// <summary>
-        /// Gets the cache file name by given parameters or environment variables.
-        /// </summary>
-        public string WrappedCacheFilePath
+        public string CacheFilePath
         {
             get
             {
                 // Check command parameter first.
-                if (!string.IsNullOrEmpty(this.CacheFilePath))
+                if (!string.IsNullOrEmpty(this.cacheFilePath))
                 {
-                    return this.CacheFilePath;
+                    return this.cacheFilePath;
                 }
 
                 // Check environment variable.
@@ -199,6 +187,19 @@ Allowed values: [all, web, devicecode]";
                 string absolutePath = this.fileSystem.Path.Combine(appData, ".IdentityService", $"msal_{this.authSettings.Tenant}.cache");
                 return absolutePath;
             }
+
+            set
+            {
+                this.cacheFilePath = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the token fetcher options.
+        /// </summary>
+        public Alias TokenFetcherOptions
+        {
+            get { return this.authSettings; }
         }
 
         private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
@@ -297,7 +298,7 @@ Allowed values: [all, web, devicecode]";
             this.eventData.Add("settings_resource", this.authSettings.Resource);
             this.eventData.Add("settings_tenant", this.authSettings.Tenant);
             this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
-            this.eventData.Add("settings_cachefile", this.WrappedCacheFilePath);
+            this.eventData.Add("settings_cachefile", this.CacheFilePath);
 
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
@@ -326,7 +327,7 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
-            if (!this.WrappedCacheFilePath.IsValidAbsoluteFilePath())
+            if (!this.CacheFilePath.IsValidAbsoluteFilePath())
             {
                 this.logger.LogError($"The option {CacheOption}=`{this.CacheFilePath}` or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` is not a valid file name.");
                 validOptions = false;
@@ -338,7 +339,7 @@ Allowed values: [all, web, devicecode]";
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth", this.WrappedCacheFilePath);
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth", this.CacheFilePath);
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
@@ -450,7 +451,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Client),
                     new Guid(this.authSettings.Tenant),
                     scopes,
-                    this.WrappedCacheFilePath,
+                    this.CacheFilePath,
                     this.PreferredDomain,
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);

@@ -402,7 +402,7 @@ invalid_key = ""this is not a valid alias key""
 
             subject.CacheFilePath = "Z:\\normal";
             subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilePath.Should().Be("Z:\\normal");
+            subject.CacheFilePath.Should().Be("Z:\\normal");
         }
 
         /// <summary>
@@ -442,7 +442,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilePath.Should().Be("C:\\test\\absolute_from_option.cache");
+            subject.CacheFilePath.Should().Be("C:\\test\\absolute_from_option.cache");
         }
 
         /// <summary>
@@ -463,7 +463,7 @@ invalid_key = ""this is not a valid alias key""
             string absolutePath = Path.Combine(appData, ".IdentityService", $"msal_{subject.Tenant}.cache");
             string expected = absolutePath;
 
-            subject.WrappedCacheFilePath.Should().Be(expected);
+            subject.CacheFilePath.Should().Be(expected);
         }
 
         /// <summary>
@@ -498,7 +498,7 @@ invalid_key = ""this is not a valid alias key""
             string path = "C:\\test\\absolute.cache";
             subject.CacheFilePath = path;
             subject.EvaluateOptions().Should().BeTrue();
-            subject.WrappedCacheFilePath.Should().Be(path);
+            subject.CacheFilePath.Should().Be(path);
         }
 
         /// <summary>
