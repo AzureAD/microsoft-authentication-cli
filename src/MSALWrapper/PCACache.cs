@@ -6,11 +6,9 @@ namespace Microsoft.Authentication.MSALWrapper
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.Identity.Client.Extensions.Msal;
-    using Microsoft.IdentityModel.Tokens;
 
     /// <summary>
     /// The PCA cache class.
