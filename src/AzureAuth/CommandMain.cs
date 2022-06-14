@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.AzureAuth
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
@@ -17,6 +18,7 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
+    using Microsoft.Office.Lasso;
     using Microsoft.Office.Lasso.Extensions;
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
@@ -46,10 +48,13 @@ namespace Microsoft.Authentication.AzureAuth
 You can use any combination of modes with multiple instances of the --mode flag.
 Allowed values: [all, broker, web, devicecode]";
 
+        private const bool IsWindows = true;
 #else
         private const string AuthModeHelperText = @"Authentication mode. Default: web.
 You can use any combination with multiple instances of the --mode flag.
 Allowed values: [all, web, devicecode]";
+
+        private const bool IsWindows = false;
 #endif
 
         private readonly EventData eventData;
@@ -162,9 +167,10 @@ Allowed values: [all, web, devicecode]";
         public string ConfigFilePath { get; set; }
 
         /// <summary>
-        /// Gets or sets the cache file name.
+        /// Gets or sets the cache file name. Only available on Windows.
         /// </summary>
-        [Option(CacheOption, "Override the default cache file location.", CommandOptionType.SingleValue)]
+        [Option(CacheOption, "Override the default cache file location. Only available on Windows.", CommandOptionType.SingleValue, ShowInHelpText = IsWindows)]
+        [LegalFilePath]
         public string CacheFilePath
         {
             get
