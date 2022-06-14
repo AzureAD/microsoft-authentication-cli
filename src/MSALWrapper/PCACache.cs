@@ -45,17 +45,14 @@ namespace Microsoft.Authentication.MSALWrapper
         {
             this.logger = logger;
             this.osxKeyChainSuffix = string.IsNullOrWhiteSpace(osxKeyChainSuffix) ? $"{tenantId}" : $"{osxKeyChainSuffix}.{tenantId}";
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
             if (string.IsNullOrWhiteSpace(cacheFilePath))
             {
                 throw new ArgumentNullException($"{nameof(cacheFilePath)} should not be null or whitespace.");
             }
 
-            string absolutePath = Path.Combine(appData, ".IdentityService", cacheFilePath);
-
-            this.cacheFileName = Path.GetFileName(absolutePath);
-            this.cacheDir = Directory.GetParent(absolutePath).FullName;
+            this.cacheFileName = Path.GetFileName(cacheFilePath);
+            this.cacheDir = Directory.GetParent(cacheFilePath).FullName;
         }
 
         /// <summary>

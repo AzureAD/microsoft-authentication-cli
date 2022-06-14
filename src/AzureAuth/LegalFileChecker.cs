@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.AzureAuth
 {
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     /// <summary>
     /// <see cref="LegalFileChecker"/> is a helper class to check if a filename is legal.
@@ -34,34 +35,25 @@ namespace Microsoft.Authentication.AzureAuth
         }
 
         /// <summary>
-        /// Check if the given file path valid.
+        /// Check if the given file path is a valid absolute path.
         /// </summary>
         /// <param name="filePath">the file path.</param>
         /// <returns>
         /// Whether the file name valid.
         /// </returns>
-        public static bool IsValidFilePath(this string filePath)
+        public static bool IsValidAbsoluteFilePath(this string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
                 return false;
             }
 
-            if (filePath.Intersect(Path.GetInvalidPathChars()).Any())
+            if (filePath.IndexOfAny(Path.GetInvalidPathChars()) != -1)
             {
                 return false;
             }
 
-            try
-            {
-                new FileInfo(filePath);
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
+            return Path.IsPathRooted(filePath);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.AzureAuth
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -193,8 +194,10 @@ Allowed values: [all, web, devicecode]";
                     return envCacheFile;
                 }
 
-                // Use default cache file name.
-                return $"msal_{this.authSettings.Tenant}.cache";
+                // Use default cache file path.
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string absolutePath = this.fileSystem.Path.Combine(appData, ".IdentityService", $"msal_{this.authSettings.Tenant}.cache");
+                return absolutePath;
             }
         }
 
@@ -323,7 +326,7 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
-            if (!this.WrappedCacheFilePath.IsValidFilePath())
+            if (!this.WrappedCacheFilePath.IsValidAbsoluteFilePath())
             {
                 this.logger.LogError($"The option {CacheOption}=`{this.CacheFilePath}` or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` is not a valid file name.");
                 validOptions = false;
