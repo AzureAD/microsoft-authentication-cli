@@ -59,6 +59,7 @@ invalid_key = ""this is not a valid alias key""
         private MemoryTarget logTarget;
         private Mock<ITokenFetcher> tokenFetcherMock;
         private Mock<IEnv> envMock;
+        private Mock<ITelemetryService> telemetryServiceMock;
 
         /// <summary>
         /// The setup.
@@ -84,6 +85,7 @@ invalid_key = ""this is not a valid alias key""
             this.tokenFetcherMock = new Mock<ITokenFetcher>(MockBehavior.Strict);
 
             this.envMock = new Mock<IEnv>(MockBehavior.Strict);
+            this.telemetryServiceMock = new Mock<ITelemetryService>(MockBehavior.Strict);
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject").
             this.serviceProvider = new ServiceCollection()
@@ -97,6 +99,7 @@ invalid_key = ""this is not a valid alias key""
                 .AddSingleton(this.fileSystem)
                 .AddSingleton<ITokenFetcher>(this.tokenFetcherMock.Object)
                 .AddSingleton<IEnv>(this.envMock.Object)
+                .AddSingleton<ITelemetryService>(this.telemetryServiceMock.Object)
                 .AddTransient<CommandMain>()
                 .BuildServiceProvider();
         }
