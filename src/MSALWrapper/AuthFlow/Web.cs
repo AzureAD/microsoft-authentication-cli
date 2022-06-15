@@ -25,8 +25,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly string preferredDomain;
         private readonly string promptHint;
         private readonly IList<Exception> errors;
-        private readonly EventData eventData;
-        private readonly IList<string> correlationIDs;
         private IPCAWrapper pcaWrapper;
         private int interactivePromptsCount;
 
@@ -62,8 +60,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix);
-            this.eventData = new EventData();
-            this.correlationIDs = new List<string>();
         }
 
         /// <summary>
@@ -72,7 +68,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            this.eventData.Add("auth_mode", "Web");
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
 
             if (account != null)
@@ -94,15 +89,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             this.errors)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Silent);
-                        this.correlationIDs.Add(tokenResult.CorrelationID.ToString());
-                        this.PopulateEventData();
 
-                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
+                        return new AuthFlowResult(tokenResult, this.errors, this.interactivePromptsCount);
                     }
                     catch (MsalUiRequiredException ex)
                     {
                         this.errors.Add(ex);
-                        this.correlationIDs.Add(ex.CorrelationId?.ToString());
                         this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                         this.interactivePromptsCount += 1;
                         var tokenResult = await TaskExecutor.CompleteWithin(
@@ -115,15 +107,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             this.errors)
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
-                        this.PopulateEventData();
 
-                        return new AuthFlowResult(tokenResult, this.errors, this.eventData);
+                        return new AuthFlowResult(tokenResult, this.errors, this.interactivePromptsCount);
                     }
                 }
                 catch (MsalUiRequiredException ex)
                 {
                     this.errors.Add(ex);
-                    this.correlationIDs.Add(ex.CorrelationId?.ToString());
                     this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                     this.interactivePromptsCount += 1;
                     var tokenResult = await TaskExecutor.CompleteWithin(
@@ -136,37 +126,27 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.errors)
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
-                    this.PopulateEventData();
 
-                    return new AuthFlowResult(tokenResult, this.errors, this.eventData);
+                    return new AuthFlowResult(tokenResult, this.errors, this.interactivePromptsCount);
                 }
             }
             catch (MsalServiceException ex)
             {
                 this.logger.LogWarning($"MSAL Service Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
-                this.PopulateEventData();
             }
             catch (MsalClientException ex)
             {
                 this.logger.LogWarning($"MSAL Client Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
-                this.PopulateEventData();
             }
             catch (NullReferenceException ex)
             {
                 this.logger.LogWarning($"MSAL unexpected null reference! (Not Expected)\n{ex.Message}");
                 this.errors.Add(ex);
-                this.PopulateEventData();
             }
 
-            return new AuthFlowResult(null, this.errors, this.eventData);
-        }
-
-        private void PopulateEventData()
-        {
-            this.eventData.Add("msal_correlation_ids", this.correlationIDs);
-            this.eventData.Measures.Add("no_of_interactive_prompts", this.interactivePromptsCount);
+            return new AuthFlowResult(null, this.errors, this.interactivePromptsCount);
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)

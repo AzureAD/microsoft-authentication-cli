@@ -16,7 +16,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Initializes a new instance of the <see cref="AuthFlowResult"/> class with a null TokenResult and empty error list.
         /// </summary>
         public AuthFlowResult()
-        : this(null, null)
+        : this(null, null, 0)
         {
         }
 
@@ -25,23 +25,12 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
         /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result. Will initialize a new empty List if null is given.</param>
-        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors)
+        /// <param name="interactivePromptCount">No. of interactive auth prompts occured while getting (or failing to get) the given token result.</param>
+        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors, int interactivePromptCount)
         {
             this.TokenResult = tokenResult;
             this.Errors = errors ?? new List<Exception>();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AuthFlowResult"/> class.
-        /// </summary>
-        /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
-        /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result. Will initialize a new empty List if null is given.</param>
-        /// <param name="eventData">An instance of <see cref="EventData"/>.</param>
-        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors, EventData eventData)
-        {
-            this.TokenResult = tokenResult;
-            this.Errors = errors ?? new List<Exception>();
-            this.EventData = eventData ?? new EventData();
+            this.InteractivePromptCount = interactivePromptCount;
         }
 
         /// <summary>
@@ -58,6 +47,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets the telemetry event data.
         /// </summary>
         public EventData EventData { get; internal set; }
+
+        /// <summary>
+        /// Gets the interactive prompt count.
+        /// </summary>
+        public int InteractivePromptCount { get; internal set; }
 
         /// <summary>
         /// Gets a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Identity.Client;
 
 /// <summary>
 /// Exceptions extensions.
@@ -65,5 +66,30 @@ public static class ExceptionsExtensions
                 yield return innerEx;
             }
         }
+    }
+
+    /// <summary>
+    /// Extracts correlation IDs from the list of exceptions.
+    /// </summary>
+    /// <param name="exceptions">List of exceptions from which correlation IDs are extracted.</param>
+    /// <returns>List of correlation IDs.</returns>
+    public static List<string> ExtractCorrelationIDsFromException(IList<Exception> exceptions)
+    {
+        var correlationIDs = new List<string>();
+        foreach (Exception exception in exceptions)
+        {
+            if (exception.GetType() == typeof(MsalServiceException))
+            {
+                var msalServiceException = (MsalServiceException)exception;
+                correlationIDs.Add(msalServiceException.CorrelationId?.ToString());
+            }
+            else if (exception.GetType() == typeof(MsalUiRequiredException))
+            {
+                var msalUiRequiredException = (MsalUiRequiredException)exception;
+                correlationIDs.Add(msalUiRequiredException.CorrelationId?.ToString());
+            }
+        }
+
+        return correlationIDs;
     }
 }
