@@ -44,11 +44,6 @@ namespace Microsoft.Authentication.MSALWrapper
         public IList<Exception> Errors { get; internal set; }
 
         /// <summary>
-        /// Gets the telemetry event data.
-        /// </summary>
-        public EventData EventData { get; internal set; }
-
-        /// <summary>
         /// Gets the interactive prompt count.
         /// </summary>
         public int InteractivePromptCount { get; internal set; }

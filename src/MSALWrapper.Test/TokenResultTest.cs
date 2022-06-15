@@ -3,6 +3,7 @@
 
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
+    using System;
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.IdentityModel.JsonWebTokens;
@@ -19,7 +20,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void Setup()
         {
             this.jwt = new JsonWebToken(FakeToken);
-            this.subject = new TokenResult(this.jwt);
+            this.subject = new TokenResult(this.jwt, Guid.NewGuid());
         }
 
         [Test]
