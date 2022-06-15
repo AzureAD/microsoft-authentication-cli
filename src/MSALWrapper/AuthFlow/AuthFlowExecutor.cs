@@ -84,7 +84,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             eventData.Add("auth_mode", authFlowName);
             eventData.Add("success", attempt.Success);
             eventData.Add("errors", ExceptionListToStringConverter.SerializeExceptions(attempt.Errors));
-            eventData.Add("no_of_interactive_prompts", attempt.InteractivePromptCount);
+            eventData.Add("no_of_interactive_prompts", attempt.InteractivePromptsCount);
             List<string> correlationIDs = ExceptionsExtensions.ExtractCorrelationIDsFromException(attempt.Errors);
 
             if (attempt.Success)

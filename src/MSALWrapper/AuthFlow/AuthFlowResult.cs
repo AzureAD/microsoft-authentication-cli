@@ -25,12 +25,12 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
         /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result. Will initialize a new empty List if null is given.</param>
-        /// <param name="interactivePromptCount">No. of interactive auth prompts occured while getting (or failing to get) the given token result.</param>
-        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors, int interactivePromptCount)
+        /// <param name="interactivePromptsCount">No. of interactive auth prompts occured while getting (or failing to get) the given token result.</param>
+        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors, int interactivePromptsCount)
         {
             this.TokenResult = tokenResult;
             this.Errors = errors ?? new List<Exception>();
-            this.InteractivePromptCount = interactivePromptCount;
+            this.InteractivePromptsCount = interactivePromptsCount;
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Gets the interactive prompt count.
         /// </summary>
-        public int InteractivePromptCount { get; internal set; }
+        public int InteractivePromptsCount { get; internal set; }
 
         /// <summary>
         /// Gets a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.

@@ -126,6 +126,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.TokenResult.Should().Be(this.tokenResult);
             result.Success.Should().BeTrue();
             result.Errors.Should().BeEmpty();
+            result.InteractivePromptsCount.Should().Be(0);
         }
 
         [Test]
@@ -144,6 +145,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().NotBeNull();
             result.Success.Should().BeFalse();
             result.Errors.Should().BeEmpty();
+            result.InteractivePromptsCount.Should().Be(0);
         }
 
         [Test]

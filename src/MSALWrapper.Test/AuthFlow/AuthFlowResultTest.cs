@@ -24,6 +24,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject.Success.Should().BeFalse();
             subject.TokenResult.Should().BeNull();
             subject.Errors.Should().BeEmpty();
+            subject.InteractivePromptsCount.Should().Be(0);
         }
 
         [Test]
@@ -31,11 +32,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var tokenResult = new TokenResult(new JsonWebToken(FakeToken), Guid.NewGuid());
             var errors = new List<Exception>();
-            AuthFlowResult subject = new AuthFlowResult(tokenResult, errors, 0);
+            var interactivePromptsCount = 2;
+            AuthFlowResult subject = new AuthFlowResult(tokenResult, errors, interactivePromptsCount);
 
             subject.Success.Should().BeTrue();
             subject.TokenResult.Should().Be(tokenResult);
             subject.Errors.Should().BeEmpty();
+            subject.InteractivePromptsCount.Should().Be(interactivePromptsCount);
         }
 
         [Test]
