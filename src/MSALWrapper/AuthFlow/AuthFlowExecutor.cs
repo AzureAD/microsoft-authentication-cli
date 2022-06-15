@@ -64,7 +64,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 else
                 {
                     result.AddErrors(attempt.Errors);
-                    this.SendTelemetryEvent(attempt, authFlowName);
+
+                    EventData eventData = this.GenerateEventData(result, authFlowName);
+                    this.telemetryService.SendEvent($"authflow_{authFlowName}", eventData);
 
                     this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
                     if (attempt.Success)
@@ -78,24 +80,30 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return result;
         }
 
-        private void SendTelemetryEvent(AuthFlowResult attempt, string authFlowName)
+        /// <summary>
+        /// Gets an instance of <see cref="EventData"/> by extracting information from an AuthFlowResult instance.
+        /// </summary>
+        /// <param name="result">An instance of AuthFlowResult from which eventdata is populated.</param>
+        /// <param name="authFlowName">Name of the auth flow.</param>
+        /// <returns>Returns an instance of EventData.</returns>
+        public EventData GenerateEventData(AuthFlowResult result, string authFlowName)
         {
             var eventData = new EventData();
             eventData.Add("auth_mode", authFlowName);
-            eventData.Add("success", attempt.Success);
-            eventData.Add("errors", ExceptionListToStringConverter.SerializeExceptions(attempt.Errors));
-            eventData.Add("no_of_interactive_prompts", attempt.InteractivePromptsCount);
-            List<string> correlationIDs = ExceptionsExtensions.ExtractCorrelationIDsFromException(attempt.Errors);
+            eventData.Add("success", result.Success);
+            eventData.Add("errors", ExceptionListToStringConverter.SerializeExceptions(result.Errors));
+            eventData.Add("no_of_interactive_prompts", result.InteractivePromptsCount);
+            List<string> correlationIDs = ExceptionsExtensions.ExtractCorrelationIDsFromException(result.Errors);
 
-            if (attempt.Success)
+            if (result.Success)
             {
-                correlationIDs.Add(attempt.TokenResult.CorrelationID.ToString());
-                eventData.Add("token_validity_hours", attempt.TokenResult.ValidFor.Hours);
-                eventData.Add("is_silent", attempt.TokenResult.AuthType == AuthType.Silent);
+                correlationIDs.Add(result.TokenResult.CorrelationID.ToString());
+                eventData.Add("token_validity_hours", result.TokenResult.ValidFor.Hours);
+                eventData.Add("is_silent", result.TokenResult.AuthType == AuthType.Silent);
             }
 
             eventData.Add("msal_correlation_ids", correlationIDs);
-            this.telemetryService.SendEvent($"authflow_{authFlowName}", eventData);
+            return eventData;
         }
     }
 }
