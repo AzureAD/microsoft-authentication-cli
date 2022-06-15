@@ -54,7 +54,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogDebug($"Starting {authFlowName}...");
 
                 var attempt = await authFlow.GetTokenAsync();
-                this.SendTelemetryEvent(attempt, authFlowName);
 
                 if (attempt == null)
                 {
@@ -65,6 +64,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 else
                 {
                     result.AddErrors(attempt.Errors);
+                    this.SendTelemetryEvent(attempt, authFlowName);
 
                     this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
                     if (attempt.Success)
