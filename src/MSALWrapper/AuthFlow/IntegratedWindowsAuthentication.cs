@@ -35,16 +35,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="clientId">The client id.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="scopes">The scopes.</param>
-        /// <param name="osxKeyChainSuffix">The osx key chain suffix.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
-        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
+        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
         {
             this.errors = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, null);
         }
 
         /// <summary>
@@ -151,7 +150,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     enablePiiLogging: false,
                     enableDefaultPlatformLogging: true);
 
-            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix);
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, null);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)

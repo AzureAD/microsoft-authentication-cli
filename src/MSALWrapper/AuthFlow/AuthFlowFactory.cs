@@ -49,7 +49,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // and tries to auth silently if it finds an account in the cache.
             if (authMode.IsIWA())
             {
-                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper));
+                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, preferredDomain, pcaWrapper));
             }
 
             // This check silently fails on winserver if broker has been requested.
