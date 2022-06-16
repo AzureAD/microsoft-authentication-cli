@@ -413,7 +413,7 @@ invalid_key = ""this is not a valid alias key""
         public void TestCacheFileOptionWithNormalFilePathFromEnv()
         {
             string cacheFilePath = "C:\\test\\absolute_from_env.cache";
-            this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE_FILE")).Returns(cacheFilePath);
+            this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE")).Returns(cacheFilePath);
 
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";

@@ -178,7 +178,7 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 // Check environment variable.
-                string envCacheFile = this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE);
+                string envCacheFile = this.env.Get(EnvVars.Cache);
                 if (!string.IsNullOrEmpty(envCacheFile))
                 {
                     return envCacheFile;
@@ -332,7 +332,7 @@ Allowed values: [all, web, devicecode]";
             if (!this.CacheFilePath.IsValidAbsoluteFilePath())
             {
                 this.logger.LogError($"The option {CacheOption}=`{this.CacheFilePath}` " +
-                    $"or environment varable {EnvVars.AZUREAUTH_CACHE_FILE}=`{this.env.Get(EnvVars.AZUREAUTH_CACHE_FILE)}` " +
+                    $"or environment varable {EnvVars.Cache}=`{this.env.Get(EnvVars.Cache)}` " +
                     $"is not a valid absolute file path.");
                 validOptions = false;
             }
