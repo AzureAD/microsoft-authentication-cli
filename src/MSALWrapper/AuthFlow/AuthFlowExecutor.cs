@@ -13,7 +13,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// <summary>
     /// The auth flows class.
     /// </summary>
-    public class AuthFlowExecutor : IAuthFlow
+    public class AuthFlowExecutor
     {
         private readonly IEnumerable<IAuthFlow> authflows;
         private readonly ILogger logger;
@@ -33,9 +33,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Get a auth flow result.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
-        public async Task<AuthFlowResult> GetTokenAsync()
+        public async Task<List<AuthFlowResult>> GetTokenAsync()
         {
-            AuthFlowResult result = new AuthFlowResult(null, new List<Exception>(), string.Empty);
+            List<AuthFlowResult> resultList = new List<AuthFlowResult>();
 
             if (this.authflows.Count() == 0)
             {
@@ -48,26 +48,29 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogDebug($"Starting {authFlowName}...");
 
                 var attempt = await authFlow.GetTokenAsync();
+
                 if (attempt == null)
                 {
                     var oopsMessage = $"Auth flow '{authFlow.GetType().Name}' returned a null AuthFlowResult.";
-                    result.Errors.Add(new NullTokenResultException(oopsMessage));
                     this.logger.LogDebug(oopsMessage);
+
+                    attempt = new AuthFlowResult(null, null, authFlowName);
+                    attempt.Errors.Add(new NullTokenResultException(oopsMessage));
+                    resultList.Add(attempt);
                 }
                 else
                 {
-                    result.AddErrors(attempt.Errors);
-
                     this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
+                    resultList.Add(attempt);
+
                     if (attempt.Success)
                     {
-                        result.TokenResult = attempt.TokenResult;
                         break;
                     }
                 }
             }
 
-            return result;
+            return resultList;
         }
     }
 }

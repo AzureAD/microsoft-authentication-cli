@@ -57,6 +57,7 @@ Allowed values: [all, web, devicecode]";
         private readonly IEnv env;
         private Alias authSettings;
         private IAuthFlow authFlow;
+        private AuthFlowExecutor authFlowExecutor;
 
         /// <summary>
         /// The maximum time we will wait to acquire a mutex around prompting the user.
@@ -316,8 +317,9 @@ Allowed values: [all, web, devicecode]";
         {
             try
             {
-                IAuthFlow authFlow = this.AuthFlow();
-                AuthFlowResult result = null;
+                AuthFlowExecutor authFlowExecutor = this.AuthFlowExecutor();
+                AuthFlowResult succeededResult = null;
+                List<AuthFlowResult> results = null;
 
                 // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
                 // They may prompt many times, which is annoying and unexpected.
@@ -352,7 +354,9 @@ Allowed values: [all, web, devicecode]";
 
                     try
                     {
-                        result = authFlow.GetTokenAsync().Result;
+                        results = authFlowExecutor.GetTokenAsync().Result;
+                        succeededResult = results.FirstOrDefault(result => result.Success == true);
+
                     }
                     finally
                     {
@@ -361,26 +365,27 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 // But what if result is null? The compiler cannot ensure it won't be (yet).
-                this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(result.Errors));
+                var errors = results.SelectMany(result => result.Errors).ToList();
+                this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(errors));
 
-                if (!result.Success)
+                if (succeededResult == null)
                 {
                     this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
                     return 1;
                 }
 
-                this.eventData.Add("auth_type", $"{result.TokenResult.AuthType}");
+                this.eventData.Add("auth_type", $"{succeededResult.TokenResult.AuthType}");
 
                 switch (this.Output)
                 {
                     case OutputMode.Status:
-                        this.logger.LogSuccess(result.TokenResult.ToString());
+                        this.logger.LogSuccess(succeededResult.TokenResult.ToString());
                         break;
                     case OutputMode.Token:
-                        Console.Write(result.TokenResult.Token);
+                        Console.Write(succeededResult.TokenResult.Token);
                         break;
                     case OutputMode.Json:
-                        Console.Write(result.TokenResult.ToJson());
+                        Console.Write(succeededResult.TokenResult.ToJson());
                         break;
                     case OutputMode.None:
                         break;
@@ -396,9 +401,9 @@ Allowed values: [all, web, devicecode]";
             return 0;
         }
 
-        private IAuthFlow AuthFlow()
+        private AuthFlowExecutor AuthFlowExecutor()
         {
-            if (this.authFlow == null)
+            if (this.authFlowExecutor == null)
             {
                 // TODO: Really we need to get rid of Resource
                 var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
@@ -413,10 +418,10 @@ Allowed values: [all, web, devicecode]";
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
 
-                this.authFlow = new AuthFlowExecutor(this.logger, authFlows);
+                this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows);
             }
 
-            return this.authFlow;
+            return this.authFlowExecutor;
         }
     }
 }
