@@ -273,7 +273,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[0].Message.Should().Be("AADSTS50076 UI is required");
+            authFlowResult.Errors[0].Message.Should().Be("AADSTS50076 MSAL UI Required Exception!");
         }
 
         [Test]
@@ -291,7 +291,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[0].Message.Should().Be("AADSTS500083 UI is required");
+            authFlowResult.Errors[0].Message.Should().Be("MSAL UI Required Exception!");
         }
 
         [Test]
@@ -398,14 +398,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, It.IsAny<CancellationToken>()))
-                .Throws(new MsalUiRequiredException("1", "AADSTS50076 UI is required"));
+                .Throws(new MsalUiRequiredException("1", "AADSTS50076 MSAL UI Required Exception!"));
         }
 
         private void IntegratedWindowsAuthenticationUIRequiredForAADBrokeIWA()
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, It.IsAny<CancellationToken>()))
-                .Throws(new MsalUiRequiredException("2", "AADSTS500083 UI is required"));
+                .Throws(new MsalUiRequiredException("2", "MSAL UI Required Exception!"));
         }
 
         private void IntegratedWindowsAuthenticationServiceException()

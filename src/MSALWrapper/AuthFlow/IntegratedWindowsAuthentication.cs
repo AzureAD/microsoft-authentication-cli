@@ -117,12 +117,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.logger.LogWarning($"IWA failed, 2FA is required.\n" +
                         $"IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.\n{ex.Message}");
                 }
-                catch (MsalUiRequiredException ex) when (
-                             ex.Classification == UiRequiredExceptionClassification.None
-                          && ex.Message.StartsWith("AADSTS500083", StringComparison.OrdinalIgnoreCase))
+                catch (MsalUiRequiredException ex)
                 {
                     this.errors.Add(ex);
-                    this.logger.LogDebug($"IWA failed, unable to verify token signature with identifier 'urn:federation:MSFT'.\n{ex.Message}");
+                    this.logger.LogDebug($"MSAL UI Required Exception.\n{ex.Message}");
                 }
                 catch (MsalServiceException ex)
                 {
