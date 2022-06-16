@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Implemented Integrated Windows Authentication as one of the auth flows.
+- Added Integrated Windows Authentication functionality as one of the auth flows.
 
 ## [Unreleased]
 ### Added
