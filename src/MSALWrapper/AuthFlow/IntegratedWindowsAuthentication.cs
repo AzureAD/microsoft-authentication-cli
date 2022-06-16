@@ -23,11 +23,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         #region Public configurable properties
 
         /// <summary>
-        /// The silent auth timeout.
-        /// </summary>
-        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(6);
-
-        /// <summary>
         /// The integrated windows auth flow timeout.
         /// </summary>
         private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(6);
@@ -69,7 +64,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     {
                         var tokenResult = await TaskExecutor.CompleteWithin(
                             this.logger,
-                            this.silentAuthTimeout,
+                            this.integratedWindowsAuthTimeout,
                             "Get Token Silent",
                             (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
                             this.errors)
