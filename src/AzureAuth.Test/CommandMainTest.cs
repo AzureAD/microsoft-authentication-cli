@@ -406,14 +406,14 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// The test to evaluate a relative cache file name in enviroment variables.
+        /// The test to evaluate an absolute cache file path in enviroment variables.
         /// </summary>
         [Test]
         [Platform("Win")] // Only valid on Windows
         public void TestCacheFileOptionWithNormalFilePathFromEnv()
         {
-            string filenameFromEnv = "C:\\test\\absolute_from_env.cache";
-            this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE_FILE")).Returns(filenameFromEnv);
+            string cacheFilePath = "C:\\test\\absolute_from_env.cache";
+            this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE_FILE")).Returns(cacheFilePath);
 
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
@@ -421,6 +421,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeTrue();
+            subject.CacheFilePath.Should().Be(cacheFilePath);
         }
 
         /// <summary>
@@ -467,7 +468,8 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// The test to evaluate a relative cache path.
+        /// The test to evaluate a relative cache path,
+        /// which should return false since we only expect an absolute path.
         /// </summary>
         [Test]
         [Platform("Win")] // Only valid on Windows
