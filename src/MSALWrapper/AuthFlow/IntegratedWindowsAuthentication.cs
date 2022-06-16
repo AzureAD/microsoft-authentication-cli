@@ -114,7 +114,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                           && ex.Message.StartsWith("AADSTS50076", StringComparison.OrdinalIgnoreCase))
                 {
                     this.errors.Add(ex);
-                    this.logger.LogDebug($"IWA failed, 2FA is required.\n{ex.Message}");
+                    this.logger.LogWarning($"IWA failed, 2FA is required.\n" +
+                        $"IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.\n{ex.Message}");
                 }
                 catch (MsalUiRequiredException ex) when (
                              ex.Classification == UiRequiredExceptionClassification.None
