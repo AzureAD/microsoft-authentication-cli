@@ -40,9 +40,9 @@ namespace Microsoft.Authentication.AzureAuth
         private const string PromptHintPrefix = "AzureAuth";
 
 #if PlatformWindows
-        private const string AuthModeHelperText = @"Authentication mode. Default: broker, with web fallback.
+        private const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker and web fallback.
 You can use any combination of modes with multiple instances of the --mode flag.
-Allowed values: [all, broker, web, devicecode]";
+Allowed values: [all, iwa, broker, web, devicecode]";
 #else
         private const string AuthModeHelperText = @"Authentication mode. Default: web.
 You can use any combination with multiple instances of the --mode flag.
