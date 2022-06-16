@@ -47,6 +47,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // as it sets the order in which auth flows will be attempted.
             List<IAuthFlow> flows = new List<IAuthFlow>();
 
+            // We try IWA as the first auth flow as it works for any Windows version
+            // and tries to auth silently.
+            if (authMode.IsIWA() && platformUtils.IsWindows())
+            {
+                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, preferredDomain, pcaWrapper));
+            }
+
             // This check silently fails on winserver if broker has been requested.
             // Future: Consider making AuthMode platform aware at Runtime.
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55

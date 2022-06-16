@@ -107,6 +107,13 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <inheritdoc/>
+        public async Task<TokenResult> GetTokenIntegratedWindowsAuthenticationAsync(IEnumerable<string> scopes, CancellationToken cancellationToken)
+        {
+            AuthenticationResult result = await this.pca.AcquireTokenByIntegratedWindowsAuth(scopes).ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            return this.TokenResultOrNull(result);
+        }
+
+        /// <inheritdoc/>
         public async Task<IAccount> TryToGetCachedAccountAsync(string preferredDomain = null)
         {
             var accounts = await this.TryToGetCachedAccountsAsync(preferredDomain);

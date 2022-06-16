@@ -104,6 +104,17 @@ namespace MSALWrapper.Test
 
 #if PlatformWindows
         [Test]
+        public void IntegratedWindowsAuthentication_Only()
+        {
+            this.MockIsWindows(true);
+
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.IWA);
+
+            subject.Should().HaveCount(1);
+            subject.First().GetType().Name.Should().Be(typeof(IntegratedWindowsAuthentication).Name);
+        }
+
+        [Test]
         public void Broker_Only()
         {
             this.MockIsWindows10Or11(true);
@@ -117,29 +128,70 @@ namespace MSALWrapper.Test
         [Test]
         public void Windows10Or11_Defaults()
         {
+            this.MockIsWindows(true);
             this.MockIsWindows10Or11(true);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
-            subject.Should().HaveCount(2);
+            subject.Should().HaveCount(3);
 
             // BeEquivalentTo doesn't assert order for a list :(
             // so explicitly assert the first and second item names.
             var names = subject.Select(a => a.GetType().Name).ToList();
-            names[0].Should().Be(typeof(Broker).Name);
-            names[1].Should().Be(typeof(Web).Name);
+            names[0].Should().Be(typeof(IntegratedWindowsAuthentication).Name);
+            names[1].Should().Be(typeof(Broker).Name);
+            names[2].Should().Be(typeof(Web).Name);
         }
 
         [Test]
         public void Windows_Defaults()
         {
+            this.MockIsWindows(true);
             this.MockIsWindows10Or11(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
-            subject.Should().HaveCount(1);
+            subject.Should().HaveCount(2);
             var names = subject.Select(a => a.GetType().Name).ToList();
-            names[0].Should().Be(typeof(Web).Name);
+            names[0].Should().Be(typeof(IntegratedWindowsAuthentication).Name);
+            names[1].Should().Be(typeof(Web).Name);
+        }
+
+        [Test]
+        public void Windows10Or11_All()
+        {
+            this.MockIsWindows(true);
+            this.MockIsWindows10Or11(true);
+
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
+
+            subject.Should().HaveCount(4);
+
+            // BeEquivalentTo doesn't assert order for a list :(
+            // so explicitly assert the first and second item names.
+            var names = subject.Select(a => a.GetType().Name).ToList();
+            names[0].Should().Be(typeof(IntegratedWindowsAuthentication).Name);
+            names[1].Should().Be(typeof(Broker).Name);
+            names[2].Should().Be(typeof(Web).Name);
+            names[3].Should().Be(typeof(DeviceCode).Name);
+        }
+
+        [Test]
+        public void Windows_All()
+        {
+            this.MockIsWindows(true);
+            this.MockIsWindows10Or11(false);
+
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
+
+            subject.Should().HaveCount(3);
+
+            // BeEquivalentTo doesn't assert order for a list :(
+            // so explicitly assert the first and second item names.
+            var names = subject.Select(a => a.GetType().Name).ToList();
+            names[0].Should().Be(typeof(IntegratedWindowsAuthentication).Name);
+            names[1].Should().Be(typeof(Web).Name);
+            names[2].Should().Be(typeof(DeviceCode).Name);
         }
 #endif
 
@@ -157,7 +209,8 @@ namespace MSALWrapper.Test
         [Platform("Win")]
         public void AllModes_Windows()
         {
-            this.MockIsWindows10Or11(true);
+            this.MockIsWindows(true);
+            this.MockIsWindows10Or11(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
@@ -168,6 +221,29 @@ namespace MSALWrapper.Test
                 .Should()
                 .BeEquivalentTo(new[]
                 {
+                    typeof(IntegratedWindowsAuthentication).Name,
+                    typeof(Web).Name,
+                    typeof(DeviceCode).Name,
+                });
+        }
+
+        [Test]
+        [Platform("Win")]
+        public void AllModes_Windows10Or11()
+        {
+            this.MockIsWindows(true);
+            this.MockIsWindows10Or11(true);
+
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
+
+            this.pcaWrapperMock.VerifyAll();
+            subject.Should().HaveCount(4);
+            subject
+                .Select(flow => flow.GetType().Name)
+                .Should()
+                .BeEquivalentTo(new[]
+                {
+                    typeof(IntegratedWindowsAuthentication).Name,
                     typeof(Broker).Name,
                     typeof(Web).Name,
                     typeof(DeviceCode).Name,
@@ -210,6 +286,11 @@ namespace MSALWrapper.Test
         private void MockIsWindows10Or11(bool value)
         {
             this.platformUtilsMock.Setup(p => p.IsWindows10Or11()).Returns(value);
+        }
+
+        private void MockIsWindows(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsWindows()).Returns(value);
         }
     }
 }
