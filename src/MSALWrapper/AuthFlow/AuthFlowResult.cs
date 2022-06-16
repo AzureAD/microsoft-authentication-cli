@@ -15,7 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Initializes a new instance of the <see cref="AuthFlowResult"/> class with a null TokenResult and empty error list.
         /// </summary>
         public AuthFlowResult()
-            : this(null, null, null)
+            : this(null, null, string.Empty)
         {
         }
 
@@ -29,7 +29,7 @@ namespace Microsoft.Authentication.MSALWrapper
         {
             this.TokenResult = tokenResult;
             this.Errors = errors ?? new List<Exception>();
-            this.AuthFlowName = authFlowName;
+            this.AuthFlowName = authFlowName ?? throw new ArgumentNullException(nameof(authFlowName));
         }
 
         /// <summary>
