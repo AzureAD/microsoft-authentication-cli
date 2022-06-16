@@ -104,6 +104,8 @@ namespace MSALWrapper.Test
         [Test]
         public void IntegratedWindowsAuthentication_Only()
         {
+            this.MockIsWindows(true);
+
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.IWA);
 
             subject.Should().HaveCount(1);
@@ -124,6 +126,7 @@ namespace MSALWrapper.Test
         [Test]
         public void Windows10Or11_Defaults()
         {
+            this.MockIsWindows(true);
             this.MockIsWindows10Or11(true);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
@@ -141,6 +144,7 @@ namespace MSALWrapper.Test
         [Test]
         public void Windows_Defaults()
         {
+            this.MockIsWindows(true);
             this.MockIsWindows10Or11(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
@@ -154,6 +158,7 @@ namespace MSALWrapper.Test
         [Test]
         public void Windows10Or11_All()
         {
+            this.MockIsWindows(true);
             this.MockIsWindows10Or11(true);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
@@ -172,6 +177,7 @@ namespace MSALWrapper.Test
         [Test]
         public void Windows_All()
         {
+            this.MockIsWindows(true);
             this.MockIsWindows10Or11(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
@@ -201,6 +207,7 @@ namespace MSALWrapper.Test
         [Platform("Win")]
         public void AllModes_Windows()
         {
+            this.MockIsWindows(true);
             this.MockIsWindows10Or11(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
@@ -222,6 +229,7 @@ namespace MSALWrapper.Test
         [Platform("Win")]
         public void AllModes_Windows10Or11()
         {
+            this.MockIsWindows(true);
             this.MockIsWindows10Or11(true);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
@@ -276,6 +284,11 @@ namespace MSALWrapper.Test
         private void MockIsWindows10Or11(bool value)
         {
             this.platformUtilsMock.Setup(p => p.IsWindows10Or11()).Returns(value);
+        }
+
+        private void MockIsWindows(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsWindows()).Returns(value);
         }
     }
 }

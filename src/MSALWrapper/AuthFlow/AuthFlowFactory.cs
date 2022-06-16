@@ -46,8 +46,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             List<IAuthFlow> flows = new List<IAuthFlow>();
 
             // We try IWA as the first auth flow as it works for any Windows version
-            // and tries to auth silently if it finds an account in the cache.
-            if (authMode.IsIWA())
+            // and tries to auth silently.
+            if (authMode.IsIWA() && platformUtils.IsWindows())
             {
                 flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, preferredDomain, pcaWrapper));
             }
