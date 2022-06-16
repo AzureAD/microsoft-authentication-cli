@@ -51,7 +51,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // and tries to auth silently.
             if (authMode.IsIWA() && platformUtils.IsWindows())
             {
-                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, preferredDomain, pcaWrapper));
+                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, cacheFilePath, preferredDomain, pcaWrapper));
             }
 
             // This check silently fails on winserver if broker has been requested.
