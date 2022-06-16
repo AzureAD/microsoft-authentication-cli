@@ -21,6 +21,14 @@ or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any addi
 ## Recommended Tools
 * Visual Studio and Visual Studio Code https://visualstudio.microsoft.com/
 
+## Git
+
+### Conventions
+TODO
+
+### Branching Workflow
+TODO
+
 # Development Setup
 
 - Clone the auth repo
