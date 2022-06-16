@@ -43,14 +43,10 @@ namespace Microsoft.Authentication.AzureAuth
         private const string AuthModeHelperText = @"Authentication mode. Default: broker, with web fallback.
 You can use any combination of modes with multiple instances of the --mode flag.
 Allowed values: [all, broker, web, devicecode]";
-
-        private const bool IsWindows = true;
 #else
         private const string AuthModeHelperText = @"Authentication mode. Default: web.
 You can use any combination with multiple instances of the --mode flag.
 Allowed values: [all, web, devicecode]";
-
-        private const bool IsWindows = false;
 #endif
 
         private readonly EventData eventData;
@@ -165,7 +161,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the cache file name. Only available on Windows.
         /// </summary>
-        [Option(CacheOption, "Override the default cache file location. This option is only available on Windows.", CommandOptionType.SingleValue, ShowInHelpText = IsWindows)]
+        [Option(CacheOption, "Override the default cache file location. This option is only available on Windows.", CommandOptionType.SingleValue, ShowInHelpText = false)]
         [LegalFilePath]
         public string CacheFilePath
         {
