@@ -25,12 +25,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The silent auth timeout.
         /// </summary>
-        private TimeSpan silentAuthTimeout = TimeSpan.FromMinutes(5);
+        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(6);
 
         /// <summary>
-        /// The intercative windows auth flow timeout.
+        /// The integrated windows auth flow timeout.
         /// </summary>
-        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromMinutes(15);
+        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(6);
         #endregion
 
         /// <summary>
