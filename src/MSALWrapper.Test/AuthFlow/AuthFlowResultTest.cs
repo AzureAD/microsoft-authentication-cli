@@ -24,6 +24,17 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject.Success.Should().BeFalse();
             subject.TokenResult.Should().BeNull();
             subject.Errors.Should().BeEmpty();
+            subject.AuthFlowName.Should().BeEmpty();
+        }
+
+        [Test]
+        public void ConstructorWithNullAuthFlowName_ThrowsNullArgumentException()
+        {
+            var tokenResult = new TokenResult(new JsonWebToken(FakeToken));
+            var errors = new List<Exception>();
+            Action authFLowResult = () => new AuthFlowResult(tokenResult, errors, null);
+
+            authFLowResult.Should().Throw<ArgumentNullException>();
         }
 
         [Test]
