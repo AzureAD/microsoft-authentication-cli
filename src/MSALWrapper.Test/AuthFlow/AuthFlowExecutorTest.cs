@@ -96,7 +96,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task SingleAuthFlow_Returns_TokenResult()
         {
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-            var authFlowResult = new AuthFlowResult(this.tokenResult, null);
+            var authFlowResult = new AuthFlowResult(this.tokenResult, null, null);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
             // Act
@@ -136,7 +136,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             {
                 new Exception("Exception 1."),
             };
-            var authFlowResult = new AuthFlowResult(null, errors1);
+            var authFlowResult = new AuthFlowResult(null, errors1, null);
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
@@ -178,7 +178,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task HasTwoAuthFlows_Returns_Null_TokenResult()
         {
             var authFlowResult1 = new AuthFlowResult();
-            var authFlowResult2 = new AuthFlowResult(this.tokenResult, null);
+            var authFlowResult2 = new AuthFlowResult(this.tokenResult, null, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
@@ -205,8 +205,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             {
                 new Exception("Exception 1."),
             };
-            var authFlowResult1 = new AuthFlowResult(null, errors1);
-            var authFlowResult2 = new AuthFlowResult(this.tokenResult, null);
+            var authFlowResult1 = new AuthFlowResult(null, errors1, null);
+            var authFlowResult2 = new AuthFlowResult(this.tokenResult, null, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
@@ -268,7 +268,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new Exception("Exception 2"),
             };
 
-            var authFlowResult = new AuthFlowResult(null, errors2);
+            var authFlowResult = new AuthFlowResult(null, errors2, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
@@ -303,7 +303,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new Exception("Exception 2"),
             };
 
-            var authFlowResult = new AuthFlowResult(this.tokenResult, errors2);
+            var authFlowResult = new AuthFlowResult(this.tokenResult, errors2, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
@@ -329,7 +329,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var authFlowResult1 = new AuthFlowResult();
             var authFlowResult2 = new AuthFlowResult();
-            var authFlowResult3 = new AuthFlowResult(this.tokenResult, null);
+            var authFlowResult3 = new AuthFlowResult(this.tokenResult, null, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
@@ -372,9 +372,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new Exception("Exception 4."),
             };
 
-            var authFlowResult1 = new AuthFlowResult(null, errors1);
-            var authFlowResult2 = new AuthFlowResult(null, errors2);
-            var authFlowResult3 = new AuthFlowResult(this.tokenResult, errors3);
+            var authFlowResult1 = new AuthFlowResult(null, errors1, null);
+            var authFlowResult2 = new AuthFlowResult(null, errors2, null);
+            var authFlowResult3 = new AuthFlowResult(this.tokenResult, errors3, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
@@ -451,8 +451,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new NullTokenResultException(NullAuthFlowResultExceptionMessage),
             };
 
-            var authFlowResult1 = new AuthFlowResult(null, errors1);
-            var authFlowResult2 = new AuthFlowResult(null, errors2);
+            var authFlowResult1 = new AuthFlowResult(null, errors1, null);
+            var authFlowResult2 = new AuthFlowResult(null, errors2, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
@@ -495,8 +495,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new Exception("Exception 2"),
             };
 
-            var authFlowResult1 = new AuthFlowResult(null, errors1);
-            var authFlowResult3 = new AuthFlowResult(null, errors3);
+            var authFlowResult1 = new AuthFlowResult(null, errors1, null);
+            var authFlowResult3 = new AuthFlowResult(null, errors3, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
@@ -540,8 +540,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new Exception("Exception 3"),
             };
 
-            var authFlowResult1 = new AuthFlowResult(null, errors1);
-            var authFlowResult3 = new AuthFlowResult(this.tokenResult, errors3);
+            var authFlowResult1 = new AuthFlowResult(null, errors1, null);
+            var authFlowResult3 = new AuthFlowResult(this.tokenResult, errors3, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
@@ -585,8 +585,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new Exception("This is a catastrophic failure. AuthFlow result is null!"),
             };
 
-            var authFlowResult1 = new AuthFlowResult(null, errors1);
-            var authFlowResult2 = new AuthFlowResult(this.tokenResult, errors2);
+            var authFlowResult1 = new AuthFlowResult(null, errors1, null);
+            var authFlowResult2 = new AuthFlowResult(this.tokenResult, errors2, null);
 
             var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);

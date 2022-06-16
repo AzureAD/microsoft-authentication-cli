@@ -31,7 +31,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var tokenResult = new TokenResult(new JsonWebToken(FakeToken));
             var errors = new List<Exception>();
-            AuthFlowResult subject = new AuthFlowResult(tokenResult, errors);
+            var authFlowName = "AuthFlowName";
+            AuthFlowResult subject = new AuthFlowResult(tokenResult, errors, authFlowName);
 
             subject.Success.Should().BeTrue();
             subject.TokenResult.Should().Be(tokenResult);

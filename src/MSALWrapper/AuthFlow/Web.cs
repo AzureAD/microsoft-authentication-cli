@@ -88,7 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Silent);
 
-                        return new AuthFlowResult(tokenResult, this.errors);
+                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                     }
                     catch (MsalUiRequiredException ex)
                     {
@@ -105,7 +105,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetAuthenticationType(AuthType.Interactive);
 
-                        return new AuthFlowResult(tokenResult, this.errors);
+                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                     }
                 }
                 catch (MsalUiRequiredException ex)
@@ -123,7 +123,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Interactive);
 
-                    return new AuthFlowResult(tokenResult, this.errors);
+                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                 }
             }
             catch (MsalServiceException ex)
@@ -142,7 +142,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
             }
 
-            return new AuthFlowResult(null, this.errors);
+            return new AuthFlowResult(null, this.errors, this.GetType().Name);
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
