@@ -480,7 +480,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
-            string path = "../test/relative.cache";
+            string path = "..\\test\\relative.cache";
             subject.CacheFilePath = path;
             subject.EvaluateOptions().Should().BeFalse();
         }
