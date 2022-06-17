@@ -532,23 +532,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeFalse();
-            result2.Errors.Should().HaveCount(1);
-
-            var result3 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow3");
-            result3.Should().NotBeNull();
-            result3.Success.Should().BeTrue();
-            result3.Errors.Should().HaveCount(2);
-            result3.TokenResult.Should().BeEquivalentTo(this.tokenResult);
-
-            resultList.SelectMany(x => x.Errors).ToList().Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors3[0], errors3[1] });
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3);
         }
 
         [Test]
