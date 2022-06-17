@@ -404,8 +404,8 @@ Allowed values: [all, web, devicecode]";
             try
             {
                 AuthFlowExecutor authFlowExecutor = this.AuthFlowExecutor();
-                AuthFlowResult succeededResult = null;
-                IEnumerable<AuthFlowResult> results = null;
+                AuthFlowResult successfulResult = null;
+                AuthFlowResult[] results = null;
 
                 // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
                 // They may prompt many times, which is annoying and unexpected.
@@ -440,8 +440,8 @@ Allowed values: [all, web, devicecode]";
 
                     try
                     {
-                        results = authFlowExecutor.GetTokenAsync().Result;
-                        succeededResult = results.FirstOrDefault(result => result.Success == true);
+                        results = authFlowExecutor.GetTokenAsync().Result.ToArray();
+                        successfulResult = results?.FirstOrDefault(result => result.Success);
                     }
                     finally
                     {
@@ -449,37 +449,41 @@ Allowed values: [all, web, devicecode]";
                     }
                 }
 
-                var errors = results?.SelectMany(result => result.Errors);
-                var error_count = errors == null ? 0 : errors.Count();
-                this.eventData.Add("error_count", error_count);
+                if (results != null)
+                {
+                    var errors = results.SelectMany(result => result.Errors).ToArray();
+                    this.eventData.Add("error_count", errors.Length);
+                    this.eventData.Add("authflow_count", results.Length);
+                }
 
-                if (succeededResult == null)
+                if (successfulResult == null)
                 {
                     this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
                     return 1;
                 }
 
-                this.eventData.Add("auth_type", $"{succeededResult.TokenResult.AuthType}");
-                this.eventData.Add("is_silent", succeededResult.TokenResult.AuthType.IsSilent());
-                this.eventData.Add("succeeded_mode", succeededResult.AuthFlowName);
+                var tokenResult = successfulResult.TokenResult;
+                this.eventData.Add("auth_type", $"{tokenResult.AuthType}");
+                this.eventData.Add("is_silent", tokenResult.AuthType.IsSilent());
+                this.eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
 
                 switch (this.Output)
                 {
                     case OutputMode.Status:
-                        this.logger.LogSuccess(succeededResult.TokenResult.ToString());
+                        this.logger.LogSuccess(tokenResult.ToString());
                         break;
                     case OutputMode.Token:
-                        Console.Write(succeededResult.TokenResult.Token);
+                        Console.Write(tokenResult.Token);
                         break;
                     case OutputMode.Json:
-                        Console.Write(succeededResult.TokenResult.ToJson());
+                        Console.Write(tokenResult.ToJson());
                         break;
                     case OutputMode.None:
                         break;
                 }
 
                 // Send custom telemetry events for each authflow result.
-                this.SendAuthFlowTelemetryEvents(results.ToList());
+                this.SendAuthFlowTelemetryEvents(results);
             }
             catch (Exception ex)
             {
@@ -491,7 +495,7 @@ Allowed values: [all, web, devicecode]";
             return 0;
         }
 
-        private void SendAuthFlowTelemetryEvents(List<AuthFlowResult> results)
+        private void SendAuthFlowTelemetryEvents(AuthFlowResult[] results)
         {
             if (results != null)
             {
