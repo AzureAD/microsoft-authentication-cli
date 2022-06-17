@@ -356,7 +356,6 @@ Allowed values: [all, web, devicecode]";
                     {
                         results = authFlowExecutor.GetTokenAsync().Result;
                         succeededResult = results.FirstOrDefault(result => result.Success == true);
-
                     }
                     finally
                     {
@@ -364,7 +363,6 @@ Allowed values: [all, web, devicecode]";
                     }
                 }
 
-                // But what if result is null? The compiler cannot ensure it won't be (yet).
                 var errors = results.SelectMany(result => result.Errors).ToList();
                 this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(errors));
 

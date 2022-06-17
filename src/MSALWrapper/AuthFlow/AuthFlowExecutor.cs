@@ -62,7 +62,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
                     resultList.Add(attempt);
-
                     if (attempt.Success)
                     {
                         break;
