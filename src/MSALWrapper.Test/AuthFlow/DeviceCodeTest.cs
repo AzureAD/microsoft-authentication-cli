@@ -97,6 +97,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Silent);
             authFlowResult.Errors.Should().BeEmpty();
+            authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
         [Test]
@@ -115,6 +116,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.AuthType.Should().Be(AuthType.DeviceCodeFlow);
             authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
         [Test]
@@ -132,6 +134,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().BeEmpty();
+            authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
         [Test]
@@ -151,6 +154,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
             authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 5 minutes.");
+            authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
         [Test]
@@ -171,6 +175,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.AuthType.Should().Be(AuthType.DeviceCodeFlow);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
         [Test]
@@ -190,6 +195,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
         [Test]
@@ -210,6 +216,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalException));
+            authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
         private void SilentAuthResult()

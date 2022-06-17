@@ -15,7 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Initializes a new instance of the <see cref="AuthFlowResult"/> class with a null TokenResult and empty error list.
         /// </summary>
         public AuthFlowResult()
-            : this(null, null)
+            : this(null, null, string.Empty)
         {
         }
 
@@ -24,10 +24,12 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
         /// <param name="errors">A list of errors encountered while getting (or failing to get) the given token result. Will initialize a new empty List if null is given.</param>
-        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors)
+        /// <param name="authFlowName">The name of the authflow from which the AuthFlowResult is returned or cretaed.</param>
+        public AuthFlowResult(TokenResult tokenResult, IList<Exception> errors, string authFlowName)
         {
             this.TokenResult = tokenResult;
             this.Errors = errors ?? new List<Exception>();
+            this.AuthFlowName = authFlowName ?? throw new ArgumentNullException(nameof(authFlowName));
         }
 
         /// <summary>
@@ -39,6 +41,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets a list of errors.
         /// </summary>
         public IList<Exception> Errors { get; internal set; }
+
+        /// <summary>
+        /// Gets the AuthFlowName.
+        /// </summary>
+        public string AuthFlowName { get; internal set; }
 
         /// <summary>
         /// Gets a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.

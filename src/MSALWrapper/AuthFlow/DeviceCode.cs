@@ -90,7 +90,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.Silent);
 
-                    return new AuthFlowResult(tokenResult, this.errors);
+                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                 }
                 catch (MsalUiRequiredException ex)
                 {
@@ -108,7 +108,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         .ConfigureAwait(false);
                     tokenResult.SetAuthenticationType(AuthType.DeviceCodeFlow);
 
-                    return new AuthFlowResult(tokenResult, this.errors);
+                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                 }
             }
             catch (MsalException ex)
@@ -117,7 +117,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogError(ex.Message);
             }
 
-            return new AuthFlowResult(null, this.errors);
+            return new AuthFlowResult(null, this.errors, this.GetType().Name);
         }
 
         private static HttpClient CreateHttpClient()
