@@ -360,7 +360,7 @@ Allowed values: [all, web, devicecode]";
             try
             {
                 AuthFlowExecutor authFlowExecutor = this.AuthFlowExecutor();
-                AuthFlowResult succeededResult = null;
+                AuthFlowResult successfulResult = null;
                 IEnumerable<AuthFlowResult> results = null;
 
                 // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
@@ -397,7 +397,7 @@ Allowed values: [all, web, devicecode]";
                     try
                     {
                         results = authFlowExecutor.GetTokenAsync().Result;
-                        succeededResult = results.FirstOrDefault(result => result.Success == true);
+                        successfulResult = results.FirstOrDefault(result => result.Success == true);
                     }
                     finally
                     {
@@ -408,24 +408,25 @@ Allowed values: [all, web, devicecode]";
                 var errors = results.SelectMany(result => result.Errors).ToList();
                 this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(errors));
 
-                if (succeededResult == null)
+                if (successfulResult == null)
                 {
                     this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
                     return 1;
                 }
 
-                this.eventData.Add("auth_type", $"{succeededResult.TokenResult.AuthType}");
+                var tokenResult = successfulResult.TokenResult;
+                this.eventData.Add("auth_type", $"{tokenResult.AuthType}");
 
                 switch (this.Output)
                 {
                     case OutputMode.Status:
-                        this.logger.LogSuccess(succeededResult.TokenResult.ToString());
+                        this.logger.LogSuccess(tokenResult.ToString());
                         break;
                     case OutputMode.Token:
-                        Console.Write(succeededResult.TokenResult.Token);
+                        Console.Write(tokenResult.Token);
                         break;
                     case OutputMode.Json:
-                        Console.Write(succeededResult.TokenResult.ToJson());
+                        Console.Write(tokenResult.ToJson());
                         break;
                     case OutputMode.None:
                         break;
