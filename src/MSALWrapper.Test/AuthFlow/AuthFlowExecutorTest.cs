@@ -52,7 +52,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .BuildServiceProvider();
 
             // Mock successful token result
-            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
+            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
         [Test]

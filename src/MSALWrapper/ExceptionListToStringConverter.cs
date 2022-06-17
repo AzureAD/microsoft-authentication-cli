@@ -6,6 +6,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.Identity.Client;
 
     /// <summary>
     /// The exception list to string converter.
@@ -13,39 +14,40 @@ namespace Microsoft.Authentication.MSALWrapper
     public static class ExceptionListToStringConverter
     {
         /// <summary>
-        /// Executes the convertion of exceptions to a string.
+        /// Extracts correlation IDs from the list of exceptions.
         /// </summary>
-        /// <param name="exceptions">The exceptions.</param>
-        /// <returns>The <see cref="string"/>.</returns>
-        public static string Execute(IEnumerable<Exception> exceptions)
+        /// <param name="exceptions">List of exceptions from which correlation IDs are extracted.</param>
+        /// <returns>List of correlation IDs.</returns>
+        public static List<string> ExtractCorrelationIDsFromException(IList<Exception> exceptions)
         {
-            if (exceptions == null || exceptions.Count() == 0)
+            var correlationIDs = new List<string>();
+
+            if (exceptions == null)
             {
                 return null;
             }
 
-            return string.Join("\n", exceptions.Select(SingleLineException));
-        }
+            foreach (Exception exception in exceptions)
+            {
+                if (exception.GetType() == typeof(MsalServiceException))
+                {
+                    var msalServiceException = (MsalServiceException)exception;
+                    if (msalServiceException.CorrelationId != null)
+                    {
+                        correlationIDs.Add(msalServiceException.CorrelationId);
+                    }
+                }
+                else if (exception.GetType() == typeof(MsalUiRequiredException))
+                {
+                    var msalUiRequiredException = (MsalUiRequiredException)exception;
+                    if (msalUiRequiredException.CorrelationId != null)
+                    {
+                        correlationIDs.Add(msalUiRequiredException.CorrelationId);
+                    }
+                }
+            }
 
-        /// <summary>
-        /// Converts exceptions to a single string.
-        /// </summary>
-        /// <param name="ex">The exceptions.</param>
-        /// <returns>The <see cref="string"/>.</returns>
-        private static string SingleLineException(Exception ex)
-        {
-            if (ex != null)
-            {
-                var message = ex.Message
-                                .Replace("\n", string.Empty)
-                                .Replace("\r", string.Empty)
-                                .Replace("\t", string.Empty);
-                return $"{ex.GetType()}: {message}";
-            }
-            else
-            {
-                return "null";
-            }
+            return correlationIDs;
         }
     }
 }

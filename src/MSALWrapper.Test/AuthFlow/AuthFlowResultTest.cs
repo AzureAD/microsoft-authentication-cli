@@ -30,7 +30,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWithNullAuthFlowName_ThrowsNullArgumentException()
         {
-            var tokenResult = new TokenResult(new JsonWebToken(FakeToken));
+            var tokenResult = new TokenResult(new JsonWebToken(FakeToken), Guid.NewGuid());
             var errors = new List<Exception>();
             Action authFLowResult = () => new AuthFlowResult(tokenResult, errors, null);
 
@@ -40,7 +40,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWithNonNullArgs()
         {
-            var tokenResult = new TokenResult(new JsonWebToken(FakeToken));
+            var tokenResult = new TokenResult(new JsonWebToken(FakeToken), Guid.NewGuid());
             var errors = new List<Exception>();
             var authFlowName = "AuthFlowName";
             AuthFlowResult subject = new AuthFlowResult(tokenResult, errors, authFlowName);
