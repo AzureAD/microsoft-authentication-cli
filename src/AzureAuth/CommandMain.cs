@@ -250,7 +250,7 @@ Allowed values: [all, web, devicecode]";
             {
                 correlationIDs.Add(result.TokenResult.CorrelationID.ToString());
                 eventData.Add("token_validity_hours", result.TokenResult.ValidFor.Hours);
-                eventData.Add("is_silent", result.TokenResult.AuthType == AuthType.Silent);
+                eventData.Add("is_silent", result.TokenResult.AuthType.IsSilent());
             }
 
             if (correlationIDs.Any())
@@ -461,6 +461,7 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 this.eventData.Add("auth_type", $"{succeededResult.TokenResult.AuthType}");
+                this.eventData.Add("is_silent", succeededResult.TokenResult.AuthType.IsSilent());
 
                 switch (this.Output)
                 {

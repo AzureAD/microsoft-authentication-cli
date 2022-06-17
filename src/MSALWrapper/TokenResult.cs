@@ -33,6 +33,22 @@ namespace Microsoft.Authentication.MSALWrapper
     }
 
     /// <summary>
+    /// Auth type extensions.
+    /// </summary>
+    public static class AuthTypeExtensions
+    {
+        /// <summary>
+        /// Checks if authType is silent.
+        /// </summary>
+        /// <param name="authType">The auth type.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
+        public static bool IsSilent(this AuthType authType)
+        {
+            return authType == AuthType.Silent;
+        }
+    }
+
+    /// <summary>
     /// Token result.
     /// </summary>
     public class TokenResult
