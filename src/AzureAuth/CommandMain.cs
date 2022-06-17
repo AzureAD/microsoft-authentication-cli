@@ -361,7 +361,7 @@ Allowed values: [all, web, devicecode]";
             {
                 AuthFlowExecutor authFlowExecutor = this.AuthFlowExecutor();
                 AuthFlowResult succeededResult = null;
-                IEnumerable<AuthFlowResult> results = null;
+                AuthFlowResult[] results = null;
 
                 // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
                 // They may prompt many times, which is annoying and unexpected.
@@ -396,8 +396,8 @@ Allowed values: [all, web, devicecode]";
 
                     try
                     {
-                        results = authFlowExecutor.GetTokenAsync().Result;
-                        succeededResult = results.FirstOrDefault(result => result.Success == true);
+                        results = authFlowExecutor.GetTokenAsync().Result.ToArray();
+                        succeededResult = results.FirstOrDefault(result => result.Success);
                     }
                     finally
                     {
@@ -405,8 +405,10 @@ Allowed values: [all, web, devicecode]";
                     }
                 }
 
-                var errors = results.SelectMany(result => result.Errors).ToList();
+                var errors = results.SelectMany(result => result.Errors).ToArray();
                 this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(errors));
+                this.eventData.Add("error_count", errors.Length);
+                this.eventData.Add("authflow_count", results.Length);
 
                 if (succeededResult == null)
                 {
