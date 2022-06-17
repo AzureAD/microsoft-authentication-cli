@@ -405,7 +405,7 @@ Allowed values: [all, web, devicecode]";
             {
                 AuthFlowExecutor authFlowExecutor = this.AuthFlowExecutor();
                 AuthFlowResult succeededResult = null;
-                List<AuthFlowResult> results = null;
+                IEnumerable<AuthFlowResult> results = null;
 
                 // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
                 // They may prompt many times, which is annoying and unexpected.
