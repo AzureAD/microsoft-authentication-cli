@@ -578,9 +578,8 @@ invalid_key = ""this is not a valid alias key""
             eventData.Properties.TryGetValue("success", out string success);
             success.Should().Be("False");
 
-            var expectedErrorData = "[{\"TargetSite\":null,\"StackTrace\":null,\"Message\":\"Exception 1.\",\"Data\":{},\"InnerException\":null,\"HelpLink\":null,\"Source\":null,\"HResult\":-2146233088}]";
             eventData.Properties.TryGetValue("errors", out string eventErrors);
-            eventErrors.Should().Be(expectedErrorData);
+            eventErrors.Should().NotBeNullOrEmpty();
         }
 
         /// <summary>
