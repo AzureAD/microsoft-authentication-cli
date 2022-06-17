@@ -105,7 +105,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -113,11 +114,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().BeEquivalentTo(authFlowResultList);
             resultList.Should().Contain(authFlowResult);
 
-            var result = resultList.FirstOrDefault(x => x.AuthFlowName == authFlowName);
-            result.Should().BeEquivalentTo(authFlowResult);
-            result.TokenResult.Should().Be(this.tokenResult);
-            result.Success.Should().BeTrue();
-            result.Errors.Should().BeEmpty();
+            // Assert Order of results.
+            resultList.ToList()[0].Should().BeEquivalentTo(authFlowResult);
         }
 
         [Test]
@@ -132,7 +130,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -140,11 +139,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().BeEquivalentTo(authFlowResultList);
             resultList.Should().Contain(authFlowResult);
 
-            var result = resultList.FirstOrDefault(x => x.AuthFlowName == authFlowName);
-            result.Should().BeEquivalentTo(authFlowResult);
-            result.TokenResult.Should().BeNull();
-            result.Success.Should().BeFalse();
-            result.Errors.Should().BeEmpty();
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult);
         }
 
         [Test]
@@ -163,7 +159,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -171,12 +168,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().BeEquivalentTo(authFlowResultList);
             resultList.Should().Contain(authFlowResult);
 
-            var result = resultList.FirstOrDefault(x => x.AuthFlowName == authFlowName);
-            result.Should().BeEquivalentTo(authFlowResult);
-            result.TokenResult.Should().BeNull();
-            result.Success.Should().BeFalse();
-            result.Errors.Should().HaveCount(1);
-            result.Errors.Should().BeEquivalentTo(errors1);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult);
         }
 
         [Test]
@@ -195,19 +188,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result = resultList.FirstOrDefault(x => x.AuthFlowName == "IAuthFlowProxy");
-            result.Should().NotBeNull();
-            result.Success.Should().BeFalse();
-            result.Errors.Should().HaveCount(1);
-            result.Errors.Should().BeEquivalentTo(errors1);
-            result.Should().BeEquivalentTo(authFlowResult);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult);
         }
 
         [Test]
@@ -228,23 +218,17 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(0);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeTrue();
-            result2.Errors.Should().HaveCount(0);
-            result2.TokenResult.Should().Be(this.tokenResult);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
         }
 
         [Test]
@@ -269,7 +253,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -277,17 +262,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-            result1.Errors.Should().BeEquivalentTo(errors1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeTrue();
-            result2.Errors.Should().HaveCount(0);
-            result2.TokenResult.Should().Be(this.tokenResult);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
         }
 
         [Test]
@@ -312,7 +289,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -320,17 +298,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "IAuthFlowProxy");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-            result1.Errors.Should().BeEquivalentTo(errors1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeFalse();
-            result2.Errors.Should().HaveCount(0);
-            result2.TokenResult.Should().BeNull();
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
         }
 
         [Test]
@@ -362,7 +332,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -370,17 +341,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "IAuthFlowProxy");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-            result1.Errors.Should().BeEquivalentTo(errors1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeFalse();
-            result2.Errors.Should().HaveCount(2);
-            result2.TokenResult.Should().BeNull();
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
         }
 
         [Test]
@@ -412,7 +375,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -420,19 +384,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "IAuthFlowProxy");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-            result1.Errors.Should().BeEquivalentTo(errors1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeTrue();
-            result2.Errors.Should().HaveCount(2);
-            result2.TokenResult.Should().BeEquivalentTo(this.tokenResult);
-
-            resultList.SelectMany(x => x.Errors).ToList().Should().BeEquivalentTo(new[] { errors1[0], errors2[0], errors2[1] });
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
         }
 
         [Test]
@@ -458,7 +412,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -467,21 +422,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(0);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeFalse();
-            result2.Errors.Should().HaveCount(0);
-
-            var result3 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow3");
-            result3.Should().NotBeNull();
-            result3.Success.Should().BeTrue();
-            result3.Errors.Should().HaveCount(0);
-            result3.TokenResult.Should().BeEquivalentTo(this.tokenResult);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3);
         }
 
         [Test]
@@ -523,7 +467,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -566,7 +511,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -575,21 +521,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(0);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeFalse();
-            result2.Errors.Should().HaveCount(0);
-
-            var result3 = resultList.FirstOrDefault(x => x.AuthFlowName == "IAuthFlowProxy");
-            result3.Should().NotBeNull();
-            result3.Success.Should().BeFalse();
-            result3.Errors.Should().HaveCount(1);
-            result3.Errors.Should().BeEquivalentTo(expectedError);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3);
         }
 
         [Test]
@@ -630,7 +565,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -639,21 +575,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeFalse();
-            result2.Errors.Should().HaveCount(1);
-
-            var result3 = resultList.FirstOrDefault(x => x.AuthFlowName == "IAuthFlowProxy");
-            result3.Should().NotBeNull();
-            result3.Success.Should().BeFalse();
-            result3.Errors.Should().HaveCount(1);
-            result3.Errors.Should().BeEquivalentTo(errors3);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3);
         }
 
         [Test]
@@ -694,7 +619,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -703,22 +629,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "IAuthFlowProxy");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeFalse();
-            result2.Errors.Should().HaveCount(1);
-            result2.Errors.Should().BeEquivalentTo(errors2);
-
-            var result3 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow3");
-            result3.Should().NotBeNull();
-            result3.Success.Should().BeFalse();
-            result3.Errors.Should().HaveCount(1);
-            result3.Errors.Should().BeEquivalentTo(errors3);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3);
         }
 
         [Test]
@@ -760,7 +674,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -769,23 +684,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "IAuthFlowProxy");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeFalse();
-            result2.Errors.Should().HaveCount(1);
-            result2.Errors.Should().BeEquivalentTo(errors2);
-
-            var result3 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow3");
-            result3.Should().NotBeNull();
-            result3.Success.Should().BeTrue();
-            result3.Errors.Should().HaveCount(2);
-            result3.Errors.Should().BeEquivalentTo(errors3);
-            result3.TokenResult.Should().BeEquivalentTo(this.tokenResult);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3);
         }
 
         [Test]
@@ -825,7 +727,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-            var resultList = await authFlowExecutor.GetTokenAsync();
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
 
             // Assert
             authFlow1.VerifyAll();
@@ -833,17 +736,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
 
-            var result1 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow1");
-            result1.Should().NotBeNull();
-            result1.Success.Should().BeFalse();
-            result1.Errors.Should().HaveCount(1);
-
-            var result2 = resultList.FirstOrDefault(x => x.AuthFlowName == "authFlow2");
-            result2.Should().NotBeNull();
-            result2.Success.Should().BeTrue();
-            result2.Errors.Should().HaveCount(2);
-            result2.Errors.Should().BeEquivalentTo(errors2);
-            result2.TokenResult.Should().BeEquivalentTo(this.tokenResult);
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(authFlowResult1);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2);
         }
 
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
