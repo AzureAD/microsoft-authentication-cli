@@ -479,7 +479,7 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 // Send custom telemetry events for each authflow result.
-                this.SendAuthFlowTelemetryEvents(results);
+                this.SendAuthFlowTelemetryEvents(results.ToList());
             }
             catch (Exception ex)
             {
