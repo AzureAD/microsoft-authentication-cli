@@ -462,6 +462,7 @@ Allowed values: [all, web, devicecode]";
 
                 this.eventData.Add("auth_type", $"{succeededResult.TokenResult.AuthType}");
                 this.eventData.Add("is_silent", succeededResult.TokenResult.AuthType.IsSilent());
+                this.eventData.Add("succeeded_mode", succeededResult.AuthFlowName);
 
                 switch (this.Output)
                 {
