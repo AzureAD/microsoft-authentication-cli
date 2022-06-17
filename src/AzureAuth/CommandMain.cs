@@ -499,7 +499,7 @@ Allowed values: [all, web, devicecode]";
                     var eventData = this.GenerateEventData(result);
                     if (eventData != null)
                     {
-                        this.telemetryService.SendEvent(result.AuthFlowName, eventData);
+                        this.telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
                     }
                 });
             }
