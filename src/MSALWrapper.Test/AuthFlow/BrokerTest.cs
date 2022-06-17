@@ -9,7 +9,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
@@ -40,6 +39,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private Mock<IPCAWrapper> pcaWrapperMock;
         private Mock<IAccount> testAccount;
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
+        private string cacheFilePath = $"Z:/test_cache_file.cache";
         private TokenResult tokenResult;
 
         [SetUp]
@@ -69,7 +69,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .AddTransient<AuthFlow.Broker>((provider) =>
              {
                  var logger = provider.GetService<ILogger<AuthFlow.Broker>>();
-                 return new AuthFlow.Broker(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
+                 return new AuthFlow.Broker(logger, ClientId, TenantId, this.scopes, this.cacheFilePath, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
              })
              .BuildServiceProvider();
 

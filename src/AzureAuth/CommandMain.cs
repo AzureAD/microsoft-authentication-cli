@@ -7,7 +7,6 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Collections.Generic;
     using System.IO.Abstractions;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Threading;
 
     using McMaster.Extensions.CommandLineUtils;
@@ -37,14 +36,13 @@ namespace Microsoft.Authentication.AzureAuth
         private const string OutputOption = "--output";
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
-
+        private const string CacheOption = "--cache";
         private const string PromptHintPrefix = "AzureAuth";
 
 #if PlatformWindows
-        private const string AuthModeHelperText = @"Authentication mode. Default: broker, with web fallback.
+        private const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
 You can use any combination of modes with multiple instances of the --mode flag.
-Allowed values: [all, broker, web, devicecode]";
-
+Allowed values: [all, iwa, broker, web, devicecode]";
 #else
         private const string AuthModeHelperText = @"Authentication mode. Default: web.
 You can use any combination with multiple instances of the --mode flag.
@@ -63,6 +61,7 @@ Allowed values: [all, web, devicecode]";
         /// The maximum time we will wait to acquire a mutex around prompting the user.
         /// </summary>
         private TimeSpan promptMutexTimeout = TimeSpan.FromMinutes(15);
+        private string cacheFilePath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
@@ -159,6 +158,40 @@ Allowed values: [all, web, devicecode]";
         [FileExists]
         [Option(ConfigOption, "The path to a configuration file.", CommandOptionType.SingleValue)]
         public string ConfigFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the cache file name. Only available on Windows.
+        /// </summary>
+        [Option(CacheOption, "Override the default cache file location. This option is only available on Windows.", CommandOptionType.SingleValue, ShowInHelpText = false)]
+        [LegalFilePath]
+        public string CacheFilePath
+        {
+            get
+            {
+                // Check command parameter first.
+                if (!string.IsNullOrEmpty(this.cacheFilePath))
+                {
+                    return this.cacheFilePath;
+                }
+
+                // Check environment variable.
+                string envCacheFile = this.env.Get(EnvVars.Cache);
+                if (!string.IsNullOrEmpty(envCacheFile))
+                {
+                    return envCacheFile;
+                }
+
+                // Use default cache file path.
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string absolutePath = this.fileSystem.Path.Combine(appData, ".IdentityService", $"msal_{this.authSettings.Tenant}.cache");
+                return absolutePath;
+            }
+
+            set
+            {
+                this.cacheFilePath = value;
+            }
+        }
 
         /// <summary>
         /// Gets the token fetcher options.
@@ -264,6 +297,7 @@ Allowed values: [all, web, devicecode]";
             this.eventData.Add("settings_resource", this.authSettings.Resource);
             this.eventData.Add("settings_tenant", this.authSettings.Tenant);
             this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
+            this.eventData.Add("settings_cachefile", this.CacheFilePath);
 
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
@@ -292,13 +326,21 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
+            if (!this.CacheFilePath.IsValidAbsoluteFilePath())
+            {
+                this.logger.LogError($"The option {CacheOption}=`{this.CacheFilePath}` " +
+                    $"or environment varable {EnvVars.Cache}=`{this.env.Get(EnvVars.Cache)}` " +
+                    $"is not a valid absolute file path.");
+                validOptions = false;
+            }
+
             return validOptions;
         }
 
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth");
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth", this.CacheFilePath);
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
@@ -412,6 +454,7 @@ Allowed values: [all, web, devicecode]";
                     new Guid(this.authSettings.Client),
                     new Guid(this.authSettings.Tenant),
                     scopes,
+                    this.CacheFilePath,
                     this.PreferredDomain,
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
