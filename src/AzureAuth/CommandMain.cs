@@ -242,7 +242,8 @@ Allowed values: [all, web, devicecode]";
 
             if (result.Errors.Any())
             {
-                eventData.Add("errors", JsonSerializer.Serialize(result.Errors));
+                var error_messages = JsonSerializer.Serialize(result.Errors.Select(error => ExceptionsExtensions.ToFormattedString(error)));
+                eventData.Add("error_messages", error_messages);
                 correlationIDs = ExceptionListToStringConverter.ExtractCorrelationIDsFromException(result.Errors);
             }
 
@@ -448,11 +449,9 @@ Allowed values: [all, web, devicecode]";
                     }
                 }
 
-                var errors = results?.SelectMany(result => result.Errors).ToList();
-                if (errors != null)
-                {
-                    this.eventData.Add("error_list", JsonSerializer.Serialize(errors));
-                }
+                var errors = results?.SelectMany(result => result.Errors);
+                var error_count = errors == null ? 0 : errors.Count();
+                this.eventData.Add("error_count", error_count);
 
                 if (succeededResult == null)
                 {
