@@ -18,6 +18,11 @@ namespace Microsoft.Authentication.AzureAuth
         /// </summary>
         public static readonly string Config = $"{EnvVarPrefix}_CONFIG";
 
+        /// <summary>
+        /// The name of an environment variable used to override the cache file path.
+        /// </summary>
+        public static readonly string Cache = $"{EnvVarPrefix}_CACHE";
+
         private const string EnvVarPrefix = "AZUREAUTH";
     }
 }

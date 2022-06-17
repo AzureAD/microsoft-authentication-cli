@@ -20,6 +20,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="clientId">The client id.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="scopes">The scopes.</param>
+        /// <param name="cacheFilePath">The cache file path.</param>
         /// <param name="preferredDomain">Preferred domain to use when filtering cached accounts.</param>
         /// <param name="promptHint">A prompt hint to contextualize an auth prompt if given.</param>
         /// <param name="osxKeyChainSuffix">A suffix to customize the OSX msal cache.</param>
@@ -32,6 +33,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             Guid clientId,
             Guid tenantId,
             IEnumerable<string> scopes,
+            string cacheFilePath,
             string preferredDomain,
             string promptHint,
             string osxKeyChainSuffix,
@@ -49,7 +51,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // and tries to auth silently.
             if (authMode.IsIWA() && platformUtils.IsWindows())
             {
-                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, preferredDomain, pcaWrapper));
+                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, cacheFilePath, preferredDomain, pcaWrapper));
             }
 
             // This check silently fails on winserver if broker has been requested.
@@ -57,17 +59,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
             if (authMode.IsBroker() && platformUtils.IsWindows10Or11())
             {
-                flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
+                flows.Add(new Broker(logger, clientId, tenantId, scopes, cacheFilePath, osxKeyChainSuffix: osxKeyChainSuffix, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             if (authMode.IsWeb())
             {
-                flows.Add(new Web(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
+                flows.Add(new Web(logger, clientId, tenantId, scopes, cacheFilePath, osxKeyChainSuffix: osxKeyChainSuffix, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             if (authMode.IsDeviceCode())
             {
-                flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, osxKeyChainSuffix, preferredDomain, pcaWrapper, promptHint));
+                flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, cacheFilePath, osxKeyChainSuffix: osxKeyChainSuffix, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             return flows;

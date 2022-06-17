@@ -41,6 +41,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private Mock<IAccount> testAccount;
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
+        private string cacheFilePath = $"Z:/test_cache_file.cache";
 
         [SetUp]
         public void Setup()
@@ -68,7 +69,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .AddTransient<AuthFlow.Web>((provider) =>
              {
                  var logger = provider.GetService<ILogger<AuthFlow.Web>>();
-                 return new AuthFlow.Web(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
+                 return new AuthFlow.Web(logger, ClientId, TenantId, this.scopes, this.cacheFilePath, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
              })
              .BuildServiceProvider();
 
