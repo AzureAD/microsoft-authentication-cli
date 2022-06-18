@@ -571,15 +571,9 @@ invalid_key = ""this is not a valid alias key""
             eventData.Properties.Should().NotContainKey("msal_correlation_ids");
             eventData.Measures.Should().NotContainKey("token_validity_hours");
             eventData.Properties.Should().NotContainKey("is_silent");
-
-            eventData.Properties.TryGetValue("auth_mode", out string authMode);
-            authMode.Should().Be("AuthFlowName");
-
-            eventData.Properties.TryGetValue("success", out string success);
-            success.Should().Be("False");
-
-            eventData.Properties.TryGetValue("error_messages", out string eventErrors);
-            eventErrors.Should().Be("[\"Exception 1.\"]");
+            eventData.Properties.Should().Contain("auth_mode", "AuthFlowName");
+            eventData.Properties.Should().Contain("success", "False");
+            eventData.Properties.Should().Contain("error_messages", "[\"Exception 1.\"]");
         }
 
         /// <summary>
@@ -614,23 +608,12 @@ invalid_key = ""this is not a valid alias key""
             var eventData = subject.GenerateEventData(authFlowResult);
 
             // Assert
-            eventData.Properties.TryGetValue("msal_correlation_ids", out string correlationIDs);
-            correlationIDs.Should().Be(expectedCorrelationIDs);
-
-            eventData.Properties.TryGetValue("auth_mode", out string authMode);
-            authMode.Should().Be("AuthFlowName");
-
-            eventData.Properties.TryGetValue("success", out string success);
-            success.Should().Be("True");
-
-            eventData.Measures.TryGetValue("token_validity_hours", out double tokenValidityHours);
-            tokenValidityHours.ToString().Should().NotBeEmpty();
-
-            eventData.Properties.TryGetValue("is_silent", out string isSilent);
-            isSilent.Should().Be("True");
-
-            eventData.Properties.TryGetValue("error_messages", out string eventErrors);
-            eventErrors.Should().Be("[\"An MSAL Service Exception message\",\"An MSAL UI Required Exception message\"]");
+            eventData.Properties.Should().Contain("auth_mode", "AuthFlowName");
+            eventData.Properties.Should().Contain("success", "True");
+            eventData.Properties.Should().Contain("msal_correlation_ids", expectedCorrelationIDs);
+            eventData.Properties.Should().Contain("is_silent", "True");
+            eventData.Properties.Should().Contain("error_messages", "[\"An MSAL Service Exception message\",\"An MSAL UI Required Exception message\"]");
+            eventData.Measures.Should().ContainKey("token_validity_hours");
         }
 
         /// <summary>
@@ -653,21 +636,11 @@ invalid_key = ""this is not a valid alias key""
 
             // Assert
             eventData.Properties.Should().NotContainKey("error_messages");
-
-            eventData.Properties.TryGetValue("msal_correlation_ids", out string correlationIDs);
-            correlationIDs.Should().Be(expectedCorrelationIDs);
-
-            eventData.Properties.TryGetValue("auth_mode", out string authMode);
-            authMode.Should().Be("AuthFlowName");
-
-            eventData.Properties.TryGetValue("success", out string success);
-            success.Should().Be("True");
-
-            eventData.Measures.TryGetValue("token_validity_hours", out double tokenValididtyHours);
-            tokenValididtyHours.ToString().Should().NotBeEmpty();
-
-            eventData.Properties.TryGetValue("is_silent", out string isSilent);
-            isSilent.Should().Be("True");
+            eventData.Properties.Should().Contain("auth_mode", "AuthFlowName");
+            eventData.Properties.Should().Contain("success", "True");
+            eventData.Properties.Should().Contain("msal_correlation_ids", expectedCorrelationIDs);
+            eventData.Properties.Should().Contain("is_silent", "True");
+            eventData.Measures.Should().ContainKey("token_validity_hours");
         }
 
         /// <summary>
