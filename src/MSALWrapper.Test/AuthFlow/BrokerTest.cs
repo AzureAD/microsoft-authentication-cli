@@ -93,7 +93,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Silent);
+            authFlowResult.TokenResult.Silent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("Broker");
         }
@@ -131,7 +131,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Interactive);
+            authFlowResult.TokenResult.Silent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.AuthFlowName.Should().Be("Broker");
@@ -272,7 +272,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Interactive);
+            authFlowResult.TokenResult.Silent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
             authFlowResult.AuthFlowName.Should().Be("Broker");

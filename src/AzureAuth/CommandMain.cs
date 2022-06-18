@@ -235,7 +235,7 @@ Allowed values: [all, web, devicecode]";
             }
 
             var eventData = new EventData();
-            eventData.Add("auth_mode", result.AuthFlowName);
+            eventData.Add("authflow", result.AuthFlowName);
             eventData.Add("success", result.Success);
 
             var correlationIDs = new List<string>();
@@ -251,7 +251,7 @@ Allowed values: [all, web, devicecode]";
             {
                 correlationIDs.Add(result.TokenResult.CorrelationID.ToString());
                 eventData.Add("token_validity_hours", result.TokenResult.ValidFor.Hours);
-                eventData.Add("is_silent", result.TokenResult.AuthType.IsSilent());
+                eventData.Add("silent", result.TokenResult.Silent);
             }
 
             if (correlationIDs.Any())
@@ -463,8 +463,7 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 var tokenResult = successfulResult.TokenResult;
-                this.eventData.Add("auth_type", $"{tokenResult.AuthType}");
-                this.eventData.Add("is_silent", tokenResult.AuthType.IsSilent());
+                this.eventData.Add("silent", tokenResult.Silent);
                 this.eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
 
                 switch (this.Output)

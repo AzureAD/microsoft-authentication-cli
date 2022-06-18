@@ -9,15 +9,14 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     internal static class TokenResultExtensions
     {
         /// <summary>
-        /// Sets the AuthType property to the given authType if the token result is not null.
+        /// Sets the Silent property to true if the token result is not null.
         /// </summary>
         /// <param name="result">The result.</param>
-        /// <param name="authType">The auth type.</param>
-        internal static void SetAuthenticationType(this TokenResult result, AuthType authType)
+        internal static void SetSilent(this TokenResult result)
         {
             if (result != null)
             {
-                result.AuthType = authType;
+                result.Silent = true;
             }
         }
     }

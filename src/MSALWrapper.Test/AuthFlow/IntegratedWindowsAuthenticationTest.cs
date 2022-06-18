@@ -92,7 +92,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Silent);
+            authFlowResult.TokenResult.Silent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }
@@ -245,7 +245,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.IntegratedWindowsAuthenticationFlow);
+            authFlowResult.TokenResult.Silent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }

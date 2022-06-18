@@ -7,48 +7,6 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.IdentityModel.JsonWebTokens;
 
     /// <summary>
-    /// Auth type.
-    /// </summary>
-    public enum AuthType
-    {
-        /// <summary>
-        /// Silent auth type.
-        /// </summary>
-        Silent,
-
-        /// <summary>
-        /// Interactive auth type.
-        /// </summary>
-        Interactive,
-
-        /// <summary>
-        /// Device code flow auth type.
-        /// </summary>
-        DeviceCodeFlow,
-
-        /// <summary>
-        /// Integrated Windows auth flow auth type.
-        /// </summary>
-        IntegratedWindowsAuthenticationFlow,
-    }
-
-    /// <summary>
-    /// Auth type extensions.
-    /// </summary>
-    public static class AuthTypeExtensions
-    {
-        /// <summary>
-        /// Checks if authType is silent.
-        /// </summary>
-        /// <param name="authType">The auth type.</param>
-        /// <returns>The <see cref="bool"/>.</returns>
-        public static bool IsSilent(this AuthType authType)
-        {
-            return authType == AuthType.Silent;
-        }
-    }
-
-    /// <summary>
     /// Token result.
     /// </summary>
     public class TokenResult
@@ -110,9 +68,9 @@ namespace Microsoft.Authentication.MSALWrapper
         public TimeSpan ValidFor { get; internal set; }
 
         /// <summary>
-        /// Gets the auth type.
+        /// Gets a value indicating whether this token was acquired silently or not.
         /// </summary>
-        public AuthType AuthType { get; internal set; }
+        public bool Silent { get; internal set; }
 
         /// <summary>
         /// To string that shows successful authentication for user.
