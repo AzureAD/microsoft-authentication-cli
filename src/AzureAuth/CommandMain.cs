@@ -251,7 +251,7 @@ Allowed values: [all, web, devicecode]";
             {
                 correlationIDs.Add(result.TokenResult.CorrelationID.ToString());
                 eventData.Add("token_validity_minutes", result.TokenResult.ValidFor.TotalMinutes);
-                eventData.Add("silent", result.TokenResult.Silent);
+                eventData.Add("silent", result.TokenResult.IsSilent);
             }
 
             if (correlationIDs.Any())
@@ -463,7 +463,7 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 var tokenResult = successfulResult.TokenResult;
-                this.eventData.Add("silent", tokenResult.Silent);
+                this.eventData.Add("silent", tokenResult.IsSilent);
                 this.eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
 
                 switch (this.Output)

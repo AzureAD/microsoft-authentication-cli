@@ -16,7 +16,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             if (result != null)
             {
-                result.Silent = true;
+                result.IsSilent = true;
             }
         }
     }

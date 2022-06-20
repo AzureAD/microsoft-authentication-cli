@@ -70,7 +70,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Gets a value indicating whether this token was acquired silently or not.
         /// </summary>
-        public bool Silent { get; internal set; }
+        public bool IsSilent { get; internal set; }
 
         /// <summary>
         /// To string that shows successful authentication for user.

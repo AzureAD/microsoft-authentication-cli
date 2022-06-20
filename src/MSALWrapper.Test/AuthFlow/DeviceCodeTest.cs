@@ -95,7 +95,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.Silent.Should().BeTrue();
+            authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
@@ -114,7 +114,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.Silent.Should().BeFalse();
+            authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
@@ -172,7 +172,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.Silent.Should().BeFalse();
+            authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
