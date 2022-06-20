@@ -532,7 +532,7 @@ invalid_key = ""this is not a valid alias key""
         public void TestGenerateEvent_From_AuthFlowResult_With_Null_TokenResult_Null_Errors()
         {
             AuthFlowResult authFlowResult = new AuthFlowResult(null, null, "AuthFlowName");
-            authFlowResult.DurationInMs = 3.0;
+            authFlowResult.DurationInMs = (long)3.0;
             var subject = this.serviceProvider.GetService<CommandMain>();
 
             // Act
