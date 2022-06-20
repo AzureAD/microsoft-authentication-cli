@@ -50,7 +50,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Gets or Sets the Duration in milli seconds.
         /// </summary>
-        public long DurationInMs { get; set; }
+        public TimeSpan Duration { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.

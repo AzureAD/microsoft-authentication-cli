@@ -61,7 +61,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     attempt.Errors.Add(new NullTokenResultException(oopsMessage));
                 }
 
-                attempt.DurationInMs = watch.ElapsedMilliseconds;
+                attempt.Duration = watch.Elapsed;
                 resultList.Add(attempt);
 
                 if (attempt.Success)
