@@ -7,13 +7,13 @@ $script:ErrorActionPreference='Stop'
 
 # We don't currently have good cross-platform options for determining the latest release version, so we require
 # knowledge of the specific target version, which the user should set as an environment variable.
-$version = $Env:AZUREAUTH_VERSION
 
+$version = $Env:AZUREAUTH_VERSION
 if ([string]::IsNullOrEmpty($version)) {
     Write-Error 'No $AZUREAUTH_VERSION specified, unable to download a release'
 }
 
-function Install-Pre-0-4-0{
+function Install-Pre-0-4-0 {
 
     $repo = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_REPO)) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
     $releaseName = "azureauth-${version}-win10-x64"
@@ -98,7 +98,7 @@ function Install-Pre-0-4-0{
 
 }
 
-function Install-Post-0-4-0{
+function Install-Post-0-4-0 {
 
     $repo = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_REPO)) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
     $releaseName = "azureauth-${version}-win10-x64"
@@ -151,35 +151,33 @@ function Install-Post-0-4-0{
 
     $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
     $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
+    $azureauthSource = (get-command azureauth -ErrorAction SilentlyContinue).Source
+    $azureauthSourceParent = if($azureauthSource -ne $null) {
+        (get-item $azureauthSource).Directory.Parent.FullName }
+    
+    $newPath = "";
 
-    # Permanently add the latest directory to the current user's $PATH (if it's not already there).
-    # Note that this will only take effect when a new terminal is started.
-    if (($currentPath -ne $null) -And !$currentPath.Contains($azureauthDirectory)) {
-        Write-Verbose "Updating `$PATH to include ${versionPath}"
-        $newPath = if ($currentPath -Match $null) {
-            "${versionPath}"
-        } else {
-            "${currentPath};${versionPath}"
-        }
-        Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
-    }
-    else{
+    if (($currentPath -ne $null) -And ($currentPath.Contains($azureauthDirectory) -Or $currentPath.Contains($azureauthSourceParent))) {
         $paths = $currentPath.Split(";")
-        $newPath = "";
-        $azureauthSource = (get-command azureauth -ErrorAction SilentlyContinue).Source
+        $pathArr = @()
         ForEach($path in $paths){
-            if(!(($path.Equals("")) -Or ($path.Contains($azureauthDirectory)) -Or (($azureauthSource -ne $null) -And $azureauthSource.Contains($path)))){
-                if($newPath.Equals("")){
-                    $newPath = -join("${newPath}","${path}")
-                }
-                else{
-                    $newPath = -join("${newPath}",";","${path}")
-                }
+            if(!(($path.Equals("")) -Or ($path.Contains($azureauthDirectory)) -Or (($azureauthSourceParent -ne $null) -And $azureauthSourceParent.Contains($path)))){
+                $pathArr += "${path}"
             }
         }
-        $newPath = if($newPath.Equals("")){ "${versionPath}" } else { "${newPath};${versionPath}" }
-        Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
+        $pathArr += "${versionPath}"
+        $newPath = $pathArr -join ";"
     }
+    else {
+        Write-Verbose "Updating `$PATH to include ${versionPath}"
+        if ($currentPath -Match $null) {
+            $newPath = "${versionPath}"
+        } else {
+            $newPath = "${currentPath};${versionPath}"
+        }
+    }
+
+    Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath 
 
     Write-Output "Installed azureauth $version!"
 
