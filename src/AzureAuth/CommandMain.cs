@@ -7,10 +7,10 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Collections.Generic;
     using System.IO.Abstractions;
     using System.Linq;
+    using System.Text.Json;
     using System.Threading;
-
+    using System.Threading.Tasks;
     using McMaster.Extensions.CommandLineUtils;
-
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
@@ -56,6 +56,7 @@ Allowed values: [all, web, devicecode]";
         private Alias authSettings;
         private IAuthFlow authFlow;
         private AuthFlowExecutor authFlowExecutor;
+        private ITelemetryService telemetryService;
 
         /// <summary>
         /// The maximum time we will wait to acquire a mutex around prompting the user.
@@ -67,12 +68,14 @@ Allowed values: [all, web, devicecode]";
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
+        /// <param name="telemetryService">The telemetry service.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="env">The environment interface.</param>
-        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env)
+        public CommandMain(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env)
         {
             this.eventData = eventData;
+            this.telemetryService = telemetryService;
             this.logger = logger;
             this.fileSystem = fileSystem;
             this.env = env;
@@ -82,12 +85,13 @@ Allowed values: [all, web, devicecode]";
         /// Initializes a new instance of the <see cref="CommandMain"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
+        /// <param name="telemetryService">The telemetry service.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="env">The environment interface.</param>
         /// <param name="authFlow">An injected <see cref="IAuthFlow"/> (defined for testability).</param>
-        public CommandMain(CommandExecuteEventData eventData, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env, IAuthFlow authFlow)
-            : this(eventData, logger, fileSystem, env)
+        public CommandMain(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env, IAuthFlow authFlow)
+            : this(eventData, telemetryService, logger, fileSystem, env)
         {
             this.authFlow = authFlow;
         }
@@ -216,6 +220,46 @@ Allowed values: [all, web, devicecode]";
             }
 
             return $"{PromptHintPrefix}: {promptHint}";
+        }
+
+        /// <summary>
+        /// Generates event data from the AuthFlowResult.
+        /// </summary>
+        /// <param name="result">The AuthFlowResult.</param>
+        /// <returns>The event data.</returns>
+        public EventData AuthFlowEventData(AuthFlowResult result)
+        {
+            if (result == null)
+            {
+                return null;
+            }
+
+            var eventData = new EventData();
+            eventData.Add("authflow", result.AuthFlowName);
+            eventData.Add("success", result.Success);
+
+            var correlationIDs = new List<string>();
+
+            if (result.Errors.Any())
+            {
+                var error_messages = ExceptionListToStringConverter.Execute(result.Errors);
+                eventData.Add("error_messages", error_messages);
+                correlationIDs = ExceptionListToStringConverter.ExtractCorrelationIDsFromException(result.Errors);
+            }
+
+            if (result.Success)
+            {
+                correlationIDs.Add(result.TokenResult.CorrelationID.ToString());
+                eventData.Add("token_validity_minutes", result.TokenResult.ValidFor.TotalMinutes);
+                eventData.Add("silent", result.TokenResult.IsSilent);
+            }
+
+            if (correlationIDs.Any())
+            {
+                eventData.Add("msal_correlation_ids", correlationIDs);
+            }
+
+            return eventData;
         }
 
         /// <summary>
@@ -406,7 +450,6 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 var errors = results.SelectMany(result => result.Errors).ToArray();
-                this.eventData.Add("error_list", ExceptionListToStringConverter.Execute(errors));
                 this.eventData.Add("error_count", errors.Length);
                 this.eventData.Add("authflow_count", results.Length);
 
@@ -417,7 +460,8 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 var tokenResult = successfulResult.TokenResult;
-                this.eventData.Add("auth_type", $"{tokenResult.AuthType}");
+                this.eventData.Add("silent", tokenResult.IsSilent);
+                this.eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
 
                 switch (this.Output)
                 {
@@ -433,6 +477,9 @@ Allowed values: [all, web, devicecode]";
                     case OutputMode.None:
                         break;
                 }
+
+                // Send custom telemetry events for each authflow result.
+                this.SendAuthFlowTelemetryEvents(results);
             }
             catch (Exception ex)
             {
@@ -442,6 +489,18 @@ Allowed values: [all, web, devicecode]";
             }
 
             return 0;
+        }
+
+        private void SendAuthFlowTelemetryEvents(AuthFlowResult[] results)
+        {
+            Parallel.ForEach(results, result =>
+            {
+                var eventData = this.AuthFlowEventData(result);
+                if (eventData != null)
+                {
+                    this.telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
+                }
+            });
         }
 
         private AuthFlowExecutor AuthFlowExecutor()

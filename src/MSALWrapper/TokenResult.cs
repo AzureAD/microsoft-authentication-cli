@@ -7,32 +7,6 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.IdentityModel.JsonWebTokens;
 
     /// <summary>
-    /// Auth type.
-    /// </summary>
-    public enum AuthType
-    {
-        /// <summary>
-        /// Silent auth type.
-        /// </summary>
-        Silent,
-
-        /// <summary>
-        /// Interactive auth type.
-        /// </summary>
-        Interactive,
-
-        /// <summary>
-        /// Device code flow auth type.
-        /// </summary>
-        DeviceCodeFlow,
-
-        /// <summary>
-        /// Integrated Windows auth flow auth type.
-        /// </summary>
-        IntegratedWindowsAuthenticationFlow,
-    }
-
-    /// <summary>
     /// Token result.
     /// </summary>
     public class TokenResult
@@ -45,9 +19,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Initializes a new instance of the <see cref="TokenResult"/> class.
         /// </summary>
         /// <param name="jwt">The jwt.</param>
-        public TokenResult(JsonWebToken jwt)
+        /// <param name="correlationID">The correlation ID.</param>
+        public TokenResult(JsonWebToken jwt, Guid correlationID)
         {
             this.JWT = jwt;
+            this.CorrelationID = correlationID;
         }
 
         /// <summary>
@@ -65,6 +41,11 @@ namespace Microsoft.Authentication.MSALWrapper
                 this.ValidFor = this.jwt == null ? default(TimeSpan) : (this.jwt.ValidTo - DateTime.UtcNow);
             }
         }
+
+        /// <summary>
+        /// Gets the correlation ID.
+        /// </summary>
+        public Guid CorrelationID { get; internal set; }
 
         /// <summary>
         /// Gets the token.
@@ -87,9 +68,9 @@ namespace Microsoft.Authentication.MSALWrapper
         public TimeSpan ValidFor { get; internal set; }
 
         /// <summary>
-        /// Gets the auth type.
+        /// Gets a value indicating whether this token was acquired silently or not.
         /// </summary>
-        public AuthType AuthType { get; internal set; }
+        public bool IsSilent { get; internal set; }
 
         /// <summary>
         /// To string that shows successful authentication for user.

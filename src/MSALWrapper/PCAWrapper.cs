@@ -158,7 +158,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 return null;
             }
 
-            return new TokenResult(new JsonWebToken(result.AccessToken));
+            return new TokenResult(new JsonWebToken(result.AccessToken), result.CorrelationId);
         }
     }
 }
