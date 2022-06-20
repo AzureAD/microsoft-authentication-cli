@@ -620,7 +620,8 @@ invalid_key = ""this is not a valid alias key""
         /// Test to generate event data from an authflow result with token result and no errors.
         /// </summary>
         [Test]
-        public void TestGenerateEvent_From_AuthFlowResult_With_TokenResult_And_NullErrors()
+        public void TestGenerateEvent_From_AuthFlowResult_With_TokenResult_And_Null_Errors()
+
         {
             // TODO
             var tokenResultCorrelationID = Guid.NewGuid();
