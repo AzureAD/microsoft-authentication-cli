@@ -1,6 +1,6 @@
 # Enable a default -Verbose flag for debug output.
 [CmdletBinding()]
-Param()
+Param([switch] $NoUpdatePath)
 
 # Halt script execution at the first failed command.
 $script:ErrorActionPreference='Stop'
@@ -149,35 +149,39 @@ function Install-Post-0-4-0 {
     Write-Verbose "Removing ${zipFile}"
     Remove-Item -Force $zipFile
 
-    $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
-    $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
-    $azureauthSource = (get-command azureauth -ErrorAction SilentlyContinue).Source
-    $azureauthSourceParent = if($azureauthSource -ne $null) {
-        (get-item $azureauthSource).Directory.Parent.FullName }
-    
-    $newPath = "";
+    if(!$NoUpdatePath)
+    {
+        $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
+        $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
+        $azureauthSource = (get-command azureauth -ErrorAction SilentlyContinue).Source
+        $azureauthSourceParent = if($azureauthSource -ne $null) {
+            (get-item $azureauthSource).Directory.Parent.FullName }
+        
+        $newPath = "";
 
-    if (($currentPath -ne $null) -And ($currentPath.Contains($azureauthDirectory) -Or $currentPath.Contains($azureauthSourceParent))) {
-        $paths = $currentPath.Split(";")
-        $pathArr = @()
-        ForEach($path in $paths){
-            if(!(($path.Equals("")) -Or ($path.Contains($azureauthDirectory)) -Or (($azureauthSourceParent -ne $null) -And $azureauthSourceParent.Contains($path)))){
-                $pathArr += "${path}"
+        if (($currentPath -ne $null) -And ($currentPath.Contains($azureauthDirectory) -Or $currentPath.Contains($azureauthSourceParent))) {
+            $paths = $currentPath.Split(";")
+            $pathArr = @()
+            ForEach($path in $paths){
+                if(!(($path.Equals("")) -Or ($path.Contains($azureauthDirectory)) -Or (($azureauthSourceParent -ne $null) -And $azureauthSourceParent.Contains($path)))){
+                    $pathArr += "${path}"
+                }
+            }
+            $pathArr += "${versionPath}"
+            $newPath = $pathArr -join ";"
+        }
+        else {
+            Write-Verbose "Updating `$PATH to include ${versionPath}"
+            if ($currentPath -Match $null) {
+                $newPath = "${versionPath}"
+            } else {
+                $newPath = "${currentPath};${versionPath}"
             }
         }
-        $pathArr += "${versionPath}"
-        $newPath = $pathArr -join ";"
-    }
-    else {
-        Write-Verbose "Updating `$PATH to include ${versionPath}"
-        if ($currentPath -Match $null) {
-            $newPath = "${versionPath}"
-        } else {
-            $newPath = "${currentPath};${versionPath}"
-        }
+
+        Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath 
     }
 
-    Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath 
 
     Write-Output "Installed azureauth $version!"
 
