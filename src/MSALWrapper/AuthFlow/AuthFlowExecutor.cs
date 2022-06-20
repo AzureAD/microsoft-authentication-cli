@@ -43,13 +43,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogWarning("Warning: There are 0 auth modes to execute!");
             }
 
-            Stopwatch s;
             foreach (var authFlow in this.authflows)
             {
                 var authFlowName = authFlow.GetType().Name;
                 this.logger.LogDebug($"Starting {authFlowName}...");
 
-                s = Stopwatch.StartNew();
+                Stopwatch s = Stopwatch.StartNew();
                 var attempt = await authFlow.GetTokenAsync();
                 s.Stop();
 
