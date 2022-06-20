@@ -543,11 +543,8 @@ invalid_key = ""this is not a valid alias key""
             eventData.Measures.Should().NotContainKey("token_validity_hours");
             eventData.Properties.Should().NotContainKey("silent");
 
-            eventData.Properties.TryGetValue("authflow", out string authMode);
-            authMode.Should().Be("AuthFlowName");
-
-            eventData.Properties.TryGetValue("success", out string success);
-            success.Should().Be("False");
+            eventData.Properties.Should().Contain("authflow", "AuthFlowName");
+            eventData.Properties.Should().Contain("success", "False");
         }
 
         /// <summary>
