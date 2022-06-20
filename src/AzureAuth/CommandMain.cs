@@ -250,7 +250,8 @@ Allowed values: [all, web, devicecode]";
             if (result.Success)
             {
                 correlationIDs.Add(result.TokenResult.CorrelationID.ToString());
-                eventData.Add("token_validity_hours", result.TokenResult.ValidFor.Hours);
+                eventData.Add("token_valid_for_minutes", result.TokenResult.ValidFor.TotalMinutes);
+
                 eventData.Add("silent", result.TokenResult.Silent);
             }
 
