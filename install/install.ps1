@@ -111,7 +111,7 @@ function Install-Post-0-4-0 {
         $Env:AZUREAUTH_INSTALL_DIRECTORY
     }
     $extractedDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $releaseName))
-    $versionPath = ([System.IO.Path]::Combine($azureauthDirectory, $version))
+    $targetDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $version))
     $zipFile = ([System.IO.Path]::Combine($azureauthDirectory, $releaseFile))
 
     Write-Verbose "Creating ${azureauthDirectory}"
@@ -126,8 +126,7 @@ function Install-Post-0-4-0 {
     # We suppress taskkill output here because this is a best effort attempt and we don't want the user to see its output.
     # Here, Get-Process is used to first determine whether there is an existing azureauth process. If there is, kill the existing process first.
     $ProcessCheck = Get-Process -Name azureauth -ErrorAction SilentlyContinue -ErrorVariable ProcessError
-    if ($ProcessCheck -ne $null)
-    {
+    if ($ProcessCheck -ne $null) {
         Write-Verbose "Stopping any currently running azureauth instances"
         taskkill /f /im azureauth.exe 2>&1 | Out-Null
 
@@ -137,20 +136,21 @@ function Install-Post-0-4-0 {
         Start-Sleep -Seconds 1
     }
 
-    if (Test-Path -Path $extractedDirectory) {
-        Write-Verbose "Removing pre-existing extracted directory at ${extractedDirectory}"
-        Remove-Item -Force -Recurse $extractedDirectory
+    if (Test-Path -Path $targetDirectory) {
+        Write-Verbose "Removing pre-existing extracted directory at ${targetDirectory}"
+        Remove-Item -Force -Recurse $targetDirectory
     }
 
-    Write-Verbose "Extracting ${zipFile} to ${extractedDirectory}"
+    Write-Verbose "Extracting ${zipFile} to ${targetDirectory}"
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $azureauthDirectory)
+
+    Rename-Item $extractedDirectory $targetDirectory
 
     Write-Verbose "Removing ${zipFile}"
     Remove-Item -Force $zipFile
 
-    if(!$NoUpdatePath)
-    {
+    if(!$NoUpdatePath) {
         $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
         $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
         $azureauthSource = (get-command azureauth -ErrorAction SilentlyContinue).Source
@@ -167,21 +167,20 @@ function Install-Post-0-4-0 {
                     $pathArr += "${path}"
                 }
             }
-            $pathArr += "${versionPath}"
+            $pathArr += "${targetDirectory}"
             $newPath = $pathArr -join ";"
         }
         else {
-            Write-Verbose "Updating `$PATH to include ${versionPath}"
+            Write-Verbose "Updating `$PATH to include ${targetDirectory}"
             if ($currentPath -Match $null) {
-                $newPath = "${versionPath}"
+                $newPath = "${targetDirectory}"
             } else {
-                $newPath = "${currentPath};${versionPath}"
+                $newPath = "${currentPath};${targetDirectory}"
             }
         }
 
         Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath 
     }
-
 
     Write-Output "Installed azureauth $version!"
 
