@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Environment variable `AZUREAUTH_CACHE_FILE` and option `--cache` to support a custom cache location on Windows.
 - Added Integrated Windows Authentication functionality as one of the auth flows.
+- Removed the usage of AuthTypes. Interactive/Silent token fetching scenario is captured under the boolean property `IsSilent` in TokenResult Class.
+- Send custom telemetry events for each AuthFlow.
 
 ## [0.3.1] - 2022-06-07
 ### Fixed
