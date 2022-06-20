@@ -264,6 +264,46 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
+        /// Generates event data from the AuthFlowResult.
+        /// </summary>
+        /// <param name="result">The AuthFlowResult.</param>
+        /// <returns>The event data.</returns>
+        public EventData AuthFlowEventData(AuthFlowResult result)
+        {
+            if (result == null)
+            {
+                return null;
+            }
+
+            var eventData = new EventData();
+            eventData.Add("authflow", result.AuthFlowName);
+            eventData.Add("success", result.Success);
+
+            var correlationIDs = new List<string>();
+
+            if (result.Errors.Any())
+            {
+                var error_messages = ExceptionListToStringConverter.Execute(result.Errors);
+                eventData.Add("error_messages", error_messages);
+                correlationIDs = ExceptionListToStringConverter.ExtractCorrelationIDsFromException(result.Errors);
+            }
+
+            if (result.Success)
+            {
+                correlationIDs.Add(result.TokenResult.CorrelationID.ToString());
+                eventData.Add("token_validity_minutes", result.TokenResult.ValidFor.TotalMinutes);
+                eventData.Add("silent", result.TokenResult.IsSilent);
+            }
+
+            if (correlationIDs.Any())
+            {
+                eventData.Add("msal_correlation_ids", correlationIDs);
+            }
+
+            return eventData;
+        }
+
+        /// <summary>
         /// This method evaluates whether the options are valid or not.
         /// </summary>
         /// <returns>
