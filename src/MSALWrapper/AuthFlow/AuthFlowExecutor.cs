@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -42,12 +43,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogWarning("Warning: There are 0 auth modes to execute!");
             }
 
+            Stopwatch s;
             foreach (var authFlow in this.authflows)
             {
                 var authFlowName = authFlow.GetType().Name;
                 this.logger.LogDebug($"Starting {authFlowName}...");
 
+                s = Stopwatch.StartNew();
                 var attempt = await authFlow.GetTokenAsync();
+                s.Stop();
 
                 if (attempt == null)
                 {
@@ -58,6 +62,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     attempt.Errors.Add(new NullTokenResultException(oopsMessage));
                 }
 
+                attempt.DurationInMs = s.ElapsedMilliseconds;
                 resultList.Add(attempt);
 
                 if (attempt.Success)

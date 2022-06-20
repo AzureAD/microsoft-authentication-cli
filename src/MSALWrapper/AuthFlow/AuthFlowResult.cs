@@ -48,6 +48,11 @@ namespace Microsoft.Authentication.MSALWrapper
         public string AuthFlowName { get; internal set; }
 
         /// <summary>
+        /// Gets or Sets the Duration in milli seconds.
+        /// </summary>
+        public double DurationInMs { get; set; }
+
+        /// <summary>
         /// Gets a value indicating whether the TokenResult represents a non-null <see cref="MSALWrapper.TokenResult"/>.
         /// </summary>
         public bool Success
