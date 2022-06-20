@@ -441,7 +441,7 @@ Allowed values: [all, web, devicecode]";
                     try
                     {
                         results = authFlowExecutor.GetTokenAsync().Result.ToArray();
-                        successfulResult = results?.FirstOrDefault(result => result.Success);
+                        successfulResult = results.FirstOrDefault(result => result.Success);
                     }
                     finally
                     {
@@ -449,12 +449,9 @@ Allowed values: [all, web, devicecode]";
                     }
                 }
 
-                if (results != null)
-                {
-                    var errors = results.SelectMany(result => result.Errors).ToArray();
-                    this.eventData.Add("error_count", errors.Length);
-                    this.eventData.Add("authflow_count", results.Length);
-                }
+                var errors = results.SelectMany(result => result.Errors).ToArray();
+                this.eventData.Add("error_count", errors.Length);
+                this.eventData.Add("authflow_count", results.Length);
 
                 if (successfulResult == null)
                 {
@@ -496,17 +493,14 @@ Allowed values: [all, web, devicecode]";
 
         private void SendAuthFlowTelemetryEvents(AuthFlowResult[] results)
         {
-            if (results != null)
+            Parallel.ForEach(results, result =>
             {
-                Parallel.ForEach(results, result =>
+                var eventData = this.AuthFlowEventData(result);
+                if (eventData != null)
                 {
-                    var eventData = this.AuthFlowEventData(result);
-                    if (eventData != null)
-                    {
-                        this.telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
-                    }
-                });
-            }
+                    this.telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
+                }
+            });
         }
 
         private AuthFlowExecutor AuthFlowExecutor()
