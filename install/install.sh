@@ -135,6 +135,10 @@ install_post_0_4_0() {
     target_directory="${azureauth_directory}/${version}"
     tarball="${azureauth_directory}/${release_file}"
 
+    # Ignore profile updates if the user has requested we not touch their profile(s).
+    : ${AZUREAUTH_NO_UPDATE_PATH=""}
+    no_update_path="${AZUREAUTH_NO_UPDATE_PATH}"
+
     verbose "Installing using post-0.4.0 method"
 
     verbose "Creating ${azureauth_directory}"
@@ -158,46 +162,50 @@ install_post_0_4_0() {
     verbose "Removing ${tarball}"
     rm $tarball
 
-    # We previously added `latest` to the $PATH, but we no longer support that, so
-    # we remove this from the $PATH to avoid confusion.
-    latest_path='export PATH="${PATH}:${HOME}/.azureauth/latest"'
+    if [ -z "${no_update_path}" ]; then
+        # We previously added `latest` to the $PATH, but we no longer support that, so
+        # we remove this from the $PATH to avoid confusion.
+        latest_path='export PATH="${PATH}:${HOME}/.azureauth/latest"'
 
-    # If there is an existing installation we can identify, then we remove it from
-    # the $PATH so that it will be replaced by the new installation. Note that we use
-    # `true` here because we set -e above and this expression would fail and cause
-    # unnecessary early termination otherwise.
-    current_azureauth="$(which azureauth || true)"
-    if [ -f "${current_azureauth}" ]; then
-        current_azureauth_parent=$(dirname "${current_azureauth}")
-        current_path='export PATH="${PATH}:'${current_azureauth_parent}'"'
+        # If there is an existing installation we can identify, then we remove it from
+        # the $PATH so that it will be replaced by the new installation. Note that we use
+        # `true` here because we set -e above and this expression would fail and cause
+        # unnecessary early termination otherwise.
+        current_azureauth="$(which azureauth || true)"
+        if [ -f "${current_azureauth}" ]; then
+            current_azureauth_parent=$(dirname "${current_azureauth}")
+            current_path='export PATH="${PATH}:'${current_azureauth_parent}'"'
+        fi
+
+        for shell_profile in "${HOME}/.bashrc" "${HOME}/.zshrc"
+        do
+            remove_from_profile "${latest_path}" "${shell_profile}"
+            if [ -n "${current_path}" ]; then
+                remove_from_profile "${current_path}" "${shell_profile}"
+            fi
+        done
+
+        # We currently only support automatically appending $PATH modifications for the default
+        # Bash and ZSH profiles as the syntax is identical.
+        new_path='export PATH="${PATH}:'${target_directory}'"'
+        for shell_profile in "${HOME}/.bashrc" "${HOME}/.zshrc"
+        do
+            if ! grep "${new_path}" "${shell_profile}" &>/dev/null; then
+                verbose "Appending '${target_directory}' to \$PATH in ${shell_profile}"
+                printf "${new_path}\n" >> $shell_profile
+            fi
+        done
+    else
+        verbose "Not updating the \$PATH in any user profiles"
     fi
-
-    for shell_profile in "${HOME}/.bashrc" "${HOME}/.zshrc"
-    do
-        remove_from_profile "${latest_path}" "${shell_profile}"
-        if [ -n "${current_path}" ]; then
-            remove_from_profile "${current_path}" "${shell_profile}"
-        fi
-    done
-
-    # We currently only support automatically appending $PATH modifications for the default
-    # Bash and ZSH profiles as the syntax is identical.
-    new_path='export PATH="${PATH}:'${target_directory}'"'
-    for shell_profile in "${HOME}/.bashrc" "${HOME}/.zshrc"
-    do
-        if ! grep "${new_path}" "${shell_profile}" &>/dev/null; then
-            verbose "Appending '${target_directory}' to \$PATH in ${shell_profile}"
-            printf "${new_path}\n" >> $shell_profile
-        fi
-    done
 
     echo "Installed azureauth ${version}!"
 }
 
 case "${version}" in
     v0.1.0|v0.2.0|v0.3.0|0.3.1)
-       install_pre_0_4_0
-       ;;
+        install_pre_0_4_0
+        ;;
     *)
         install_post_0_4_0
         ;;
