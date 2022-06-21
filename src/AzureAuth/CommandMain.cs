@@ -237,6 +237,7 @@ Allowed values: [all, web, devicecode]";
             var eventData = new EventData();
             eventData.Add("authflow", result.AuthFlowName);
             eventData.Add("success", result.Success);
+            eventData.Add("duration_milliseconds", (int)result.Duration.TotalMilliseconds);
 
             var correlationIDs = new List<string>();
 

@@ -545,6 +545,7 @@ invalid_key = ""this is not a valid alias key""
 
             eventData.Properties.Should().Contain("authflow", "AuthFlowName");
             eventData.Properties.Should().Contain("success", "False");
+            eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
         /// <summary>
@@ -571,6 +572,7 @@ invalid_key = ""this is not a valid alias key""
             eventData.Properties.Should().Contain("authflow", "AuthFlowName");
             eventData.Properties.Should().Contain("success", "False");
             eventData.Properties.Should().Contain("error_messages", "System.Exception: Exception 1.");
+            eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
         /// <summary>
@@ -611,6 +613,7 @@ invalid_key = ""this is not a valid alias key""
             eventData.Properties.Should().Contain("silent", "False");
             eventData.Properties.Should().Contain("error_messages", "Microsoft.Identity.Client.MsalServiceException: An MSAL Service Exception message\nMicrosoft.Identity.Client.MsalUiRequiredException: An MSAL UI Required Exception message");
             eventData.Measures.Should().ContainKey("token_validity_minutes");
+            eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
         /// <summary>
@@ -638,6 +641,7 @@ invalid_key = ""this is not a valid alias key""
             eventData.Properties.Should().Contain("msal_correlation_ids", expectedCorrelationIDs);
             eventData.Properties.Should().Contain("silent", "False");
             eventData.Measures.Should().ContainKey("token_validity_minutes");
+            eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
         /// <summary>
