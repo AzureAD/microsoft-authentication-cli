@@ -79,6 +79,8 @@ install_pre_0_4_0() {
     latest_directory="${azureauth_directory}/latest"
     tarball="${azureauth_directory}/${release_file}"
 
+    verbose "Installing using pre-0.4.0 method"
+
     verbose "Creating ${azureauth_directory}"
     mkdir -p $azureauth_directory
 
@@ -132,6 +134,8 @@ install_post_0_4_0() {
     azureauth_directory="${AZUREAUTH_INSTALL_DIRECTORY}"
     target_directory="${azureauth_directory}/${version}"
     tarball="${azureauth_directory}/${release_file}"
+
+    verbose "Installing using post-0.4.0 method"
 
     verbose "Creating ${azureauth_directory}"
     mkdir -p $azureauth_directory
@@ -190,6 +194,11 @@ install_post_0_4_0() {
     echo "Installed azureauth ${version}!"
 }
 
-# TODO: Version determination logic.
-# install_pre_0_4_0
-install_post_0_4_0
+case "${version}" in
+    v0.1.0|v0.2.0|v0.3.0|0.3.1)
+       install_pre_0_4_0
+       ;;
+    *)
+        install_post_0_4_0
+        ;;
+esac
