@@ -113,7 +113,7 @@ function Install-Post-0-4-0 {
     } else {
         $Env:AZUREAUTH_INSTALL_DIRECTORY
     }
-    
+
     $targetDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $version))
     $zipFile = ([System.IO.Path]::Combine($azureauthDirectory, $releaseFile))
 
@@ -168,14 +168,14 @@ function Install-Post-0-4-0 {
                     $pathArr += "${path}"
                 }
                 else {
-                    Write-Verbose "Removing ${path} from `$env:PATH"
+                    Write-Verbose "Removing '${path}' from `$env:PATH"
                 }
             }
             $pathArr += "${targetDirectory}"
             $newPath = $pathArr -join ";"
         }
         else {
-            Write-Verbose "Appending ${targetDirectory} to `$env:PATH"
+            Write-Verbose "Appending '${targetDirectory}' to `$env:PATH"
             if ($null -eq $currentPath) {
                 $newPath = "${targetDirectory}"
             } else {
