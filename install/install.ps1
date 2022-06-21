@@ -113,7 +113,7 @@ function Install-Post-0-4-0 {
     } else {
         $Env:AZUREAUTH_INSTALL_DIRECTORY
     }
-    $extractedDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $releaseName))
+    
     $targetDirectory = ([System.IO.Path]::Combine($azureauthDirectory, $version))
     $zipFile = ([System.IO.Path]::Combine($azureauthDirectory, $releaseFile))
 
@@ -146,9 +146,7 @@ function Install-Post-0-4-0 {
 
     Write-Verbose "Extracting ${zipFile} to ${targetDirectory}"
     Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $azureauthDirectory)
-
-    Rename-Item $extractedDirectory $targetDirectory
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $targetDirectory)
 
     Write-Verbose "Removing ${zipFile}"
     Remove-Item -Force $zipFile
