@@ -153,17 +153,17 @@ function Install-Post-0-4-0 {
     if(!$NoUpdatePath) {
         $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
         $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
-        $azureauthSource = (get-command azureauth -ErrorAction SilentlyContinue).Source
-        $azureauthSourceParent = if($azureauthSource -ne $null) {
-            (get-item $azureauthSource).Directory.Parent.FullName }
+        $currentAzureauth = (get-command azureauth -ErrorAction SilentlyContinue).Source
+        $currentAzureauthParent = if($currentAzureauth -ne $null) {
+            (get-item $currentAzureauth).Directory.Parent.FullName }
         
         $newPath = "";
 
-        if (($currentPath -ne $null) -And ($currentPath.Contains($azureauthDirectory) -Or $currentPath.Contains($azureauthSourceParent))) {
+        if (($currentPath -ne $null) -And ($currentPath.Contains($azureauthDirectory) -Or $currentPath.Contains($currentAzureauthParent))) {
             $paths = $currentPath.Split(";")
             $pathArr = @()
             ForEach($path in $paths){
-                if(!(($path.Equals("")) -Or ($path.Contains($azureauthDirectory)) -Or (($azureauthSourceParent -ne $null) -And $azureauthSourceParent.Contains($path)))){
+                if(!(($path.Equals("")) -Or ($path.Contains($azureauthDirectory)) -Or (($currentAzureauthParent -ne $null) -And $currentAzureauthParent.Contains($path)))){
                     $pathArr += "${path}"
                 }
             }
