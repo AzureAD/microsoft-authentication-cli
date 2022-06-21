@@ -50,14 +50,19 @@ release_name() {
     echo "${name}"
 }
 
-remove_from_path() {
+remove_from_profile() {
     path="${1}"
     shell_profile="${2}"
 
     if grep "${path}" "${shell_profile}" &>/dev/null; then
+        # Output which path we're removing for debugging purposes.
         path_suffix=$(echo "${path}" | awk -F : '{print $NF}' | tr -d '"')
         verbose "Removing '${path_suffix}' from \$PATH in ${shell_profile}"
+
+        # Escape the current path so that / are replaced with \/ and the string
+        # can be given to sed as a valid expression.
         escaped_path=$(echo "${path}" | sed -e 's;/;\\/;g')
+        # Delete a matching path (including trailing newline) from the profile.
         sed -i -e /"${escaped_path}"/d "${shell_profile}"
     fi
 }
@@ -154,8 +159,10 @@ install_post_0_4_0() {
     latest_path='export PATH="${PATH}:${HOME}/.azureauth/latest"'
 
     # If there is an existing installation we can identify, then we remove it from
-    # the $PATH so that it will be replaced by the new installation.
-    current_azureauth="$(which azureauth)"
+    # the $PATH so that it will be replaced by the new installation. Note that we use
+    # `true` here because we set -e above and this expression would fail and cause
+    # unnecessary early termination otherwise.
+    current_azureauth="$(which azureauth || true)"
     if [ -f "${current_azureauth}" ]; then
         current_azureauth_parent=$(dirname "${current_azureauth}")
         current_path='export PATH="${PATH}:'${current_azureauth_parent}'"'
@@ -163,9 +170,9 @@ install_post_0_4_0() {
 
     for shell_profile in "${HOME}/.bashrc" "${HOME}/.zshrc"
     do
-        remove_from_path "${latest_path}" "${shell_profile}"
-        if [ -z "${current_path}" ]; then
-            remove_from_path "${current_path}" "${shell_profile}"
+        remove_from_profile "${latest_path}" "${shell_profile}"
+        if [ -n "${current_path}" ]; then
+            remove_from_profile "${current_path}" "${shell_profile}"
         fi
     done
 
@@ -175,7 +182,7 @@ install_post_0_4_0() {
     for shell_profile in "${HOME}/.bashrc" "${HOME}/.zshrc"
     do
         if ! grep "${new_path}" "${shell_profile}" &>/dev/null; then
-            verbose "Appending '${target_directory} to \$PATH in ${shell_profile}"
+            verbose "Appending '${target_directory}' to \$PATH in ${shell_profile}"
             printf "${new_path}\n" >> $shell_profile
         fi
     done
