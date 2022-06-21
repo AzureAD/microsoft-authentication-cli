@@ -86,13 +86,13 @@ function Install-Pre-0-4-0 {
     $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
     $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
     if ($currentPath -NotMatch 'AzureAuth') {
-        Write-Verbose "Updating `$PATH to include ${latestDirectory}"
+        Write-Verbose "Updating `$env:PATH to include ${latestDirectory}"
         $newPath = if ($null -eq $currentPath) {
             "${latestDirectory}"
         } else {
             "${currentPath};${latestDirectory}"
         }
-        Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
+        setx PATH $newPath > $null
     }
 
     Write-Output "Installed azureauth $version!"
@@ -185,12 +185,13 @@ function Install-Post-0-4-0 {
             }
         }
 
-        Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath 
+        setx PATH $newPath > $null
     }
 
     Write-Output "Installed azureauth $version!"
 
 }
+
 switch ($version) {
      { $_ -in "v0.1.0","v0.2.0","v0.3.0","0.3.1" } {
         Install-Pre-0-4-0
