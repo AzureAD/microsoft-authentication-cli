@@ -162,7 +162,9 @@ install_post_0_4_0() {
     verbose "Removing ${tarball}"
     rm $tarball
 
-    if [ -z "${no_update_path}" ]; then
+    if [ -n "${no_update_path}" ]; then
+        verbose "Not updating the \$PATH in any user profiles"
+    else
         # We previously added `latest` to the $PATH, but we no longer support that, so
         # we remove this from the $PATH to avoid confusion.
         latest_path='export PATH="${PATH}:${HOME}/.azureauth/latest"'
@@ -195,8 +197,6 @@ install_post_0_4_0() {
                 printf "${new_path}\n" >> $shell_profile
             fi
         done
-    else
-        verbose "Not updating the \$PATH in any user profiles"
     fi
 
     echo "Installed azureauth ${version}!"
