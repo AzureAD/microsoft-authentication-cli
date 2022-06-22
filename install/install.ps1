@@ -151,7 +151,10 @@ function Install-Post-0-4-0 {
     Write-Verbose "Removing ${zipFile}"
     Remove-Item -Force $zipFile
 
-    if (!$NoUpdatePath) {
+    if ($NoUpdatePath) {
+        Write-Verbose "Not updating `$env:PATH"
+    }
+    else{
         $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
         $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
         $currentAzureauth = (get-command azureauth -ErrorAction SilentlyContinue).Source
