@@ -133,6 +133,7 @@ function Install-Post-0-4-0 {
         Start-Sleep -Seconds 1
     }
 
+    # To guarantee we start with a fresh install of the requested version we wipe out any pre-existing installation.
     if (Test-Path -Path $targetDirectory) {
         Write-Verbose "Removing pre-existing extracted directory at ${targetDirectory}"
         Remove-Item -Force -Recurse $targetDirectory
@@ -149,6 +150,9 @@ function Install-Post-0-4-0 {
         Write-Verbose "Not updating `$env:PATH"
     }
     else{
+        # We only fetch the user's $PATH from the registry and not the system $PATH because we only want to
+        # influence the current user's environment. We also fetch the path that `azureauth` is currently installed to
+        # in the event that it was previously installed to a custom location.
         $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
         $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
         $currentAzureauth = (get-command azureauth -ErrorAction SilentlyContinue).Source
@@ -156,12 +160,15 @@ function Install-Post-0-4-0 {
             (get-item $currentAzureauth).Directory.Parent.FullName }        
         $newPath = "";
 
+        # We check to see whether the current $PATH contains either the azureauth installation root or the parent
+        # directory of a currently installed `azureauth`.
         if (($null -ne $currentPath) `
             -And ($currentPath.Contains($azureauthDirectory) `
                     -Or (($null -ne $currentAzureauthParent) `
                             -And ($currentPath.Contains($currentAzureauthParent))))) {
             $paths = $currentPath.Split(";")
             $pathArr = @()
+            # We reconstruct the $PATH as an array without any azureauth directories.
             ForEach($path in $paths){
                 if(!(($path.Equals("")) `
                     -Or ($path.Contains($azureauthDirectory)) `
@@ -184,6 +191,7 @@ function Install-Post-0-4-0 {
                 $newPath = "${currentPath};${targetDirectory}"
             }
         }
+        # Update the $PATH environment variable with any modifications made above.
         setx PATH $newPath > $null
     }
     Write-Output "Installed azureauth $version!"
