@@ -32,8 +32,8 @@ provide a means of downloading the latest release, so you **must** specify your 
 To install the application, run
 
 ```powershell
-# 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = '0.3.1'
+# 0.4.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = '0.4.0'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1) } -Verbose"
 ```
@@ -41,8 +41,8 @@ iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authenticatio
 Or, if you want a method more resilient to failure than `Invoke-Expression`, run
 
 ```powershell
-# 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = '0.3.1'
+# 0.4.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = '0.4.0'
 $script = "${env:TEMP}\install.ps1"
 $url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -62,8 +62,8 @@ release, so you **must** specify your desired version via the `$AZUREAUTH_VERSIO
 To install the application, run
 
 ```bash
-# 0.3.1 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-export AZUREAUTH_VERSION='0.3.1'
+# 0.4.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+export AZUREAUTH_VERSION='0.4.0'
 curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/$AZUREAUTH_VERSION/install/install.sh | sh
 ```
 
