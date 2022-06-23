@@ -7,14 +7,12 @@ $script:ErrorActionPreference='Stop'
 
 # We don't currently have good cross-platform options for determining the latest release version, so we require
 # knowledge of the specific target version, which the user should set as an environment variable.
-
 $version = $Env:AZUREAUTH_VERSION
 if ([string]::IsNullOrEmpty($version)) {
     Write-Error 'No $AZUREAUTH_VERSION specified, unable to download a release'
 }
 
 function Install-Pre-0-4-0 {
-
     Write-Verbose "Installing using pre-0.4.0 method"
     $repo = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_REPO)) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
     $releaseName = "azureauth-${version}-win10-x64"
@@ -94,20 +92,17 @@ function Install-Pre-0-4-0 {
         }
         setx PATH $newPath > $null
     }
-
+    
     Write-Output "Installed azureauth $version!"
-
 }
 
 function Install-Post-0-4-0 {
-
     Write-Verbose "Installing using post-0.4.0 method"
 
     $repo = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_REPO)) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
     $releaseName = "azureauth-${version}-win10-x64"
     $releaseFile = "${releaseName}.zip"
     $releaseUrl = "https://github.com/${repo}/releases/download/${version}/$releaseFile"
-
     $azureauthDirectory = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_INSTALL_DIRECTORY)) {
         ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "Programs", "AzureAuth"))
     } else {
@@ -119,7 +114,6 @@ function Install-Post-0-4-0 {
 
     Write-Verbose "Creating ${azureauthDirectory}"
     $null = New-Item -ItemType Directory -Force -Path $azureauthDirectory
-
 
     Write-Verbose "Downloading ${releaseUrl} to ${zipFile}"
     $client = New-Object System.Net.WebClient
@@ -159,15 +153,20 @@ function Install-Post-0-4-0 {
         $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
         $currentAzureauth = (get-command azureauth -ErrorAction SilentlyContinue).Source
         $currentAzureauthParent = if($null -ne $currentAzureauth) {
-            (get-item $currentAzureauth).Directory.Parent.FullName }
-        
+            (get-item $currentAzureauth).Directory.Parent.FullName }        
         $newPath = "";
 
-        if (($null -ne $currentPath) -And ($currentPath.Contains($azureauthDirectory) -Or $currentPath.Contains($currentAzureauthParent))) {
+        if (($null -ne $currentPath) `
+            -And ($currentPath.Contains($azureauthDirectory) `
+                    -Or (($null -ne $currentAzureauthParent) `
+                            -And ($currentPath.Contains($currentAzureauthParent))))) {
             $paths = $currentPath.Split(";")
             $pathArr = @()
             ForEach($path in $paths){
-                if(!(($path.Equals("")) -Or ($path.Contains($azureauthDirectory)) -Or (($null -ne $currentAzureauthParent) -And $currentAzureauthParent.Contains($path)))){
+                if(!(($path.Equals("")) `
+                    -Or ($path.Contains($azureauthDirectory)) ` 
+                    -Or (($null -ne $currentAzureauthParent) ` 
+                            -And $currentAzureauthParent.Contains($path)))){
                     $pathArr += "${path}"
                 }
                 else {
@@ -185,12 +184,9 @@ function Install-Post-0-4-0 {
                 $newPath = "${currentPath};${targetDirectory}"
             }
         }
-
         setx PATH $newPath > $null
     }
-
     Write-Output "Installed azureauth $version!"
-
 }
 
 switch ($version) {
