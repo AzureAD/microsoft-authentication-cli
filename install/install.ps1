@@ -90,6 +90,9 @@ function Install-Pre-0-4-0 {
         } else {
             "${currentPath};${latestDirectory}"
         }
+        # Update the $PATH environment variable with any modifications made above. We use `setx` here instead of
+        # directly writing back the registry value because `setx` signals new processes to pick up on the environment
+        # variable changes.
         setx PATH $newPath > $null
     }
     
@@ -191,7 +194,9 @@ function Install-Post-0-4-0 {
                 $newPath = "${currentPath};${targetDirectory}"
             }
         }
-        # Update the $PATH environment variable with any modifications made above.
+        # Update the $PATH environment variable with any modifications made above. We use `setx` here instead of
+        # directly writing back the registry value because `setx` signals new processes to pick up on the environment
+        # variable changes.
         setx PATH $newPath > $null
     }
     Write-Output "Installed azureauth $version!"
