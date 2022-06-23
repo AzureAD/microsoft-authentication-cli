@@ -164,8 +164,8 @@ function Install-Post-0-4-0 {
             $pathArr = @()
             ForEach($path in $paths){
                 if(!(($path.Equals("")) `
-                    -Or ($path.Contains($azureauthDirectory)) ` 
-                    -Or (($null -ne $currentAzureauthParent) ` 
+                    -Or ($path.Contains($azureauthDirectory)) `
+                    -Or (($null -ne $currentAzureauthParent) `
                             -And $currentAzureauthParent.Contains($path)))){
                     $pathArr += "${path}"
                 }
