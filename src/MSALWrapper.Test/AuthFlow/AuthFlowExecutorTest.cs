@@ -814,7 +814,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             GlobalTimeoutManager.StartTimer();
             var timeoutError = new[]
             {
-                new TimeoutException("The application has timedout while waiting on IAuthFlowProxy"),
+                new TimeoutException("The application has timed out while waiting on IAuthFlowProxy"),
             };
 
             var authFlowResult = new AuthFlowResult(this.tokenResult, null, "authFlow");

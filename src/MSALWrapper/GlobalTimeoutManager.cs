@@ -42,15 +42,6 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Determine if user should be warned as the timeout approaches.
-        /// </summary>
-        /// <returns>True if the user should be warned.</returns>
-        public static bool WarnUser()
-        {
-            return GetRemainingTime() <= TimeSpan.FromSeconds(50);
-        }
-
-        /// <summary>
         ///  Set the global timeout.
         /// </summary>
         /// <param name="timeout"> Number of seconds for timeout.</param>
