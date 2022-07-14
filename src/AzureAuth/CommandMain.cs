@@ -38,6 +38,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ConfigOption = "--config";
         private const string CacheOption = "--cache";
         private const string PromptHintPrefix = "AzureAuth";
+        private const string TimeoutOption = "--timeout";
 
 #if PlatformWindows
         private const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
@@ -119,6 +120,12 @@ Allowed values: [all, web, devicecode]";
         /// </summary>
         [Option(PromptHintOption, "The prompt hint text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
         public string PromptHint { get; set; }
+
+        /// <summary>
+        /// Gets or sets global Timeout.
+        /// </summary>
+        [Option(TimeoutOption, "Number of seconds for which the CLI should run", CommandOptionType.SingleValue)]
+        public float Timeout { get; set; } = Constants.GlobalTimeout;
 
         /// <summary>
         /// Gets or sets the scopes.
@@ -331,6 +338,8 @@ Allowed values: [all, web, devicecode]";
         /// </returns>
         public int OnExecute()
         {
+            GlobalTimeoutManager.SetTimeout(this.Timeout);
+            GlobalTimeoutManager.StartTimer();
             if (!this.EvaluateOptions())
             {
                 this.eventData.Add("validargs", false);

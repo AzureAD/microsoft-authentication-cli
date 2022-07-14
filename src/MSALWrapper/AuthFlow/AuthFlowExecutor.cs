@@ -47,14 +47,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 var authFlowName = authFlow.GetType().Name;
                 this.logger.LogDebug($"Starting {authFlowName}...");
-
                 Stopwatch watch = Stopwatch.StartNew();
-                var attempt = await authFlow.GetTokenAsync();
+                var attempt = await this.GetTokenAndPoll(authFlow);
                 watch.Stop();
 
                 if (attempt == null)
                 {
-                    var oopsMessage = $"Auth flow '{authFlow.GetType().Name}' returned a null AuthFlowResult.";
+                    var oopsMessage = $"Auth flow '{authFlowName}' returned a null AuthFlowResult.";
                     this.logger.LogDebug(oopsMessage);
 
                     attempt = new AuthFlowResult(null, null, authFlowName);
@@ -64,6 +63,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 attempt.Duration = watch.Elapsed;
                 resultList.Add(attempt);
 
+                if (attempt.Errors.OfType<TimeoutException>().Any())
+                {
+                    return resultList;
+                }
+
                 if (attempt.Success)
                 {
                     this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
@@ -72,6 +76,55 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
 
             return resultList;
+        }
+
+        /// <summary>
+        /// Run the auth mode in a separate task and
+        /// poll to see if we hit global timeout before the auth flow completes.
+        /// </summary>
+        /// <param name="authFlow">Auth Flow that we are executing.</param>
+        /// <returns>AuthFlowResult containing Error if CLI times out; else actual result of the AuthFlow.</returns>
+        private async Task<AuthFlowResult> GetTokenAndPoll(IAuthFlow authFlow)
+        {
+            var flowResult = Task.Run(() => authFlow.GetTokenAsync());
+            var authFlowName = authFlow.GetType().Name;
+            while (!flowResult.IsCompleted)
+            {
+                if (GlobalTimeoutManager.WarnUser())
+                {
+                    this.logger.LogWarning($"Waiting on {authFlowName} authentication." +
+                        $"Timeout in {GlobalTimeoutManager.GetRemainingTime():ss} second(s).");
+                }
+
+                if (GlobalTimeoutManager.HasTimedout())
+                {
+                    GlobalTimeoutManager.StopTimer();
+                    this.logger.LogWarning("AzureAuth Timed out!");
+                    AuthFlowResult timeoutResult = new AuthFlowResult(null, null, authFlow.GetType().Name);
+                    timeoutResult.Errors.Add(new TimeoutException($"The application has timedout while waiting on {authFlowName}"));
+                    /* Note that though the task running the auth flow will be killed once we return from this method,
+                     * the interactive auth prompt will be killed as we exit the application (possibly due to the way GC works).
+                     */
+                    return timeoutResult;
+                }
+
+                await Task.WhenAny(Task.Delay(this.DetermineDelayPeriod()), flowResult);
+            }
+
+            return await flowResult;
+        }
+
+        /// <summary>
+        /// Determines minimum seconds to wait before polling.
+        /// If global timeout is in less than 10 seconds, we would want to wait for a period equal to
+        /// timeout rather than 10 seconds.
+        /// </summary>
+        /// <returns>seconds to wait before polling.</returns>
+        private TimeSpan DetermineDelayPeriod()
+        {
+            return TimeSpan.FromSeconds(Math.Min(
+                10,
+                (int)Math.Ceiling(GlobalTimeoutManager.GetRemainingTime().TotalSeconds)));
         }
     }
 }
