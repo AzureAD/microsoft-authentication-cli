@@ -810,7 +810,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task GlobalTimeout_Design_Test()
         {
-            GlobalTimeoutManager.SetTimeout(0.5f);
+            GlobalTimeoutManager.SetTimeout(0);
             GlobalTimeoutManager.StartTimer();
             var timeoutError = new[]
             {
