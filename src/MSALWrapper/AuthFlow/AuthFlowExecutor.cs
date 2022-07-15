@@ -25,6 +25,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// The time we want to wait before polling.
         /// </summary>
         private TimeSpan delayPeriodForPolling = TimeSpan.FromMinutes(1);
+
+        /// <summary>
+        /// Amount of time we should wait before we start warning about the timeout.
+        /// </summary>
+        private TimeSpan timeToWaitBeforeWarning = TimeSpan.FromMinutes(1);
         #endregion
 
         /// <summary>
@@ -96,12 +101,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             var flowResult = Task.Run(() => authFlow.GetTokenAsync());
             var authFlowName = authFlow.GetType().Name;
-            var oneMinute = TimeSpan.FromMinutes(1);
             while (!flowResult.IsCompleted)
             {
-                if (GlobalTimeoutManager.GetElapsedTime() >= oneMinute)
+                if (GlobalTimeoutManager.GetElapsedTime() >= this.timeToWaitBeforeWarning)
                 {
-                    this.logger.LogWarning($"Waiting on {authFlowName} authentication." +
+                    this.logger.LogWarning($"Waiting for {authFlowName} authentication." +
                         $"Timeout in {GlobalTimeoutManager.GetRemainingTime():hh\\:mm\\:ss}");
                 }
 
@@ -111,9 +115,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.logger.LogWarning("AzureAuth has timed out!");
                     AuthFlowResult timeoutResult = new AuthFlowResult(null, null, authFlow.GetType().Name);
                     timeoutResult.Errors.Add(new TimeoutException($"The application has timed out while waiting on {authFlowName}"));
-                    /* Note that though the task running the auth flow will be killed once we return from this method,
-                     * the interactive auth prompt will be killed as we exit the application (possibly due to the way GC works).
-                     */
+
+                    // Note that though the task running the auth flow will be killed once we return from this method,
+                    // the interactive auth prompt will be killed as we exit the application (possibly due to the way GC works).
                     return timeoutResult;
                 }
 
