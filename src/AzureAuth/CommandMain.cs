@@ -302,7 +302,32 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
+            if (!this.IsAUserInteractiveEnv())
+            {
+                this.logger.LogDebug($"Skipping used based authentication as specified by the env variable(s) {EnvVars.DisableUserBasedAuthentication}/{EnvVars.CorextNonInteractive}.");
+                return 0;
+            }
+
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
+        }
+
+        /// <summary>
+        /// Determines whether the given env is user interactive or not.
+        /// </summary>
+        /// <returns>A boolean to indicate user interactive env</returns>
+        public bool IsAUserInteractiveEnv()
+        {
+            var disableUserAuthModesEnvVal = this.env.Get(EnvVars.DisableUserBasedAuthentication);
+            var corextNonInteractiveEnvVal = this.env.Get(EnvVars.CorextNonInteractive);
+
+            if (!string.IsNullOrEmpty(disableUserAuthModesEnvVal) ||
+               string.Equals("1", corextNonInteractiveEnvVal, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals("true", corextNonInteractiveEnvVal, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private bool ValidateOptions()
@@ -452,15 +477,15 @@ Allowed values: [all, web, devicecode]";
                 var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
 
                 var authFlows = AuthFlowFactory.Create(
-                    this.logger,
-                    this.CombinedAuthMode,
-                    new Guid(this.authSettings.Client),
-                    new Guid(this.authSettings.Tenant),
-                    scopes,
-                    this.CacheFilePath,
-                    this.PreferredDomain,
-                    PrefixedPromptHint(this.authSettings.PromptHint),
-                    Constants.AuthOSXKeyChainSuffix);
+                this.logger,
+                this.CombinedAuthMode,
+                new Guid(this.authSettings.Client),
+                new Guid(this.authSettings.Tenant),
+                scopes,
+                this.CacheFilePath,
+                this.PreferredDomain,
+                PrefixedPromptHint(this.authSettings.PromptHint),
+                Constants.AuthOSXKeyChainSuffix);
 
                 this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows);
             }
