@@ -477,15 +477,15 @@ Allowed values: [all, web, devicecode]";
                 var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
 
                 var authFlows = AuthFlowFactory.Create(
-                this.logger,
-                this.CombinedAuthMode,
-                new Guid(this.authSettings.Client),
-                new Guid(this.authSettings.Tenant),
-                scopes,
-                this.CacheFilePath,
-                this.PreferredDomain,
-                PrefixedPromptHint(this.authSettings.PromptHint),
-                Constants.AuthOSXKeyChainSuffix);
+                    this.logger,
+                    this.CombinedAuthMode,
+                    new Guid(this.authSettings.Client),
+                    new Guid(this.authSettings.Tenant),
+                    scopes,
+                    this.CacheFilePath,
+                    this.PreferredDomain,
+                    PrefixedPromptHint(this.authSettings.PromptHint),
+                    Constants.AuthOSXKeyChainSuffix);
 
                 this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows);
             }
