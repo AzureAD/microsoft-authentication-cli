@@ -44,10 +44,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         ///  Set the global timeout.
         /// </summary>
-        /// <param name="timeout"> Number of seconds for timeout.</param>
-        public static void SetTimeout(float timeout)
+        /// <param name="timeout"> Timeout period.</param>
+        public static void SetTimeout(TimeSpan timeout)
         {
-            globalTimeout = TimeSpan.FromSeconds(timeout);
+            globalTimeout = timeout;
         }
 
         /// <summary>

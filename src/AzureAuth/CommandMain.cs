@@ -338,7 +338,7 @@ Allowed values: [all, web, devicecode]";
         /// </returns>
         public int OnExecute()
         {
-            GlobalTimeoutManager.SetTimeout(this.Timeout);
+            GlobalTimeoutManager.SetTimeout(TimeSpan.FromSeconds(this.Timeout));
             GlobalTimeoutManager.StartTimer();
             if (!this.EvaluateOptions())
             {

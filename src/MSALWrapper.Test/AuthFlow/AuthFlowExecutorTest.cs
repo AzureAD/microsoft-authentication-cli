@@ -55,7 +55,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
 
-            GlobalTimeoutManager.SetTimeout(Constants.GlobalTimeout);
+            GlobalTimeoutManager.SetTimeout(TimeSpan.FromSeconds(Constants.GlobalTimeout));
         }
 
         [Test]
@@ -810,7 +810,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task GlobalTimeout_Design_Test()
         {
-            GlobalTimeoutManager.SetTimeout(0);
+            GlobalTimeoutManager.SetTimeout(TimeSpan.FromSeconds(0));
             GlobalTimeoutManager.StartTimer();
             var timeoutError = new[]
             {
