@@ -349,7 +349,7 @@ Allowed values: [all, web, devicecode]";
 
             if (this.InteractivityDisabled())
             {
-                this.logger.LogCritical($"Skipping used based authentication as specified by the env variable : {EnvVars.DisableUserBasedAuthentication}.");
+                this.logger.LogCritical($"Skipping used based authentication as specified by the env variable : {EnvVars.DisableInteractivity}.");
                 return 1;
             }
 
@@ -362,9 +362,9 @@ Allowed values: [all, web, devicecode]";
         /// <returns>A boolean to indicate user interactive env</returns>
         public bool InteractivityDisabled()
         {
-            var disableUserBasedAuth = this.env.Get(EnvVars.DisableUserBasedAuthentication);
+            var disableInteractivity = this.env.Get(EnvVars.DisableInteractivity);
 
-            if (!string.IsNullOrEmpty(disableUserBasedAuth))
+            if (!string.IsNullOrEmpty(disableInteractivity))
             {
                 return true;
             }
