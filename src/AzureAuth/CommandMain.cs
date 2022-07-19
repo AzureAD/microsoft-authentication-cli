@@ -302,10 +302,10 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            if (!this.IsAUserInteractiveEnv())
+            if (this.InteractivityDisabled())
             {
-                this.logger.LogDebug($"Skipping used based authentication as specified by the env variable(s) {EnvVars.DisableUserBasedAuthentication}/{EnvVars.CorextNonInteractive}.");
-                return 0;
+                this.logger.LogCritical($"Skipping used based authentication as specified by the env variable : {EnvVars.DisableUserBasedAuthentication}.");
+                return 1;
             }
 
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
@@ -315,19 +315,16 @@ Allowed values: [all, web, devicecode]";
         /// Determines whether the given env is user interactive or not.
         /// </summary>
         /// <returns>A boolean to indicate user interactive env</returns>
-        public bool IsAUserInteractiveEnv()
+        public bool InteractivityDisabled()
         {
-            var disableUserAuthEnvVal = this.env.Get(EnvVars.DisableUserBasedAuthentication);
-            var corextNonInteractiveEnvVal = this.env.Get(EnvVars.CorextNonInteractive);
+            var disableUserBasedAuth = this.env.Get(EnvVars.DisableUserBasedAuthentication);
 
-            if (!string.IsNullOrEmpty(disableUserAuthEnvVal) ||
-               string.Equals("1", corextNonInteractiveEnvVal, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals("true", corextNonInteractiveEnvVal, StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(disableUserBasedAuth))
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         private bool ValidateOptions()

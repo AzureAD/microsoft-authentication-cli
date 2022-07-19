@@ -507,74 +507,35 @@ invalid_key = ""this is not a valid alias key""
         /// Test to validate user interactive env.
         /// </summary>
         [Test]
-        public void UserInteractiveEnvReturnsFalseIfCorextEnvVariableIsSetToTrue()
+        public void InteractivityIsDisabledIfEnvVarIsSetToNonEmpty()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("True");
-            subject.IsAUserInteractiveEnv().Should().BeFalse();
+            this.envMock.Setup(e => e.Get("AZUREAUTH_DISABLE_INTERACTIVITY")).Returns("1");
+            subject.InteractivityDisabled().Should().BeTrue();
 
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("TRUE");
-            subject.IsAUserInteractiveEnv().Should().BeFalse();
-
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("true");
-            subject.IsAUserInteractiveEnv().Should().BeFalse();
+            this.envMock.Setup(e => e.Get("AZUREAUTH_DISABLE_INTERACTIVITY")).Returns("non-empty-string");
+            subject.InteractivityDisabled().Should().BeTrue();
         }
 
         /// <summary>
         /// Test to validate user interactive env.
         /// </summary>
         [Test]
-        public void UserInteractiveEnvReturnsFalseIfCorextEnvVariableIsSetToOne()
+        public void InteractivityIsNotDisabledIfEnvVarIsSetToEmpty()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("1");
-            subject.IsAUserInteractiveEnv().Should().BeFalse();
+            this.envMock.Setup(e => e.Get("AZUREAUTH_DISABLE_INTERACTIVITY")).Returns(string.Empty);
+            subject.InteractivityDisabled().Should().BeFalse();
         }
 
         /// <summary>
         /// Test to validate user interactive env.
         /// </summary>
         [Test]
-        public void UserInteractiveEnvReturnsFalseIfCorextEnvVariableIsNotSetToOneOrTrue()
+        public void InteractivityIsNotDisabledIfEnvVarsAreNotSet()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("random-value");
-            subject.IsAUserInteractiveEnv().Should().BeTrue();
-        }
-
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
-        [Test]
-        public void UserInteractiveEnvReturnsFalseIfDisableUserAuthEnvVarIsSetToNonEmpty()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("AZUREAUTH_DISABLE_USER_AUTH")).Returns("1");
-            subject.IsAUserInteractiveEnv().Should().BeFalse();
-
-            this.envMock.Setup(e => e.Get("AZUREAUTH_DISABLE_USER_AUTH")).Returns("non-empty-string");
-            subject.IsAUserInteractiveEnv().Should().BeFalse();
-        }
-
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
-        [Test]
-        public void UserInteractiveEnvReturnsTrueIfDisableUserAuthEnvVarIsSetToEmpty()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("AZUREAUTH_DISABLE_USER_AUTH")).Returns(string.Empty);
-            subject.IsAUserInteractiveEnv().Should().BeTrue();
-        }
-
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
-        [Test]
-        public void UserInteractiveEnvReturnsTrueIfEnvVarsAreNotSet()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.IsAUserInteractiveEnv().Should().BeTrue();
+            subject.InteractivityDisabled().Should().BeFalse();
         }
 
         /// <summary>
