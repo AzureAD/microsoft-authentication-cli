@@ -13,6 +13,8 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Identity.Client;
+    using Microsoft.IdentityModel.JsonWebTokens;
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
 
@@ -27,6 +29,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
     /// </summary>
     internal class CommandMainTest
     {
+        private const string FakeToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsInJoIjoieHh4IiwieDV0IjoieHh4Iiwia2lkIjoieHh4In0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYXVkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwiaWF0IjoxNjE3NjY0Mjc2LCJuYmYiOjE2MTc2NjQyNzYsImV4cCI6MTYxNzY2ODE3NiwiYWNyIjoiMSIsImFpbyI6IllTQjBiM1JoYkd4NUlHWmhhMlVnYTJWNUlDTWtKVjQ9Iiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwidW5pcXVlX25hbWUiOiJreXJhZGVyQG1pY3Jvc29mdC5jb20iLCJ1cG4iOiJreXJhZGVyQG1pY3Jvc29mdC5jb20iLCJ2ZXIiOiIxLjAifQ.bNc3QlL4zIClzFqH68A4hxsR7K-jabQvzB2EodgujQqc0RND_VLVkk2h3iDy8so3azN-964c2z5AiBGY6PVtWKYB-h0Z_VnzbebhDjzPLspEsANyQxaDX_ugOrf7BerQOtILWT5Vqs-A3745Bh0eTDFZpobmeENpANNhRE-yKwScjU8BDY9RimdrA2Z00V0lSliUQwnovWmtfdlbEpWObSFQAK7wCcNnUesV-jNZAUMrDkmTItPA9Z1Ks3NUbqdqMP3D6n99sy8DxQeFmbNQGYocYqI7QH24oNXODq0XB-2zpvCqy4T2jiBLgN_XEaZ5zTzEOzztpgMIWH1AUvEIyw";
         private const string InvalidTOML = @"[invalid TOML"; // Note the missing closing square bracket here.
         private const string CompleteAliasTOML = @"
 [alias.contoso]
@@ -60,6 +63,7 @@ invalid_key = ""this is not a valid alias key""
         private MemoryTarget logTarget;
         private Mock<ITokenFetcher> tokenFetcherMock;
         private Mock<IEnv> envMock;
+        private Mock<ITelemetryService> telemetryServiceMock;
 
         /// <summary>
         /// The setup.
@@ -85,6 +89,7 @@ invalid_key = ""this is not a valid alias key""
             this.tokenFetcherMock = new Mock<ITokenFetcher>(MockBehavior.Strict);
 
             this.envMock = new Mock<IEnv>(MockBehavior.Strict);
+            this.telemetryServiceMock = new Mock<ITelemetryService>(MockBehavior.Strict);
 
             // Environment variables should be null by default.
             this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
@@ -101,6 +106,7 @@ invalid_key = ""this is not a valid alias key""
                 .AddSingleton(this.fileSystem)
                 .AddSingleton<ITokenFetcher>(this.tokenFetcherMock.Object)
                 .AddSingleton<IEnv>(this.envMock.Object)
+                .AddSingleton<ITelemetryService>(this.telemetryServiceMock.Object)
                 .AddTransient<CommandMain>()
                 .BuildServiceProvider();
         }
@@ -501,6 +507,141 @@ invalid_key = ""this is not a valid alias key""
             subject.CacheFilePath = path;
             subject.EvaluateOptions().Should().BeTrue();
             subject.CacheFilePath.Should().Be(path);
+        }
+
+        /// <summary>
+        /// Test to generate event data from a null authflow result.
+        /// </summary>
+        [Test]
+        public void TestGenerateEvent_FromNullAuthResult()
+        {
+            AuthFlowResult authFlowResult = null;
+            var subject = this.serviceProvider.GetService<CommandMain>();
+
+            // Act
+            var eventData = subject.AuthFlowEventData(authFlowResult);
+
+            // Assert
+            eventData.Should().BeNull();
+        }
+
+        /// <summary>
+        /// Test to generate event data from an authflow result with null token result and null errors.
+        /// </summary>
+        [Test]
+        public void TestGenerateEvent_From_AuthFlowResult_With_Null_TokenResult_Null_Errors()
+        {
+            AuthFlowResult authFlowResult = new AuthFlowResult(null, null, "AuthFlowName");
+            var subject = this.serviceProvider.GetService<CommandMain>();
+
+            // Act
+            var eventData = subject.AuthFlowEventData(authFlowResult);
+
+            // Assert
+            eventData.Properties.Should().NotContainKey("msal_correlation_ids");
+            eventData.Properties.Should().NotContainKey("error_messages");
+            eventData.Measures.Should().NotContainKey("token_validity_hours");
+            eventData.Properties.Should().NotContainKey("silent");
+
+            eventData.Properties.Should().Contain("authflow", "AuthFlowName");
+            eventData.Properties.Should().Contain("success", "False");
+            eventData.Measures.Should().ContainKey("duration_milliseconds");
+        }
+
+        /// <summary>
+        /// Test to generate event data from an authflow result with null token result and some errors.
+        /// </summary>
+        [Test]
+        public void TestGenerateEvent_From_AuthFlowResult_With_Errors_And_Null_TokenResult()
+        {
+            var errors = new[]
+            {
+                new Exception("Exception 1."),
+            };
+
+            AuthFlowResult authFlowResult = new AuthFlowResult(null, errors, "AuthFlowName");
+            var subject = this.serviceProvider.GetService<CommandMain>();
+
+            // Act
+            var eventData = subject.AuthFlowEventData(authFlowResult);
+
+            // Assert
+            eventData.Properties.Should().NotContainKey("msal_correlation_ids");
+            eventData.Measures.Should().NotContainKey("token_validity_minutes");
+            eventData.Properties.Should().NotContainKey("silent");
+            eventData.Properties.Should().Contain("authflow", "AuthFlowName");
+            eventData.Properties.Should().Contain("success", "False");
+            eventData.Properties.Should().Contain("error_messages", "System.Exception: Exception 1.");
+            eventData.Measures.Should().ContainKey("duration_milliseconds");
+        }
+
+        /// <summary>
+        /// Test to generate event data from an authflow result with token result and msal errors.
+        /// </summary>
+        [Test]
+        public void TestGenerateEvent_From_AuthFlowResult_With_MsalErrors_And_TokenResult()
+        {
+            // TODO
+            var correlationID1 = Guid.NewGuid().ToString();
+            var msalServiceException = new MsalServiceException("errorcode", "An MSAL Service Exception message");
+            msalServiceException.CorrelationId = correlationID1;
+
+            var msalUIRequiredException = new MsalUiRequiredException("errorcode", "An MSAL UI Required Exception message");
+            msalUIRequiredException.CorrelationId = null;
+
+            var errors = new[]
+            {
+                msalServiceException,
+                msalUIRequiredException,
+            };
+
+            var tokenResultCorrelationID = Guid.NewGuid();
+            var tokenResult = new TokenResult(new JsonWebToken(FakeToken), tokenResultCorrelationID);
+
+            AuthFlowResult authFlowResult = new AuthFlowResult(tokenResult, errors, "AuthFlowName");
+            var subject = this.serviceProvider.GetService<CommandMain>();
+
+            var expectedCorrelationIDs = $"{correlationID1}, {tokenResultCorrelationID}";
+
+            // Act
+            var eventData = subject.AuthFlowEventData(authFlowResult);
+
+            // Assert
+            eventData.Properties.Should().Contain("authflow", "AuthFlowName");
+            eventData.Properties.Should().Contain("success", "True");
+            eventData.Properties.Should().Contain("msal_correlation_ids", expectedCorrelationIDs);
+            eventData.Properties.Should().Contain("silent", "False");
+            eventData.Properties.Should().Contain("error_messages", "Microsoft.Identity.Client.MsalServiceException: An MSAL Service Exception message\nMicrosoft.Identity.Client.MsalUiRequiredException: An MSAL UI Required Exception message");
+            eventData.Measures.Should().ContainKey("token_validity_minutes");
+            eventData.Measures.Should().ContainKey("duration_milliseconds");
+        }
+
+        /// <summary>
+        /// Test to generate event data from an authflow result with token result and no errors.
+        /// </summary>
+        [Test]
+        public void TestGenerateEvent_From_AuthFlowResult_With_TokenResult_And_Null_Errors()
+        {
+            // TODO
+            var tokenResultCorrelationID = Guid.NewGuid();
+            var tokenResult = new TokenResult(new JsonWebToken(FakeToken), tokenResultCorrelationID);
+
+            AuthFlowResult authFlowResult = new AuthFlowResult(tokenResult, null, "AuthFlowName");
+            var subject = this.serviceProvider.GetService<CommandMain>();
+
+            var expectedCorrelationIDs = $"{tokenResultCorrelationID}";
+
+            // Act
+            var eventData = subject.AuthFlowEventData(authFlowResult);
+
+            // Assert
+            eventData.Properties.Should().NotContainKey("error_messages");
+            eventData.Properties.Should().Contain("authflow", "AuthFlowName");
+            eventData.Properties.Should().Contain("success", "True");
+            eventData.Properties.Should().Contain("msal_correlation_ids", expectedCorrelationIDs);
+            eventData.Properties.Should().Contain("silent", "False");
+            eventData.Measures.Should().ContainKey("token_validity_minutes");
+            eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
         /// <summary>

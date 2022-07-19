@@ -19,6 +19,9 @@ This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/mic
          ms-appx-web://Microsoft.AAD.BrokerPlugin/<ClientID>  
          ``` 
     5. Select Configure.
+
+    ![Mobile and desktop platform configuration](mobile-desktop-platform-config.png)
+
 3. To support **system web browser**:
     1. In the menu of the app properties, select **Authentication**.
     2. Under Platform configurations, select **Add a platform**.
@@ -28,7 +31,12 @@ This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/mic
         ```
         (Note - do not use `https` here, this is for local redirect and TLS won't work here.)
     5. Select Configure.
-4. In order to support public client auth modes enable the **"Allow public client flows"** setting, in the bottom of the Authentication Blade, 
+
+    ![Web platform configuration](web-platform-config.png)
+
+4. In order to support public client auth modes enable the **"Allow public client flows"** setting, in the bottom of the Authentication Blade.
+
+    ![Public Client Flows](public-client-flows.png)
 
 ### Arguments to the CLI
 You always need to pass at least these three arguments in order to authenticate as something (client id), to something (resource ID), within some AAD tenant. These IDs can be found in the Azure Portal on the Overview of each application/resource/tenant in the AAD section. 

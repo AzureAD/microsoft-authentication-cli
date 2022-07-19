@@ -5,9 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.4.0] - 2022-06-23
 ### Added
-- Environment variable `AZUREAUTH_CACHE_FILE` and option `--cache` to support a custom cache location on Windows.
-- Added Integrated Windows Authentication functionality as one of the auth flows.
+- Environment variable `AZUREAUTH_CACHE` and option `--cache` to support a custom cache location on Windows.
+- Added Integrated Windows Authentication (IWA) functionality as the new default auth flow on Windows.
+- Send custom telemetry events for each AuthFlow.
+- The installation scripts will refuse to update the user's `$PATH` or shell profiles when given the `-NoUpdatePath`
+  flag (on Windows) or if the `$AZUREAUTH_NO_UPDATE_PATH` environment variable is set (on Unix platforms).
+
+### Changed
+- The installation scripts no longer create a `latest` symlink/junction.
 
 ## [0.3.1] - 2022-06-07
 ### Fixed
@@ -50,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.3.1...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.3.1...0.4.0
 [0.3.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.3.0...0.3.1
 [v0.3.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/v0.1.0...v0.2.0

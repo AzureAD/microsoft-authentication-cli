@@ -8,6 +8,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.IO;
     using System.Linq;
     using FluentAssertions;
+    using Microsoft.Authentication.MSALWrapper;
     using NUnit.Framework;
 
     internal class ExceptionExtensionsTest

@@ -82,7 +82,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
                             this.errors)
                             .ConfigureAwait(false);
-                        tokenResult.SetAuthenticationType(AuthType.Silent);
+                        tokenResult.SetSilent();
 
                         return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                     }
@@ -99,7 +99,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
                             this.errors)
                             .ConfigureAwait(false);
-                        tokenResult.SetAuthenticationType(AuthType.Interactive);
 
                         return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                     }
@@ -117,7 +116,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
                         this.errors)
                         .ConfigureAwait(false);
-                    tokenResult.SetAuthenticationType(AuthType.Interactive);
 
                     return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                 }

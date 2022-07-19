@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -47,7 +48,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 var authFlowName = authFlow.GetType().Name;
                 this.logger.LogDebug($"Starting {authFlowName}...");
 
+                Stopwatch watch = Stopwatch.StartNew();
                 var attempt = await authFlow.GetTokenAsync();
+                watch.Stop();
 
                 if (attempt == null)
                 {
@@ -58,6 +61,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     attempt.Errors.Add(new NullTokenResultException(oopsMessage));
                 }
 
+                attempt.Duration = watch.Elapsed;
                 resultList.Add(attempt);
 
                 if (attempt.Success)

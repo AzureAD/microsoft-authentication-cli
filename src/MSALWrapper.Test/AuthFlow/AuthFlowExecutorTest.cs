@@ -9,6 +9,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
+    using FluentAssertions.Equivalency;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.MSALWrapper.Test;
@@ -52,7 +53,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .BuildServiceProvider();
 
             // Mock successful token result
-            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
+            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
         [Test]
@@ -194,10 +195,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             authFlow1.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult);
+            resultList[0].Should().BeEquivalentTo(authFlowResult, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -296,11 +297,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow1.VerifyAll();
             authFlow2.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -339,11 +340,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow1.VerifyAll();
             authFlow2.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -382,11 +383,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow1.VerifyAll();
             authFlow2.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -519,12 +520,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow2.VerifyAll();
             authFlow3.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2);
-            resultList[2].Should().BeEquivalentTo(authFlowResult3);
+            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -573,12 +574,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow2.VerifyAll();
             authFlow3.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2);
-            resultList[2].Should().BeEquivalentTo(authFlowResult3);
+            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -627,12 +628,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow2.VerifyAll();
             authFlow3.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2);
-            resultList[2].Should().BeEquivalentTo(authFlowResult3);
+            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -682,12 +683,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow2.VerifyAll();
             authFlow3.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2);
-            resultList[2].Should().BeEquivalentTo(authFlowResult3);
+            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
+            resultList[2].Should().BeEquivalentTo(authFlowResult3, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -734,11 +735,17 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow1.VerifyAll();
             authFlow2.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Should().BeEquivalentTo(authFlowResultList);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
 
             // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2);
+            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
+        }
+
+        private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
+        {
+            options.Excluding(result => result.Duration);
+            return options;
         }
 
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)

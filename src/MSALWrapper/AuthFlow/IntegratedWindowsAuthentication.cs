@@ -69,7 +69,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
                             this.errors)
                             .ConfigureAwait(false);
-                        tokenResult.SetAuthenticationType(AuthType.Silent);
+                        tokenResult.SetSilent();
 
                         return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                     }
@@ -106,7 +106,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                                     (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
                                     this.errors)
                                     .ConfigureAwait(false);
-                    tokenResult.SetAuthenticationType(AuthType.IntegratedWindowsAuthenticationFlow);
+                    tokenResult.SetSilent();
 
                     return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                 }

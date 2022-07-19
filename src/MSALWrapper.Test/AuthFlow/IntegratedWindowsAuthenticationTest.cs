@@ -73,7 +73,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .BuildServiceProvider();
 
             // Mock successful token result
-            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
+            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
         public AuthFlow.IntegratedWindowsAuthentication Subject() => this.serviceProvider.GetService<AuthFlow.IntegratedWindowsAuthentication>();
@@ -92,7 +92,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Silent);
+            authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }
@@ -245,7 +245,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.IntegratedWindowsAuthenticationFlow);
+            authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }

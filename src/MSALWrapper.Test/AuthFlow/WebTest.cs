@@ -74,7 +74,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .BuildServiceProvider();
 
             // Mock successful token result
-            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken));
+            this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
         public AuthFlow.Web Subject() => this.serviceProvider.GetService<AuthFlow.Web>();
@@ -93,7 +93,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Silent);
+            authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("Web");
         }
@@ -112,7 +112,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Interactive);
+            authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.AuthFlowName.Should().Be("Web");
         }
@@ -150,7 +150,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Interactive);
+            authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.AuthFlowName.Should().Be("Web");
@@ -291,7 +291,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
-            authFlowResult.TokenResult.AuthType.Should().Be(AuthType.Interactive);
+            authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
             authFlowResult.AuthFlowName.Should().Be("Web");

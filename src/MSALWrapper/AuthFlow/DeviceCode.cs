@@ -88,7 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             cancellationToken),
                         this.errors)
                         .ConfigureAwait(false);
-                    tokenResult.SetAuthenticationType(AuthType.Silent);
+                    tokenResult.SetSilent();
 
                     return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                 }
@@ -106,7 +106,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         cancellationToken),
                         this.errors)
                         .ConfigureAwait(false);
-                    tokenResult.SetAuthenticationType(AuthType.DeviceCodeFlow);
 
                     return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
                 }
