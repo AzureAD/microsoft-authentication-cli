@@ -317,10 +317,10 @@ Allowed values: [all, web, devicecode]";
         /// <returns>A boolean to indicate user interactive env</returns>
         public bool IsAUserInteractiveEnv()
         {
-            var disableUserAuthModesEnvVal = this.env.Get(EnvVars.DisableUserBasedAuthentication);
+            var disableUserAuthEnvVal = this.env.Get(EnvVars.DisableUserBasedAuthentication);
             var corextNonInteractiveEnvVal = this.env.Get(EnvVars.CorextNonInteractive);
 
-            if (!string.IsNullOrEmpty(disableUserAuthModesEnvVal) ||
+            if (!string.IsNullOrEmpty(disableUserAuthEnvVal) ||
                string.Equals("1", corextNonInteractiveEnvVal, StringComparison.OrdinalIgnoreCase) ||
                string.Equals("true", corextNonInteractiveEnvVal, StringComparison.OrdinalIgnoreCase))
             {
