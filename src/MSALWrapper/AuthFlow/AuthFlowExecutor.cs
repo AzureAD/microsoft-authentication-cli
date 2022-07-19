@@ -18,6 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     {
         private readonly IEnumerable<IAuthFlow> authflows;
         private readonly ILogger logger;
+        private readonly ITimeoutManager timeoutManager;
 
         #region Public configurable properties
 
@@ -29,7 +30,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// Amount of time we should wait before we start warning about the timeout.
         /// </summary>
-        private TimeSpan timeToWaitBeforeWarning = TimeSpan.FromMinutes(1);
+        private TimeSpan timeToWaitBeforeWarning = TimeSpan.FromSeconds(15);
         #endregion
 
         /// <summary>
@@ -37,10 +38,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="authFlows">The list of auth flows.</param>
-        public AuthFlowExecutor(ILogger logger, IEnumerable<IAuthFlow> authFlows)
+        /// <param name="timeoutManager">The timeout manager.</param>
+        public AuthFlowExecutor(ILogger logger, IEnumerable<IAuthFlow> authFlows, ITimeoutManager timeoutManager)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.authflows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
+            this.timeoutManager = timeoutManager ?? throw new ArgumentNullException(nameof(timeoutManager));
         }
 
         /// <summary>
@@ -49,6 +52,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task<IEnumerable<AuthFlowResult>> GetTokenAsync()
         {
+            this.timeoutManager.StartTimer();
             var resultList = new List<AuthFlowResult>();
 
             if (this.authflows.Count() == 0)
@@ -61,7 +65,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 var authFlowName = authFlow.GetType().Name;
                 this.logger.LogDebug($"Starting {authFlowName}...");
                 Stopwatch watch = Stopwatch.StartNew();
-                var attempt = await this.GetTokenAndPoll(authFlow);
+                var attempt = await this.GetTokenAndPollAsync(authFlow);
                 watch.Stop();
 
                 if (attempt == null)
@@ -97,21 +101,21 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// </summary>
         /// <param name="authFlow">Auth Flow that we are executing.</param>
         /// <returns>AuthFlowResult containing Error if CLI times out; else actual result of the AuthFlow.</returns>
-        private async Task<AuthFlowResult> GetTokenAndPoll(IAuthFlow authFlow)
+        private async Task<AuthFlowResult> GetTokenAndPollAsync(IAuthFlow authFlow)
         {
             var flowResult = Task.Run(() => authFlow.GetTokenAsync());
             var authFlowName = authFlow.GetType().Name;
             while (!flowResult.IsCompleted)
             {
-                if (GlobalTimeoutManager.GetElapsedTime() >= this.timeToWaitBeforeWarning)
+                if (this.timeoutManager.GetElapsedTime() >= this.timeToWaitBeforeWarning)
                 {
                     this.logger.LogWarning($"Waiting for {authFlowName} authentication." +
-                        $"Timeout in {GlobalTimeoutManager.GetRemainingTime():hh\\:mm\\:ss}");
+                        $"Timeout in {this.timeoutManager.GetRemainingTime():hh\\:mm\\:ss}");
                 }
 
-                if (GlobalTimeoutManager.HasTimedout())
+                if (this.timeoutManager.HasTimedout())
                 {
-                    GlobalTimeoutManager.StopTimer();
+                    this.timeoutManager.StopTimer();
                     this.logger.LogWarning("AzureAuth has timed out!");
                     AuthFlowResult timeoutResult = new AuthFlowResult(null, null, authFlow.GetType().Name);
                     timeoutResult.Errors.Add(new TimeoutException($"The application has timed out while waiting on {authFlowName}"));
@@ -135,8 +139,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>Time to wait before polling.</returns>
         private TimeSpan DetermineDelayPeriod()
         {
-            return GlobalTimeoutManager.GetRemainingTime() < this.delayPeriodForPolling ?
-                GlobalTimeoutManager.GetRemainingTime() : this.delayPeriodForPolling;
+            if (this.timeoutManager.GetElapsedTime() < this.timeToWaitBeforeWarning)
+            {
+                return this.timeToWaitBeforeWarning;
+            }
+            else
+            {
+                return this.timeoutManager.GetRemainingTime() < this.delayPeriodForPolling ?
+                this.timeoutManager.GetRemainingTime() : this.delayPeriodForPolling;
+            }
         }
     }
 }

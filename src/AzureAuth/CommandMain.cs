@@ -338,8 +338,6 @@ Allowed values: [all, web, devicecode]";
         /// </returns>
         public int OnExecute()
         {
-            GlobalTimeoutManager.SetTimeout(TimeSpan.FromSeconds(this.Timeout));
-            GlobalTimeoutManager.StartTimer();
             if (!this.EvaluateOptions())
             {
                 this.eventData.Add("validargs", false);
@@ -531,10 +529,15 @@ Allowed values: [all, web, devicecode]";
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
 
-                this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows);
+                this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.BuildGlobalTimeoutManager());
             }
 
             return this.authFlowExecutor;
+        }
+
+        private ITimeoutManager BuildGlobalTimeoutManager()
+        {
+            return new GlobalTimeoutManager(TimeSpan.FromSeconds(this.Timeout));
         }
     }
 }

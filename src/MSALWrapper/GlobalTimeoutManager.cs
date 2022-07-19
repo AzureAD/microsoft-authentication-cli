@@ -9,69 +9,62 @@ namespace Microsoft.Authentication.MSALWrapper
     /// <summary>
     /// Manages global timer for the CLI.
     /// </summary>
-    public static class GlobalTimeoutManager
+    public class GlobalTimeoutManager : ITimeoutManager
     {
-        private static readonly Stopwatch GlobalTimer = new Stopwatch();
-        private static TimeSpan globalTimeout;
+        private readonly Stopwatch globalTimer;
+        private readonly TimeSpan globalTimeout;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlobalTimeoutManager"/> class.
+        /// </summary>
+        /// <param name="timeout"> Timeout period.</param>
+        public GlobalTimeoutManager(TimeSpan timeout)
+        {
+            this.globalTimer = new Stopwatch();
+            this.globalTimeout = timeout;
+        }
 
         /// <summary>
         /// Get Elapsed Time for global timer.
         /// </summary>
         /// <returns> Elapsed Timespan.</returns>
-        public static TimeSpan GetElapsedTime()
+        public TimeSpan GetElapsedTime()
         {
-            return GlobalTimer.Elapsed;
+            return this.globalTimer.Elapsed;
         }
 
         /// <summary>
-        /// Get number of seconds remaining before CLI times out.
+        /// Get number of time remaining before CLI times out.
         /// </summary>
         /// <returns>Remaining Time for global timeout.</returns>
-        public static TimeSpan GetRemainingTime()
+        public TimeSpan GetRemainingTime()
         {
-            return globalTimeout.Subtract(GetElapsedTime());
+            return this.globalTimeout.Subtract(this.globalTimer.Elapsed);
         }
 
         /// <summary>
-        /// Check if CLI has timedout.
+        /// Check if the timer has timed out.
         /// </summary>
         /// <returns>True if CLI has timedout.</returns>
-        public static bool HasTimedout()
+        public bool HasTimedout()
         {
-            return globalTimeout <= GetElapsedTime();
-        }
-
-        /// <summary>
-        ///  Set the global timeout.
-        /// </summary>
-        /// <param name="timeout"> Timeout period.</param>
-        public static void SetTimeout(TimeSpan timeout)
-        {
-            globalTimeout = timeout;
+            return this.globalTimeout <= this.globalTimer.Elapsed;
         }
 
         /// <summary>
         /// Starts the global timer.
         /// </summary>
-        public static void StartTimer()
+        public void StartTimer()
         {
-            GlobalTimer.Start();
+            this.globalTimer.Start();
         }
 
         /// <summary>
-        /// Stops the globat timer.
+        /// Stops the global timer.
         /// </summary>
-        public static void StopTimer()
+        public void StopTimer()
         {
-            GlobalTimer.Stop();
-        }
-
-        /// <summary>
-        /// Reset the timer.
-        /// </summary>
-        public static void ResetTimer()
-        {
-            GlobalTimer.Reset();
+            this.globalTimer.Stop();
         }
     }
 }

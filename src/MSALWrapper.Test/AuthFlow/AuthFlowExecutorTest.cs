@@ -30,6 +30,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private MemoryTarget logTarget;
         private TokenResult tokenResult;
         private IEnumerable<IAuthFlow> authFlows;
+        private ITimeoutManager timeoutManager;
 
         [SetUp]
         public void Setup()
@@ -54,14 +55,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
-
-            GlobalTimeoutManager.SetTimeout(TimeSpan.FromSeconds(Constants.GlobalTimeout));
+            this.timeoutManager = new GlobalTimeoutManager(TimeSpan.FromSeconds(60));
         }
 
         [Test]
-        public void ConstructorWith_BothNullArgs()
+        public void ConstructorWith_AllNullArgs()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, null);
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, null, null);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -70,7 +70,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWith_Null_Logger()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows);
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows, this.timeoutManager);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -80,7 +80,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Null_AuthFlows()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null);
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, this.timeoutManager);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -90,7 +90,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Valid_Arguments()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows);
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows, this.timeoutManager);
 
             // Assert
             authFlowExecutor.Should().NotThrow<ArgumentNullException>();
@@ -178,7 +178,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task SingleAuthFlow_Returns_Null_AuthFlowResult()
         {
-            GlobalTimeoutManager.StartTimer();
+            this.timeoutManager.StartTimer();
             var errors1 = new[]
             {
                 new NullTokenResultException(NullAuthFlowResultExceptionMessage),
@@ -202,15 +202,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert Order of results.
             resultList[0].Should().BeEquivalentTo(authFlowResult, this.ExcludeDurationTimeSpan);
-
-            GlobalTimeoutManager.StopTimer();
-            GlobalTimeoutManager.ResetTimer();
         }
 
         [Test]
         public async Task HasTwoAuthFlows_Returns_Null_TokenResult()
         {
-            GlobalTimeoutManager.StartTimer();
             var authFlowResult1 = new AuthFlowResult(null, null, "authFlow1");
             var authFlowResult2 = new AuthFlowResult(this.tokenResult, null, "authFlow2");
 
@@ -237,9 +233,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert Order of results.
             resultList[0].Should().BeEquivalentTo(authFlowResult1);
             resultList[1].Should().BeEquivalentTo(authFlowResult2);
-
-            GlobalTimeoutManager.StopTimer();
-            GlobalTimeoutManager.ResetTimer();
         }
 
         [Test]
@@ -705,8 +698,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task HasThreeAuthFlows_Returns_Early_With_TokenResultAndErrors()
         {
-            GlobalTimeoutManager.StartTimer();
-
             var errors1 = new[]
             {
                 new Exception("Exception 1"),
@@ -753,15 +744,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert Order of results.
             resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
             resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-
-            GlobalTimeoutManager.StopTimer();
-            GlobalTimeoutManager.ResetTimer();
         }
 
         [Test]
         public async Task HasMultipleAuthFlows_Returns_Early_With_GlobalTimeoutException()
         {
-            GlobalTimeoutManager.StartTimer();
             var timeoutError = new[]
             {
                 new TimeoutException("Timeout exception"),
@@ -802,38 +789,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert Order of results.
             resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
             resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-
-            GlobalTimeoutManager.StopTimer();
-            GlobalTimeoutManager.ResetTimer();
-        }
-
-        [Test]
-        public async Task GlobalTimeout_Design_Test()
-        {
-            GlobalTimeoutManager.SetTimeout(TimeSpan.FromSeconds(0));
-            GlobalTimeoutManager.StartTimer();
-            var timeoutError = new[]
-            {
-                new TimeoutException("The application has timed out while waiting on IAuthFlowProxy"),
-            };
-
-            var authFlowResult = new AuthFlowResult(this.tokenResult, null, "authFlow");
-            var timeoutResult = new AuthFlowResult(null, timeoutError, "IAuthFlowProxy");
-
-            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Default);
-            authFlow1.Setup(p => p.GetTokenAsync()).Callback(() => Thread.Sleep(TimeSpan.FromSeconds(1))).ReturnsAsync(authFlowResult);
-
-            // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-            var result = await authFlowExecutor.GetTokenAsync();
-            var resultList = result.ToList();
-
-            // Assert
-            resultList[0].Should().BeEquivalentTo(timeoutResult, this.ExcludeDurationTimeSpan);
-            authFlow1.VerifyAll();
-            Assert.IsTrue(resultList[0].Errors.OfType<TimeoutException>().Any());
-            GlobalTimeoutManager.StopTimer();
-            GlobalTimeoutManager.ResetTimer();
         }
 
         private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
@@ -845,7 +800,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            return new AuthFlowExecutor(logger, authFlows);
+            return new AuthFlowExecutor(logger, authFlows, this.timeoutManager);
         }
     }
 }
