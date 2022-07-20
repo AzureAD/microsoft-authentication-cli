@@ -350,7 +350,7 @@ Allowed values: [all, web, devicecode]";
             if (this.UserAuthDisabled())
             {
                 this.eventData.Add("no_user", true);
-                this.logger.LogCritical($"Skipping user based authentication as specified by the environment variables");
+                this.logger.LogCritical($"User based authentication is disabled");
                 return 1;
             }
 
