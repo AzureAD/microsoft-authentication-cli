@@ -809,7 +809,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             globalTimeoutManager.Setup(p => p.StopTimer()).Verifiable();
 
             var authFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
-            authFlow.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+            authFlow.Setup(p => p.GetTokenAsync()).Callback(async () => await Task.Delay(TimeSpan.FromSeconds(2))).ReturnsAsync(authFlowResult1);
 
             var authFlowResultList = new List<AuthFlowResult>();
             authFlowResultList.Add(authFlowResult1);
