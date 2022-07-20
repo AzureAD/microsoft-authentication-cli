@@ -125,7 +125,7 @@ Allowed values: [all, web, devicecode]";
         /// Gets or sets global Timeout.
         /// </summary>
         [Option(TimeoutOption, "Number of seconds for which the CLI should run", CommandOptionType.SingleValue)]
-        public float Timeout { get; set; } = Constants.GlobalTimeout;
+        public double Timeout { get; set; } = Constants.GlobalTimeout.TotalSeconds;
 
         /// <summary>
         /// Gets or sets the scopes.

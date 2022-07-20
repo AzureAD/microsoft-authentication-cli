@@ -4,9 +4,6 @@
 namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Text;
 
     /// <summary>
     /// Timeout manager interface.

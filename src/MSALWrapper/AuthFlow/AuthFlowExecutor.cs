@@ -25,12 +25,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The time we want to wait before polling.
         /// </summary>
-        private TimeSpan delayPeriodForPolling = TimeSpan.FromMinutes(1);
+        private TimeSpan delayPeriodForPolling = TimeSpan.FromSeconds(30);
 
         /// <summary>
         /// Amount of time we should wait before we start warning about the timeout.
         /// </summary>
-        private TimeSpan timeToWaitBeforeWarning = TimeSpan.FromSeconds(15);
+        private TimeSpan timeToWaitBeforeWarning = TimeSpan.FromSeconds(10);
         #endregion
 
         /// <summary>
@@ -109,8 +109,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 if (this.timeoutManager.GetElapsedTime() >= this.timeToWaitBeforeWarning)
                 {
-                    this.logger.LogWarning($"Waiting for {authFlowName} authentication." +
-                        $"Timeout in {this.timeoutManager.GetRemainingTime():hh\\:mm\\:ss}");
+                    this.logger.LogWarning($"Waiting for {authFlowName} authentication. Please look for an interactive auth prompt.");
+                    this.logger.LogWarning($"Timeout in {this.timeoutManager.GetRemainingTime():hh\\:mm\\:ss}");
                 }
 
                 if (this.timeoutManager.HasTimedout())

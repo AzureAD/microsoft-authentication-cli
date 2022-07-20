@@ -21,9 +21,9 @@ namespace Microsoft.Authentication.MSALWrapper
         public static readonly Uri AadOAuthRedirectUri = new Uri("urn:ietf:wg:oauth:2.0:oob");
 
         /// <summary>
-        /// Number of seconds for which the CLI should run.
+        /// Number of minutes for which the CLI should run.
         /// </summary>
-        public static readonly float GlobalTimeout = 600;
+        public static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(10);
 
         // local host loopback Uri for web auth flow.
 
