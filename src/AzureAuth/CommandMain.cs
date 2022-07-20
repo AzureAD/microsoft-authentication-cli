@@ -347,7 +347,7 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            if (this.UserAuthDisabled())
+            if (this.PCADisabled())
             {
                 this.eventData.Add("no_user", true);
                 this.logger.LogCritical($"User based authentication is disabled");
@@ -358,15 +358,13 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
-        /// Determines whether the given env is user interactive or not.
+        /// Determines whether Public Client Authentication (PCA) is disabled or not.
         /// </summary>
-        /// <returns>A boolean to indicate user interactive env</returns>
-        public bool UserAuthDisabled()
+        /// <returns>A boolean to indicate PCA is disabled.</returns>
+        public bool PCADisabled()
         {
-            var disableUserAuth = this.env.Get(EnvVars.DisableUserAuth);
-            var corextNonInteractive = this.env.Get(EnvVars.CorextNonInteractive);
-
-            return !string.IsNullOrEmpty(disableUserAuth) || string.Equals("1", corextNonInteractive);
+            return !string.IsNullOrEmpty(this.env.Get(EnvVars.NoUser)) ||
+                string.Equals("1", this.env.Get(EnvVars.CorextNonInteractive));
         }
 
         private bool ValidateOptions()

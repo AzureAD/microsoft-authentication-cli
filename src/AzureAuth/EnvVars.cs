@@ -24,9 +24,9 @@ namespace Microsoft.Authentication.AzureAuth
         public static readonly string Cache = $"{EnvVarPrefix}_CACHE";
 
         /// <summary>
-        /// Name of the env var used to disable user based authentication modes (Public Client Authentication).
+        /// Name of the env var used to disable Public Client Authentication.
         /// </summary>
-        public static readonly string DisableUserAuth = $"{EnvVarPrefix}_NO_USER";
+        public static readonly string NoUser = $"{EnvVarPrefix}_NO_USER";
 
         /// <summary>
         /// Name of the env var used to disable user based authentication modes. NOTE: This is a private variable and it is recommended to not rely on this variable.

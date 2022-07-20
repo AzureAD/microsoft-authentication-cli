@@ -645,45 +645,45 @@ invalid_key = ""this is not a valid alias key""
         }
 
         [Test]
-        public void UserAuthIsDisabledIfCorextIsSetToOne()
+        public void PCA_IsDisabledIfCorextIsSetToOne()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("1");
-            subject.UserAuthDisabled().Should().BeTrue();
+            subject.PCADisabled().Should().BeTrue();
         }
 
         [Test]
-        public void UserAuthIsNotDisabledIfCorextIsNotSetToOneOrTrue()
+        public void PCA_IsEnabledIfCorextIsNotSetToOneOrTrue()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("random-value");
-            subject.UserAuthDisabled().Should().BeFalse();
+            subject.PCADisabled().Should().BeFalse();
         }
 
         [Test]
-        public void UserAuthIsDisabledIfEnvVarIsSetToNonEmpty()
+        public void PCA_IsDisabledIfNoUserIsSetToNonEmpty()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns("1");
-            subject.UserAuthDisabled().Should().BeTrue();
+            subject.PCADisabled().Should().BeTrue();
 
             this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns("non-empty-string");
-            subject.UserAuthDisabled().Should().BeTrue();
+            subject.PCADisabled().Should().BeTrue();
         }
 
         [Test]
-        public void UserAuthIsNotDisabledIfEnvVarIsSetToEmpty()
+        public void PCA_IsEnabledIfNoUserIsSetToEmpty()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(string.Empty);
-            subject.UserAuthDisabled().Should().BeFalse();
+            subject.PCADisabled().Should().BeFalse();
         }
 
         [Test]
-        public void UserAuthIsNotDisabledIfEnvVarsAreNotSet()
+        public void PCA_IsEnabledIfEnvVarsAreNotSet()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.UserAuthDisabled().Should().BeFalse();
+            subject.PCADisabled().Should().BeFalse();
         }
 
         /// <summary>
