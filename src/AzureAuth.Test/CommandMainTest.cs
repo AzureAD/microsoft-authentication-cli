@@ -648,23 +648,6 @@ invalid_key = ""this is not a valid alias key""
         /// Test to validate user interactive env.
         /// </summary>
         [Test]
-        public void InteractivityIsNotDisabledIfCorextIsSetToTrue()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("True");
-            subject.InteractivityDisabled().Should().BeTrue();
-
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("TRUE");
-            subject.InteractivityDisabled().Should().BeTrue();
-
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("true");
-            subject.InteractivityDisabled().Should().BeTrue();
-        }
-
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
-        [Test]
         public void InteractivityIsNotDisabledIfCorextIsSetToOne()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();

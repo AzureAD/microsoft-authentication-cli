@@ -367,8 +367,7 @@ Allowed values: [all, web, devicecode]";
             var corextNonInteractive = this.env.Get(EnvVars.CorextNonInteractive);
 
             if (!string.IsNullOrEmpty(disableInteractivity) ||
-                string.Equals("1", corextNonInteractive) ||
-                string.Equals("true", corextNonInteractive, StringComparison.OrdinalIgnoreCase))
+                string.Equals("1", corextNonInteractive))
             {
                 return true;
             }
