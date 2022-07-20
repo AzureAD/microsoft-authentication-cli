@@ -820,7 +820,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var resultList = result.ToList();
 
             // Assert
-            authFlow.VerifyAll();
             globalTimeoutManager.VerifyAll();
             resultList.Should().NotBeNull();
             resultList.Count.Should().Be(1);
