@@ -645,38 +645,27 @@ invalid_key = ""this is not a valid alias key""
         }
 
         [Test]
-        public void PCA_IsDisabledIfCorextIsSetToOne()
+        [TestCase("1", true)]
+        [TestCase("non-empty-string", false)]
+        [TestCase("true", false)]
+        [TestCase("", false)]
+        public void TestPCA_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("1");
-            subject.PCADisabled().Should().BeTrue();
+            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
+            subject.PCADisabled().Should().Be(expected);
         }
 
         [Test]
-        public void PCA_IsEnabledIfCorextIsNotSetToOneOrTrue()
+        [TestCase("1", true)]
+        [TestCase("non-empty-string", true)]
+        [TestCase("true", true)]
+        [TestCase("", false)]
+        public void TestPCA_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns("random-value");
-            subject.PCADisabled().Should().BeFalse();
-        }
-
-        [Test]
-        public void PCA_IsDisabledIfNoUserIsSetToNonEmpty()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns("1");
-            subject.PCADisabled().Should().BeTrue();
-
-            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns("non-empty-string");
-            subject.PCADisabled().Should().BeTrue();
-        }
-
-        [Test]
-        public void PCA_IsEnabledIfNoUserIsSetToEmpty()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(string.Empty);
-            subject.PCADisabled().Should().BeFalse();
+            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
+            subject.PCADisabled().Should().Be(expected);
         }
 
         [Test]
