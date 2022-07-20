@@ -347,10 +347,10 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            if (this.InteractivityDisabled())
+            if (this.UserAuthDisabled())
             {
-                this.eventData.Add("interactivity_disabled", true);
-                this.logger.LogCritical($"Skipping user based authentication as specified by the environment variable : {EnvVars.DisableInteractivity}.");
+                this.eventData.Add("no_user", true);
+                this.logger.LogCritical($"Skipping user based authentication as specified by the environment variables");
                 return 1;
             }
 
@@ -361,12 +361,12 @@ Allowed values: [all, web, devicecode]";
         /// Determines whether the given env is user interactive or not.
         /// </summary>
         /// <returns>A boolean to indicate user interactive env</returns>
-        public bool InteractivityDisabled()
+        public bool UserAuthDisabled()
         {
-            var disableInteractivity = this.env.Get(EnvVars.DisableInteractivity);
+            var disableUserAuth = this.env.Get(EnvVars.DisableUserAuth);
             var corextNonInteractive = this.env.Get(EnvVars.CorextNonInteractive);
 
-            if (!string.IsNullOrEmpty(disableInteractivity) ||
+            if (!string.IsNullOrEmpty(disableUserAuth) ||
                 string.Equals("1", corextNonInteractive))
             {
                 return true;
