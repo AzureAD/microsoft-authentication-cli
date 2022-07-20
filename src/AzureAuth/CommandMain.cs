@@ -349,7 +349,8 @@ Allowed values: [all, web, devicecode]";
 
             if (this.InteractivityDisabled())
             {
-                this.logger.LogCritical($"Skipping used based authentication as specified by the env variable : {EnvVars.DisableInteractivity}.");
+                this.logger.LogCritical($"Skipping user based authentication as specified by the environment variable : {EnvVars.DisableInteractivity}.");
+
                 return 1;
             }
 
