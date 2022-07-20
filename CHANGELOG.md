@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Provided functionality to disable user based authentication using an environment variable `AZUREAUTH_NO_USER`.
+- Provided functionality to disable Public Client Authentication using an environment variable `AZUREAUTH_NO_USER`.
 
 ## [0.4.0] - 2022-06-23
 ### Added
