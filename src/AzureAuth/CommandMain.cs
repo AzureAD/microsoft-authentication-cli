@@ -363,8 +363,11 @@ Allowed values: [all, web, devicecode]";
         public bool InteractivityDisabled()
         {
             var disableInteractivity = this.env.Get(EnvVars.DisableInteractivity);
+            var corextNonInteractive = this.env.Get(EnvVars.CorextNonInteractive);
 
-            if (!string.IsNullOrEmpty(disableInteractivity))
+            if (!string.IsNullOrEmpty(disableInteractivity) ||
+                string.Equals("1", corextNonInteractive) ||
+                string.Equals("true", corextNonInteractive, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
