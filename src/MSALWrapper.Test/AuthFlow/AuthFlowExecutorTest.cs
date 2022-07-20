@@ -791,41 +791,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
         }
 
-        [Test]
-        public async Task GlobalTimeout_Design_Kills_Current_AuthFlow()
-        {
-            var timeoutError = new[]
-            {
-                new TimeoutException("The application has timed out while waiting on IAuthFlowProxy"),
-            };
-
-            var authFlowResult1 = new AuthFlowResult(null, timeoutError, "IAuthFlowProxy");
-            var authFlowResult2 = new AuthFlowResult(this.tokenResult, null, "authFlow");
-
-            var globalTimeoutManager = new Mock<ITimeoutManager>(MockBehavior.Strict);
-            globalTimeoutManager.Setup(p => p.HasTimedout()).Returns(true);
-            globalTimeoutManager.Setup(p => p.GetElapsedTime()).Returns(TimeSpan.FromSeconds(2));
-            globalTimeoutManager.Setup(p => p.StartTimer()).Verifiable();
-            globalTimeoutManager.Setup(p => p.StopTimer()).Verifiable();
-
-            var authFlow = new Mock<IAuthFlow>();
-            authFlow.Setup(p => p.GetTokenAsync()).Callback(async () => await Task.Delay(TimeSpan.FromSeconds(2))).ReturnsAsync(authFlowResult1);
-
-            var authFlowResultList = new List<AuthFlowResult>();
-            authFlowResultList.Add(authFlowResult1);
-
-            // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow.Object }, globalTimeoutManager.Object);
-            var result = await authFlowExecutor.GetTokenAsync();
-            var resultList = result.ToList();
-
-            // Assert
-            globalTimeoutManager.VerifyAll();
-            resultList.Should().NotBeNull();
-            resultList.Count.Should().Be(1);
-            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-        }
-
         private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
         {
             options.Excluding(result => result.Duration);
