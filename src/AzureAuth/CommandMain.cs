@@ -366,13 +366,7 @@ Allowed values: [all, web, devicecode]";
             var disableUserAuth = this.env.Get(EnvVars.DisableUserAuth);
             var corextNonInteractive = this.env.Get(EnvVars.CorextNonInteractive);
 
-            if (!string.IsNullOrEmpty(disableUserAuth) ||
-                string.Equals("1", corextNonInteractive))
-            {
-                return true;
-            }
-
-            return false;
+            return !string.IsNullOrEmpty(disableUserAuth) || string.Equals("1", corextNonInteractive);
         }
 
         private bool ValidateOptions()
