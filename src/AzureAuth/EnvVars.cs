@@ -29,9 +29,9 @@ namespace Microsoft.Authentication.AzureAuth
         public static readonly string DisableInteractivity = $"{EnvVarPrefix}_DISABLE_INTERACTIVITY";
 
         /// <summary>
-        /// Name of the env var used to disable user based authentication modes. This serves the same purpose as the env variable `DisableUserAuthModes`.
+        /// Name of the env var used to disable user based authentication modes. NOTE: This is a private variable and it is recommended to not rely on this variable.
         /// </summary>
-        public static readonly string CorextNonInteractive = $"Corext_NonInteractive";
+        internal static readonly string CorextNonInteractive = $"Corext_NonInteractive";
 
         private const string EnvVarPrefix = "AZUREAUTH";
     }
