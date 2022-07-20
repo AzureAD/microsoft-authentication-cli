@@ -644,9 +644,6 @@ invalid_key = ""this is not a valid alias key""
             eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
         [Test]
         public void UserAuthIsDisabledIfCorextIsSetToOne()
         {
@@ -655,9 +652,6 @@ invalid_key = ""this is not a valid alias key""
             subject.UserAuthDisabled().Should().BeTrue();
         }
 
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
         [Test]
         public void UserAuthIsNotDisabledIfCorextIsNotSetToOneOrTrue()
         {
@@ -666,9 +660,6 @@ invalid_key = ""this is not a valid alias key""
             subject.UserAuthDisabled().Should().BeFalse();
         }
 
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
         [Test]
         public void UserAuthIsDisabledIfEnvVarIsSetToNonEmpty()
         {
@@ -680,9 +671,6 @@ invalid_key = ""this is not a valid alias key""
             subject.UserAuthDisabled().Should().BeTrue();
         }
 
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
         [Test]
         public void UserAuthIsNotDisabledIfEnvVarIsSetToEmpty()
         {
@@ -691,9 +679,6 @@ invalid_key = ""this is not a valid alias key""
             subject.UserAuthDisabled().Should().BeFalse();
         }
 
-        /// <summary>
-        /// Test to validate user interactive env.
-        /// </summary>
         [Test]
         public void UserAuthIsNotDisabledIfEnvVarsAreNotSet()
         {
