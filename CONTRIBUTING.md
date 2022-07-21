@@ -24,10 +24,11 @@ or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any addi
 ## Git
 
 ### Conventions
-TODO
+* Guidelines for writing a  commit message : [How to write a commit message](https://cbea.ms/git-commit/#seven-rules)
+* For branch naming, some of us choose to be consistent with ```"user/name/..."``` to be consistent across other internal repos, but it is not mandatory.
 
 ### Branching Workflow
-TODO
+* Our workflow generally consists of using [topic branches](https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows#_topic_branch).
 
 # Development Setup
 
