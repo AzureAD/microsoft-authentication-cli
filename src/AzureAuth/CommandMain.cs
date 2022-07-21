@@ -347,7 +347,24 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
+            if (this.PCADisabled())
+            {
+                this.eventData.Add("no_user", true);
+                this.logger.LogCritical($"User based authentication is disabled");
+                return 1;
+            }
+
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
+        }
+
+        /// <summary>
+        /// Determines whether Public Client Authentication (PCA) is disabled or not.
+        /// </summary>
+        /// <returns>A boolean to indicate PCA is disabled.</returns>
+        public bool PCADisabled()
+        {
+            return !string.IsNullOrEmpty(this.env.Get(EnvVars.NoUser)) ||
+                string.Equals("1", this.env.Get(EnvVars.CorextNonInteractive));
         }
 
         private bool ValidateOptions()

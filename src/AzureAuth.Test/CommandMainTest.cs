@@ -644,6 +644,35 @@ invalid_key = ""this is not a valid alias key""
             eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
+        [TestCase("1", true)]
+        [TestCase("non-empty-string", false)]
+        [TestCase("true", false)]
+        [TestCase("", false)]
+        public void TestPCA_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
+            subject.PCADisabled().Should().Be(expected);
+        }
+
+        [TestCase("1", true)]
+        [TestCase("non-empty-string", true)]
+        [TestCase("true", true)]
+        [TestCase("", false)]
+        public void TestPCA_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
+            subject.PCADisabled().Should().Be(expected);
+        }
+
+        [Test]
+        public void PCA_IsEnabledIfEnvVarsAreNotSet()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.PCADisabled().Should().BeFalse();
+        }
+
         /// <summary>
         /// The root path.
         /// </summary>
