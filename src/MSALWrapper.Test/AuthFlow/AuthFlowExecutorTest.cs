@@ -55,7 +55,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
-            this.timeoutManager = new GlobalTimeoutManager(TimeSpan.FromSeconds(60));
+            this.timeoutManager = new TimeoutManager(TimeSpan.FromSeconds(60));
         }
 
         [Test]
@@ -746,7 +746,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task HasMultipleAuthFlows_Returns_Early_With_GlobalTimeoutException()
+        public async Task HasMultipleAuthFlows_Returns_Early_With_TimeoutException()
         {
             var timeoutError = new[]
             {

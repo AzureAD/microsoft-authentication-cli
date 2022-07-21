@@ -20,18 +20,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly ILogger logger;
         private readonly ITimeoutManager timeoutManager;
 
-        #region Public configurable properties
-
-        /// <summary>
-        /// The time we want to wait before polling.
-        /// </summary>
         private TimeSpan delayPeriodForPolling = TimeSpan.FromSeconds(30);
-
-        /// <summary>
-        /// Amount of time we should wait before we start warning about the timeout.
-        /// </summary>
         private TimeSpan timeToWaitBeforeWarning = TimeSpan.FromSeconds(10);
-        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthFlowExecutor"/> class.
@@ -118,7 +108,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.timeoutManager.StopTimer();
                     this.logger.LogWarning("AzureAuth has timed out!");
                     AuthFlowResult timeoutResult = new AuthFlowResult(null, null, authFlow.GetType().Name);
-                    timeoutResult.Errors.Add(new TimeoutException($"The application has timed out while waiting on {authFlowName}"));
+                    timeoutResult.Errors.Add(new TimeoutException($"Global timeout hit during {authFlowName}"));
 
                     // Note that though the task running the auth flow will be killed once we return from this method,
                     // the interactive auth prompt will be killed as we exit the application (possibly due to the way GC works).

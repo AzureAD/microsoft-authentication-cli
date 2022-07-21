@@ -11,7 +11,7 @@ namespace Microsoft.Authentication.MSALWrapper
     public interface ITimeoutManager
     {
         /// <summary>
-        /// Determines if the has timed out.
+        /// Determines if the timer has timed out.
         /// </summary>
         /// <returns>True if timer has timed out.</returns>
         bool HasTimedout();
