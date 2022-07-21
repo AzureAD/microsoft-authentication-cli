@@ -644,7 +644,6 @@ invalid_key = ""this is not a valid alias key""
             eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
-        [Test]
         [TestCase("1", true)]
         [TestCase("non-empty-string", false)]
         [TestCase("true", false)]
@@ -656,7 +655,6 @@ invalid_key = ""this is not a valid alias key""
             subject.PCADisabled().Should().Be(expected);
         }
 
-        [Test]
         [TestCase("1", true)]
         [TestCase("non-empty-string", true)]
         [TestCase("true", true)]
