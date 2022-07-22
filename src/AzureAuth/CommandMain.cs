@@ -51,7 +51,7 @@ Allowed values: [all, web, devicecode]";
 #endif
 
         /// <summary>
-        /// Number of minutes for which the CLI should run.
+        /// The default number of minutes CLI is allowed to run.
         /// </summary>
         private static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(10);
 
@@ -129,8 +129,8 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets global Timeout.
         /// </summary>
-        [Option(TimeoutOption, "Number of seconds for which the CLI should run", CommandOptionType.SingleValue)]
-        public double Timeout { get; set; } = GlobalTimeout.TotalSeconds;
+        [Option(TimeoutOption, "The number of minutes the CLI is allowed to wait before timing out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
+        public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
 
         /// <summary>
         /// Gets or sets the scopes.
@@ -542,7 +542,7 @@ Allowed values: [all, web, devicecode]";
 
         private ITimeoutManager BuildTimeoutManager()
         {
-            return new TimeoutManager(TimeSpan.FromSeconds(this.Timeout));
+            return new TimeoutManager(TimeSpan.FromMinutes(this.Timeout));
         }
     }
 }
