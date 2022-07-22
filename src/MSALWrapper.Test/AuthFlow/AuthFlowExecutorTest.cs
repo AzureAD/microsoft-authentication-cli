@@ -475,8 +475,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert
             authFlow1.VerifyAll();
-
-            // authFlow2.VerifyAll();
+            authFlow2.VerifyAll();
             authFlow3.VerifyAll();
             resultList.Should().NotBeNull();
             resultList.Should().BeEquivalentTo(authFlowResultList);
