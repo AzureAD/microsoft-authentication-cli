@@ -127,12 +127,6 @@ Allowed values: [all, web, devicecode]";
         public string PromptHint { get; set; }
 
         /// <summary>
-        /// Gets or sets global Timeout.
-        /// </summary>
-        [Option(TimeoutOption, "The number of minutes the CLI is allowed to wait before timing out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
-        public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
-
-        /// <summary>
         /// Gets or sets the scopes.
         /// </summary>
         [Option(ScopeOption, "Scopes to request. By default, the only scope requested is <resource ID>\\.default.\nPassing in one or more values here will override the default.", CommandOptionType.MultipleValue)]
@@ -174,6 +168,12 @@ Allowed values: [all, web, devicecode]";
         [FileExists]
         [Option(ConfigOption, "The path to a configuration file.", CommandOptionType.SingleValue)]
         public string ConfigFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets global Timeout.
+        /// </summary>
+        [Option(TimeoutOption, "The number of minutes the CLI is allowed to wait before timing out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
+        public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
 
         /// <summary>
         /// Gets or sets the cache file name. Only available on Windows.
