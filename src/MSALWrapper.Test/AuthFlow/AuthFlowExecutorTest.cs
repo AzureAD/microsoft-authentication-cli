@@ -107,7 +107,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -132,7 +132,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -161,7 +161,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -190,7 +190,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -220,7 +220,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult2);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -255,7 +255,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult2);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -291,7 +291,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult2);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -334,7 +334,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult2);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -377,7 +377,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult2);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -414,7 +414,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult3);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -469,7 +469,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -513,7 +513,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult3);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -567,7 +567,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult3);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -621,7 +621,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult3);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -676,7 +676,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult3);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -729,7 +729,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult2);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -774,7 +774,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResultList.Add(authFlowResult2);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object }, this.timeoutManager);
+            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
@@ -796,10 +796,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             return options;
         }
 
-        private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows, ITimeoutManager timeoutManager)
+        private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            return new AuthFlowExecutor(logger, authFlows, timeoutManager);
+            return new AuthFlowExecutor(logger, authFlows, this.timeoutManager);
         }
     }
 }
