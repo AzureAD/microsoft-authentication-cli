@@ -7,64 +7,64 @@ namespace Microsoft.Authentication.MSALWrapper
     using System.Diagnostics;
 
     /// <summary>
-    /// Manages timer for the CLI.
+    /// Tracks the timer for timeout.
     /// </summary>
-    public class TimeoutManager : ITimeoutManager
+    public class StopwatchTracker : IStopwatch
     {
-        private readonly Stopwatch timer;
+        private readonly Stopwatch stopwatch;
         private readonly TimeSpan timeout;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TimeoutManager"/> class.
+        /// Initializes a new instance of the <see cref="StopwatchTracker"/> class.
         /// </summary>
         /// <param name="timeout"> Timeout period.</param>
-        public TimeoutManager(TimeSpan timeout)
+        public StopwatchTracker(TimeSpan timeout)
         {
-            this.timer = new Stopwatch();
+            this.stopwatch = new Stopwatch();
             this.timeout = timeout;
         }
 
         /// <summary>
-        /// Get Elapsed Time for timer.
+        /// Get Elapsed time for timer.
         /// </summary>
         /// <returns> Elapsed Timespan.</returns>
-        public TimeSpan GetElapsedTime()
+        public TimeSpan Elapsed()
         {
-            return this.timer.Elapsed;
+            return this.stopwatch.Elapsed;
         }
 
         /// <summary>
-        /// Get number of time remaining before CLI times out.
+        /// Time remaining before the timer times out.
         /// </summary>
         /// <returns>Remaining time for timeout.</returns>
-        public TimeSpan GetRemainingTime()
+        public TimeSpan Remaining()
         {
-            return this.timeout.Subtract(this.timer.Elapsed);
+            return this.timeout - this.stopwatch.Elapsed;
         }
 
         /// <summary>
         /// Check if the timer has timed out.
         /// </summary>
-        /// <returns>True if CLI has timedout.</returns>
-        public bool HasTimedout()
+        /// <returns>True if the timer has timed out.</returns>
+        public bool Timedout()
         {
-            return this.timeout <= this.timer.Elapsed;
+            return this.timeout <= this.stopwatch.Elapsed;
         }
 
         /// <summary>
         /// Starts the timer.
         /// </summary>
-        public void StartTimer()
+        public void Start()
         {
-            this.timer.Start();
+            this.stopwatch.Start();
         }
 
         /// <summary>
         /// Stops the timer.
         /// </summary>
-        public void StopTimer()
+        public void Stop()
         {
-            this.timer.Stop();
+            this.stopwatch.Stop();
         }
     }
 }

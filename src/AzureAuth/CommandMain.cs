@@ -172,7 +172,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets global Timeout.
         /// </summary>
-        [Option(TimeoutOption, "The number of minutes the CLI is allowed to wait before timing out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
+        [Option(TimeoutOption, "The number of minutes before authentication times out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
         public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
 
         /// <summary>
@@ -551,15 +551,15 @@ Allowed values: [all, web, devicecode]";
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
 
-                this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.BuildTimeoutManager());
+                this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());
             }
 
             return this.authFlowExecutor;
         }
 
-        private ITimeoutManager BuildTimeoutManager()
+        private IStopwatch StopwatchTracker()
         {
-            return new TimeoutManager(TimeSpan.FromMinutes(this.Timeout));
+            return new StopwatchTracker(TimeSpan.FromMinutes(this.Timeout));
         }
     }
 }

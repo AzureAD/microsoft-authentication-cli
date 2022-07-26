@@ -30,7 +30,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private MemoryTarget logTarget;
         private TokenResult tokenResult;
         private IEnumerable<IAuthFlow> authFlows;
-        private ITimeoutManager timeoutManager;
+        private IStopwatch stopwatch;
 
         [SetUp]
         public void Setup()
@@ -55,7 +55,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
-            this.timeoutManager = new TimeoutManager(TimeSpan.FromSeconds(60));
+            this.stopwatch = new StopwatchTracker(TimeSpan.FromSeconds(60));
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWith_Null_Logger()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows, this.timeoutManager);
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows, this.stopwatch);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -80,7 +80,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Null_AuthFlows()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, this.timeoutManager);
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, this.stopwatch);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -90,7 +90,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Valid_Arguments()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows, this.timeoutManager);
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows, this.stopwatch);
 
             // Assert
             authFlowExecutor.Should().NotThrow<ArgumentNullException>();
@@ -745,19 +745,19 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task HasMultipleAuthFlows_Returns_Early_With_TimeoutException()
+        public async Task Timeout_Kills_Current_AuthFlow_Returns_TimeoutException()
         {
-            var timeoutManager = new Mock<ITimeoutManager>(MockBehavior.Strict);
-            this.timeoutManager = timeoutManager.Object;
+            var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
+            this.stopwatch = stopwatch.Object;
 
-            var timeAfterwarningLength = AuthFlowExecutor.TimeToWaitBeforeWarning + TimeSpan.FromSeconds(1);
+            var timeAfterwarningLength = AuthFlowExecutor.WarningInterval + TimeSpan.FromSeconds(1);
             var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
 
-            timeoutManager.Setup(tm => tm.StartTimer());
-            timeoutManager.Setup(tm => tm.GetElapsedTime()).Returns(timeAfterwarningLength);
-            timeoutManager.Setup(tm => tm.GetRemainingTime()).Returns(remainingTimeForWarningMessage);
-            timeoutManager.Setup(tm => tm.HasTimedout()).Returns(true);
-            timeoutManager.Setup(tm => tm.StopTimer());
+            stopwatch.Setup(tm => tm.Start());
+            stopwatch.Setup(tm => tm.Elapsed()).Returns(timeAfterwarningLength);
+            stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
+            stopwatch.Setup(tm => tm.Timedout()).Returns(true);
+            stopwatch.Setup(tm => tm.Stop());
 
             var authFlow1 = new AlwaysTimesOutAuthFlow();
 
@@ -771,10 +771,49 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var resultList = result.ToList();
 
             // Assert
-            timeoutManager.VerifyAll();
+            stopwatch.VerifyAll();
             authFlow2.VerifyAll();
             resultList.Should().NotBeNull();
             resultList.Count.Should().Be(1);
+        }
+
+        [Test]
+        public async Task MultipleAuthFlows_Returns_Early_When_Timedout()
+        {
+            var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
+            this.stopwatch = stopwatch.Object;
+
+            var timeAfterwarningLength = AuthFlowExecutor.WarningInterval + TimeSpan.FromSeconds(1);
+            var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
+
+            stopwatch.Setup(tm => tm.Start());
+            stopwatch.Setup(tm => tm.Elapsed()).Returns(timeAfterwarningLength);
+            stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
+            stopwatch.SetupSequence(tm => tm.Timedout()).Returns(false).Returns(true);
+            stopwatch.Setup(tm => tm.Stop());
+            var errors1 = new[]
+            {
+                new Exception("Exception 1"),
+            };
+            var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
+            var authFlow1 = new WaitAndReturnErrorAuthFlow();
+
+            var authFlow2 = new AlwaysTimesOutAuthFlow();
+
+            // 3 have no setups, because they should never be used.
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+
+            // Act
+            var authFlowExecutor = this.Subject(new[] { authFlow1, authFlow2, authFlow3.Object });
+
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
+
+            // Assert
+            stopwatch.VerifyAll();
+            authFlow3.VerifyAll();
+            resultList.Should().NotBeNull();
+            resultList.Count.Should().Be(2);
         }
 
         private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
@@ -786,7 +825,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            return new AuthFlowExecutor(logger, authFlows, this.timeoutManager);
+            return new AuthFlowExecutor(logger, authFlows, this.stopwatch);
         }
 
         // This auth flow is for testing timeouts. It should always timeout.
@@ -796,6 +835,24 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             {
                 await Task.Delay(TimeSpan.FromMinutes(100));
                 return null;
+            }
+        }
+
+        // This auth flow is used to wait before returning error.
+        private class WaitAndReturnErrorAuthFlow : IAuthFlow
+        {
+            public async Task<AuthFlowResult> GetTokenAsync()
+            {
+                var errors1 = new[]
+                {
+                new Exception("Exception 1"),
+                };
+                var authFlowResult = new AuthFlowResult(null, errors1, "authFlow1");
+
+                // This Delay is to mock the behavior of windows.
+                // We want to make sure that task is not completed in ubuntu even before hiting the while loop that checks for timeout.
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return authFlowResult;
             }
         }
     }
