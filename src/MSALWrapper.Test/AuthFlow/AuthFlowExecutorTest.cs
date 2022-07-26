@@ -747,47 +747,34 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task HasMultipleAuthFlows_Returns_Early_With_TimeoutException()
         {
-            var timeoutError = new[]
-            {
-                new TimeoutException("Timeout exception"),
-            };
+            var timeoutManager = new Mock<ITimeoutManager>(MockBehavior.Strict);
+            this.timeoutManager = timeoutManager.Object;
 
-            var errors1 = new[]
-            {
-                new Exception("Exception 1"),
-            };
+            var timeAfterwarningLength = AuthFlowExecutor.TimeToWaitBeforeWarning + TimeSpan.FromSeconds(1);
+            var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
 
-            var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
-            var authFlowResult2 = new AuthFlowResult(null, timeoutError, "authFlow2");
+            timeoutManager.Setup(tm => tm.StartTimer());
+            timeoutManager.Setup(tm => tm.GetElapsedTime()).Returns(timeAfterwarningLength);
+            timeoutManager.Setup(tm => tm.GetRemainingTime()).Returns(remainingTimeForWarningMessage);
+            timeoutManager.Setup(tm => tm.HasTimedout()).Returns(true);
+            timeoutManager.Setup(tm => tm.StopTimer());
 
-            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+            var authFlow1 = new AlwaysTimesOutAuthFlow();
 
+            // 2 have no setups, because they should never be used.
             var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
-
-            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
-            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
-
-            var authFlowResultList = new List<AuthFlowResult>();
-            authFlowResultList.Add(authFlowResult1);
-            authFlowResultList.Add(authFlowResult2);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+            var authFlowExecutor = this.Subject(new[] { authFlow1, authFlow2.Object });
+
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
             // Assert
-            authFlow1.VerifyAll();
+            timeoutManager.VerifyAll();
             authFlow2.VerifyAll();
             resultList.Should().NotBeNull();
-            resultList.Count.Should().Be(2);
-            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-            // Assert Order of results.
-            resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-            resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
+            resultList.Count.Should().Be(1);
         }
 
         private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
@@ -800,6 +787,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
             return new AuthFlowExecutor(logger, authFlows, this.timeoutManager);
+        }
+
+        // This auth flow is for testing timeouts. It should always timeout.
+        private class AlwaysTimesOutAuthFlow : IAuthFlow
+        {
+            public async Task<AuthFlowResult> GetTokenAsync()
+            {
+                await Task.Delay(TimeSpan.FromMinutes(100));
+                return null;
+            }
         }
     }
 }

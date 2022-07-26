@@ -16,12 +16,19 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class AuthFlowExecutor
     {
+        /// <summary>
+        /// The amount of time to wait before rechecking the global timeout.
+        /// </summary>
+        public static TimeSpan DelayPeriodForPolling = TimeSpan.FromSeconds(30);
+
+        /// <summary>
+        /// The amount of time to wait before we start warning on stderr about waiting for auth.
+        /// </summary>
+        public static TimeSpan TimeToWaitBeforeWarning = TimeSpan.FromSeconds(10);
+
         private readonly IEnumerable<IAuthFlow> authflows;
         private readonly ILogger logger;
         private readonly ITimeoutManager timeoutManager;
-
-        private TimeSpan delayPeriodForPolling = TimeSpan.FromSeconds(30);
-        private TimeSpan timeToWaitBeforeWarning = TimeSpan.FromSeconds(10);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthFlowExecutor"/> class.
@@ -95,9 +102,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             var flowResult = Task.Run(() => authFlow.GetTokenAsync());
             var authFlowName = authFlow.GetType().Name;
+
             while (!flowResult.IsCompleted)
             {
-                if (this.timeoutManager.GetElapsedTime() >= this.timeToWaitBeforeWarning)
+                if (this.timeoutManager.GetElapsedTime() >= this.TimeToWaitBeforeWarning)
                 {
                     this.logger.LogWarning($"Waiting for {authFlowName} authentication. Please look for an interactive auth prompt.");
                     this.logger.LogWarning($"Timeout in {this.timeoutManager.GetRemainingTime():hh\\:mm\\:ss}");
@@ -129,14 +137,14 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>Time to wait before polling.</returns>
         private TimeSpan DetermineDelayPeriod()
         {
-            if (this.timeoutManager.GetElapsedTime() < this.timeToWaitBeforeWarning)
+            if (this.timeoutManager.GetElapsedTime() < this.TimeToWaitBeforeWarning)
             {
-                return this.timeToWaitBeforeWarning;
+                return this.TimeToWaitBeforeWarning;
             }
             else
             {
-                return this.timeoutManager.GetRemainingTime() < this.delayPeriodForPolling ?
-                this.timeoutManager.GetRemainingTime() : this.delayPeriodForPolling;
+                return this.timeoutManager.GetRemainingTime() < this.DelayPeriodForPolling ?
+                this.timeoutManager.GetRemainingTime() : this.DelayPeriodForPolling;
             }
         }
     }
