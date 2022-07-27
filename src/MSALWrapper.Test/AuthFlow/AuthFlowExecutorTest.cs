@@ -791,13 +791,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
             stopwatch.SetupSequence(tm => tm.TimedOut()).Returns(false).Returns(true);
             stopwatch.Setup(tm => tm.Stop());
-            var errors1 = new[]
-            {
-                new Exception("Exception 1"),
-            };
-            var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
-            var authFlow1 = new WaitAndReturnErrorAuthFlow();
 
+            var authFlow1 = new WaitAndFailAuthFlow();
             var authFlow2 = new AlwaysTimesOutAuthFlow();
 
             // 3 have no setups, because they should never be used.
@@ -839,15 +834,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         // This auth flow is used to wait before returning error.
-        private class WaitAndReturnErrorAuthFlow : IAuthFlow
+        private class WaitAndFailAuthFlow : IAuthFlow
         {
             public async Task<AuthFlowResult> GetTokenAsync()
             {
-                var errors1 = new[]
+                var errors = new[]
                 {
                 new Exception("Exception 1"),
                 };
-                var authFlowResult = new AuthFlowResult(null, errors1, "authFlow1");
+                var authFlowResult = new AuthFlowResult(null, errors, "authFlow1");
 
                 // This delay is to ensure similar behavior across different platforms.
                 // We are making sure that authflow task is not completed in Ubuntu
