@@ -19,7 +19,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The amount of time to wait before we start warning on stderr about waiting for auth.
         /// </summary>
-        public static TimeSpan WarningInterval = TimeSpan.FromSeconds(10);
+        public static TimeSpan WarningDelay = TimeSpan.FromSeconds(10);
 
         private readonly IEnumerable<IAuthFlow> authflows;
         private readonly ILogger logger;
@@ -102,11 +102,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             while (!flowResult.IsCompleted)
             {
-                if (this.stopwatch.Elapsed() >= WarningInterval)
+                if (this.stopwatch.Elapsed() >= WarningDelay)
                 {
-                    var warningMessgae = $"Waiting for {authFlowName} authentication. Look for an auth prompt. " +
-                        $"\nTimeout in {this.stopwatch.Remaining():mm}m {this.stopwatch.Remaining():ss}s!";
-                    this.logger.LogWarning(warningMessgae);
+                    this.logger.LogWarning($"Waiting for {authFlowName} authentication. Look for an auth prompt.");
+                    this.logger.LogWarning($"Timeout in {this.stopwatch.Remaining():mm}m {this.stopwatch.Remaining():ss}s!");
                 }
 
                 if (this.stopwatch.TimedOut())
@@ -134,9 +133,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>Time to wait before polling.</returns>
         private TimeSpan Delay()
         {
-            if (this.stopwatch.Elapsed() < WarningInterval)
+            if (this.stopwatch.Elapsed() < WarningDelay)
             {
-                return WarningInterval;
+                return WarningDelay;
             }
             else
             {

@@ -750,7 +750,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
             this.stopwatch = stopwatch.Object;
 
-            var timeAfterwarningLength = AuthFlowExecutor.WarningInterval + TimeSpan.FromSeconds(1);
+            var timeAfterwarningLength = AuthFlowExecutor.WarningDelay + TimeSpan.FromSeconds(1);
             var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
 
             stopwatch.Setup(tm => tm.Start());
@@ -759,22 +759,32 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             stopwatch.Setup(tm => tm.TimedOut()).Returns(true);
             stopwatch.Setup(tm => tm.Stop());
 
-            var authFlow1 = new AlwaysTimesOutAuthFlow();
+            var alwaysTimesOutAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(100));
 
-            // 2 have no setups, because they should never be used.
-            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            // This auth flow has no setups, because they should never be used.
+            var neverUsedAuthFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
+
+            var timeoutError = new[]
+            {
+                new TimeoutException("Global timeout hit during DelayAuthFlow"),
+            };
+            var authFlowResult = new AuthFlowResult(null, timeoutError, "DelayAuthFlow");
+            var authFlowResultList = new List<AuthFlowResult>();
+            authFlowResultList.Add(authFlowResult);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1, authFlow2.Object });
+            var authFlowExecutor = this.Subject(new[] { alwaysTimesOutAuthFlow, neverUsedAuthFlow.Object });
 
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
             // Assert
             stopwatch.VerifyAll();
-            authFlow2.VerifyAll();
+            neverUsedAuthFlow.VerifyAll();
             resultList.Should().NotBeNull();
             resultList.Count.Should().Be(1);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
+            resultList[0].Should().BeEquivalentTo(authFlowResult, this.ExcludeDurationTimeSpan);
         }
 
         [Test]
@@ -783,7 +793,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
             this.stopwatch = stopwatch.Object;
 
-            var timeAfterwarningLength = AuthFlowExecutor.WarningInterval + TimeSpan.FromSeconds(1);
+            var timeAfterwarningLength = AuthFlowExecutor.WarningDelay + TimeSpan.FromSeconds(1);
             var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
 
             stopwatch.Setup(tm => tm.Start());
@@ -792,23 +802,42 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             stopwatch.SetupSequence(tm => tm.TimedOut()).Returns(false).Returns(true);
             stopwatch.Setup(tm => tm.Stop());
 
-            var authFlow1 = new WaitAndFailAuthFlow();
-            var authFlow2 = new AlwaysTimesOutAuthFlow();
+            var waitAndFailAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(1));
+            var alwaysTimesOutAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(100));
 
-            // 3 have no setups, because they should never be used.
-            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            // This auth flow has no setups, because they should never be used.
+            var neverUsedAuthFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
+
+            var authFlowError = new[]
+            {
+                new Exception("Exception 1"),
+            };
+            var timeoutError = new[]
+            {
+                new TimeoutException("Global timeout hit during DelayAuthFlow"),
+            };
+            var waitAndFailResult = new AuthFlowResult(null, authFlowError, "DelayAuthFlow");
+            var alwaysTimesOutResult = new AuthFlowResult(null, timeoutError, "DelayAuthFlow");
+            var authFlowResultList = new List<AuthFlowResult>();
+            authFlowResultList.Add(waitAndFailResult);
+            authFlowResultList.Add(alwaysTimesOutResult);
 
             // Act
-            var authFlowExecutor = this.Subject(new[] { authFlow1, authFlow2, authFlow3.Object });
+            var authFlowExecutor = this.Subject(new[] { waitAndFailAuthFlow, alwaysTimesOutAuthFlow, neverUsedAuthFlow.Object });
 
             var result = await authFlowExecutor.GetTokenAsync();
             var resultList = result.ToList();
 
             // Assert
             stopwatch.VerifyAll();
-            authFlow3.VerifyAll();
+            neverUsedAuthFlow.VerifyAll();
             resultList.Should().NotBeNull();
             resultList.Count.Should().Be(2);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
+
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(waitAndFailResult, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(alwaysTimesOutResult, this.ExcludeDurationTimeSpan);
         }
 
         private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
@@ -824,30 +853,23 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         // This auth flow is for testing timeouts. It should always timeout.
-        private class AlwaysTimesOutAuthFlow : IAuthFlow
+        private class DelayAuthFlow : IAuthFlow
         {
-            public async Task<AuthFlowResult> GetTokenAsync()
-            {
-                await Task.Delay(TimeSpan.FromMinutes(100));
-                return null;
-            }
-        }
+            private readonly TimeSpan delay;
 
-        // This auth flow is used to wait before returning error.
-        private class WaitAndFailAuthFlow : IAuthFlow
-        {
+            public DelayAuthFlow(TimeSpan delay)
+            {
+                this.delay = delay;
+            }
+
             public async Task<AuthFlowResult> GetTokenAsync()
             {
                 var errors = new[]
                 {
-                new Exception("Exception 1"),
+                    new Exception("Exception 1"),
                 };
-                var authFlowResult = new AuthFlowResult(null, errors, "authFlow1");
-
-                // This delay is to ensure similar behavior across different platforms.
-                // We are making sure that authflow task is not completed in Ubuntu
-                // before executing the while loop (like Windows) that checks for timeout.
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                var authFlowResult = new AuthFlowResult(null, errors, "DelayAuthFlow");
+                await Task.Delay(this.delay);
                 return authFlowResult;
             }
         }
