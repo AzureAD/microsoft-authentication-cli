@@ -852,7 +852,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             return new AuthFlowExecutor(logger, authFlows, this.stopwatch);
         }
 
-        // This auth flow is for testing timeouts. It should always timeout.
+        // This auth flow is for delaying the return and testing timeout.
         private class DelayAuthFlow : IAuthFlow
         {
             private readonly TimeSpan delay;
