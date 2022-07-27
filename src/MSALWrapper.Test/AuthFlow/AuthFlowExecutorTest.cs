@@ -756,7 +756,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             stopwatch.Setup(tm => tm.Start());
             stopwatch.Setup(tm => tm.Elapsed()).Returns(timeAfterwarningLength);
             stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
-            stopwatch.Setup(tm => tm.Timedout()).Returns(true);
+            stopwatch.Setup(tm => tm.TimedOut()).Returns(true);
             stopwatch.Setup(tm => tm.Stop());
 
             var authFlow1 = new AlwaysTimesOutAuthFlow();
@@ -778,7 +778,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task MultipleAuthFlows_Returns_Early_When_Timedout()
+        public async Task MultipleAuthFlows_Returns_Early_When_TimedOut()
         {
             var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
             this.stopwatch = stopwatch.Object;
@@ -789,7 +789,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             stopwatch.Setup(tm => tm.Start());
             stopwatch.Setup(tm => tm.Elapsed()).Returns(timeAfterwarningLength);
             stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
-            stopwatch.SetupSequence(tm => tm.Timedout()).Returns(false).Returns(true);
+            stopwatch.SetupSequence(tm => tm.TimedOut()).Returns(false).Returns(true);
             stopwatch.Setup(tm => tm.Stop());
             var errors1 = new[]
             {
@@ -849,8 +849,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 };
                 var authFlowResult = new AuthFlowResult(null, errors1, "authFlow1");
 
-                // This Delay is to mock the behavior of windows.
-                // We want to make sure that task is not completed in ubuntu even before hiting the while loop that checks for timeout.
+                // This delay is to ensure similar behavior across different platforms.
+                // We are making sure that authflow task is not completed in Ubuntu
+                // before executing the while loop (like Windows) that checks for timeout.
                 await Task.Delay(TimeSpan.FromSeconds(1));
                 return authFlowResult;
             }

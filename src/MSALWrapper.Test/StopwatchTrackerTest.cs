@@ -20,19 +20,19 @@ namespace MSALWrapper.Test
         }
 
         [Test]
-        public void Timedout_Returns_True()
+        public void TimedOut_Returns_True()
         {
             StopwatchTracker stopwatch = this.Subject(TimeSpan.FromSeconds(0));
             stopwatch.Start();
-            stopwatch.Timedout().Should().BeTrue();
+            stopwatch.TimedOut().Should().BeTrue();
         }
 
         [Test]
-        public void Timedout_Returns_False()
+        public void TimedOut_Returns_False()
         {
             StopwatchTracker stopwatch = this.Subject(TimeSpan.FromMinutes(10));
             stopwatch.Start();
-            stopwatch.Timedout().Should().BeFalse();
+            stopwatch.TimedOut().Should().BeFalse();
         }
 
         [Test]

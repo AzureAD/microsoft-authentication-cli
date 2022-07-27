@@ -109,7 +109,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.logger.LogWarning(warningMessgae);
                 }
 
-                if (this.stopwatch.Timedout())
+                if (this.stopwatch.TimedOut())
                 {
                     this.stopwatch.Stop();
                     this.logger.LogError($"Timed out while waiting for {authFlowName} authentication!");
@@ -128,9 +128,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <summary>
-        /// Determines amount of time to wait before polling.
-        /// If global timeout is in less than default delayPeriodForPolling, we would want to wait for a period equal to
-        /// timeout rather than the delayPeriodForPolling.
+        /// Helps in determining right polling interval which can be different from the default
+        /// at the beginning of timer and at the end of timeout period.
         /// </summary>
         /// <returns>Time to wait before polling.</returns>
         private TimeSpan Delay()

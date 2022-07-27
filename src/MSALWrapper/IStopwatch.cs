@@ -14,7 +14,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Determines if the timer has timed out.
         /// </summary>
         /// <returns>True if timer has timed out.</returns>
-        bool Timedout();
+        bool TimedOut();
 
         /// <summary>
         /// Get the remaining time before timeout.
@@ -29,7 +29,7 @@ namespace Microsoft.Authentication.MSALWrapper
         TimeSpan Elapsed();
 
         /// <summary>
-        /// Start the Timer.
+        /// Start the timer.
         /// </summary>
         void Start();
 

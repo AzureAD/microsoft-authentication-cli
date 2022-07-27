@@ -46,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Check if the timer has timed out.
         /// </summary>
         /// <returns>True if the timer has timed out.</returns>
-        public bool Timedout()
+        public bool TimedOut()
         {
             return this.timeout <= this.stopwatch.Elapsed;
         }
