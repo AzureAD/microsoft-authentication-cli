@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Provided functionality to disable Public Client Authentication using an environment variable `AZUREAUTH_NO_USER`.
+- Added `--timeout` functionality to provide reliable contract of allowed runtime (default: 10 minutes) and warnings as the timeout approaches.
 
 ## [0.4.0] - 2022-06-23
 ### Added
