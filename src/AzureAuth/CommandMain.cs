@@ -38,6 +38,7 @@ namespace Microsoft.Authentication.AzureAuth
         private const string ConfigOption = "--config";
         private const string CacheOption = "--cache";
         private const string PromptHintPrefix = "AzureAuth";
+        private const string TimeoutOption = "--timeout";
 
 #if PlatformWindows
         private const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
@@ -48,6 +49,11 @@ Allowed values: [all, iwa, broker, web, devicecode]";
 You can use any combination with multiple instances of the --mode flag.
 Allowed values: [all, web, devicecode]";
 #endif
+
+        /// <summary>
+        /// The default number of minutes CLI is allowed to run.
+        /// </summary>
+        private static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(10);
 
         private readonly EventData eventData;
         private readonly ILogger<CommandMain> logger;
@@ -162,6 +168,12 @@ Allowed values: [all, web, devicecode]";
         [FileExists]
         [Option(ConfigOption, "The path to a configuration file.", CommandOptionType.SingleValue)]
         public string ConfigFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets global Timeout.
+        /// </summary>
+        [Option(TimeoutOption, "The number of minutes before authentication times out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
+        public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
 
         /// <summary>
         /// Gets or sets the cache file name. Only available on Windows.
@@ -539,10 +551,15 @@ Allowed values: [all, web, devicecode]";
                     PrefixedPromptHint(this.authSettings.PromptHint),
                     Constants.AuthOSXKeyChainSuffix);
 
-                this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows);
+                this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());
             }
 
             return this.authFlowExecutor;
+        }
+
+        private IStopwatch StopwatchTracker()
+        {
+            return new StopwatchTracker(TimeSpan.FromMinutes(this.Timeout));
         }
     }
 }
