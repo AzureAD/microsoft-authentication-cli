@@ -8,6 +8,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 #endif
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
@@ -139,6 +140,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return new AuthFlowResult(null, this.errors, this.GetType().Name);
         }
 
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetConsoleWindow();
+
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
         {
             var clientBuilder =
@@ -154,6 +158,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     HeaderText = this.promptHint,
                 });
+
+            // The return value is a handle to the window used by the console associated with the calling process or
+            // NULL if there is no such associated console.
+            // Retrieves the window handle used by the console associated with the calling process.
+
+            // check if windows and Pass parent window ID to MSAL so it can parent the authentication dialogs.
+            IntPtr consoleWindowHandle = GetConsoleWindow();
+            Func<IntPtr> consoleWindowHandleProvider = () => consoleWindowHandle;
+            clientBuilder.WithParentActivityOrWindow(() => consoleWindowHandleProvider);
 
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();
