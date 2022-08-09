@@ -406,20 +406,19 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
         }
 
-        //[Test]
-        //public void TestConstructor_WithParentActivityOrWindowFunc()
-        //{
-        //    IntPtr ownerPtr = new IntPtr(23478);
+        // [Test]
+        // public void TestConstructor_WithParentActivityOrWindowFunc()
+        // {
+        //     IntPtr ownerPtr = new IntPtr(23478);
 
-        //    var pca = PublicClientApplicationBuilder
-        //        .Create(TestConstants.ClientId)
-        //        .WithParentActivityOrWindow(() => ownerPtr)
-        //        .Build();
+        //     var pca = PublicClientApplicationBuilder
+        //         .Create($"{ClientId}")
+        //         .WithParentActivityOrWindow(() => ownerPtr)
+        //         .Build();
 
-        //    Assert.IsNotNull(pca.AppConfig.ParentActivityOrWindowFunc);
-        //    Assert.AreEqual(ownerPtr, pca.AppConfig.ParentActivityOrWindowFunc());
-        //}
-
+        //     Assert.IsNotNull(pca.AppConfig.ParentActivityOrWindowFunc);
+        //     Assert.AreEqual(ownerPtr, pca.AppConfig.ParentActivityOrWindowFunc());
+        // }
 
         private void SilentAuthResult()
         {

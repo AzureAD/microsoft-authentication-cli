@@ -25,6 +25,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IList<Exception> errors;
         private IPCAWrapper pcaWrapper;
 
+        // Pass parent window ID to MSAL so it can parent the authentication dialogs.
+        private Func<IntPtr> consoleWindowHandleProvider = () => GetConsoleWindow();
+
         #region Public configurable properties
 
         /// <summary>
@@ -157,16 +160,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 .WithWindowsBrokerOptions(new WindowsBrokerOptions
                 {
                     HeaderText = this.promptHint,
-                });
-
-            // The return value is a handle to the window used by the console associated with the calling process or
-            // NULL if there is no such associated console.
-            // Retrieves the window handle used by the console associated with the calling process.
-
-            // check if windows and Pass parent window ID to MSAL so it can parent the authentication dialogs.
-            IntPtr consoleWindowHandle = GetConsoleWindow();
-            Func<IntPtr> consoleWindowHandleProvider = () => consoleWindowHandle;
-            clientBuilder.WithParentActivityOrWindow(() => consoleWindowHandleProvider);
+                })
+                .WithParentActivityOrWindow(() => this.consoleWindowHandleProvider); 
 
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();
