@@ -161,7 +161,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     HeaderText = this.promptHint,
                 })
-                .WithParentActivityOrWindow(() => this.consoleWindowHandleProvider); 
+                .WithParentActivityOrWindow(() => this.consoleWindowHandleProvider);
 
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();
