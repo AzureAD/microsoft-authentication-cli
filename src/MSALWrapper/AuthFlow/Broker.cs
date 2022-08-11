@@ -25,9 +25,28 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IList<Exception> errors;
         private IPCAWrapper pcaWrapper;
 
-        // Pass parent window ID to MSAL so it can parent the authentication dialogs.
-        private Func<IntPtr> consoleWindowHandleProvider = () => GetConsoleWindow();
+        private enum GetAncestorFlags
+        {
+            /// <summary>
+            /// Retrieves the parent window. This does not include the owner, as it does with the GetParent function.
+            /// </summary>
+            GetParent = 1,
 
+            /// <summary>
+            /// Retrieves the root window by walking the chain of parent windows.
+            /// </summary>
+
+            GetRoot = 2,
+
+            /// <summary>
+            /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
+            /// </summary>
+            GetRootOwner = 3
+        }
+
+        // Pass parent window ID to MSAL so it can parent the authentication dialogs.
+
+        // private Func<IntPtr> consoleWindowHandleProvider = () => GetConsoleWindow();
         #region Public configurable properties
 
         /// <summary>
@@ -146,6 +165,16 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
 
+        [DllImport("user32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, GetAncestorFlags flags);
+
+        private IntPtr GetConsoleOrTerminalWindow()
+        {
+            IntPtr consoleHandle = GetConsoleWindow();
+            IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
+            return handle;
+        }
+
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
         {
             var clientBuilder =
@@ -161,8 +190,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     HeaderText = this.promptHint,
                 })
-                .WithParentActivityOrWindow(() => this.consoleWindowHandleProvider);
-
+                .WithParentActivityOrWindow(() => this.GetConsoleOrTerminalWindow());
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();
 #else
