@@ -161,9 +161,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
 
+        /// <summary>
+        /// Retrieves the handle to the ancestor of the specified window.
+        /// </summary>
+        /// <param name="windowsHandle">A handle to the window whose ancestor is to be retrieved.
+        /// If this parameter is the desktop window, the function returns NULL. </param>
+        /// <param name="flags">The ancestor to be retrieved.</param>
+        /// <returns>The return value is the handle to the ancestor window.</returns>[DllImport("user32.dll", ExactSpelling = true)]
         [DllImport("user32.dll", ExactSpelling = true)]
         private static extern IntPtr GetAncestor(IntPtr windowsHandle, GetAncestorFlags flags);
 
+        // MSAL will be providing a similar helper in the future that we can use to simplify this(AzureAD/microsoft-authentication-library-for-dotnet#3590).
         private IntPtr GetParentWindowHandle()
         {
             IntPtr consoleHandle = GetConsoleWindow();
