@@ -186,7 +186,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     HeaderText = this.promptHint,
                 })
-                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()); // Pass parent window ID to MSAL so it can parent the authentication dialogs.
+                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()); // Pass parent window handle to MSAL so it can parent the authentication dialogs.
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();
 #else
