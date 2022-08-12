@@ -31,7 +31,7 @@ namespace Microsoft.Authentication.AzureAuth
             // trigger telemetry before we ever get to disable it.
             //
             // To disable telemetry a user need only leave this environment variable unset. It's off by default.
-            string applicationInsightsIngestionToken = Environment.GetEnvironmentVariable(EnvVars.ApplicationInsightsIngestionTokenEnvVar);
+            string applicationInsightsIngestionToken = "ae325f58-a6ec-4ec7-9814-9a418392d519";
             if (!string.IsNullOrEmpty(applicationInsightsIngestionToken))
             {
                 ingestionToken = applicationInsightsIngestionToken;
