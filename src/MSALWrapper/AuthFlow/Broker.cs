@@ -25,28 +25,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IList<Exception> errors;
         private IPCAWrapper pcaWrapper;
 
-        private enum GetAncestorFlags
-        {
-            /// <summary>
-            /// Retrieves the parent window. This does not include the owner, as it does with the GetParent function.
-            /// </summary>
-            GetParent = 1,
-
-            /// <summary>
-            /// Retrieves the root window by walking the chain of parent windows.
-            /// </summary>
-
-            GetRoot = 2,
-
-            /// <summary>
-            /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
-            /// </summary>
-            GetRootOwner = 3
-        }
-
-        // Pass parent window ID to MSAL so it can parent the authentication dialogs.
-
-        // private Func<IntPtr> consoleWindowHandleProvider = () => GetConsoleWindow();
         #region Public configurable properties
 
         /// <summary>
@@ -80,6 +58,24 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix, cacheFilePath);
+        }
+
+        private enum GetAncestorFlags
+        {
+            /// <summary>
+            /// Retrieves the parent window. This does not include the owner, as it does with the GetParent function.
+            /// </summary>
+            GetParent = 1,
+
+            /// <summary>
+            /// Retrieves the root window by walking the chain of parent windows.
+            /// </summary>
+            GetRoot = 2,
+
+            /// <summary>
+            /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
+            /// </summary>
+            GetRootOwner = 3,
         }
 
         /// <summary>
@@ -166,13 +162,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private static extern IntPtr GetConsoleWindow();
 
         [DllImport("user32.dll", ExactSpelling = true)]
-        private static extern IntPtr GetAncestor(IntPtr hwnd, GetAncestorFlags flags);
+        private static extern IntPtr GetAncestor(IntPtr windowsHandle, GetAncestorFlags flags);
 
-        private IntPtr GetConsoleOrTerminalWindow()
+        private IntPtr GetParentWindowHandle()
         {
             IntPtr consoleHandle = GetConsoleWindow();
-            IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
-            return handle;
+            IntPtr ancestorHandle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
+            return ancestorHandle;
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
@@ -190,7 +186,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     HeaderText = this.promptHint,
                 })
-                .WithParentActivityOrWindow(() => this.GetConsoleOrTerminalWindow());
+                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()); // Pass parent window ID to MSAL so it can parent the authentication dialogs.
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();
 #else
