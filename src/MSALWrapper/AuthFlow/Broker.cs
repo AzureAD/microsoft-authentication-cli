@@ -9,6 +9,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
 
@@ -29,7 +30,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The silent auth timeout.
         /// </summary>
-        private TimeSpan silentAuthTimeout = TimeSpan.FromMinutes(5);
+        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(6);
 
         /// <summary>
         /// The interactive auth timeout.
