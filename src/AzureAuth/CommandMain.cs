@@ -53,7 +53,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// The default number of minutes CLI is allowed to run.
         /// </summary>
-        private static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
 
         private readonly EventData eventData;
         private readonly ILogger<CommandMain> logger;
