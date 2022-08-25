@@ -45,7 +45,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
             catch (OperationCanceledException)
             {
-                var warningMessage = $"{taskName} timed out after {timeout.TotalMinutes} minutes.";
+                var warningMessage = $"{taskName} timed out after {timeout.ToString(@"hh\:mm\:ss")}";
                 logger?.LogWarning(warningMessage);
                 errorsList?.Add(new AuthenticationTimeoutException(warningMessage));
                 return null;

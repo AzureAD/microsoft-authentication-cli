@@ -153,7 +153,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 5 minutes.");
+            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
             authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
