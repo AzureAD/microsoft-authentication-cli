@@ -31,7 +31,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             source.CancelAfter(timeout);
             try
             {
-                logger?.LogDebug($"{taskName} has {timeout.TotalMinutes} minutes to complete before timeout.");
                 return await getTask(source.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)

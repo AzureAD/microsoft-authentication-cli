@@ -1,8 +1,9 @@
 # Microsoft Authentication CLI
 
-![Tests](https://shields.io/github/workflow/status/AzureAD/microsoft-authentication-cli/Build%20and%20Test/main?style=flat-square)
-![Release](https://shields.io/github/v/release/AzureAD/microsoft-authentication-cli?display_name=tag&include_prereleases&sort=semver&style=flat-square)
-![License](https://shields.io/badge/license-MIT-purple?style=flat-square)
+[![Tests](https://shields.io/github/workflow/status/AzureAD/microsoft-authentication-cli/Build%20and%20Test/main?style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/actions/workflows/dotnet-test.yml)
+[![Release](https://shields.io/github/v/release/AzureAD/microsoft-authentication-cli?display_name=tag&include_prereleases&sort=semver&style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/0.4.0)
+![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/azuread/microsoft-authentication-cli/0.4.0/total?logo=github&style=for-the-badge&color=blue)
+[![License](https://shields.io/badge/license-MIT-purple?style=for-the-badge)](./LICENSE.txt)
 
 ---
 
@@ -12,11 +13,12 @@ The CLI is designed for authenticating and returning an access token for public 
 
 # Platform Support
 
-| Operating System | Auth Broker Integration | Web Auth Flow | Device Code Flow | Token Caching | Multi-Account Support |
-|------------------|-----------------------|-------------------------|---------------|------------------------------|---------------|
-| Windows          | ✅ | ✅ | ✅ | ✅ | ⚠️ `--domain` account filtering |
-| OSX (MacOS)      | ⚠️ via Web Browser | ✅ | ✅ | ✅ | ⚠️ `--domain` account filtering |
-| Ubuntu (linux) <br/>‼️Releases coming soon | ⚠️ via Edge | ✅ | ✅ | ✅ | ⚠️ `--domain` account filtering |
+| Operating System                           | Auth Broker Integration | Web Auth Flow | Device Code Flow | Token Caching | Multi-Account Support           |
+| ------------------------------------------ | ----------------------- | ------------- | ---------------- | ------------- | ------------------------------- |
+| Windows                                    | ✅                      | ✅            | ✅               | ✅            | ⚠️ `--domain` account filtering |
+| OSX (MacOS)                                | ⚠️ via Web Browser      | ✅            | ✅               | ✅            | ⚠️ `--domain` account filtering |
+| Ubuntu (linux) <br/>‼️Releases coming soon | ⚠️ via Edge             | ✅            | ✅               | ✅            | ⚠️ `--domain` account filtering |
+
 <br/>
 
 # Installation
@@ -44,7 +46,7 @@ Or, if you want a method more resilient to failure than `Invoke-Expression`, run
 # 0.4.0 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
 $env:AZUREAUTH_VERSION = '0.4.0'
 $script = "${env:TEMP}\install.ps1"
-$url = 'https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1'
+$url = "https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Invoke-WebRequest $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
 ```

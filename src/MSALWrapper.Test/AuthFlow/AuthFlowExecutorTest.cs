@@ -30,6 +30,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private MemoryTarget logTarget;
         private TokenResult tokenResult;
         private IEnumerable<IAuthFlow> authFlows;
+        private IStopwatch stopwatch;
 
         [SetUp]
         public void Setup()
@@ -54,12 +55,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
+            this.stopwatch = new StopwatchTracker(TimeSpan.FromSeconds(60));
         }
 
         [Test]
-        public void ConstructorWith_BothNullArgs()
+        public void ConstructorWith_AllNullArgs()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, null);
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, null, null);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -68,7 +70,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWith_Null_Logger()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows);
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows, this.stopwatch);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -78,7 +80,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Null_AuthFlows()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null);
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, this.stopwatch);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -88,7 +90,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void ConstructorWith_Valid_Arguments()
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows);
+            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows, this.stopwatch);
 
             // Assert
             authFlowExecutor.Should().NotThrow<ArgumentNullException>();
@@ -742,6 +744,100 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
         }
 
+        [Test]
+        public async Task Timeout_Kills_Current_AuthFlow_Returns_TimeoutException()
+        {
+            var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
+            this.stopwatch = stopwatch.Object;
+
+            var timeAfterwarningLength = AuthFlowExecutor.WarningDelay + TimeSpan.FromSeconds(1);
+            var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
+
+            stopwatch.Setup(tm => tm.Start());
+            stopwatch.Setup(tm => tm.TimedOut()).Returns(true);
+            stopwatch.Setup(tm => tm.Stop());
+
+            var alwaysTimesOutAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(100));
+
+            // This auth flow has no setups, because they should never be used.
+            var neverUsedAuthFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
+
+            var timeoutError = new[]
+            {
+                new TimeoutException("Global timeout hit during DelayAuthFlow"),
+            };
+            var authFlowResult = new AuthFlowResult(null, timeoutError, "DelayAuthFlow");
+            var authFlowResultList = new List<AuthFlowResult>();
+            authFlowResultList.Add(authFlowResult);
+
+            // Act
+            var authFlowExecutor = this.Subject(new[] { alwaysTimesOutAuthFlow, neverUsedAuthFlow.Object });
+
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
+
+            // Assert
+            stopwatch.VerifyAll();
+            neverUsedAuthFlow.VerifyAll();
+            resultList.Should().NotBeNull();
+            resultList.Count.Should().Be(1);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
+            resultList[0].Should().BeEquivalentTo(authFlowResult, this.ExcludeDurationTimeSpan);
+        }
+
+        [Test]
+        public async Task MultipleAuthFlows_Returns_Early_When_TimedOut()
+        {
+            var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
+            this.stopwatch = stopwatch.Object;
+
+            var timeAfterwarningLength = AuthFlowExecutor.WarningDelay + TimeSpan.FromSeconds(1);
+            var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
+
+            stopwatch.Setup(tm => tm.Start());
+            stopwatch.Setup(tm => tm.Elapsed()).Returns(timeAfterwarningLength);
+            stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
+            stopwatch.SetupSequence(tm => tm.TimedOut()).Returns(false).Returns(true);
+            stopwatch.Setup(tm => tm.Stop());
+
+            var waitAndFailAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(1));
+            var alwaysTimesOutAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(100));
+
+            // This auth flow has no setups, because they should never be used.
+            var neverUsedAuthFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
+
+            var authFlowError = new[]
+            {
+                new Exception("Exception 1"),
+            };
+            var timeoutError = new[]
+            {
+                new TimeoutException("Global timeout hit during DelayAuthFlow"),
+            };
+            var waitAndFailResult = new AuthFlowResult(null, authFlowError, "DelayAuthFlow");
+            var alwaysTimesOutResult = new AuthFlowResult(null, timeoutError, "DelayAuthFlow");
+            var authFlowResultList = new List<AuthFlowResult>();
+            authFlowResultList.Add(waitAndFailResult);
+            authFlowResultList.Add(alwaysTimesOutResult);
+
+            // Act
+            var authFlowExecutor = this.Subject(new[] { waitAndFailAuthFlow, alwaysTimesOutAuthFlow, neverUsedAuthFlow.Object });
+
+            var result = await authFlowExecutor.GetTokenAsync();
+            var resultList = result.ToList();
+
+            // Assert
+            stopwatch.VerifyAll();
+            neverUsedAuthFlow.VerifyAll();
+            resultList.Should().NotBeNull();
+            resultList.Count.Should().Be(2);
+            resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
+
+            // Assert Order of results.
+            resultList[0].Should().BeEquivalentTo(waitAndFailResult, this.ExcludeDurationTimeSpan);
+            resultList[1].Should().BeEquivalentTo(alwaysTimesOutResult, this.ExcludeDurationTimeSpan);
+        }
+
         private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
         {
             options.Excluding(result => result.Duration);
@@ -751,7 +847,29 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            return new AuthFlowExecutor(logger, authFlows);
+            return new AuthFlowExecutor(logger, authFlows, this.stopwatch);
+        }
+
+        // This auth flow is for delaying the return and testing timeout.
+        private class DelayAuthFlow : IAuthFlow
+        {
+            private readonly TimeSpan delay;
+
+            public DelayAuthFlow(TimeSpan delay)
+            {
+                this.delay = delay;
+            }
+
+            public async Task<AuthFlowResult> GetTokenAsync()
+            {
+                var errors = new[]
+                {
+                    new Exception("Exception 1"),
+                };
+                var authFlowResult = new AuthFlowResult(null, errors, "DelayAuthFlow");
+                await Task.Delay(this.delay);
+                return authFlowResult;
+            }
         }
     }
 }

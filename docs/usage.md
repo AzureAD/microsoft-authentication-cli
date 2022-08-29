@@ -1,5 +1,6 @@
 # Usage
 AzureAuth is a generic Azure credential provider. It currently supports the following modes of [public client authentication](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications) (i.e., authenticating a human user.)
+* [IWA (Integrated Windows Authentication)](https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-desktop-acquire-token-integrated-windows-authentication)
 * [WAM (Web Account Manager)](https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-desktop-acquire-token-wam) (Windows only brokered authentication)
 * [Embedded Web View](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-web-browsers) (Windows Only)
 * [System Web Browser](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-web-browsers) (Used on OSX in-place of Embedded Web View)
