@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed a bug where broker auth prompt is hanging in the background and gives a false impression to the user that the console app is hung.
+- Option `--resource` is not needed if option `--scope` is provided.
 
 ## [0.4.0] - 2022-06-23
 ### Added
