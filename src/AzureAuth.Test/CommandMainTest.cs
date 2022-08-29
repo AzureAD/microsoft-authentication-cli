@@ -23,7 +23,6 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using NLog.Extensions.Logging;
     using NLog.Targets;
     using NUnit.Framework;
-    using static System.Formats.Asn1.AsnWriter;
 
     /// <summary>
     /// The command main test.
