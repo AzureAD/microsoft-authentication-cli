@@ -365,7 +365,7 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// The test to evaluate options without resource but with scopes.
+        /// The test to evaluate options with both resource and scopes.
         /// </summary>
         [Test]
         public void TestEvaluateOptionsWithResourceAndScopes()
