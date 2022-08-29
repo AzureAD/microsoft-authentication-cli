@@ -354,7 +354,7 @@ Allowed values: [all, web, devicecode]";
         {
             bool validOptions = true;
 
-            if (string.IsNullOrEmpty(this.authSettings.Resource) && this.authSettings.Scopes?.Count == 0)
+            if (string.IsNullOrEmpty(this.authSettings.Resource) && (this.authSettings.Scopes == null || this.authSettings.Scopes.Count == 0))
             {
                 this.logger.LogError($"The {ResourceOption} field or the {ScopeOption} field is required.");
                 validOptions = false;

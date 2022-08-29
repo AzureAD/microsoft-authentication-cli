@@ -23,6 +23,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using NLog.Extensions.Logging;
     using NLog.Targets;
     using NUnit.Framework;
+    using static System.Formats.Asn1.AsnWriter;
 
     /// <summary>
     /// The command main test.
@@ -295,7 +296,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain("The --resource field is required.");
+            this.logTarget.Logs.Should().Contain("The --resource field or the --scope field is required.");
         }
 
         /// <summary>
@@ -336,13 +337,28 @@ invalid_key = ""this is not a valid alias key""
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             subject.Resource = null;
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            subject.Scopes = new string[] { ".default" };
+
+            subject.EvaluateOptions().Should().BeTrue();
+        }
+
+        /// <summary>
+        /// The test to evaluate options without alias missing required options.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsWithOverridedScopes()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = null;
             subject.Client = null;
             subject.Tenant = null;
 
             subject.EvaluateOptions().Should().BeFalse();
             this.logTarget.Logs.Should().Contain(new[]
             {
-                "The --resource field is required.",
+                "The --resource field or the --scope field is required.",
                 "The --client field is required.",
                 "The --tenant field is required.",
             });
