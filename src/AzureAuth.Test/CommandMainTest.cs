@@ -337,21 +337,6 @@ invalid_key = ""this is not a valid alias key""
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             subject.Resource = null;
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            subject.Scopes = new string[] { ".default" };
-
-            subject.EvaluateOptions().Should().BeTrue();
-        }
-
-        /// <summary>
-        /// The test to evaluate options without alias missing required options.
-        /// </summary>
-        [Test]
-        public void TestEvaluateOptionsWithOverridedScopes()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.Resource = null;
             subject.Client = null;
             subject.Tenant = null;
 
@@ -361,6 +346,40 @@ invalid_key = ""this is not a valid alias key""
                 "The --resource field or the --scope field is required.",
                 "The --client field is required.",
                 "The --tenant field is required.",
+            });
+        }
+
+        /// <summary>
+        /// The test to evaluate options without resource but with scopes.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsWithOverridedScopes()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = null;
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            subject.Scopes = new string[] { ".default" };
+
+            subject.EvaluateOptions().Should().BeTrue();
+        }
+
+        /// <summary>
+        /// The test to evaluate options without resource but with scopes.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsWithResourceAndScopes()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            subject.Scopes = new string[] { ".default" };
+
+            subject.EvaluateOptions().Should().BeTrue();
+            this.logTarget.Logs.Should().Contain(new[]
+            {
+                "The --scope field is provided, so the --resource field will be ignored.",
             });
         }
 
