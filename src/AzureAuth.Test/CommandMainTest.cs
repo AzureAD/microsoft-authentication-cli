@@ -364,6 +364,20 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
+        /// The test to evaluate options with normal parameters.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsWithNormalParameters()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            subject.EvaluateOptions().Should().BeTrue();
+        }
+
+        /// <summary>
         /// The test to evaluate options with both resource and scopes.
         /// </summary>
         [Test]
