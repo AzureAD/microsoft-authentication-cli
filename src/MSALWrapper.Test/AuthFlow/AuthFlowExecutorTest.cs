@@ -754,8 +754,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
 
             stopwatch.Setup(tm => tm.Start());
-            stopwatch.Setup(tm => tm.Elapsed()).Returns(timeAfterwarningLength);
-            stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
             stopwatch.Setup(tm => tm.TimedOut()).Returns(true);
             stopwatch.Setup(tm => tm.Stop());
 

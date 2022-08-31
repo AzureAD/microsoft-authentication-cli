@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `--timeout` functionality to provide reliable contract of allowed runtime (default: 10 minutes) and warnings as the timeout approaches.
 
 ### Fixed
+- Fixed a bug where broker auth prompt is hanging in the background and gives a false impression to the user that the console app is hung.
 - Fixed a bug where sometimes, when logged in with only a password (not a strong form of authentication) the broker flow could hang indefinitely, preventing fall back to another auth flow.
 
 ## [0.4.0] - 2022-06-23

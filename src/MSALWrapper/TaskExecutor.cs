@@ -31,6 +31,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             source.CancelAfter(timeout);
             try
             {
+                // Task.WhenAny() takes an enumerable of Task which != Task<T>.
+                // The wrapperTask here gives us a non-generic Task to race the delay against.
                 Task<T> mainTask = getTask(source.Token);
                 Task wrapperTask = Task.Run(() => mainTask);
                 await Task.WhenAny(Task.Delay(timeout), wrapperTask);

@@ -25,7 +25,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly ILogger logger;
         private readonly IStopwatch stopwatch;
 
-        private TimeSpan pollingInterval = TimeSpan.FromSeconds(30);
+        private TimeSpan pollingInterval = TimeSpan.FromMinutes(5);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthFlowExecutor"/> class.
@@ -102,12 +102,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             while (!flowResult.IsCompleted)
             {
-                if (this.stopwatch.Elapsed() >= WarningDelay)
-                {
-                    this.logger.LogWarning($"Waiting for {authFlowName} authentication. Look for an auth prompt.");
-                    this.logger.LogWarning($"Timeout in {this.stopwatch.Remaining():mm}m {this.stopwatch.Remaining():ss}s!");
-                }
-
                 if (this.stopwatch.TimedOut())
                 {
                     this.stopwatch.Stop();
@@ -118,6 +112,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     // Note that though the task running the auth flow will be killed once we return from this method,
                     // the interactive auth prompt will be killed as we exit the application (possibly due to the way GC works).
                     return timeoutResult;
+                }
+
+                if (this.stopwatch.Elapsed() >= WarningDelay)
+                {
+                    this.logger.LogWarning($"Waiting for {authFlowName} authentication. Look for an auth prompt.");
+                    this.logger.LogWarning($"Timeout in {this.stopwatch.Remaining():mm}m {this.stopwatch.Remaining():ss}s!");
                 }
 
                 await Task.WhenAny(Task.Delay(this.Delay()), flowResult);

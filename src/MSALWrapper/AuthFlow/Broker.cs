@@ -8,6 +8,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 #endif
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Logging;
@@ -58,6 +59,24 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix, cacheFilePath);
+        }
+
+        private enum GetAncestorFlags
+        {
+            /// <summary>
+            /// Retrieves the parent window. This does not include the owner, as it does with the GetParent function.
+            /// </summary>
+            GetParent = 1,
+
+            /// <summary>
+            /// Retrieves the root window by walking the chain of parent windows.
+            /// </summary>
+            GetRoot = 2,
+
+            /// <summary>
+            /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
+            /// </summary>
+            GetRootOwner = 3,
         }
 
         /// <summary>
@@ -140,6 +159,27 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return new AuthFlowResult(null, this.errors, this.GetType().Name);
         }
 
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetConsoleWindow();
+
+        /// <summary>
+        /// Retrieves the handle to the ancestor of the specified window.
+        /// </summary>
+        /// <param name="windowsHandle">A handle to the window whose ancestor is to be retrieved.
+        /// If this parameter is the desktop window, the function returns NULL. </param>
+        /// <param name="flags">The ancestor to be retrieved.</param>
+        /// <returns>The return value is the handle to the ancestor window.</returns>[DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetAncestor(IntPtr windowsHandle, GetAncestorFlags flags);
+
+        // MSAL will be providing a similar helper in the future that we can use to simplify this(AzureAD/microsoft-authentication-library-for-dotnet#3590).
+        private IntPtr GetParentWindowHandle()
+        {
+            IntPtr consoleHandle = GetConsoleWindow();
+            IntPtr ancestorHandle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
+            return ancestorHandle;
+        }
+
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
         {
             var clientBuilder =
@@ -154,8 +194,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 .WithWindowsBrokerOptions(new WindowsBrokerOptions
                 {
                     HeaderText = this.promptHint,
-                });
-
+                })
+                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()); // Pass parent window handle to MSAL so it can parent the authentication dialogs.
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();
 #else
