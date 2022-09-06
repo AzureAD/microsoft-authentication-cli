@@ -387,12 +387,12 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            subject.Scopes = new string[] { ".default" };
+            subject.Scopes = new string[] { "f0e8d801-3a50-48fd-b2da-6476d6e832a2/.default" };
 
             subject.EvaluateOptions().Should().BeTrue();
             this.logTarget.Logs.Should().Contain(new[]
             {
-                "The --scope field is provided, so the --resource field will be ignored.",
+                "The --scope option was provided with the --resource option. Only --scope will be used.",
             });
         }
 
