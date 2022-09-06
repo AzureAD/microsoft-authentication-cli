@@ -391,7 +391,8 @@ Allowed values: [all, web, devicecode]";
 
             if (!string.IsNullOrEmpty(this.authSettings.Resource) && this.authSettings.Scopes?.Count > 0)
             {
-                this.logger.LogWarning($"The {ScopeOption} field is provided, so the {ResourceOption} field will be ignored.");
+                this.logger.LogWarning($"The {ScopeOption} option was provided with the {ResourceOption} option. Only {ScopeOption} will be used.");
+
             }
 
             if (string.IsNullOrEmpty(this.authSettings.Client))
