@@ -233,7 +233,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 5 minutes.");
+            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
             authFlowResult.AuthFlowName.Should().Be("Web");
         }
 
@@ -380,7 +380,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[1].Message.Should().Be("Interactive Auth timed out after 15 minutes.");
+            authFlowResult.Errors[1].Message.Should().Be("Interactive Auth timed out after 00:15:00");
             authFlowResult.AuthFlowName.Should().Be("Web");
         }
 
@@ -404,7 +404,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[2].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 15 minutes.");
+            authFlowResult.Errors[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 00:15:00");
             authFlowResult.AuthFlowName.Should().Be("Web");
         }
 

@@ -19,7 +19,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The amount of time to wait before we start warning on stderr about waiting for auth.
         /// </summary>
-        public static TimeSpan WarningDelay = TimeSpan.FromSeconds(10);
+        public static TimeSpan WarningDelay = TimeSpan.FromSeconds(20);
 
         private readonly IEnumerable<IAuthFlow> authflows;
         private readonly ILogger logger;

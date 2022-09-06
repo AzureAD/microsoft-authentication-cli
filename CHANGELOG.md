@@ -5,13 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [0.5.0] - 2022-08-25
+## [0.5.0] - 2022-09-06
 ### Added
 - Provided functionality to disable Public Client Authentication using an environment variable `AZUREAUTH_NO_USER`.
 - Added `--timeout` functionality to provide reliable contract of allowed runtime (default: 15 minutes) and warnings as the timeout approaches.
 
 ### Fixed
 - Fixed a bug where broker auth prompt is hanging in the background and gives a false impression to the user that the console app is hung.
+- Fixed a bug where sometimes, when logged in with only a password (not a strong form of authentication) the broker flow could hang indefinitely, preventing fall back to another auth flow.
 
 ## [0.4.0] - 2022-06-23
 ### Added

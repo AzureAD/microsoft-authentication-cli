@@ -31,11 +31,23 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             source.CancelAfter(timeout);
             try
             {
-                return await getTask(source.Token).ConfigureAwait(false);
+                // Task.WhenAny() takes an enumerable of Task which != Task<T>.
+                // The wrapperTask here gives us a non-generic Task to race the delay against.
+                Task<T> mainTask = getTask(source.Token);
+                Task wrapperTask = Task.Run(() => mainTask);
+                await Task.WhenAny(Task.Delay(timeout), wrapperTask);
+                if (mainTask.IsCompleted)
+                {
+                    return await mainTask;
+                }
+                else
+                {
+                    throw new OperationCanceledException();
+                }
             }
             catch (OperationCanceledException)
             {
-                var warningMessage = $"{taskName} timed out after {timeout.TotalMinutes} minutes.";
+                var warningMessage = $"{taskName} timed out after {timeout.ToString(@"hh\:mm\:ss")}";
                 logger?.LogWarning(warningMessage);
                 errorsList?.Add(new AuthenticationTimeoutException(warningMessage));
                 return null;
