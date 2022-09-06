@@ -31,7 +31,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The silent auth timeout.
         /// </summary>
-        private TimeSpan silentAuthTimeout = TimeSpan.FromMinutes(5);
+        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(15);
 
         /// <summary>
         /// The device code flow timeout.
