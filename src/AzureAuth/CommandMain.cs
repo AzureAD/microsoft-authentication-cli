@@ -483,6 +483,9 @@ Allowed values: [all, web, devicecode]";
                 this.eventData.Add("error_count", errors.Length);
                 this.eventData.Add("authflow_count", results.Length);
 
+                // Send custom telemetry events for each authflow result.
+                this.SendAuthFlowTelemetryEvents(results);
+
                 if (successfulResult == null)
                 {
                     this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
@@ -507,9 +510,6 @@ Allowed values: [all, web, devicecode]";
                     case OutputMode.None:
                         break;
                 }
-
-                // Send custom telemetry events for each authflow result.
-                this.SendAuthFlowTelemetryEvents(results);
             }
             catch (Exception ex)
             {
@@ -535,24 +535,31 @@ Allowed values: [all, web, devicecode]";
 
         private AuthFlowExecutor AuthFlowExecutor()
         {
-            if (this.authFlowExecutor == null)
+            // TODO: Really we need to get rid of Resource
+            var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
+
+            IEnumerable<IAuthFlow> authFlows = null;
+            if (this.authFlow != null)
             {
-                // TODO: Really we need to get rid of Resource
-                var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
-
-                var authFlows = AuthFlowFactory.Create(
-                    this.logger,
-                    this.CombinedAuthMode,
-                    new Guid(this.authSettings.Client),
-                    new Guid(this.authSettings.Tenant),
-                    scopes,
-                    this.CacheFilePath,
-                    this.PreferredDomain,
-                    PrefixedPromptHint(this.authSettings.PromptHint),
-                    Constants.AuthOSXKeyChainSuffix);
-
-                this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());
+                // if this.authFlow has been injected - use that.
+                authFlows = new[] { this.authFlow };
             }
+            else
+            {
+                // Normal production flow
+                authFlows = AuthFlowFactory.Create(
+                this.logger,
+                this.CombinedAuthMode,
+                new Guid(this.authSettings.Client),
+                new Guid(this.authSettings.Tenant),
+                scopes,
+                this.CacheFilePath,
+                this.PreferredDomain,
+                PrefixedPromptHint(this.authSettings.PromptHint),
+                Constants.AuthOSXKeyChainSuffix);
+            }
+
+            this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());
 
             return this.authFlowExecutor;
         }
