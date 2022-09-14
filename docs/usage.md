@@ -96,6 +96,14 @@ Use the option `--output` to get the token in the desired formats. Available cho
 3. `--output status` returns the status of the authentication and the cache.
 4. `--output none` returns nothing.
 
+## Setting custom timeout
+Azureauth currently defaults to 15 minutes timeout. You can also mention your custom timeout in minutes which can be a decimal number.
+
+Usage:
+```
+azureauth --alias alias1 --timeout 10.75
+```
+
 Use the command `azureauth --help` to understand more available options.
 
 ### Examples
