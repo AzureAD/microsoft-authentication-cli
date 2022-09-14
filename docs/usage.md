@@ -97,7 +97,7 @@ Use the option `--output` to get the token in the desired formats. Available cho
 4. `--output none` returns nothing.
 
 ## Setting custom timeout
-Azureauth currently defaults to 15 minutes timeout. You can also set your custom timeout in minutes which can be a decimal number.
+Azureauth defaults to a 15 minute timeout. You can override this with a custom timeout value using `--timeout`. The value is interpreted as a decimal number of minutes. The example below will wait 10 minutes and 45 seconds.
 
 Usage:
 ```
