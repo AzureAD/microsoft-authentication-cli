@@ -37,7 +37,7 @@ resource = ""67eeda51-3891-4101-a0e3-bf0c64047157""
 client = ""73e5793e-8f71-4da2-9f71-575cb3019b37""
 domain = ""contoso.com""
 tenant = ""a3be859b-7f9a-4955-98ed-f3602dbd954c""
-scopes = [ "".default"", ]
+scopes = [ ""67eeda51-3891-4101-a0e3-bf0c64047157/.default"", ]
 prompt_hint = ""sample prompt hint.""
 ";
 
@@ -173,7 +173,7 @@ invalid_key = ""this is not a valid alias key""
                 Client = "73e5793e-8f71-4da2-9f71-575cb3019b37",
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
-                Scopes = new List<string> { ".default" },
+                Scopes = new List<string> { "67eeda51-3891-4101-a0e3-bf0c64047157/.default" },
                 PromptHint = "sample prompt hint.",
             };
 
@@ -200,7 +200,7 @@ invalid_key = ""this is not a valid alias key""
                 Client = clientOverride,
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
-                Scopes = new List<string> { ".default" },
+                Scopes = new List<string> { "67eeda51-3891-4101-a0e3-bf0c64047157/.default" },
                 PromptHint = "sample prompt hint.",
             };
 
@@ -230,7 +230,7 @@ invalid_key = ""this is not a valid alias key""
                 Client = clientOverride,
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
-                Scopes = new List<string> { ".default" },
+                Scopes = new List<string> { "67eeda51-3891-4101-a0e3-bf0c64047157/.default" },
                 PromptHint = "sample prompt hint.",
             };
 
@@ -358,7 +358,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = null;
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            subject.Scopes = new string[] { ".default" };
+            subject.Scopes = new string[] { "f0e8d801-3a50-48fd-b2da-6476d6e832a2/.default" };
 
             subject.EvaluateOptions().Should().BeTrue();
         }
