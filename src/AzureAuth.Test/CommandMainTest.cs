@@ -11,6 +11,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using System.Runtime.InteropServices;
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
@@ -61,9 +62,9 @@ invalid_key = ""this is not a valid alias key""
         private IFileSystem fileSystem;
         private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
-        private Mock<ITokenFetcher> tokenFetcherMock;
         private Mock<IEnv> envMock;
         private Mock<ITelemetryService> telemetryServiceMock;
+        private Mock<IAuthFlow> authFlowMock;
 
         /// <summary>
         /// The setup.
@@ -82,14 +83,9 @@ invalid_key = ""this is not a valid alias key""
             loggingConfig.AddTarget(this.logTarget);
             loggingConfig.AddRuleForAllLevels(this.logTarget);
 
-            // Setup moq token fetcher
-            // When registering the token fetcher here the DI framework will match against
-            // the most specific constructor (i.e. most params) that it knows how to construct.
-            // Meaning all param types are also registered with the DI service provider.
-            this.tokenFetcherMock = new Mock<ITokenFetcher>(MockBehavior.Strict);
-
             this.envMock = new Mock<IEnv>(MockBehavior.Strict);
             this.telemetryServiceMock = new Mock<ITelemetryService>(MockBehavior.Strict);
+            this.authFlowMock = new Mock<IAuthFlow>(MockBehavior.Strict);
 
             // Environment variables should be null by default.
             this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
@@ -104,9 +100,9 @@ invalid_key = ""this is not a valid alias key""
                 })
                 .AddSingleton(this.eventData)
                 .AddSingleton(this.fileSystem)
-                .AddSingleton<ITokenFetcher>(this.tokenFetcherMock.Object)
                 .AddSingleton<IEnv>(this.envMock.Object)
                 .AddSingleton<ITelemetryService>(this.telemetryServiceMock.Object)
+                .AddSingleton<IAuthFlow>(this.authFlowMock.Object)
                 .AddTransient<CommandMain>()
                 .BuildServiceProvider();
         }
@@ -621,6 +617,39 @@ invalid_key = ""this is not a valid alias key""
             eventData.Properties.Should().Contain("success", "False");
             eventData.Properties.Should().Contain("error_messages", "System.Exception: Exception 1.");
             eventData.Measures.Should().ContainKey("duration_milliseconds");
+        }
+
+        [Test]
+        public void TestSendEvent_From_AuthFlowResult_With_Errors_And_Null_TokenResult()
+        {
+            var errors = new[]
+            {
+                new Exception("Exception 1."),
+            };
+
+            AuthFlowResult authFlowResult = new AuthFlowResult(null, errors, "Sample");
+
+            this.authFlowMock.Setup((a) => a.GetTokenAsync()).ReturnsAsync(authFlowResult);
+
+            // It would be nice to increase the assertion level here to include specific attributes on the eventData sent.
+            // The mock setup matching with strict behavior is difficult to get right, and we have other tests already validating the contents
+            // of events generated have what we expect. This validates we are in fact sending them.
+            this.telemetryServiceMock.Setup(s => s.SendEvent("authflow_Sample", It.IsAny<EventData>()));
+
+            var subject = this.serviceProvider.GetService<CommandMain>();
+
+            // mock valid args
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            subject.EvaluateOptions().Should().BeTrue();
+
+            // Act
+            // Note: If the mock telem service matching fails, the OnExecute's global try-catch will hide that failure.
+            subject.OnExecute().Should().Be(1);
+
+            // Assert
+            this.telemetryServiceMock.VerifyAll();
         }
 
         /// <summary>
