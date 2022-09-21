@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net5.0-windows10.0.17763.0</TargetFramework>
     <SupportedOSPlatformVersion>7</SupportedOSPlatformVersion>
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
@@ -33,7 +33,6 @@
     <!-- Stylecop warnings as errors flag for build to fail -->
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,11 +46,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Office.Lasso" Version="2022.1.6.1" />
     <PackageReference Include="Tomlyn" Version="0.11.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Lasso\Microsoft.Lasso\Microsoft.Lasso.csproj" />
     <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
   </ItemGroup>
 
