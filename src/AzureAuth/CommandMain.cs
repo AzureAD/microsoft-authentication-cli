@@ -15,9 +15,9 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
-    using Microsoft.Office.Lasso.Extensions;
-    using Microsoft.Office.Lasso.Interfaces;
-    using Microsoft.Office.Lasso.Telemetry;
+    using Microsoft.Lasso.Extensions;
+    using Microsoft.Lasso.Interfaces;
+    using Microsoft.Lasso.Telemetry;
 
     /// <summary>
     /// The command main class parses commands and dispatches to the corresponding methods.

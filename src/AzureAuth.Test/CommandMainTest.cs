@@ -16,8 +16,8 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
-    using Microsoft.Office.Lasso.Interfaces;
-    using Microsoft.Office.Lasso.Telemetry;
+    using Microsoft.Lasso.Interfaces;
+    using Microsoft.Lasso.Telemetry;
 
     using Moq;
 

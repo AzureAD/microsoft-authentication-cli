@@ -5,8 +5,8 @@ namespace Microsoft.Authentication.AzureAuth
 {
     using System;
     using McMaster.Extensions.CommandLineUtils;
-    using Microsoft.Office.Lasso;
-    using Microsoft.Office.Lasso.Telemetry;
+    using Microsoft.Lasso;
+    using Microsoft.Lasso.Telemetry;
 
     /// <summary>
     /// The start up program.
