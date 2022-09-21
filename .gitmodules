@@ -1,0 +1,3 @@
+[submodule "Lasso"]
+	path = Lasso
+	url = https://github.com/microsoft/Lasso
