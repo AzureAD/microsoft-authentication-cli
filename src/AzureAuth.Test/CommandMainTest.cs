@@ -38,7 +38,7 @@ resource = ""67eeda51-3891-4101-a0e3-bf0c64047157""
 client = ""73e5793e-8f71-4da2-9f71-575cb3019b37""
 domain = ""contoso.com""
 tenant = ""a3be859b-7f9a-4955-98ed-f3602dbd954c""
-scopes = [ "".default"", ]
+scopes = [ ""67eeda51-3891-4101-a0e3-bf0c64047157/.default"", ]
 prompt_hint = ""sample prompt hint.""
 ";
 
@@ -169,7 +169,7 @@ invalid_key = ""this is not a valid alias key""
                 Client = "73e5793e-8f71-4da2-9f71-575cb3019b37",
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
-                Scopes = new List<string> { ".default" },
+                Scopes = new List<string> { "67eeda51-3891-4101-a0e3-bf0c64047157/.default" },
                 PromptHint = "sample prompt hint.",
             };
 
@@ -196,7 +196,7 @@ invalid_key = ""this is not a valid alias key""
                 Client = clientOverride,
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
-                Scopes = new List<string> { ".default" },
+                Scopes = new List<string> { "67eeda51-3891-4101-a0e3-bf0c64047157/.default" },
                 PromptHint = "sample prompt hint.",
             };
 
@@ -226,7 +226,7 @@ invalid_key = ""this is not a valid alias key""
                 Client = clientOverride,
                 Domain = "contoso.com",
                 Tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c",
-                Scopes = new List<string> { ".default" },
+                Scopes = new List<string> { "67eeda51-3891-4101-a0e3-bf0c64047157/.default" },
                 PromptHint = "sample prompt hint.",
             };
 
@@ -291,7 +291,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain("The --resource field is required.");
+            this.logTarget.Logs.Should().Contain("The --resource field or the --scope field is required.");
         }
 
         /// <summary>
@@ -338,9 +338,57 @@ invalid_key = ""this is not a valid alias key""
             subject.EvaluateOptions().Should().BeFalse();
             this.logTarget.Logs.Should().Contain(new[]
             {
-                "The --resource field is required.",
+                "The --resource field or the --scope field is required.",
                 "The --client field is required.",
                 "The --tenant field is required.",
+            });
+        }
+
+        /// <summary>
+        /// The test to evaluate options without resource but with scopes.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsWithOverridedScopes()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = null;
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            subject.Scopes = new string[] { "f0e8d801-3a50-48fd-b2da-6476d6e832a2/.default" };
+
+            subject.EvaluateOptions().Should().BeTrue();
+        }
+
+        /// <summary>
+        /// The test to evaluate options with normal parameters.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsWithNormalParameters()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            subject.EvaluateOptions().Should().BeTrue();
+        }
+
+        /// <summary>
+        /// The test to evaluate options with both resource and scopes.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsWithResourceAndScopes()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            subject.Scopes = new string[] { "f0e8d801-3a50-48fd-b2da-6476d6e832a2/.default" };
+
+            subject.EvaluateOptions().Should().BeTrue();
+            this.logTarget.Logs.Should().Contain(new[]
+            {
+                "The --scope option was provided with the --resource option. Only --scope will be used.",
             });
         }
 

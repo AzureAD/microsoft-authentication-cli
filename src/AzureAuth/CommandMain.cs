@@ -382,10 +382,18 @@ Allowed values: [all, web, devicecode]";
         private bool ValidateOptions()
         {
             bool validOptions = true;
-            if (string.IsNullOrEmpty(this.authSettings.Resource))
+
+            int scopesCount = this.authSettings.Scopes?.Count ?? 0;
+
+            if (string.IsNullOrEmpty(this.authSettings.Resource) && scopesCount == 0)
             {
-                this.logger.LogError($"The {ResourceOption} field is required.");
+                this.logger.LogError($"The {ResourceOption} field or the {ScopeOption} field is required.");
                 validOptions = false;
+            }
+
+            if (!string.IsNullOrEmpty(this.authSettings.Resource) && scopesCount > 0)
+            {
+                this.logger.LogWarning($"The {ScopeOption} option was provided with the {ResourceOption} option. Only {ScopeOption} will be used.");
             }
 
             if (string.IsNullOrEmpty(this.authSettings.Client))
