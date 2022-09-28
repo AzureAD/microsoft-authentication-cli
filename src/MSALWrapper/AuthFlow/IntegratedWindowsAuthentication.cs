@@ -25,7 +25,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The integrated windows auth flow timeout.
         /// </summary>
-        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(6);
+        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(15);
         #endregion
 
         /// <summary>
@@ -109,6 +109,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 this.logger.LogWarning($"Msal Client Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
+                if (ex.Message.Contains("WS-Trust endpoint not found"))
+                {
+                    this.logger.LogWarning($"IWA only works on Corp Net, please turn on VPN.");
+                }
             }
             catch (NullReferenceException ex)
             {
