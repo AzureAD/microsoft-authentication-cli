@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Option `--resource` is not needed if option `--scope` is provided.
+- Refactoring IWA AuthFlow to call GetTokenIWA when we have a MsalUiRequiredException 
 
 ## [0.5.1] - 2022-09-08
 ### Fixed
