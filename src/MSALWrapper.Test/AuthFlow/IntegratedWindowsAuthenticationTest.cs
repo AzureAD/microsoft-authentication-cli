@@ -134,7 +134,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task CachedAccount_Throws_ServiceException()
+        public async Task CachedAuth_Throws_ServiceException()
         {
             this.MockAccount();
             this.CachedAuthServiceException();
@@ -155,7 +155,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task GetTokenSilent_OperationCanceledException()
         {
             this.MockAccount();
-            this.SilentAuthTimeout();
+            this.CachedAuthTimeout();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -172,11 +172,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task IntegratedWindowsAuthFlow_GetTokenSilent_MsalClientException()
+        public async Task GetTokenSilent_MsalClientException()
         {
-            this.SilentAuthClientException();
-
             this.MockAccount();
+            this.CachedAuthClientException();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -191,11 +190,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task IntegratedWindowsAuthFlow_GetTokenSilent_NullReferenceException()
+        public async Task GetTokenSilent_NullReferenceException()
         {
-            this.SilentAuthNullReferenceException();
-
             this.MockAccount();
+            this.CachedAuthNullReferenceException();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -213,8 +211,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task NoCachedAccounts_IWASuccess()
         {
             this.MockAccountReturnsNull();
-            this.GetTokenSilentUIRequiredNoAccount();
-            this.IntegratedWindowsAuthenticationResult();
+            this.CachedAuthUIRequiredNoAccount();
+            this.IWAReturnsResult();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -233,7 +231,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockAccountReturnsNull();
             this.CachedAuthUIRequired();
-            this.IntegratedWindowsAuthenticationReturnsNull();
+            this.IWAReturnsNull();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -252,7 +250,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockAccountReturnsNull();
             this.CachedAuthUIRequired();
-            this.IntegratedWindowsAuthenticationUIRequiredFor2FA();
+            this.IWAUIRequiredFor2FA();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -292,7 +290,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockAccountReturnsNull();
             this.CachedAuthUIRequired();
-            this.IntegratedWindowsAuthenticationServiceException();
+            this.IWAServiceException();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -313,7 +311,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockAccountReturnsNull();
             this.CachedAuthUIRequired();
-            this.IntegratedWindowsAuthenticationClientException();
+            this.IWAClientException();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -356,49 +354,49 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Throws(new MsalServiceException(MsalServiceExceptionErrorCode, MsalServiceExceptionMessage));
         }
 
-        private void SilentAuthTimeout()
+        private void CachedAuthTimeout()
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new OperationCanceledException());
         }
 
-        private void SilentAuthClientException()
+        private void CachedAuthClientException()
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new MsalClientException("1", "Could not find a WAM account for the silent request."));
         }
 
-        private void SilentAuthNullReferenceException()
+        private void CachedAuthNullReferenceException()
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new NullReferenceException("There was a null reference excpetion. This should absolutly never happen and if it does it is a bug."));
         }
 
-        private void IntegratedWindowsAuthenticationResult()
+        private void IWAReturnsResult()
         {
             this.pcaWrapperMock
                .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, It.IsAny<CancellationToken>()))
                .ReturnsAsync(this.tokenResult);
         }
 
-        private void IntegratedWindowsAuthenticationReturnsNull()
+        private void IWAReturnsNull()
         {
             this.pcaWrapperMock
                .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, It.IsAny<CancellationToken>()))
                .ReturnsAsync((TokenResult)null);
         }
 
-        private void GetTokenSilentUIRequiredNoAccount()
+        private void CachedAuthUIRequiredNoAccount()
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, null, It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "No account hint given!"));
         }
 
-        private void IntegratedWindowsAuthenticationUIRequiredFor2FA()
+        private void IWAUIRequiredFor2FA()
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, It.IsAny<CancellationToken>()))
@@ -412,14 +410,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Throws(new MsalUiRequiredException("2", "MSAL UI Required Exception!"));
         }
 
-        private void IntegratedWindowsAuthenticationServiceException()
+        private void IWAServiceException()
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, It.IsAny<CancellationToken>()))
                 .Throws(new MsalServiceException(MsalServiceExceptionErrorCode, MsalServiceExceptionMessage));
         }
 
-        private void IntegratedWindowsAuthenticationClientException()
+        private void IWAClientException()
         {
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, It.IsAny<CancellationToken>()))
