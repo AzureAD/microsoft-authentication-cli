@@ -25,7 +25,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The integrated windows auth flow timeout.
         /// </summary>
-        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(6);
+        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(15);
         #endregion
 
         /// <summary>
