@@ -38,7 +38,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="cacheFilePath">The pca cache file path.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
-        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes,  string cacheFilePath, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
+        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string cacheFilePath, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
         {
             this.errors = new List<Exception>();
             this.logger = logger;
@@ -54,88 +54,67 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         public async Task<AuthFlowResult> GetTokenAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
+            this.logger.LogDebug($"Using cached account '{account?.Username}'");
+            TokenResult tokenResult = null;
 
-            if (account != null)
-            {
-                this.logger.LogDebug($"Using cached account '{account.Username}'");
-                try
-                {
-                    try
-                    {
-                        var tokenResult = await TaskExecutor.CompleteWithin(
-                            this.logger,
-                            this.integratedWindowsAuthTimeout,
-                            "Get Token Silent",
-                            (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
-                            this.errors)
-                            .ConfigureAwait(false);
-                        tokenResult.SetSilent();
-
-                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
-                    }
-                    catch (MsalUiRequiredException ex)
-                    {
-                        this.errors.Add(ex);
-                        this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
-                    }
-                }
-                catch (MsalServiceException ex)
-                {
-                    this.logger.LogWarning($"MSAL Service Exception! (Not expected)\n{ex.Message}");
-                    this.errors.Add(ex);
-                }
-                catch (MsalClientException ex)
-                {
-                    this.logger.LogWarning($"Msal Client Exception! (Not expected)\n{ex.Message}");
-                    this.errors.Add(ex);
-                }
-                catch (NullReferenceException ex)
-                {
-                    this.logger.LogWarning($"Msal unexpected null reference! (Not Expected)\n{ex.Message}");
-                    this.errors.Add(ex);
-                }
-            }
-            else
+            try
             {
                 try
                 {
-                    var tokenResult = await TaskExecutor.CompleteWithin(
-                                    this.logger,
-                                    this.integratedWindowsAuthTimeout,
-                                    "Get Token Integrated Windows Authentication",
-                                    (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
-                                    this.errors)
-                                    .ConfigureAwait(false);
+                    tokenResult = await TaskExecutor.CompleteWithin(
+                        this.logger,
+                        this.integratedWindowsAuthTimeout,
+                        "Get Token Silent",
+                        (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
+                        this.errors)
+                        .ConfigureAwait(false);
                     tokenResult.SetSilent();
-
-                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
-                }
-                catch (MsalUiRequiredException ex) when (
-                             ex.Classification == UiRequiredExceptionClassification.BasicAction
-                          && ex.Message.StartsWith("AADSTS50076", StringComparison.OrdinalIgnoreCase))
-                {
-                    this.errors.Add(ex);
-                    this.logger.LogWarning($"IWA failed, 2FA is required.\n" +
-                        $"IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.\n{ex.Message}");
+                    if (tokenResult == null)
+                    {
+                        this.errors.Add(new NullTokenResultException("IWA Get Token Silent returned null.(Not expected)"));
+                    }
                 }
                 catch (MsalUiRequiredException ex)
                 {
                     this.errors.Add(ex);
-                    this.logger.LogDebug($"MSAL UI Required Exception.\n{ex.Message}");
-                }
-                catch (MsalServiceException ex)
-                {
-                    this.logger.LogWarning($"MSAL Service Exception! (Not expected)\n{ex.Message}");
-                    this.errors.Add(ex);
-                }
-                catch (MsalClientException ex)
-                {
-                    this.logger.LogWarning($"Msal Client Exception! Could not identify logged in user.\n{ex.Message}");
-                    this.errors.Add(ex);
+                    this.logger.LogDebug($"Cached auth failed\n{ex.Message}");
+                    tokenResult = await TaskExecutor.CompleteWithin(
+                                  this.logger,
+                                  this.integratedWindowsAuthTimeout,
+                                  "Get Token Integrated Windows Authentication",
+                                  (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
+                                  this.errors)
+                                  .ConfigureAwait(false);
+                    tokenResult.SetSilent();
                 }
             }
+            catch (MsalUiRequiredException ex)
+            {
+                this.errors.Add(ex);
+                if (ex.Classification == UiRequiredExceptionClassification.BasicAction
+                      && ex.Message.StartsWith("AADSTS50076", StringComparison.OrdinalIgnoreCase))
+                {
+                    this.logger.LogWarning($"IWA failed, 2FA is required.\n" +
+                        $"IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.\n{ex.Message}");
+                }
+            }
+            catch (MsalServiceException ex)
+            {
+                this.logger.LogWarning($"MSAL Service Exception! (Not expected)\n{ex.Message}");
+                this.errors.Add(ex);
+            }
+            catch (MsalClientException ex)
+            {
+                this.logger.LogWarning($"Msal Client Exception! (Not expected)\n{ex.Message}");
+                this.errors.Add(ex);
+            }
+            catch (NullReferenceException ex)
+            {
+                this.logger.LogWarning($"Msal unexpected null reference! (Not Expected)\n{ex.Message}");
+                this.errors.Add(ex);
+            }
 
-            return new AuthFlowResult(null, this.errors, this.GetType().Name);
+            return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
