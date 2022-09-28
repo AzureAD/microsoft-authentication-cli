@@ -77,7 +77,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 catch (MsalUiRequiredException ex)
                 {
                     this.errors.Add(ex);
-                    this.logger.LogDebug($"Cached auth failed\n{ex.Message}");
+                    this.logger.LogDebug("Cached auth failed.");
+                    this.logger.LogDebug(ex.Message);
                     tokenResult = await TaskExecutor.CompleteWithin(
                                   this.logger,
                                   this.integratedWindowsAuthTimeout,
@@ -94,8 +95,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 if (ex.Classification == UiRequiredExceptionClassification.BasicAction
                       && ex.Message.StartsWith("AADSTS50076", StringComparison.OrdinalIgnoreCase))
                 {
-                    this.logger.LogWarning($"IWA failed, 2FA is required.\n" +
-                        $"IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.\n{ex.Message}");
+                    this.logger.LogWarning("IWA failed, 2FA is required.");
+                    this.logger.LogWarning("IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.");
+                    this.logger.LogWarning(ex.Message);
                 }
             }
             catch (MsalServiceException ex)
