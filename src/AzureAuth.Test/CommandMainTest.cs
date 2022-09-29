@@ -725,29 +725,46 @@ invalid_key = ""this is not a valid alias key""
         [TestCase("non-empty-string", false)]
         [TestCase("true", false)]
         [TestCase("", false)]
-        public void TestPCA_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
+        public void InteractiveAuth_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
-            subject.PCADisabled().Should().Be(expected);
+            subject.InteractiveAuthDisabled().Should().Be(expected);
         }
 
         [TestCase("1", true)]
         [TestCase("non-empty-string", true)]
         [TestCase("true", true)]
         [TestCase("", false)]
-        public void TestPCA_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
+        public void InteractiveAuth_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
-            subject.PCADisabled().Should().Be(expected);
+            subject.InteractiveAuthDisabled().Should().Be(expected);
         }
 
         [Test]
-        public void PCA_IsEnabledIfEnvVarsAreNotSet()
+        public void InteractiveAuth_IsEnabledIfEnvVarsAreNotSet()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.PCADisabled().Should().BeFalse();
+            subject.InteractiveAuthDisabled().Should().BeFalse();
+        }
+
+        [TestCase("non-empty-string")]
+        public void GetCombinedAuthMode_withInteractiveAuthDisabled(string noUser)
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
+            subject.GetCombinedAuthMode().Should().Be(AuthMode.IWA);
+        }
+
+        public void GetCombinedAuthMode_withInteractiveAuthEnabled()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            var authModes = new List<AuthMode>();
+            authModes.Add(AuthMode.Broker);
+            subject.AuthModes = authModes;
+            subject.GetCombinedAuthMode().Should().Be(AuthMode.Broker);
         }
 
         /// <summary>
