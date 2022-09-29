@@ -750,6 +750,7 @@ invalid_key = ""this is not a valid alias key""
             subject.InteractiveAuthDisabled().Should().BeFalse();
         }
 
+#if PlatformWindows
         [TestCase("non-empty-string")]
         [Platform("Win")] // Only valid on Windows
         public void GetCombinedAuthMode_withInteractiveAuthDisabled(string noUser)
@@ -768,6 +769,7 @@ invalid_key = ""this is not a valid alias key""
             subject.AuthModes = authModes;
             subject.CombinedAuthMode.Should().Be(AuthMode.Broker);
         }
+#endif
 
         public void GetCombinedAuthMode_withInteractiveAuthEnabled_NonWindowsPlatform()
         {
