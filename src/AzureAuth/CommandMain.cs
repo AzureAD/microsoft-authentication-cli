@@ -217,7 +217,25 @@ Allowed values: [all, web, devicecode]";
             get { return this.authSettings; }
         }
 
-        private AuthMode CombinedAuthMode => this.AuthModes.Aggregate((a1, a2) => a1 | a2);
+        /// <summary>
+        /// Gets the CombinedAuthMode depending on env variables to disable interactive auth modes.
+        /// </summary>
+        public AuthMode CombinedAuthMode
+        {
+            get
+            {
+                if (this.InteractiveAuthDisabled())
+                {
+#if PlatformWindows
+                    return AuthMode.IWA;
+#else
+                    return 0;
+#endif
+                }
+
+                return this.AuthModes.Aggregate((a1, a2) => a1 | a2);
+            }
+        }
 
         /// <summary>
         /// Combine the <see cref="PromptHintPrefix"/> with the caller provided prompt hint.
@@ -359,11 +377,14 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            if (this.PCADisabled())
+            if (this.InteractiveAuthDisabled())
             {
-                this.eventData.Add("no_user", true);
-                this.logger.LogCritical($"User based authentication is disabled");
-                return 1;
+                this.eventData.Add(EnvVars.CorextNonInteractive, this.env.Get(EnvVars.CorextNonInteractive));
+                this.eventData.Add(EnvVars.NoUser, this.env.Get(EnvVars.NoUser));
+                this.logger.LogWarning($"Interactive authentication is disabled.");
+#if PlatformWindows
+                this.logger.LogWarning($"Supported auth mode is Integrated Windows Authentication");
+#endif
             }
 
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
@@ -373,7 +394,7 @@ Allowed values: [all, web, devicecode]";
         /// Determines whether Public Client Authentication (PCA) is disabled or not.
         /// </summary>
         /// <returns>A boolean to indicate PCA is disabled.</returns>
-        public bool PCADisabled()
+        public bool InteractiveAuthDisabled()
         {
             return !string.IsNullOrEmpty(this.env.Get(EnvVars.NoUser)) ||
                 string.Equals("1", this.env.Get(EnvVars.CorextNonInteractive));
