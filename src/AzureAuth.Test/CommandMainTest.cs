@@ -752,7 +752,6 @@ invalid_key = ""this is not a valid alias key""
 
 #if PlatformWindows
         [TestCase("non-empty-string")]
-        [Platform("Win")] // Only valid on Windows
         public void GetCombinedAuthMode_withInteractiveAuthDisabled(string noUser)
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
@@ -760,7 +759,6 @@ invalid_key = ""this is not a valid alias key""
             subject.CombinedAuthMode.Should().Be(AuthMode.IWA);
         }
 
-        [Platform("Win")] // Only valid on Windows
         public void GetCombinedAuthMode_withInteractiveAuthEnabled()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
