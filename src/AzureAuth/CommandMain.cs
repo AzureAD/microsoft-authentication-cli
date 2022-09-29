@@ -237,7 +237,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Get the correct CombinedAuthMode depending on env variables to disable interactive auth modes.
         /// </summary>
-        /// <returns>AuthModes</returns>
+        /// <returns>AuthModes.</returns>
         public AuthMode GetCombinedAuthMode()
         {
             if (this.InteractiveAuthDisabled())
