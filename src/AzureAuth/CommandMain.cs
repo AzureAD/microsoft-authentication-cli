@@ -381,7 +381,10 @@ Allowed values: [all, web, devicecode]";
             {
                 this.eventData.Add(EnvVars.CorextNonInteractive, this.env.Get(EnvVars.CorextNonInteractive));
                 this.eventData.Add(EnvVars.NoUser, this.env.Get(EnvVars.NoUser));
-                this.logger.LogWarning($"Interactive authentication is disabled. Supported auth mode is Integrated Windows Authentication");
+                this.logger.LogWarning($"Interactive authentication is disabled.");
+#if PlatformWindows
+                this.logger.LogWarning($"Supported auth mode is Integrated Windows Authentication");
+#endif
             }
 
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
