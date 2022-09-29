@@ -21,7 +21,7 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
-    
+
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
@@ -38,13 +38,24 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.43.1" />
-    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.19.6" />
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.16.0" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.24.0" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.23.1" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.43.1" />
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) == false">
+    <!-- Not Windows: simple package reference of 4.47 -->
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.47.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <!-- Windows: Explicitly continue using the net5 version of MSAL -->
+    <PackageReference Include="Microsoft.Identity.Client" GeneratePathProperty="true">
+      <Version>4.47.1</Version>
+    </PackageReference>
+
+    <Reference Include="Microsoft.Identity.Client">
+        <HintPath>$(PkgPMicrosoft_Identity_Client)\lib\net5.0-windows10.0.17763\Microsoft.Identity.Client.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
