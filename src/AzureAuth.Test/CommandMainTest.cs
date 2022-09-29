@@ -751,20 +751,31 @@ invalid_key = ""this is not a valid alias key""
         }
 
         [TestCase("non-empty-string")]
+        [Platform("Win")] // Only valid on Windows
         public void GetCombinedAuthMode_withInteractiveAuthDisabled(string noUser)
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
-            subject.GetCombinedAuthMode().Should().Be(AuthMode.IWA);
+            subject.CombinedAuthMode.Should().Be(AuthMode.IWA);
         }
 
+        [Platform("Win")] // Only valid on Windows
         public void GetCombinedAuthMode_withInteractiveAuthEnabled()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
             var authModes = new List<AuthMode>();
             authModes.Add(AuthMode.Broker);
             subject.AuthModes = authModes;
-            subject.GetCombinedAuthMode().Should().Be(AuthMode.Broker);
+            subject.CombinedAuthMode.Should().Be(AuthMode.Broker);
+        }
+
+        public void GetCombinedAuthMode_withInteractiveAuthEnabled_NonWindowsPlatform()
+        {
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            var authModes = new List<AuthMode>();
+            authModes.Add(AuthMode.Web);
+            subject.AuthModes = authModes;
+            subject.CombinedAuthMode.Should().Be(AuthMode.Web);
         }
 
         /// <summary>

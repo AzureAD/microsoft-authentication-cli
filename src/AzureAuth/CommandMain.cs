@@ -217,7 +217,25 @@ Allowed values: [all, web, devicecode]";
             get { return this.authSettings; }
         }
 
-        private AuthMode CombinedAuthMode => this.GetCombinedAuthMode();
+        /// <summary>
+        /// Gets the CombinedAuthMode depending on env variables to disable interactive auth modes.
+        /// </summary>
+        public AuthMode CombinedAuthMode
+        {
+            get
+            {
+                if (this.InteractiveAuthDisabled())
+                {
+#if PlatformWindows
+                    return AuthMode.IWA;
+#else
+                    return 0;
+#endif
+                }
+
+                return this.AuthModes.Aggregate((a1, a2) => a1 | a2);
+            }
+        }
 
         /// <summary>
         /// Combine the <see cref="PromptHintPrefix"/> with the caller provided prompt hint.
@@ -232,20 +250,6 @@ Allowed values: [all, web, devicecode]";
             }
 
             return $"{PromptHintPrefix}: {promptHint}";
-        }
-
-        /// <summary>
-        /// Get the correct CombinedAuthMode depending on env variables to disable interactive auth modes.
-        /// </summary>
-        /// <returns>AuthModes.</returns>
-        public AuthMode GetCombinedAuthMode()
-        {
-            if (this.InteractiveAuthDisabled())
-            {
-                return AuthMode.IWA;
-            }
-
-            return this.AuthModes.Aggregate((a1, a2) => a1 | a2);
         }
 
         /// <summary>
