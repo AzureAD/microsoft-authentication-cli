@@ -240,12 +240,17 @@ Allowed values: [all, web, devicecode]";
         /// <returns>AuthModes.</returns>
         public AuthMode GetCombinedAuthMode()
         {
+#if PlatformWindows
             if (this.InteractiveAuthDisabled())
             {
                 return AuthMode.IWA;
             }
 
             return this.AuthModes.Aggregate((a1, a2) => a1 | a2);
+#else
+            return this.AuthModes.Aggregate((a1, a2) => a1 | a2);
+#endif
+
         }
 
         /// <summary>
