@@ -48,7 +48,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <!-- Windows: Explicitly continue using the net5 version of MSAL -->
+    <!-- Windows: Explicitly continue using the net5 version of MSAL since there is no net6 target yet -->
+    <!-- https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3682 -->
     <PackageReference Include="Microsoft.Identity.Client" GeneratePathProperty="true">
       <Version>4.47.1</Version>
     </PackageReference>
