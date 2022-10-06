@@ -1,5 +1,4 @@
 """A script which triggers and wait for an azure devops to complete a release"""
-from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from ast import parse
 import os
 import sys
@@ -7,57 +6,8 @@ import time
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 
-
-def wait_for_release(release_client, project, release_id, timeout, interval=30):
-    release = release_client.get_release(project, release_id)
-    start = time.start()
-    while not has_release_completed(release) and time.time() - start < timeout:
-        time.sleep(interval)
-        release = release_client.get_release(project, release_id)
-    return release
-
-
-def has_release_completed(release):
-    status = release.environments[0].status
-    return status in ("succeeded", "canceled", "partiallySucceeded", "rejected")
-
-
-def has_release_failed(release):
-    status = release.environments[0].status
-    return status in ("canceled", "partiallySucceeded", "rejected")
-
-
-def create_azure_devops_release(organization, project, timeout, ADO_PAT):
-    """"""
-    connection = create_ado_connection(organization, ADO_PAT)
-
-    release_client = connection.clients.get_release_client()
-
-    azureauth_definition_id = get_ado_azureauth_release_definition_id(
-        project, release_client
-    )
-
-    release_metadata = {
-        "definitionId": azureauth_definition_id,
-    }
-
-    create_release_response = release_client.create_release(release_metadata, "OE")
-    release = wait_for_release("OE", create_release_response.id)
-
-    return release
-
-
-def get_ado_azureauth_release_definition_id(project, release_client):
-    """"""
-    definitions = release_client.get_release_definitions(project)
-
-    azureauth_definition_id = None
-    for definition in definitions.value:
-        if definition.name == "AzureAuth Linux":
-            azureauth_definition_id = definition.id
-            break
-    # TODO : handle definition not found/multiple definitions found
-    return azureauth_definition_id
+FAILED_STATUSES = ["canceled", "partiallySucceeded", "rejected"]
+COMPLETED_STATUSES = ["succeeded", "canceled", "partiallySucceeded", "rejected"]
 
 
 def create_ado_connection(organization, ADO_PAT) -> Connection:
@@ -71,34 +21,90 @@ def create_ado_connection(organization, ADO_PAT) -> Connection:
     return connection
 
 
+def get_release_definition(project, pipeline_name, release_client):
+    """Returns the ADO definition for the given pipeline"""
+    # Get all release definitions in a given project
+    project_release_definitions = release_client.get_release_definitions(project)
+
+    # Filter release definitions with the given pipeline name
+    pipeline_release_definitions = []
+    for definition in project_release_definitions.value:
+        if definition.name == pipeline_name:
+            pipeline_release_definitions.append(definition)
+
+    if pipeline_release_definitions is None or len(pipeline_release_definitions) == 0:
+        error_message = f"Pipeline named {pipeline_name} not found in project {project}"
+        raise Exception(error_message)
+
+    if len(pipeline_release_definitions) > 1:
+        error_message = (
+            f"More than 1 Pipeline named {pipeline_name} found in project {project}"
+        )
+        raise Exception(error_message)
+
+    return pipeline_release_definitions[0]
+
+
+def populate_release_metadata(project, pipeline_name, release_client):
+    """Returns release metadata with required information"""
+    release_definition = get_release_definition(project, pipeline_name, release_client)
+    release_metadata = {
+        "definitionId": release_definition.id,
+    }
+    return release_metadata
+
+
+def release_status_match(release, expected_status_list):
+    """Returns True if status of all the environments of the release match any of the expected statuses"""
+    # Each release can have one or more environments (stages).
+    release_env_statuses = [environment.status for environment in release.environments]
+    # return all(status in expected_status_list for status in release_env_statuses)
+    for status in release_env_statuses:
+        if status not in expected_status_list:
+            return False
+    return True
+
+
+def wait_for_release(release_client, project, release_id):
+    """Wait for the azure devops release to finish"""
+    release = release_client.get_release(project, release_id)
+
+    # polling interval is set in accordance with the rate limits specified here:
+    # https://learn.microsoft.com/en-us/azure/devops/integrate/concepts/rate-limits?view=azure-devops
+    polling_interval_secs = 30
+
+    # Wait until the release have a complete status.
+    while not release_status_match(release, COMPLETED_STATUSES):
+        time.sleep(polling_interval_secs)
+        release = release_client.get_release(project, release_id)
+    return release
+
+
+def create_and_wait_for_azure_devops_release(
+    organization, project, pipeline_name, ADO_PAT
+):
+    """Creates and waits for an azure devops release to be finished"""
+    connection = create_ado_connection(organization, ADO_PAT)
+    release_client = connection.clients.get_release_client()
+    release_metadata = populate_release_metadata(project, pipeline_name, release_client)
+
+    triggered_release = release_client.create_release(release_metadata, project)
+    release_url = f"https://dev.azure.com/{organization}/{project}/_releaseProgress?_a=release-pipeline-progress&releaseId={triggered_release.id}"
+    print(
+        f"Successfully triggered a release. Waiting for the release to be completed.\nMore details on the release can be found here: {release_url}"
+    )
+
+    completed_release = wait_for_release(release_client, project, triggered_release.id)
+    if release_status_match(completed_release, FAILED_STATUSES):
+        raise Exception("Azure Devops release failed!")
+
+    print("Azure Devops release succeeded!")
+
+
 def main() -> None:
-    # 1. Parse command line arguments.
-    parser = ArgumentParser(
-        description=__doc__,
-        formatter_class=ArgumentDefaultsHelpFormatter,
-    )
-
-    parser.add_argument(
-        "--organization",
-        help="The name of the Azure DevOps organization",
-        default="office",
-    )
-
-    parser.add_argument(
-        "--project", help="The name/ID of the Azure DevOps project", default="OE"
-    )
-
-    parser.add_argument(
-        "--timeout",
-        help="azure devops release timeout in seconds (default: 3600)",
-        default=3600,
-    )
-
-    args = parser.parse_args()
-
-    # 2. Read env vars.
+    # 1. Read env vars.
     try:
-        # ADO PAT (Azure Devops Personal Access Token) with "Release" scope.
+        # ADO PAT (Azure DevOps Personal Access Token) with "Release" scope.
         # More information here - https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat
         ADO_PAT = os.environ["AZURE_DEVOPS_RELEASE_PAT"]
     except KeyError as exc:
@@ -106,22 +112,14 @@ def main() -> None:
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
 
-    # 3. Create and wait for the azure devops release to be finished/timed out.
-    try:
-        release = create_azure_devops_release(
-            args.organization, args.project, args.timeout, ADO_PAT
-        )
-    except Exception as e:
-        print(e)
-        # TODO
+    # 2. Create and wait for the azure devops release to be finished.
+    organization = "office"
+    project = "OE"
+    pipeline_name = "AzureAuth Linux"
+    create_and_wait_for_azure_devops_release(
+        organization, project, pipeline_name, ADO_PAT
+    )
 
-    # 4. Exit based on the release status
-    if has_release_failed(release):
-        release_url = "https://dev.azure.com/{0}/{1}/_releaseProgress?_a=release-pipeline-progress&releaseId={2}".format(
-            args.organization, args.project, release.id
-        )
-        sys.exit(
-            "More details on triggered pipeline can be found here: {0}".format(
-                release_url
-            )
-        )
+
+if __name__ == "__main__":
+    main()
