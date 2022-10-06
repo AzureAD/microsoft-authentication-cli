@@ -17,7 +17,6 @@ def create_ado_connection(organization, ADO_PAT) -> Connection:
     credentials = BasicAuthentication("", ADO_PAT)
     connection = Connection(base_url=organization_url, creds=credentials)
 
-    # TODO : handle connection failures/exceptions
     return connection
 
 
