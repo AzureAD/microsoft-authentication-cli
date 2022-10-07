@@ -50,10 +50,7 @@ def get_release_definition(project, pipeline_name, release_client):
 def populate_release_metadata(project, pipeline_name, release_client):
     """Returns release metadata with required information"""
     release_definition = get_release_definition(project, pipeline_name, release_client)
-    release_metadata = {
-        "definitionId": release_definition.id,
-    }
-    return release_metadata
+    return {"definitionId": release_definition.id}
 
 
 def release_status_match(release, expected_status_list):
