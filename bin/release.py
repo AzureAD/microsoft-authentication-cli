@@ -95,7 +95,8 @@ def create_and_wait_for_azure_devops_release(
 
     completed_release = wait_for_release(release_client, project, triggered_release.id)
     if release_status_match(completed_release, FAILED_STATUSES):
-        raise Exception("Azure Devops release failed!")
+        raise Exception("Azure DevOps release failed!")
+
 
     print("Azure Devops release succeeded!")
 
