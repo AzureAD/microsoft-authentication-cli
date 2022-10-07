@@ -15,7 +15,7 @@ COMPLETED_STATUSES = ["succeeded", "canceled", "partiallySucceeded", "rejected"]
 def create_ado_connection(organization, ADO_PAT) -> Connection:
     """Returns an ADO connection to call the ADO Rest APIs."""
 
-    organization_url = "https://dev.azure.com/{0}".format(organization)
+    organization_url = f"https://dev.azure.com/{organization}"
     credentials = BasicAuthentication("", ADO_PAT)
     connection = Connection(base_url=organization_url, creds=credentials)
 
