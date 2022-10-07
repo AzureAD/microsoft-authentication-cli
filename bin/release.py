@@ -88,8 +88,10 @@ def create_and_wait_for_azure_devops_release(
     triggered_release = release_client.create_release(release_metadata, project)
     release_url = f"https://dev.azure.com/{organization}/{project}/_releaseProgress?_a=release-pipeline-progress&releaseId={triggered_release.id}"
     print(
-        f"Successfully triggered a release. Waiting for the release to be completed.\nMore details on the release can be found here: {release_url}"
+        "Successfully triggered a release. Waiting for the release to be completed.\n"
+        f"More details on the release can be found here: {release_url}"
     )
+
 
     completed_release = wait_for_release(release_client, project, triggered_release.id)
     if release_status_match(completed_release, FAILED_STATUSES):
