@@ -29,10 +29,7 @@ def get_release_definition(project, pipeline_name, release_client):
     project_release_definitions = release_client.get_release_definitions(project)
 
     # Filter release definitions with the given pipeline name
-    pipeline_release_definitions = []
-    for definition in project_release_definitions.value:
-        if definition.name == pipeline_name:
-            pipeline_release_definitions.append(definition)
+    pipeline_release_definitions = [d for d in project_release_definitions.value if d.name == pipeline_name]
 
     if pipeline_release_definitions is None or len(pipeline_release_definitions) == 0:
         error_message = f"Pipeline named {pipeline_name} not found in project {project}"
