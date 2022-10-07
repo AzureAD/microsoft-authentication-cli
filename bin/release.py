@@ -73,7 +73,8 @@ def wait_for_release(release_client, project, release_id):
 
     # polling interval is set in accordance with the rate limits specified here:
     # https://learn.microsoft.com/en-us/azure/devops/integrate/concepts/rate-limits?view=azure-devops
-    polling_interval_secs = 30
+    polling_interval_seconds = 30
+
 
     # Wait until the release have a complete status.
     while not release_status_match(release, COMPLETED_STATUSES):
