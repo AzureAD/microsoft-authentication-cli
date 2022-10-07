@@ -1,9 +1,13 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """A script which triggers and waits for Azure DevOps to complete a release"""
 
-from ast import parse
 import os
 import sys
 import time
+from ast import parse
+
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 
@@ -12,15 +16,13 @@ FAILED_STATUSES: set[str] = {"canceled", "partiallySucceeded", "rejected"}
 COMPLETED_STATUSES: set[str] = FAILED_STATUSES | {"succeeded"}
 
 
-def create_ado_connection(organization, ADO_PAT) -> Connection:
+def create_ado_connection(organization, ado_pat) -> Connection:
     """Returns an ADO connection to call the ADO REST APIs."""
 
-
-    organization_url = f"https://dev.azure.com/{organization}"
-    credentials = BasicAuthentication("", ADO_PAT)
-    connection = Connection(base_url=organization_url, creds=credentials)
-
-    return connection
+    return Connection(
+        base_url=f"https://dev.azure.com/{organization}",
+        creds=BasicAuthentication("", ado_pat),
+    )
 
 
 def get_release_definition(project, pipeline_name, release_client):
@@ -29,17 +31,21 @@ def get_release_definition(project, pipeline_name, release_client):
     project_release_definitions = release_client.get_release_definitions(project)
 
     # Filter release definitions with the given pipeline name
-    pipeline_release_definitions = [d for d in project_release_definitions.value if d.name == pipeline_name]
+    pipeline_release_definitions = [
+        definition
+        for definition in project_release_definitions.value
+        if definition.name == pipeline_name
+    ]
 
-    if pipeline_release_definitions is None or len(pipeline_release_definitions) == 0:
-        error_message = f"Pipeline named {pipeline_name} not found in project {project}"
-        raise Exception(error_message)
+    if not pipeline_release_definitions:
+        raise Exception(
+            f"Pipeline named {pipeline_name} not found in project {project}"
+        )
 
     if len(pipeline_release_definitions) > 1:
-        error_message = (
+        raise Exception(
             f"More than 1 Pipeline named {pipeline_name} found in project {project}"
         )
-        raise Exception(error_message)
 
     return pipeline_release_definitions[0]
 
@@ -54,11 +60,7 @@ def release_status_match(release, expected_status_list):
     """Returns True if status of all the environments of the release match any of the expected statuses"""
     # Each release can have one or more environments (stages).
     release_env_statuses = [environment.status for environment in release.environments]
-    # return all(status in expected_status_list for status in release_env_statuses)
-    for status in release_env_statuses:
-        if status not in expected_status_list:
-            return False
-    return True
+    return all(status in expected_status_list for status in release_env_statuses)
 
 
 def wait_for_release(release_client, project, release_id):
@@ -69,10 +71,9 @@ def wait_for_release(release_client, project, release_id):
     # https://learn.microsoft.com/en-us/azure/devops/integrate/concepts/rate-limits?view=azure-devops
     polling_interval_seconds = 30
 
-
     # Wait until the release have a complete status.
     while not release_status_match(release, COMPLETED_STATUSES):
-        time.sleep(polling_interval_secs)
+        time.sleep(polling_interval_seconds)
         release = release_client.get_release(project, release_id)
     return release
 
@@ -92,13 +93,11 @@ def create_and_wait_for_azure_devops_release(
         f"More details on the release can be found here: {release_url}"
     )
 
-
     completed_release = wait_for_release(release_client, project, triggered_release.id)
     if release_status_match(completed_release, FAILED_STATUSES):
         raise Exception("Azure DevOps release failed!")
 
-
-    print("Azure Devops release succeeded!")
+    print("Azure DevOps release succeeded!")
 
 
 def main() -> None:
@@ -106,7 +105,7 @@ def main() -> None:
     try:
         # ADO PAT (Azure DevOps Personal Access Token) with "Release" scope.
         # More information here - https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat
-        ADO_PAT = os.environ["AZURE_DEVOPS_RELEASE_PAT"]
+        ado_pat = os.environ["AZURE_DEVOPS_RELEASE_PAT"]
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
         name = str(exc).replace("'", "")
@@ -117,7 +116,10 @@ def main() -> None:
     project = "OE"
     pipeline_name = "AzureAuth Linux"
     create_and_wait_for_azure_devops_release(
-        organization, project, pipeline_name, ADO_PAT
+        organization,
+        project,
+        pipeline_name,
+        ado_pat,
     )
 
 
