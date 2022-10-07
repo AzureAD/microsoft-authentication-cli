@@ -1,4 +1,5 @@
-"""A script which triggers and wait for an azure devops to complete a release"""
+"""A script which triggers and waits for Azure DevOps to complete a release"""
+
 from ast import parse
 import os
 import sys
