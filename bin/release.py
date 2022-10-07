@@ -6,6 +6,7 @@ import time
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 
+# https://learn.microsoft.com/en-us/rest/api/azure/devops/release/releases/get-release?view=azure-devops-rest-6.0&tabs=HTTP#environmentstatus
 FAILED_STATUSES = ["canceled", "partiallySucceeded", "rejected"]
 COMPLETED_STATUSES = ["succeeded", "canceled", "partiallySucceeded", "rejected"]
 
