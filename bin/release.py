@@ -25,37 +25,6 @@ def create_ado_connection(organization, ado_pat) -> Connection:
     )
 
 
-def get_build_definition(project, pipeline_name, build_client):
-    """Returns the ADO definition for the given pipeline"""
-    # Get all build definitions in a given project
-    project_build_definitions = build_client.get_definitions(project)
-
-    # Filter build definitions with the given pipeline name
-    pipeline_build_definitions = [
-        definition
-        for definition in project_build_definitions.value
-        if definition.name == pipeline_name
-    ]
-
-    if not pipeline_build_definitions:
-        raise Exception(
-            f"Pipeline named {pipeline_name} not found in project {project}"
-        )
-
-    if len(pipeline_build_definitions) > 1:
-        raise Exception(
-            f"More than 1 Pipeline named {pipeline_name} found in project {project}"
-        )
-
-    return pipeline_build_definitions[0]
-
-
-def populate_build_metadata(project, pipeline_name, build_client):
-    """Returns build metadata with required information"""
-    build_definition = get_build_definition(project, pipeline_name, build_client)
-    return {"definition": {"id": build_definition.id}}
-
-
 def build_status_match(build, expected_status_list):
     """Returns True if status of all the environments of the build match any of the expected statuses"""
     # Each build can have one or more environments (stages).
@@ -79,12 +48,12 @@ def wait_for_build(build_client, project, build_id):
 
 
 def trigger_azure_pipeline_and_wait_until_its_completed(
-    organization, project, pipeline_name, ADO_PAT
+    organization, project, pipeline_id, ADO_PAT
 ):
     """Triggers an azure pipeline and waits for it to be finished"""
     connection = create_ado_connection(organization, ADO_PAT)
     build_client = connection.clients.get_build_client()
-    build_metadata = populate_build_metadata(project, pipeline_name, build_client)
+    build_metadata = {"definition": {"id": pipeline_id}}
 
     triggered_build = build_client.queue_build(build_metadata, project)
     build_url = f"https://dev.azure.com/{organization}/{project}/_build/results?buildId={triggered_build.id}&view=results"
@@ -106,6 +75,10 @@ def main() -> None:
         # ADO PAT (Azure DevOps Personal Access Token) with "Build" scope.
         # More information here - https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat
         ado_pat = os.environ["AZURE_DEVOPS_BUILD_PAT"]
+        organization = os.environ["ADO_ORGANIZATION"]
+        project = os.environ["ADO_PROJECT"]
+        pipeline_id = os.environ["ADO_AZUREAUTH_LINUX_PIPELINE_ID"]
+
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
         name = str(exc).replace("'", "")
@@ -114,11 +87,10 @@ def main() -> None:
     # 2. Trigger azure pipeline and wait for it to be finished.
     organization = "office"
     project = "OE"
-    pipeline_name = "AzureAuth Test Pipeline (hosted on a private GitHub repo)"
     trigger_azure_pipeline_and_wait_until_its_completed(
         organization,
         project,
-        pipeline_name,
+        pipeline_id,
         ado_pat,
     )
 
