@@ -85,8 +85,6 @@ def main() -> None:
         sys.exit(f"Error: missing env var: {name}")
 
     # 2. Trigger azure pipeline and wait for it to be finished.
-    organization = "office"
-    project = "OE"
     trigger_azure_pipeline_and_wait_until_its_completed(
         organization,
         project,
