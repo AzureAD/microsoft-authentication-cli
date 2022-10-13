@@ -25,13 +25,6 @@ def create_ado_connection(organization, ado_pat) -> Connection:
     )
 
 
-def build_status_match(build, expected_status_list):
-    """Returns True if status of all the environments of the build match any of the expected statuses"""
-    # Each build can have one or more environments (stages).
-    build_env_statuses = [environment.status for environment in build.environments]
-    return all(status in expected_status_list for status in build_env_statuses)
-
-
 def wait_for_build(build_client, project, build_id):
     """Wait for the azure devops build to finish"""
     build = build_client.get_build(project, build_id)
@@ -53,7 +46,10 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     """Triggers an azure pipeline and waits for it to be finished"""
     connection = create_ado_connection(organization, ADO_PAT)
     build_client = connection.clients.get_build_client()
-    build_metadata = {"definition": {"id": pipeline_id}}
+    build_metadata = {
+        "definition": {"id": pipeline_id},
+        "TemplateParameters": '{"name": "variable1", "value": "value1"}',
+    }
 
     triggered_build = build_client.queue_build(build_metadata, project)
     build_url = f"https://dev.azure.com/{organization}/{project}/_build/results?buildId={triggered_build.id}&view=results"
