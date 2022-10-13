@@ -46,10 +46,7 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     """Triggers an azure pipeline and waits for it to be finished"""
     connection = create_ado_connection(organization, ADO_PAT)
     build_client = connection.clients.get_build_client()
-    build_metadata = {
-        "definition": {"id": pipeline_id},
-        "TemplateParameters": '{"name": "variable1", "value": "value1"}',
-    }
+    build_metadata = {"definition": {"id": pipeline_id}}
 
     triggered_build = build_client.queue_build(build_metadata, project)
     build_url = f"https://dev.azure.com/{organization}/{project}/_build/results?buildId={triggered_build.id}&view=results"
