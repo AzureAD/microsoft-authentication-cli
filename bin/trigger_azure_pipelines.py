@@ -6,9 +6,10 @@
 import os
 import sys
 import time
-from ast import parse
 
 from azure.devops.connection import Connection
+from azure.devops.released.build.build_client import BuildClient
+from azure.devops.v5_1.build.models import Build
 from msrest.authentication import BasicAuthentication
 
 # https://learn.microsoft.com/en-us/rest/api/azure/devops/build/builds/get?view=azure-devops-rest-7.1#buildresult
@@ -16,7 +17,7 @@ FAILED_STATUSES: set[str] = {"canceled", "partiallySucceeded", "failed"}
 COMPLETED_STATUSES: set[str] = FAILED_STATUSES | {"succeeded"}
 
 
-def create_ado_connection(organization, ado_pat) -> Connection:
+def ado_connection(organization: str, ado_pat: str) -> Connection:
     """Returns an ADO connection to call the ADO REST APIs."""
 
     return Connection(
@@ -25,7 +26,7 @@ def create_ado_connection(organization, ado_pat) -> Connection:
     )
 
 
-def wait_for_build(build_client, project, build_id):
+def wait_for_build(build_client: BuildClient, project: str, build_id: str) -> Build:
     """Wait for the azure devops build to finish"""
     build = build_client.get_build(project, build_id)
 
@@ -41,11 +42,13 @@ def wait_for_build(build_client, project, build_id):
 
 
 def trigger_azure_pipeline_and_wait_until_its_completed(
-    organization, project, pipeline_id, ADO_PAT
-):
+    organization: str,
+    project: str,
+    pipeline_id: str,
+    ado_pat: str,
+) -> None:
     """Triggers an azure pipeline and waits for it to be finished"""
-    connection = create_ado_connection(organization, ADO_PAT)
-    build_client = connection.clients.get_build_client()
+    build_client = ado_connection(organization, ado_pat).clients.get_build_client()
     build_metadata = {"definition": {"id": pipeline_id}}
 
     triggered_build = build_client.queue_build(build_metadata, project)
