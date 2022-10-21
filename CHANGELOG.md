@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Upgrade the Windows build to use net6 now that net5 has reached end of life.
+- Set console output encoding to `utf-8` explicitly.
 
 ## [0.5.4] - 2022-09-29
 ### Fixed
