@@ -3,9 +3,6 @@
 
 namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
-#if NET472
-    using Microsoft.Identity.Client.Desktop;
-#endif
     using System;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
