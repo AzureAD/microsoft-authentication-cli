@@ -8,6 +8,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
@@ -51,14 +52,28 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Gets or sets, The prompt hint displayed in the title bar.
+        /// Gets or sets the prompt hint displayed in the title bar.
         /// </summary>
         public string PromptHint { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether or not to use the system web browser for web mode prompts. Default: false.
+        /// </summary>
+        public bool UseSystemWebBrowser { get; private set; } = false;
+
+        private bool UseEmbeddedWebView => !this.UseSystemWebBrowser;
 
         /// <inheritdoc/>
         public IPCAWrapper WithPromptHint(string promptHint)
         {
             this.PromptHint = promptHint;
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public IPCAWrapper WithSystemWebBrowser(bool enabled)
+        {
+            this.UseSystemWebBrowser = enabled;
             return this;
         }
 
@@ -78,6 +93,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 {
                     Title = this.PromptHint,
                 })
+                .WithUseEmbeddedWebView(this.UseEmbeddedWebView)
                 .WithAccount(account)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -93,6 +109,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 {
                     Title = this.PromptHint,
                 })
+                .WithUseEmbeddedWebView(this.UseEmbeddedWebView)
                 .WithClaims(claims)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);

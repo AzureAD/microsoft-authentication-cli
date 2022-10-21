@@ -67,6 +67,13 @@ namespace Microsoft.Authentication.MSALWrapper
         IPCAWrapper WithPromptHint(string promptHint);
 
         /// <summary>
+        /// Enable or disable using a system web brwoser for web mode prompts.
+        /// </summary>
+        /// <param name="enabled">Whether or not to use the system web browser for web mode prompts.</param>
+        /// <returns>This.</returns>
+        IPCAWrapper WithSystemWebBrowser(bool enabled);
+
+        /// <summary>
         /// Tries to return a cached account when the list has only one account using the preferred domain if provided.
         /// A null return indicates one of the following.
         /// No accounts were found in cache.
