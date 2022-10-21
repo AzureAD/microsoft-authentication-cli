@@ -31,31 +31,31 @@
     <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
     <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
-    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.24.0" />
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.23.1" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.19.6" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.16.0" />
   </ItemGroup>
 
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) == false">
-    <!-- Not Windows: simple package reference of 4.47 -->
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.47.1" />
+    <!-- Not Windows: simple package reference -->
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.43.1" />
   </ItemGroup>
 
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <!-- Windows: Explicitly continue using the net5 version of MSAL since there is no net6 target yet -->
     <!-- https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3682 -->
     <PackageReference Include="Microsoft.Identity.Client" GeneratePathProperty="true">
-      <Version>4.47.1</Version>
+      <Version>4.43.1</Version>
     </PackageReference>
 
     <Reference Include="Microsoft.Identity.Client">
-        <HintPath>$(PkgPMicrosoft_Identity_Client)\lib\net5.0-windows10.0.17763\Microsoft.Identity.Client.dll</HintPath>
+      <HintPath>$(PkgPMicrosoft_Identity_Client)\lib\net5.0-windows10.0.17763\Microsoft.Identity.Client.dll</HintPath>
     </Reference>
   </ItemGroup>
 
