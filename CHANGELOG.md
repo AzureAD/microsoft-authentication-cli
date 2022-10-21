@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# Unreleased
+
+### Changed
+- Upgrade the Windows build to use net6 now that net5 has reached end of life.
+
 ## [0.5.4] - 2022-09-29
 ### Fixed
 - Enable IWA authmode when interactive authentication is disabled.
@@ -15,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.2] - 2022-09-28
 ### Fixed
 - Option `--resource` is not needed if option `--scope` is provided.
-- Refactoring IWA AuthFlow to call GetTokenIWA when we have a MsalUiRequiredException 
+- Refactoring IWA AuthFlow to call GetTokenIWA when we have a MsalUiRequiredException
 
 ## [0.5.1] - 2022-09-08
 ### Fixed
