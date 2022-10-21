@@ -156,8 +156,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 .WithHttpClientFactory(httpFactoryAdaptor)
                 .WithRedirectUri(Constants.AadRedirectUri.ToString());
 
-            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix, cacheFilePath)
-                .WithSystemWebBrowser(true);
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix, cacheFilePath);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)

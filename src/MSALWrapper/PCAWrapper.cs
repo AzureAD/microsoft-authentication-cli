@@ -59,9 +59,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Gets a value indicating whether or not to use the system web browser for web mode prompts. Default: false.
         /// </summary>
-        public bool UseSystemWebBrowser { get; private set; } = false;
-
-        private bool UseEmbeddedWebView => !this.UseSystemWebBrowser;
+        public bool UseEmbeddedWebView { get; private set; } = false;
 
         /// <inheritdoc/>
         public IPCAWrapper WithPromptHint(string promptHint)
@@ -71,9 +69,9 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <inheritdoc/>
-        public IPCAWrapper WithSystemWebBrowser(bool enabled)
+        public IPCAWrapper WithEmbeddedWebView(bool enabled)
         {
-            this.UseSystemWebBrowser = enabled;
+            this.UseEmbeddedWebView = enabled;
             return this;
         }
 
