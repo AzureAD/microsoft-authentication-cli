@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # Unreleased
 ### Fixed
 - Use system web browser as the UI for web mode auth on Windows to prevent conditional access based over-prompting.
+- Catch `FileNotFoundException` if an invalid configuration file is specified via the `AZUREAUTH_CONFIG` environment variable.
 
 ### Changed
 - Upgrade the Windows build to use net6 now that net5 has reached end of life.
