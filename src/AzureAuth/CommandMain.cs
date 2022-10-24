@@ -339,6 +339,11 @@ Allowed values: [all, web, devicecode]";
                     Alias configFileOptions = config.Alias[this.AliasName];
                     evaluatedOptions = configFileOptions.Override(evaluatedOptions);
                 }
+                catch (System.IO.FileNotFoundException)
+                {
+                    this.logger.LogError($"The file '{fullConfigPath}' does not exist.");
+                    return false;
+                }
                 catch (Tomlyn.TomlException ex)
                 {
                     this.logger.LogError($"Error parsing TOML in config file at '{fullConfigPath}':\n{ex.Message}");

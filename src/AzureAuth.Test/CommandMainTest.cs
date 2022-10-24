@@ -263,6 +263,26 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
+        ///  The test to evaluate options when config file does not exist.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsConfigFileDoesNotExist()
+        {
+            string configFile = RootPath("does_not_exists_config.toml");
+
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.AliasName = "contoso";
+            subject.ConfigFilePath = null;
+
+            // Specify config via env var
+            this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
+
+            subject.EvaluateOptions().Should().BeFalse();
+            this.logTarget.Logs.Should().ContainMatch($"The file '{configFile}' does not exist.*");
+            this.envMock.Verify();
+        }
+
+        /// <summary>
         /// The test to evaluate options provided invalid alias.
         /// </summary>
         [Test]
