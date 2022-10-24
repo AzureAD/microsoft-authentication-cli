@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 # Unreleased
+### Fixed
+- Use system web browser as the UI for web mode auth on Windows to prevent conditional access based over-prompting.
 
 ### Changed
 - Upgrade the Windows build to use net6 now that net5 has reached end of life.

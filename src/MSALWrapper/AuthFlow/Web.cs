@@ -153,8 +153,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     Identity.Client.LogLevel.Verbose,
                     enablePiiLogging: false,
                     enableDefaultPlatformLogging: true)
-                    .WithHttpClientFactory(httpFactoryAdaptor)
-                    .WithRedirectUri(Constants.AadRedirectUri.ToString());
+                .WithHttpClientFactory(httpFactoryAdaptor)
+                .WithRedirectUri(Constants.AadRedirectUri.ToString());
 
             return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix, cacheFilePath);
         }
