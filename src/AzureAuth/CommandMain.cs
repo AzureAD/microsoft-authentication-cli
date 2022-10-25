@@ -172,7 +172,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets global Timeout.
         /// </summary>
-        [Option(TimeoutOption, "The number of minutes before authentication times out.\nDefault: 15 minutes.", CommandOptionType.SingleValue)]
+        [Option(TimeoutOption, "The number of minutes before authentication times out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
         public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
 
         /// <summary>
