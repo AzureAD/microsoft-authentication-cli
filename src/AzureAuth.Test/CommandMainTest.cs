@@ -87,9 +87,6 @@ invalid_key = ""this is not a valid alias key""
             this.telemetryServiceMock = new Mock<ITelemetryService>(MockBehavior.Strict);
             this.authFlowMock = new Mock<IAuthFlow>(MockBehavior.Strict);
 
-            // Environment variables should be null by default.
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-
             // Setup Dependency Injection container to provide logger and out class under test (the "subject").
             this.serviceProvider = new ServiceCollection()
                 .AddLogging(loggingBuilder =>
@@ -163,6 +160,7 @@ invalid_key = ""this is not a valid alias key""
         {
             string configFile = RootPath("complete.toml");
             this.fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             Alias expected = new Alias
             {
                 Resource = "67eeda51-3891-4101-a0e3-bf0c64047157",
@@ -204,6 +202,8 @@ invalid_key = ""this is not a valid alias key""
             subject.AliasName = "contoso";
             subject.ConfigFilePath = configFile;
 
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+
             // Specify a client override on the command line.
             subject.Client = clientOverride;
 
@@ -220,6 +220,7 @@ invalid_key = ""this is not a valid alias key""
             string configFile = RootPath("complete.toml");
             string clientOverride = "3933d919-5ba4-4eb7-b4b1-19d33e8b82c0";
             this.fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             Alias expected = new Alias
             {
                 Resource = "67eeda51-3891-4101-a0e3-bf0c64047157",
@@ -263,6 +264,26 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
+        ///  The test to evaluate options when config file does not exist.
+        /// </summary>
+        [Test]
+        public void TestEvaluateOptionsConfigFileDoesNotExist()
+        {
+            string configFile = RootPath("does_not_exists_config.toml");
+
+            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            subject.AliasName = "contoso";
+            subject.ConfigFilePath = null;
+
+            // Specify config via env var
+            this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
+
+            subject.EvaluateOptions().Should().BeFalse();
+            this.logTarget.Logs.Should().ContainMatch($"The file '{configFile}' does not exist.*");
+            this.envMock.VerifyAll();
+        }
+
+        /// <summary>
         /// The test to evaluate options provided invalid alias.
         /// </summary>
         [Test]
@@ -289,6 +310,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = null;
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
             this.logTarget.Logs.Should().Contain("The --resource field or the --scope field is required.");
@@ -304,6 +326,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = null;
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
             this.logTarget.Logs.Should().Contain("The --client field is required.");
@@ -319,6 +342,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = null;
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
             this.logTarget.Logs.Should().Contain("The --tenant field is required.");
@@ -334,6 +358,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = null;
             subject.Client = null;
             subject.Tenant = null;
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
             this.logTarget.Logs.Should().Contain(new[]
@@ -355,6 +380,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
             subject.Scopes = new string[] { "f0e8d801-3a50-48fd-b2da-6476d6e832a2/.default" };
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
         }
@@ -369,6 +395,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
         }
@@ -384,6 +411,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
             subject.Scopes = new string[] { "f0e8d801-3a50-48fd-b2da-6476d6e832a2/.default" };
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
             this.logTarget.Logs.Should().Contain(new[]
@@ -411,6 +439,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
             subject.TokenFetcherOptions.Should().BeEquivalentTo(expected);
@@ -507,6 +536,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
 
@@ -529,6 +559,7 @@ invalid_key = ""this is not a valid alias key""
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             string path = "..\\test\\relative.cache";
             subject.CacheFilePath = path;
@@ -637,6 +668,7 @@ invalid_key = ""this is not a valid alias key""
             this.telemetryServiceMock.Setup(s => s.SendEvent("authflow_Sample", It.IsAny<EventData>()));
 
             var subject = this.serviceProvider.GetService<CommandMain>();
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             // mock valid args
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
@@ -728,6 +760,7 @@ invalid_key = ""this is not a valid alias key""
         public void InteractiveAuth_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
             subject.InteractiveAuthDisabled().Should().Be(expected);
         }
@@ -739,6 +772,7 @@ invalid_key = ""this is not a valid alias key""
         public void InteractiveAuth_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
             subject.InteractiveAuthDisabled().Should().Be(expected);
         }
@@ -747,6 +781,7 @@ invalid_key = ""this is not a valid alias key""
         public void InteractiveAuth_IsEnabledIfEnvVarsAreNotSet()
         {
             CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             subject.InteractiveAuthDisabled().Should().BeFalse();
         }
 
