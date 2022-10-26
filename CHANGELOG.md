@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 # Unreleased
+## [0.6.0] - 2022-10-26
 ### Fixed
 - Use system web browser as the UI for web mode auth on Windows to prevent conditional access based over-prompting.
 - Catch `FileNotFoundException` if an invalid configuration file is specified via the `AZUREAUTH_CONFIG` environment variable.
@@ -90,8 +91,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.4...HEAD
-[0.5.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.3...0.5.4
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.4...0.6.0
+[0.5.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.3...0.5.4
 [0.5.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.2...0.5.3
 [0.5.2]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.0...0.5.1
