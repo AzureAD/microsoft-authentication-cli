@@ -51,7 +51,7 @@
     <!-- Windows: Explicitly continue using the net5 version of MSAL since there is no net6 target yet -->
     <!-- https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3682 -->
     <PackageReference Include="Microsoft.Identity.Client" GeneratePathProperty="true">
-      <Version>4.43.1</Version>
+      <Version>4.47.2</Version>
     </PackageReference>
 
     <Reference Include="Microsoft.Identity.Client">
