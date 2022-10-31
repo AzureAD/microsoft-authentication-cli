@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 # Unreleased
+### Fixed
+- Remove `setx` usage and use `WM_SETTINGCHANGE` in the install script to prevent truncating `$PATH`.
+
 ## [0.6.0] - 2022-10-26
 ### Fixed
 - Use system web browser as the UI for web mode auth on Windows to prevent conditional access based over-prompting.
