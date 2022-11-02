@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 namespace Microsoft.Authentication.MSALWrapper.Benchmark
 {
     using BenchmarkDotNet.Attributes;
