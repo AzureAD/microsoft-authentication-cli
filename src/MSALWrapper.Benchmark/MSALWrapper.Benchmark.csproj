@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+      <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Microsoft.Authentication.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <StartupObject>Microsoft.Authentication.MSALWrapper.Benchmark.Program</StartupObject>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
+        <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.47.2-preview" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
+    </ItemGroup>
+    
+    <!--<ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        --><!-- Windows: Explicitly continue using the net5 version of MSAL since there is no net6 target yet --><!--
+        --><!-- https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3682 --><!--
+        <PackageReference Include="Microsoft.Identity.Client" GeneratePathProperty="true">
+            <Version>4.47.2</Version>
+        </PackageReference>
+
+        <Reference Include="Microsoft.Identity.Client">
+            <HintPath>$(PkgPMicrosoft_Identity_Client)\lib\net5.0-windows10.0.17763\Microsoft.Identity.Client.dll</HintPath>
+        </Reference>
+    </ItemGroup>-->
+
+
+</Project>

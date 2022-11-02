@@ -10,6 +10,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
+    using Microsoft.Identity.Client.Broker;
 
     /// <summary>
     /// The broker auth flow.
@@ -196,7 +197,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 #if NETFRAMEWORK
             clientBuilder.WithWindowsBroker();
 #else
-            clientBuilder.WithBroker();
+            clientBuilder.WithBrokerPreview();
 #endif
             return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix, cacheFilePath);
         }
