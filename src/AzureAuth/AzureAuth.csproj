@@ -1,64 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
-    <DefineConstants>PlatformWindows</DefineConstants>
-    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-  </PropertyGroup>
+    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <DefineConstants>PlatformWindows</DefineConstants>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+    <!-- Release configuration -->
+    <PropertyGroup Condition="'$(Configuration)'=='release'">
+        <PublishReadyToRun>true</PublishReadyToRun>
+        <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
+        <PublishTrimmed>true</PublishTrimmed>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <!-- Output an executable -->
+        <TargetFramework>net6.0</TargetFramework>
 
-  <!-- Release configuration -->
-  <PropertyGroup Condition="'$(Configuration)'=='release'">
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
-    <PublishTrimmed>true</PublishTrimmed>
-  </PropertyGroup>
+        <PackageId>microsoft.authentication.azureauth</PackageId>
+        <OutputType>Exe</OutputType>
+        <AssemblyName>azureauth</AssemblyName>
+        <RootNamespace>Microsoft.Authentication.AzureAuth</RootNamespace>
 
-  <PropertyGroup>
-    <!-- Output an executable -->
-    <PackageId>microsoft.authentication.azureauth</PackageId>
-    <OutputType>Exe</OutputType>
-    <AssemblyName>azureauth</AssemblyName>
-    <RootNamespace>Microsoft.Authentication.AzureAuth</RootNamespace>
+        <NuspecFile>AzureAuth.nuspec</NuspecFile>
+        <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration);Version=$(Version)$(VersionSuffix)</NuspecProperties>
 
-    <NuspecFile>AzureAuth.nuspec</NuspecFile>
-    <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration);Version=$(Version)$(VersionSuffix)</NuspecProperties>
+        <!-- Stylecop warnings as errors flag for build to fail -->
+        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    </PropertyGroup>
 
-    <!-- Stylecop warnings as errors flag for build to fail -->
-    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-  </PropertyGroup>
+    <ItemGroup>
+        <!-- Stylecop required items -->
+        <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
+        <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 
-  <ItemGroup>
-    <!-- Stylecop required items -->
-    <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
-    <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Office.Lasso" Version="2022.1.6.1" />
+        <PackageReference Include="Tomlyn" Version="0.11.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Office.Lasso" Version="2022.1.6.1" />
-    <PackageReference Include="Tomlyn" Version="0.11.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
-  </ItemGroup>
-
-  <!-- Assemblies we need to manually mark as roots so they are not trimmed. -->
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <!-- Needed for Web mode on Windows -->
-    <TrimmerRootAssembly Include="System.Private.CoreLib" />
-    <TrimmerRootAssembly Include="WinRT.Runtime" />
-  </ItemGroup>
+    <!-- Assemblies we need to manually mark as roots so they are not trimmed. -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <!-- Needed for Web mode on Windows -->
+        <TrimmerRootAssembly Include="System.Private.CoreLib" />
+    </ItemGroup>
 </Project>
