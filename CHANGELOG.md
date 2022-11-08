@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # Unreleased
 ### Changed
 - Upgrade MSAL to 4.47.2.
+- Opt-in native WAM mode and Windows SDK is removed.
 - MSALWrapper now use package reference directly.
 
 ## [0.6.0] - 2022-10-26
