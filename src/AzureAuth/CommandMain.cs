@@ -377,7 +377,7 @@ Allowed values: [all, web, devicecode]";
             this.eventData.Add("settings_resource", this.authSettings.Resource);
             this.eventData.Add("settings_tenant", this.authSettings.Tenant);
             this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
-            this.eventData.Add("settings_cachefile", this.CacheFilePath);
+            this.eventData.Add("settings_cachefile", this.cacheFilePath);
 
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
@@ -434,13 +434,15 @@ Allowed values: [all, web, devicecode]";
                 validOptions = false;
             }
 
+#if PlatformWindows
             if (!this.CacheFilePath.IsValidAbsoluteFilePath())
             {
-                this.logger.LogError($"The option {CacheOption}=`{this.CacheFilePath}` " +
+                this.logger.LogError($"The option {CacheOption}=`{this.cacheFilePath}` " +
                     $"or environment varable {EnvVars.Cache}=`{this.env.Get(EnvVars.Cache)}` " +
                     $"is not a valid absolute file path.");
                 validOptions = false;
             }
+#endif
 
             return validOptions;
         }
