@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # Fail on any failed commands
 set -e
 

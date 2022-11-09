@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """A script which wraps ESRPClient.exe for code signing."""
 
 import json
