@@ -220,7 +220,6 @@ invalid_key = ""this is not a valid alias key""
             string configFile = RootPath("complete.toml");
             string clientOverride = "3933d919-5ba4-4eb7-b4b1-19d33e8b82c0";
             this.fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             Alias expected = new Alias
             {
                 Resource = "67eeda51-3891-4101-a0e3-bf0c64047157",
@@ -465,123 +464,6 @@ invalid_key = ""this is not a valid alias key""
         {
             CommandMain.PrefixedPromptHint(null)
                 .Should().BeEquivalentTo(PromptHintPrefix);
-        }
-
-        /// <summary>
-        /// The test to evaluate a normal customized cache file path.
-        /// </summary>
-        [Test]
-        [Platform("Win")] // Only valid on Windows
-        public void TestCacheFileOptionWithNormalFilePath()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-
-            subject.CacheFilePath = "Z:\\normal.cache";
-            subject.EvaluateOptions().Should().BeTrue();
-            subject.CacheFilePath.Should().Be("Z:\\normal.cache");
-        }
-
-        /// <summary>
-        /// The test to evaluate an absolute cache file path in enviroment variables.
-        /// </summary>
-        [Test]
-        [Platform("Win")] // Only valid on Windows
-        public void TestCacheFileOptionWithNormalFilePathFromEnv()
-        {
-            string cacheFilePath = "C:\\test\\absolute_from_env.cache";
-            this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE")).Returns(cacheFilePath);
-
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-
-            subject.EvaluateOptions().Should().BeTrue();
-            subject.CacheFilePath.Should().Be(cacheFilePath);
-        }
-
-        /// <summary>
-        /// The test to evaluate the cache file name when both enviroment variable and option exist.
-        /// Ideally use option first.
-        /// </summary>
-        [Test]
-        [Platform("Win")] // Only valid on Windows
-        public void TestCacheFileOptionWithFilenameFromEnvAndOption()
-        {
-            string filenameFromEnv = "C:\\test\\absolute_from_env.cache";
-            this.envMock.Setup(env => env.Get("AZUREAUTH_CACHE_FILE")).Returns(filenameFromEnv);
-
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.CacheFilePath = "C:\\test\\absolute_from_option.cache";
-
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-
-            subject.EvaluateOptions().Should().BeTrue();
-            subject.CacheFilePath.Should().Be("C:\\test\\absolute_from_option.cache");
-        }
-
-        /// <summary>
-        /// The test to evaluate a default cache file name.
-        /// </summary>
-        [Test]
-        [Platform("Win")] // Only valid on Windows
-        public void TestCacheFileOptionWithNoParameter()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-
-            subject.EvaluateOptions().Should().BeTrue();
-
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string absolutePath = Path.Combine(appData, ".IdentityService", $"msal_{subject.Tenant}.cache");
-            string expected = absolutePath;
-
-            subject.CacheFilePath.Should().Be(expected);
-        }
-
-        /// <summary>
-        /// The test to evaluate a relative cache path,
-        /// which should return false since we only expect an absolute path.
-        /// </summary>
-        [Test]
-        [Platform("Win")] // Only valid on Windows
-        public void TestCacheFileOptionWithRelativePath()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-
-            string path = "..\\test\\relative.cache";
-            subject.CacheFilePath = path;
-            subject.EvaluateOptions().Should().BeFalse();
-        }
-
-        /// <summary>
-        /// The test to evaluate a Window absolute cache path.
-        /// </summary>
-        [Test]
-        [Platform("Win")] // Only valid on Windows
-        public void TestCacheFileOptionWithWindowsAbsolutePath()
-        {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-
-            string path = "C:\\test\\absolute.cache";
-            subject.CacheFilePath = path;
-            subject.EvaluateOptions().Should().BeTrue();
-            subject.CacheFilePath.Should().Be(path);
         }
 
         /// <summary>
