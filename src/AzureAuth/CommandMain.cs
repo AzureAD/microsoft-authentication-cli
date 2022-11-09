@@ -181,7 +181,7 @@ Allowed values: [all, web, devicecode]";
             get
             {
                 // Use default cache file path.
-                string appData = Environment.SpecialFolder.LocalApplicationData.ToString();
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 string absolutePath = this.fileSystem.Path.Combine(appData, ".IdentityService", $"msal_{this.authSettings.Tenant}.cache");
                 return absolutePath;
             }
