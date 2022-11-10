@@ -174,20 +174,6 @@ Allowed values: [all, web, devicecode]";
         public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
 
         /// <summary>
-        /// Gets the cache file name. Only available on Windows.
-        /// </summary>
-        public string CacheFilePath
-        {
-            get
-            {
-                // Use default cache file path.
-                string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                string absolutePath = this.fileSystem.Path.Combine(appData, ".IdentityService", $"msal_{this.authSettings.Tenant}.cache");
-                return absolutePath;
-            }
-        }
-
-        /// <summary>
         /// Gets the token fetcher options.
         /// </summary>
         public Alias TokenFetcherOptions
@@ -417,7 +403,7 @@ Allowed values: [all, web, devicecode]";
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth", this.CacheFilePath);
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth");
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
@@ -556,7 +542,6 @@ Allowed values: [all, web, devicecode]";
                 new Guid(this.authSettings.Client),
                 new Guid(this.authSettings.Tenant),
                 scopes,
-                this.CacheFilePath,
                 this.PreferredDomain,
                 PrefixedPromptHint(this.authSettings.PromptHint),
                 Constants.AuthOSXKeyChainSuffix);

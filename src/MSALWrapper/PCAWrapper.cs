@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -43,10 +44,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="errors">The errors list to append error encountered to.</param>
         /// <param name="tenantId">The tenant ID to help key the cache off of.</param>
         /// <param name="osxKeyChainSuffix">An optional (can be null) suffix to further customize key chain token caches on OSX.</param>
-        /// <param name="cacheFilePath">The cache filename.</param>
-        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
+        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId, string osxKeyChainSuffix)
             : this(logger, pca)
         {
+            string cacheFilePath = GetCacheFilePath(tenantId);
+
             var cacher = new PCACache(logger, tenantId, cacheFilePath, osxKeyChainSuffix);
             cacher.SetupTokenCache(this.pca.UserTokenCache, errors);
         }
@@ -60,6 +62,19 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets a value indicating whether or not to use the system web browser for web mode prompts. Default: false.
         /// </summary>
         public bool UseEmbeddedWebView { get; private set; } = false;
+
+        /// <summary>
+        /// Gets the cache file name. Only available on Windows.
+        /// </summary>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <returns>The absolute path for cache file corresponding to the tenant.</returns>
+        public static string GetCacheFilePath(Guid tenantId)
+        {
+            // Use default cache file path.
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string absolutePath = Path.Combine(appData, ".IdentityService", $"msal_{tenantId}.cache");
+            return absolutePath;
+        }
 
         /// <inheritdoc/>
         public IPCAWrapper WithPromptHint(string promptHint)

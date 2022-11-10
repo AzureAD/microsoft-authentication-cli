@@ -35,16 +35,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="clientId">The client id.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="scopes">The scopes.</param>
-        /// <param name="cacheFilePath">The pca cache file path.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
-        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string cacheFilePath, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
+        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
         {
             this.errors = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, null, cacheFilePath);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, null);
         }
 
         /// <summary>
@@ -123,7 +122,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
@@ -135,7 +134,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     enablePiiLogging: false,
                     enableDefaultPlatformLogging: true);
 
-            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, null, cacheFilePath);
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, null);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)
