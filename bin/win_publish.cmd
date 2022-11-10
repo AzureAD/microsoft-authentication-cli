@@ -1,3 +1,6 @@
+:: Copyright (c) Microsoft Corporation.
+:: Licensed under the MIT License.
+
 @ECHO OFF
 
 rmdir /S /Q %~dp0\dist
