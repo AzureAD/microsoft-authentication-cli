@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{8ECA015E-8DE7-40F9-B0D8-D8FA02922F7E}"
 	ProjectSection(SolutionItems) = preProject
 		CHANGELOG.md = CHANGELOG.md
+		CONTRIBUTING.md = CONTRIBUTING.md
 		src\stylecop\GlobalSuppressions.cs = src\stylecop\GlobalSuppressions.cs
 		src\stylecop\GlobalSuppressions.Test.cs = src\stylecop\GlobalSuppressions.Test.cs
 		src\stylecop\stylecop.json = src\stylecop\stylecop.json
