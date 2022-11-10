@@ -9,6 +9,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
     using Microsoft.Identity.Client.Broker;
     using Microsoft.Extensions.Logging;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
+    using BenchmarkDotNet.Running;
 
     /// <summary>
     /// <see cref="BrokerBenchmark"/> class is for benchmark comparison between C++ native broker (available after Microsoft.Identity.Client 4.44) and .Net managed broker.
@@ -19,6 +20,12 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         private readonly Guid tenantID = Guid.Parse("72f988bf-86f1-41af-91ab-2d7cd011db47"); // Microsoft "MSIT" corp tenant
         private readonly List<string> scopes = new List<string>();
         private readonly ILogger logger;
+
+        public static void Main(string[] args)
+        {
+            var summary = BenchmarkRunner.Run<BrokerBenchmark>();
+            Console.WriteLine(summary);
+        }
 
         /// <summary>
         /// Use the same cache file in normal process.

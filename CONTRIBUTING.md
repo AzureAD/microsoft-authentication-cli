@@ -75,3 +75,20 @@ You can also you the command line to build and run. This is typically faster and
    ```shell
    dotnet run --project AzureAuth -- ${more_options_go_here}
    ```
+
+# Benchmark
+The project `MSALWrapper.Benchmark` introduces a 3rd party framework [BenchmarkDotNet](https://benchmarkdotnet.org/). To use this benchmark project, set the `MSALWrapper.Benchmark` as the startup project, and change to release mode. Then the benchmark project will compile itself again and run series profiles then print the result in console.
+
+## Add new benchmarks
+See https://benchmarkdotnet.org/articles/guides/getting-started.html.
+
+## Run benchmarks
+Run the benchmark project.
+```shell
+dotnet run --configuration release --project .\src\MSALWrapper.Benchmark
+```
+
+Now, there is only one excutable benchmark. If there are more benchmarks in further, specify the property StartupObject. For example:
+```shell
+dotnet run --configuration release --project .\src\MSALWrapper.Benchmark --property:StartupObject=Microsoft.Authentication.MSALWrapper.Benchmark.BrokerBenchmark
+```
