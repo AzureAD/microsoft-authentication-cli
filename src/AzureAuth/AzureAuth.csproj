@@ -4,7 +4,7 @@
         <DefineConstants>PlatformWindows</DefineConstants>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     </PropertyGroup>
-
+    
     <!-- Release configuration -->
     <PropertyGroup Condition="'$(Configuration)'=='release'">
         <PublishReadyToRun>true</PublishReadyToRun>
@@ -15,7 +15,6 @@
     <PropertyGroup>
         <!-- Output an executable -->
         <TargetFramework>net6.0</TargetFramework>
-
         <PackageId>microsoft.authentication.azureauth</PackageId>
         <OutputType>Exe</OutputType>
         <AssemblyName>azureauth</AssemblyName>
