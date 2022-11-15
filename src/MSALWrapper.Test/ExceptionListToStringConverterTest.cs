@@ -224,5 +224,20 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             correlationIDs.Should().BeEquivalentTo(expectedCorrelationIDs);
         }
+
+        [Test]
+        public void ExceptionList_WithInnerExceptions()
+        {
+            List<Exception> exceptionList = new ()
+            {
+                new Exception("This is the first exception"),
+                new MsalServiceException("2", "This is the second exception", new MsalClientException("3", "This is the inner exception of second exception")),
+            };
+            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
+
+            exceptionString.Should().Be("System.Exception: This is the first exception\n" +
+                "Microsoft.Identity.Client.MsalServiceException: This is the second exception\n" +
+                "Microsoft.Identity.Client.MsalClientException: This is the inner exception of second exception");
+        }
     }
 }

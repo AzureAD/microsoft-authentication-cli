@@ -72,18 +72,18 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <returns>The <see cref="string"/>.</returns>
         private static string SingleLineException(Exception ex)
         {
-            if (ex != null)
+            var messages = new List<string>();
+            while (ex != null)
             {
                 var message = ex.Message
                                 .Replace("\n", string.Empty)
                                 .Replace("\r", string.Empty)
                                 .Replace("\t", string.Empty);
-                return $"{ex.GetType()}: {message}";
+                messages.Add($"{ex.GetType()}: {message}");
+                ex = ex.InnerException;
             }
-            else
-            {
-                return "null";
-            }
+
+            return messages.Any() ? string.Join("\n", messages) : "null";
         }
     }
 }
