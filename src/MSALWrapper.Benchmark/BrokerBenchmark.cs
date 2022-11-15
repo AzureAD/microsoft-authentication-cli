@@ -53,7 +53,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         [Benchmark]
         public void NativeBrokerBenchmark()
         {
-            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, null, true);
+            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, true);
             Broker broker = new Broker(this.logger, this.clientID, this.tenantID, this.scopes, pcaWrapper: pcaWrapper);
 
             broker.GetTokenAsync().Wait();
@@ -65,13 +65,13 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         [Benchmark]
         public void ManagedBrokerBenchmark()
         {
-            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, null, false);
+            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, false);
             Broker broker = new Broker(this.logger, this.clientID, this.tenantID, this.scopes, pcaWrapper: pcaWrapper);
 
             broker.GetTokenAsync().Wait();
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string? osxKeyChainSuffix, bool useNativeBroker)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, bool useNativeBroker)
         {
             IList<Exception> errors = new List<Exception>();
 
@@ -94,7 +94,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
                 clientBuilder.WithBroker();
             }
 
-            return new PCAWrapper(logger, clientBuilder.Build(), errors, tenantId, osxKeyChainSuffix);
+            return new PCAWrapper(logger, clientBuilder.Build(), errors, tenantId);
         }
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)
         {

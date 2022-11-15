@@ -18,6 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper
         // OSX
         private const string MacOSAccountName = "MSALCache";
         private const string MacOSServiceName = "Microsoft.Developer.IdentityService";
+        private const string OSXKeyChainSuffix = "azureauth";
 
         // Linux
         private const string LinuxKeyRingSchema = "com.microsoft.identity.tokencache";
@@ -38,11 +39,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="logger">The logger.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="cacheFilePath">The cache file name.</param>
-        /// <param name="osxKeyChainSuffix">The osx key chain suffix.</param>
-        internal PCACache(ILogger logger, Guid tenantId, string cacheFilePath, string osxKeyChainSuffix = null)
+        internal PCACache(ILogger logger, Guid tenantId, string cacheFilePath)
         {
             this.logger = logger;
-            this.osxKeyChainSuffix = string.IsNullOrWhiteSpace(osxKeyChainSuffix) ? $"{tenantId}" : $"{osxKeyChainSuffix}.{tenantId}";
+            this.osxKeyChainSuffix = $"{OSXKeyChainSuffix}.{tenantId}";
 
             if (string.IsNullOrWhiteSpace(cacheFilePath))
             {
@@ -66,7 +66,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 return;
             }
 
-            var osxKeychainItem = MacOSServiceName + (string.IsNullOrWhiteSpace(this.osxKeyChainSuffix) ? string.Empty : $".{this.osxKeyChainSuffix}");
+            var osxKeychainItem = $"{MacOSServiceName}.{this.osxKeyChainSuffix}";
 
             var storageProperties = new StorageCreationPropertiesBuilder(this.cacheFileName, this.cacheDir)
             .WithLinuxKeyring(LinuxKeyRingSchema, LinuxKeyRingCollection, LinuxKeyRingLabel, linuxKeyRingAttr1, linuxKeyRingAttr2)

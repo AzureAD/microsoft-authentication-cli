@@ -22,7 +22,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="scopes">The scopes.</param>
         /// <param name="preferredDomain">Preferred domain to use when filtering cached accounts.</param>
         /// <param name="promptHint">A prompt hint to contextualize an auth prompt if given.</param>
-        /// <param name="osxKeyChainSuffix">A suffix to customize the OSX msal cache.</param>
         /// <param name="pcaWrapper">An optional injected <see cref="IPCAWrapper"/> to use.</param>
         /// <param name="platformUtils">An optional injected <see cref="IPlatformUtils"/> to use.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IAuthFlow"/> instances.</returns>
@@ -34,7 +33,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             IEnumerable<string> scopes,
             string preferredDomain,
             string promptHint,
-            string osxKeyChainSuffix,
             IPCAWrapper pcaWrapper = null,
             IPlatformUtils platformUtils = null)
         {
@@ -57,17 +55,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
             if (authMode.IsBroker() && platformUtils.IsWindows10Or11())
             {
-                flows.Add(new Broker(logger, clientId, tenantId, scopes, osxKeyChainSuffix: osxKeyChainSuffix, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new Broker(logger, clientId, tenantId, scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             if (authMode.IsWeb())
             {
-                flows.Add(new Web(logger, clientId, tenantId, scopes, osxKeyChainSuffix: osxKeyChainSuffix, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new Web(logger, clientId, tenantId, scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             if (authMode.IsDeviceCode())
             {
-                flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, osxKeyChainSuffix: osxKeyChainSuffix, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             return flows;

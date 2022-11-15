@@ -11,11 +11,6 @@ namespace Microsoft.Authentication.MSALWrapper
     public static class Constants
     {
         /// <summary>
-        /// The auth osx key chain suffix.
-        /// </summary>
-        public const string AuthOSXKeyChainSuffix = "azureauth";
-
-        /// <summary>
         /// The aad oauth redirect uri.
         /// </summary>
         public static readonly Uri AadOAuthRedirectUri = new Uri("urn:ietf:wg:oauth:2.0:oob");

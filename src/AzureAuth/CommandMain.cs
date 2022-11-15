@@ -403,7 +403,7 @@ Allowed values: [all, web, devicecode]";
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant), "azureauth");
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant));
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
@@ -543,8 +543,7 @@ Allowed values: [all, web, devicecode]";
                 new Guid(this.authSettings.Tenant),
                 scopes,
                 this.PreferredDomain,
-                PrefixedPromptHint(this.authSettings.PromptHint),
-                Constants.AuthOSXKeyChainSuffix);
+                PrefixedPromptHint(this.authSettings.PromptHint));
             }
 
             this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());

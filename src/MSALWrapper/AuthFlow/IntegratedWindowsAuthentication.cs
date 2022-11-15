@@ -43,7 +43,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, null);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
@@ -134,7 +134,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     enablePiiLogging: false,
                     enableDefaultPlatformLogging: true);
 
-            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, null);
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)
