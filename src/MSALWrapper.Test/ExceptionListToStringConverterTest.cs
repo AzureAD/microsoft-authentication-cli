@@ -231,13 +231,30 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             List<Exception> exceptionList = new ()
             {
                 new Exception("This is the first exception"),
-                new MsalServiceException("2", "This is the second exception", new MsalClientException("3", "This is the inner exception of second exception")),
+                new MsalServiceException("2", "This is the second exception", new MsalClientException("3", "This is the inner exception of the second exception")),
             };
             var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
 
             exceptionString.Should().Be("System.Exception: This is the first exception\n" +
                 "Microsoft.Identity.Client.MsalServiceException: This is the second exception\n" +
-                "Microsoft.Identity.Client.MsalClientException: This is the inner exception of second exception");
+                "Microsoft.Identity.Client.MsalClientException: This is the inner exception of the second exception");
+        }
+
+        [Test]
+        public void ExceptionList_WithNullAndInnerExceptions()
+        {
+            List<Exception> exceptionList = new ()
+            {
+                new Exception("This is the first exception"),
+                null,
+                new Exception("This is the third exception", new Exception("This is the inner exception of the third exception")),
+            };
+            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
+
+            exceptionString.Should().Be("System.Exception: This is the first exception\n" +
+                "null\n" +
+                "System.Exception: This is the third exception\n" +
+                "System.Exception: This is the inner exception of the third exception");
         }
     }
 }
