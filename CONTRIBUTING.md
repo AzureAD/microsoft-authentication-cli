@@ -83,7 +83,9 @@ The project `MSALWrapper.Benchmark` introduces a 3rd party framework [BenchmarkD
 See https://benchmarkdotnet.org/articles/guides/getting-started.html.
 
 ## Run benchmarks
-Run the benchmark project.
+1. Replace the placeholders with your own tenant ID and client ID.
+
+2. Run the benchmark project.
 ```shell
 dotnet run --configuration release --project .\src\MSALWrapper.Benchmark
 ```
