@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 # Unreleased
+### Changed
+- Upgrade MSAL to 4.47.2 and opt-in native WAM mode.
+
 ### Fixed
 - Remove `setx` usage and use `WM_SETTINGCHANGE` in the install script to prevent truncating `$PATH`.
 

@@ -1,20 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
     <DefineConstants>PlatformWindows</DefineConstants>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-
-  <!-- Release configuration -->
+<!-- Release configuration -->
   <PropertyGroup Condition="'$(Configuration)'=='release'">
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
@@ -22,6 +13,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
     <!-- Output an executable -->
     <PackageId>microsoft.authentication.azureauth</PackageId>
     <OutputType>Exe</OutputType>
@@ -59,6 +51,5 @@
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <!-- Needed for Web mode on Windows -->
     <TrimmerRootAssembly Include="System.Private.CoreLib" />
-    <TrimmerRootAssembly Include="WinRT.Runtime" />
   </ItemGroup>
 </Project>
