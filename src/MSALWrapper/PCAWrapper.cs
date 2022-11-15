@@ -46,9 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId)
             : this(logger, pca)
         {
-            string cacheFilePath = GetCacheFilePath(tenantId);
-
-            var cacher = new PCACache(logger, tenantId, cacheFilePath);
+            var cacher = new PCACache(logger, tenantId);
             cacher.SetupTokenCache(this.pca.UserTokenCache, errors);
         }
 
@@ -61,19 +59,6 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets a value indicating whether or not to use the system web browser for web mode prompts. Default: false.
         /// </summary>
         public bool UseEmbeddedWebView { get; private set; } = false;
-
-        /// <summary>
-        /// Gets the cache file name. Only available on Windows.
-        /// </summary>
-        /// <param name="tenantId">The tenant ID.</param>
-        /// <returns>The absolute path for cache file corresponding to the tenant.</returns>
-        public static string GetCacheFilePath(Guid tenantId)
-        {
-            // Use default cache file path.
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string absolutePath = Path.Combine(appData, ".IdentityService", $"msal_{tenantId}.cache");
-            return absolutePath;
-        }
 
         /// <inheritdoc/>
         public IPCAWrapper WithPromptHint(string promptHint)

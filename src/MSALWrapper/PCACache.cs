@@ -18,7 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper
         // OSX
         private const string MacOSAccountName = "MSALCache";
         private const string MacOSServiceName = "Microsoft.Developer.IdentityService";
-        private const string OSXKeyChainSuffix = "azureauth";
+        private const string OSXKeyChainCategory = "azureauth";
 
         // Linux
         private const string LinuxKeyRingSchema = "com.microsoft.identity.tokencache";
@@ -38,19 +38,26 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="tenantId">The tenant id.</param>
-        /// <param name="cacheFilePath">The cache file name.</param>
-        internal PCACache(ILogger logger, Guid tenantId, string cacheFilePath)
+        internal PCACache(ILogger logger, Guid tenantId)
         {
             this.logger = logger;
-            this.osxKeyChainSuffix = $"{OSXKeyChainSuffix}.{tenantId}";
+            this.osxKeyChainSuffix = $"{OSXKeyChainCategory}.{tenantId}";
 
-            if (string.IsNullOrWhiteSpace(cacheFilePath))
+            this.cacheFileName = $"msal_{tenantId}.cache";
+            this.cacheDir = this.CacheServiceFoler;
+        }
+
+        /// <summary>
+        /// Gets the absolute path of the cache folder. Only available on Windows.
+        /// </summary>
+        public string CacheServiceFoler
+        {
+            get
             {
-                throw new ArgumentNullException($"{nameof(cacheFilePath)} should not be null or whitespace.");
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string absolutePath = Path.Combine(appData, ".IdentityService");
+                return absolutePath;
             }
-
-            this.cacheFileName = Path.GetFileName(cacheFilePath);
-            this.cacheDir = Directory.GetParent(cacheFilePath).FullName;
         }
 
         /// <summary>
