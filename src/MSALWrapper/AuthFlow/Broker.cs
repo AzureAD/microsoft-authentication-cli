@@ -193,12 +193,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     HeaderText = this.promptHint,
                 })
-                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()); // Pass parent window handle to MSAL so it can parent the authentication dialogs.
-#if NETFRAMEWORK
-            clientBuilder.WithWindowsBroker();
-#else
-            clientBuilder.WithBrokerPreview();
-#endif
+                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()) // Pass parent window handle to MSAL so it can parent the authentication dialogs.
+                .WithBrokerPreview(); // Use native broker mode.
+
             return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix, cacheFilePath);
         }
 
