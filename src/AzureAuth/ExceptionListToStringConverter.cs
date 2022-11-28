@@ -7,7 +7,6 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.Json;
-    using System.Windows.Forms;
     using Microsoft.Identity.Client;
 
     /// <summary>
