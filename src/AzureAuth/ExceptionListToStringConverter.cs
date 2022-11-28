@@ -52,7 +52,7 @@ namespace Microsoft.Authentication.AzureAuth
         }
 
         /// <summary>
-        /// Converts exceptions to JSON string.
+        /// Executes the convertion of exceptions to a JSON string.
         /// </summary>
         /// <param name="exceptions">List of exceptions.</param>
         /// <returns>JSON format of exception list.</returns>
