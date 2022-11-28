@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Authentication.MSALWrapper
+namespace Microsoft.Authentication.AzureAuth
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.Json;
+    using System.Windows.Forms;
     using Microsoft.Identity.Client;
 
     /// <summary>
@@ -51,10 +53,10 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Executes the convertion of exceptions to a string.
+        /// Converts exceptions to JSON string.
         /// </summary>
-        /// <param name="exceptions">The exceptions.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <param name="exceptions">List of exceptions.</param>
+        /// <returns>JSON format of exception list.</returns>
         public static string Execute(IEnumerable<Exception> exceptions)
         {
             if (exceptions == null || exceptions.Count() == 0)
@@ -62,36 +64,47 @@ namespace Microsoft.Authentication.MSALWrapper
                 return null;
             }
 
-            return string.Join("\n", exceptions.Select(SingleLineException));
-        }
-
-        /// <summary>
-        /// Converts exceptions to a single string.
-        /// </summary>
-        /// <param name="ex">The exceptions.</param>
-        /// <returns>The <see cref="string"/>.</returns>
-        private static string SingleLineException(Exception ex)
-        {
-            if (ex != null)
+            List<CustomException> customExceptions = new List<CustomException>();
+            foreach (Exception exception in exceptions)
             {
-                IEnumerable<Exception> innerExceptions = ExceptionExtensions.GetAllExceptions(ex);
-                var messages = new List<string>();
+                var customException = new CustomException(exception);
+                customExceptions.Add(customException);
+            }
 
-                foreach (Exception innerException in innerExceptions)
-                {
-                    var message = innerException.Message
+            return JsonSerializer.Serialize(customExceptions);
+        }
+    }
+
+    /// <summary>
+    /// CustomException class with only select properties of Exception class.
+    /// </summary>
+    internal class CustomException
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustomException"/> class.
+        /// </summary>
+        /// <param name="exception">Exception.</param>
+        public CustomException(Exception exception)
+        {
+            if (exception?.Message != null)
+            {
+                var singleLineMessage = exception.Message
                                     .Replace("\n", string.Empty)
                                     .Replace("\r", string.Empty)
                                     .Replace("\t", string.Empty);
-                    messages.Add($"{innerException.GetType()}: {message}");
-                }
-
-                return string.Join("\n", messages);
+                this.Message = $"{exception.GetType()}: {singleLineMessage}";
             }
-            else
+
+            if (exception?.InnerException != null)
             {
-                return "null";
+                this.InnerException = new CustomException(exception.InnerException);
             }
         }
+
+        /// <summary>Gets or sets Message.</summary>
+        public string Message { get; set; }
+
+        /// <summary>Gets or sets InnerException.</summary>
+        public CustomException InnerException { get; set; }
     }
 }

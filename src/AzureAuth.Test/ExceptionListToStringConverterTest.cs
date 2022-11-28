@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Authentication.MSALWrapper.Test
+namespace Microsoft.Authentication.AzureAuth.Test
 {
     using System;
     using System.Collections.Generic;
     using FluentAssertions;
-    using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Identity.Client;
     using NUnit.Framework;
 
@@ -48,7 +47,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             string result = ExceptionListToStringConverter.Execute(exceptions);
 
             // Assert
-            result.Should().Be("System.Exception: This is an exception");
+            result.Should().Be("[{\"Message\":\"System.Exception: This is an exception\",\"InnerException\":null}]");
         }
 
         [Test]
@@ -62,10 +61,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             string result = ExceptionListToStringConverter.Execute(exceptions);
+            string expectedStr = "[{\"Message\":null,\"InnerException\":null}," +
+                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\",\"InnerException\":null}]";
 
             // Assert
-            result.Should().Be("null\n" +
-                "Microsoft.Identity.Client.MsalServiceException: This is the second exception");
+            result.Should().Be(expectedStr);
         }
 
         [Test]
@@ -80,12 +80,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             string result = ExceptionListToStringConverter.Execute(exceptions);
+            string expectedStr = "[{\"Message\":\"Microsoft.Identity.Client.MsalUiRequiredException: This is the first exception\",\"InnerException\":null}," +
+                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\",\"InnerException\":null}," +
+                "{\"Message\":\"Microsoft.Identity.Client.MsalClientException: This is the third exception\",\"InnerException\":null}]";
 
             // Assert
-            result.Should().Be(
-                "Microsoft.Identity.Client.MsalUiRequiredException: This is the first exception\n" +
-                "Microsoft.Identity.Client.MsalServiceException: This is the second exception\n" +
-                "Microsoft.Identity.Client.MsalClientException: This is the third exception");
+            result.Should().Be(expectedStr);
         }
 
         [Test]
@@ -100,12 +100,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             string result = ExceptionListToStringConverter.Execute(exceptions);
+            string expectedResult = "[{\"Message\":\"Microsoft.Identity.Client.MsalUiRequiredException: This is the first exception\",\"InnerException\":null}," +
+                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\",\"InnerException\":null}," +
+                "{\"Message\":\"Microsoft.Identity.Client.MsalClientException: This is the third exception\",\"InnerException\":null}]";
 
             // Assert
-            result.Should().Be(
-                "Microsoft.Identity.Client.MsalUiRequiredException: This is the first exception\n" +
-                "Microsoft.Identity.Client.MsalServiceException: This is the second exception\n" +
-                "Microsoft.Identity.Client.MsalClientException: This is the third exception");
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -120,11 +120,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             string result = ExceptionListToStringConverter.Execute(exceptions);
+            string expectedResult = "[{\"Message\":\"System.Exception: This is the first exception\",\"InnerException\":null}," +
+                "{\"Message\":\"System.Exception: This is the second exception\",\"InnerException\":null}," +
+                "{\"Message\":\"System.Exception: This is the third exception\",\"InnerException\":null}]";
 
             // Assert
-            result.Should().Be("System.Exception: This is the first exception\n" +
-                "System.Exception: This is the second exception\n" +
-                "System.Exception: This is the third exception");
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -233,11 +234,31 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 new Exception("This is the first exception"),
                 new MsalServiceException("2", "This is the second exception", new MsalClientException("3", "This is the inner exception of the second exception")),
             };
-            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
 
-            exceptionString.Should().Be("System.Exception: This is the first exception\n" +
-                "Microsoft.Identity.Client.MsalServiceException: This is the second exception\n" +
-                "Microsoft.Identity.Client.MsalClientException: This is the inner exception of the second exception");
+            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
+            var expectedExceptionStr = "[{\"Message\":\"System.Exception: This is the first exception\",\"InnerException\":null}," +
+                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\"," +
+                "\"InnerException\":{\"Message\":\"Microsoft.Identity.Client.MsalClientException: This is the inner exception of the second exception\",\"InnerException\":null}}]";
+
+            exceptionString.Should().Be(expectedExceptionStr);
+        }
+
+        [Test]
+        public void ExceptionList_WithAggregateAndInnerExceptions()
+        {
+            List<Exception> exceptionList = new ()
+            {
+                new AggregateException(new Exception("Abra ca dabra")),
+                new MsalServiceException("2", "This is the second exception", new MsalClientException("3", "This is the inner exception of the second exception")),
+            };
+
+            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
+            var expectedExceptionStr = "[{\"Message\":\"System.AggregateException: One or more errors occurred. (Abra ca dabra)\"," +
+                "\"InnerException\":{\"Message\":\"System.Exception: Abra ca dabra\",\"InnerException\":null}}," +
+                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\"," +
+                "\"InnerException\":{\"Message\":\"Microsoft.Identity.Client.MsalClientException: This is the inner exception of the second exception\",\"InnerException\":null}}]";
+
+            exceptionString.Should().Be(expectedExceptionStr);
         }
 
         [Test]
@@ -249,12 +270,32 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 null,
                 new Exception("This is the third exception", new Exception("This is the inner exception of the third exception")),
             };
-            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
 
-            exceptionString.Should().Be("System.Exception: This is the first exception\n" +
-                "null\n" +
-                "System.Exception: This is the third exception\n" +
-                "System.Exception: This is the inner exception of the third exception");
+            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
+            var expectedExceptionString = "[{\"Message\":\"System.Exception: This is the first exception\",\"InnerException\":null}," +
+                "{\"Message\":null,\"InnerException\":null}," +
+                "{\"Message\":\"System.Exception: This is the third exception\"," +
+                "\"InnerException\":{\"Message\":\"System.Exception: This is the inner exception of the third exception\",\"InnerException\":null}}]";
+
+            exceptionString.Should().Be(expectedExceptionString);
+        }
+
+        [Test]
+        public void ExceptionList_WithInnerExceptionHavingAnotherInnerException()
+        {
+            List<Exception> exceptionList = new ()
+            {
+                new Exception("This is the first exception"),
+                new Exception("This is the second exception", new Exception("This is the inner exception of the second exception", new Exception("This is the inner exception of the inner exception"))),
+            };
+
+            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
+            var expectedExceptionString = "[{\"Message\":\"System.Exception: This is the first exception\",\"InnerException\":null}," +
+                "{\"Message\":\"System.Exception: This is the second exception\"," +
+                "\"InnerException\":{\"Message\":\"System.Exception: This is the inner exception of the second exception\"," +
+                "\"InnerException\":{\"Message\":\"System.Exception: This is the inner exception of the inner exception\",\"InnerException\":null}}}]";
+
+            exceptionString.Should().Be(expectedExceptionString);
         }
     }
 }
