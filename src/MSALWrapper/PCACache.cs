@@ -44,20 +44,7 @@ namespace Microsoft.Authentication.MSALWrapper
             this.osxKeyChainSuffix = $"{OSXKeyChainCategory}.{tenantId}";
 
             this.cacheFileName = $"msal_{tenantId}.cache";
-            this.cacheDir = this.CacheServiceFolder;
-        }
-
-        /// <summary>
-        /// Gets the absolute path of the cache folder. Only available on Windows.
-        /// </summary>
-        private string CacheServiceFolder
-        {
-            get
-            {
-                string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                string absolutePath = Path.Combine(appData, ".IdentityService");
-                return absolutePath;
-            }
+            this.cacheDir = this.GetCacheServiceFolder();
         }
 
         /// <summary>
@@ -99,6 +86,17 @@ namespace Microsoft.Authentication.MSALWrapper
                 this.logger.LogError("An unexpected error occured creating the cache.");
                 throw new Exception(exceptionMessage);
             }
+        }
+
+        /// <summary>
+        /// Gets the absolute path of the cache folder. Only available on Windows.
+        /// </summary>
+        /// <returns>The absolute path of the cache folder.</returns>
+        private string GetCacheServiceFolder()
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string absolutePath = Path.Combine(appData, ".IdentityService");
+            return absolutePath;
         }
     }
 }
