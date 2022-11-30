@@ -44,13 +44,13 @@ namespace Microsoft.Authentication.MSALWrapper
             this.osxKeyChainSuffix = $"{OSXKeyChainCategory}.{tenantId}";
 
             this.cacheFileName = $"msal_{tenantId}.cache";
-            this.cacheDir = this.CacheServiceFoler;
+            this.cacheDir = this.CacheServiceFolder;
         }
 
         /// <summary>
         /// Gets the absolute path of the cache folder. Only available on Windows.
         /// </summary>
-        public string CacheServiceFoler
+        private string CacheServiceFolder
         {
             get
             {
