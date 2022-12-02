@@ -63,10 +63,10 @@ namespace Microsoft.Authentication.AzureAuth
                 return null;
             }
 
-            List<CustomException> customExceptions = new List<CustomException>();
+            List<SerializableException> customExceptions = new List<SerializableException>();
             foreach (Exception exception in exceptions)
             {
-                var customException = new CustomException(exception);
+                var customException = new SerializableException(exception);
                 customExceptions.Add(customException);
             }
 
@@ -77,26 +77,41 @@ namespace Microsoft.Authentication.AzureAuth
     /// <summary>
     /// CustomException class with only select properties of Exception class.
     /// </summary>
-    internal class CustomException
+    internal class SerializableException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CustomException"/> class.
+        /// Initializes a new instance of the <see cref="SerializableException"/> class.
         /// </summary>
         /// <param name="exception">Exception.</param>
-        public CustomException(Exception exception)
+        public SerializableException(Exception exception)
         {
-            if (exception?.Message != null)
+            if (exception != null)
             {
-                var singleLineMessage = exception.Message
-                                    .Replace("\n", string.Empty)
-                                    .Replace("\r", string.Empty)
-                                    .Replace("\t", string.Empty);
-                this.Message = $"{exception.GetType()}: {singleLineMessage}";
-            }
+                if (exception.Message != null)
+                {
+                    this.Message = exception.Message.Replace("\r", string.Empty);
+                }
 
-            if (exception?.InnerException != null)
-            {
-                this.InnerException = new CustomException(exception.InnerException);
+                if (exception.InnerException != null)
+                {
+                    this.InnerException = new SerializableException(exception.InnerException);
+                }
+
+                var exceptionType = exception.GetType();
+                if (exceptionType == typeof(MsalClientException) ||
+                    exceptionType == typeof(MsalServiceException) ||
+                    exceptionType == typeof(MsalUiRequiredException))
+                {
+                    var msalException = (MsalException)exception;
+                    if (msalException.ErrorCode != null)
+                    {
+                        // AAD error codes have the prefix AADSTS to the `ErrorCode` property of an `MsalException` class.
+                        // See https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-aadsts-error-codes
+                        this.AADErrorCode = $"AADSTS{msalException.ErrorCode}";
+                    }
+                }
+
+                this.ExceptionType = $"{exceptionType}";
             }
         }
 
@@ -104,6 +119,15 @@ namespace Microsoft.Authentication.AzureAuth
         public string Message { get; set; }
 
         /// <summary>Gets or sets InnerException.</summary>
-        public CustomException InnerException { get; set; }
+        public SerializableException InnerException { get; set; }
+
+        /// <summary>Gets or sets Type.</summary>
+        /// Note: This property is intentionally made of type `string` instead of `System.Type`.
+        /// This is because `System.Type` instances cannot be serialized using `System.text.JSONSerializer` for security reasons.
+        /// For more information, see https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/dataset-datatable-dataview/security-guidance
+        public string ExceptionType { get; set; }
+
+        /// <summary>Gets or sets AADErrorCode.</summary>
+        public string AADErrorCode { get; set; }
     }
 }

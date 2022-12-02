@@ -615,7 +615,7 @@ invalid_key = ""this is not a valid alias key""
             eventData.Properties.Should().NotContainKey("silent");
             eventData.Properties.Should().Contain("authflow", "AuthFlowName");
             eventData.Properties.Should().Contain("success", "False");
-            eventData.Properties.Should().Contain("error_messages", "[{\"Message\":\"System.Exception: Exception 1.\",\"InnerException\":null}]");
+            eventData.Properties.Should().Contain("error_messages", "[{\"Message\":\"Exception 1.\",\"InnerException\":null,\"ExceptionType\":\"System.Exception\",\"AADErrorCode\":null}]");
             eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
 
@@ -660,10 +660,10 @@ invalid_key = ""this is not a valid alias key""
         {
             // TODO
             var correlationID1 = Guid.NewGuid().ToString();
-            var msalServiceException = new MsalServiceException("errorcode", "An MSAL Service Exception message");
+            var msalServiceException = new MsalServiceException("1", "An MSAL Service Exception message");
             msalServiceException.CorrelationId = correlationID1;
 
-            var msalUIRequiredException = new MsalUiRequiredException("errorcode", "An MSAL UI Required Exception message");
+            var msalUIRequiredException = new MsalUiRequiredException("2", "An MSAL UI Required Exception message");
             msalUIRequiredException.CorrelationId = null;
 
             var errors = new[]
@@ -688,7 +688,7 @@ invalid_key = ""this is not a valid alias key""
             eventData.Properties.Should().Contain("success", "True");
             eventData.Properties.Should().Contain("msal_correlation_ids", expectedCorrelationIDs);
             eventData.Properties.Should().Contain("silent", "False");
-            eventData.Properties.Should().Contain("error_messages", "[{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: An MSAL Service Exception message\",\"InnerException\":null},{\"Message\":\"Microsoft.Identity.Client.MsalUiRequiredException: An MSAL UI Required Exception message\",\"InnerException\":null}]");
+            eventData.Properties.Should().Contain("error_messages", "[{\"Message\":\"An MSAL Service Exception message\",\"InnerException\":null,\"ExceptionType\":\"Microsoft.Identity.Client.MsalServiceException\",\"AADErrorCode\":\"AADSTS1\"},{\"Message\":\"An MSAL UI Required Exception message\",\"InnerException\":null,\"ExceptionType\":\"Microsoft.Identity.Client.MsalUiRequiredException\",\"AADErrorCode\":\"AADSTS2\"}]");
             eventData.Measures.Should().ContainKey("token_validity_minutes");
             eventData.Measures.Should().ContainKey("duration_milliseconds");
         }
