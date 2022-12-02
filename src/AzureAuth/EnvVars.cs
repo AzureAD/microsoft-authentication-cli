@@ -19,11 +19,6 @@ namespace Microsoft.Authentication.AzureAuth
         public static readonly string Config = $"{EnvVarPrefix}_CONFIG";
 
         /// <summary>
-        /// The name of an environment variable used to override the cache file path.
-        /// </summary>
-        public static readonly string Cache = $"{EnvVarPrefix}_CACHE";
-
-        /// <summary>
         /// Name of the env var used to disable Public Client Authentication.
         /// </summary>
         public static readonly string NoUser = $"{EnvVarPrefix}_NO_USER";

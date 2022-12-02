@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Remove `setx` usage and use `WM_SETTINGCHANGE` in the install script to prevent truncating `$PATH`.
 
+### Removed
+- Removed `--cache` option.
+
 ## [0.6.0] - 2022-10-26
 ### Fixed
 - Use system web browser as the UI for web mode auth on Windows to prevent conditional access based over-prompting.

@@ -28,19 +28,6 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         }
 
         /// <summary>
-        /// Use the same cache file in normal process.
-        /// </summary>
-        private string CacheFilePath
-        {
-            get
-            {
-                string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                string absolutePath = Path.Combine(appData, ".IdentityService", $"msal_{this.tenantID}.cache");
-                return absolutePath;
-            }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="BrokerBenchmark"/> class.
         /// </summary>
         public BrokerBenchmark()
@@ -66,8 +53,8 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         [Benchmark]
         public void NativeBrokerBenchmark()
         {
-            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, null, this.CacheFilePath, true);
-            Broker broker = new Broker(this.logger, this.clientID, this.tenantID, this.scopes, this.CacheFilePath, pcaWrapper: pcaWrapper);
+            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, true);
+            Broker broker = new Broker(this.logger, this.clientID, this.tenantID, this.scopes, pcaWrapper: pcaWrapper);
 
             broker.GetTokenAsync().Wait();
         }
@@ -78,13 +65,13 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         [Benchmark]
         public void ManagedBrokerBenchmark()
         {
-            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, null, this.CacheFilePath, false);
-            Broker broker = new Broker(this.logger, this.clientID, this.tenantID, this.scopes, this.CacheFilePath, pcaWrapper: pcaWrapper);
+            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, false);
+            Broker broker = new Broker(this.logger, this.clientID, this.tenantID, this.scopes, pcaWrapper: pcaWrapper);
 
             broker.GetTokenAsync().Wait();
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string? osxKeyChainSuffix, string cacheFilePath, bool useNativeBroker)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, bool useNativeBroker)
         {
             IList<Exception> errors = new List<Exception>();
 
@@ -107,7 +94,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
                 clientBuilder.WithBroker();
             }
 
-            return new PCAWrapper(logger, clientBuilder.Build(), errors, tenantId, osxKeyChainSuffix, cacheFilePath);
+            return new PCAWrapper(logger, clientBuilder.Build(), errors, tenantId);
         }
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)
         {
