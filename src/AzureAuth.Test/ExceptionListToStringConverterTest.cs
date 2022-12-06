@@ -45,9 +45,15 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
             // Act
             string result = ExceptionListToStringConverter.Execute(exceptions);
+            string expectedResult = @"[" +
+                                        @"{""Message"":""This is an exception""," +
+                                        @"""InnerException"":null," +
+                                        @"""ExceptionType"":""System.Exception""," +
+                                        @"""AADErrorCode"":null}" +
+                                    @"]";
 
             // Assert
-            result.Should().Be("[{\"Message\":\"System.Exception: This is an exception\",\"InnerException\":null}]");
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -61,8 +67,17 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
             // Act
             string result = ExceptionListToStringConverter.Execute(exceptions);
-            string expectedStr = "[{\"Message\":null,\"InnerException\":null}," +
-                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\",\"InnerException\":null}]";
+            string expectedStr = @"[" +
+                                    @"{""Message"":null," +
+                                    @"""InnerException"":null," +
+                                    @"""ExceptionType"":null," +
+                                    @"""AADErrorCode"":null}," +
+
+                                     @"{""Message"":""This is the second exception""," +
+                                    @"""InnerException"":null," +
+                                    @"""ExceptionType"":""Microsoft.Identity.Client.MsalServiceException""," +
+                                    @"""AADErrorCode"":""AADSTS2""}" +
+                                 @"]";
 
             // Assert
             result.Should().Be(expectedStr);
@@ -80,49 +95,55 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
             // Act
             string result = ExceptionListToStringConverter.Execute(exceptions);
-            string expectedStr = "[{\"Message\":\"Microsoft.Identity.Client.MsalUiRequiredException: This is the first exception\",\"InnerException\":null}," +
-                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\",\"InnerException\":null}," +
-                "{\"Message\":\"Microsoft.Identity.Client.MsalClientException: This is the third exception\",\"InnerException\":null}]";
+            string expectedStr = @"[" +
+                                    @"{""Message"":""This is the first exception""," +
+                                    @"""InnerException"":null," +
+                                    @"""ExceptionType"":""Microsoft.Identity.Client.MsalUiRequiredException""," +
+                                    @"""AADErrorCode"":""AADSTS1""}," +
+
+                                    @"{""Message"":""This is the second exception""," +
+                                    @"""InnerException"":null," +
+                                    @"""ExceptionType"":""Microsoft.Identity.Client.MsalServiceException""," +
+                                    @"""AADErrorCode"":""AADSTS2""}," +
+
+                                    @"{""Message"":""This is the third exception""," +
+                                    @"""InnerException"":null," +
+                                    @"""ExceptionType"":""Microsoft.Identity.Client.MsalClientException""," +
+                                    @"""AADErrorCode"":""AADSTS3""}" +
+                                 @"]";
 
             // Assert
             result.Should().Be(expectedStr);
         }
 
         [Test]
-        public void ExceptionList_WithExceptionsContainingNewlines()
+        public void ExceptionList_WithExceptionsContainingNewlinesAndTabs()
         {
             IEnumerable<Exception> exceptions = new List<Exception>()
             {
-                new MsalUiRequiredException("1", "This is the first exception"),
+                new MsalUiRequiredException("1", "This is the first \texception"),
                 new MsalServiceException("2", "This is the \r\nsecond exception\n"),
                 new MsalClientException("3", "This\r is the third exception\n\r"),
             };
 
             // Act
             string result = ExceptionListToStringConverter.Execute(exceptions);
-            string expectedResult = "[{\"Message\":\"Microsoft.Identity.Client.MsalUiRequiredException: This is the first exception\",\"InnerException\":null}," +
-                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\",\"InnerException\":null}," +
-                "{\"Message\":\"Microsoft.Identity.Client.MsalClientException: This is the third exception\",\"InnerException\":null}]";
+            string expectedResult = @"[" +
+                                        @"{""Message"":""This is the first \texception""," +
+                                        @"""InnerException"":null," +
+                                        @"""ExceptionType"":""Microsoft.Identity.Client.MsalUiRequiredException""," +
+                                        @"""AADErrorCode"":""AADSTS1""}," +
 
-            // Assert
-            result.Should().Be(expectedResult);
-        }
+                                        @"{""Message"":""This is the \nsecond exception\n""," +
+                                        @"""InnerException"":null," +
+                                        @"""ExceptionType"":""Microsoft.Identity.Client.MsalServiceException""," +
+                                        @"""AADErrorCode"":""AADSTS2""}," +
 
-        [Test]
-        public void ExceptionList_WithExceptionsContainingTabs()
-        {
-            IEnumerable<Exception> exceptions = new List<Exception>()
-            {
-                new Exception("\tThis is the first exception"),
-                new Exception("This is the \tsecond exception"),
-                new Exception("This is the third exception\t"),
-            };
-
-            // Act
-            string result = ExceptionListToStringConverter.Execute(exceptions);
-            string expectedResult = "[{\"Message\":\"System.Exception: This is the first exception\",\"InnerException\":null}," +
-                "{\"Message\":\"System.Exception: This is the second exception\",\"InnerException\":null}," +
-                "{\"Message\":\"System.Exception: This is the third exception\",\"InnerException\":null}]";
+                                        @"{""Message"":""This is the third exception\n""," +
+                                        @"""InnerException"":null," +
+                                        @"""ExceptionType"":""Microsoft.Identity.Client.MsalClientException""," +
+                                        @"""AADErrorCode"":""AADSTS3""}" +
+                                    @"]";
 
             // Assert
             result.Should().Be(expectedResult);
@@ -236,10 +257,21 @@ namespace Microsoft.Authentication.AzureAuth.Test
             };
 
             var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
-            var expectedExceptionStr = "[{\"Message\":\"System.Exception: This is the first exception\",\"InnerException\":null}," +
-                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\"," +
-                "\"InnerException\":{\"Message\":\"Microsoft.Identity.Client.MsalClientException: This is the inner exception of the second exception\",\"InnerException\":null}}]";
+            string expectedExceptionStr = @"[" +
+                                        @"{""Message"":""This is the first exception""," +
+                                        @"""InnerException"":null," +
+                                        @"""ExceptionType"":""System.Exception""," +
+                                        @"""AADErrorCode"":null}," +
 
+                                        @"{""Message"":""This is the second exception""," +
+                                        @"""InnerException"":" +
+                                            @"{""Message"":""This is the inner exception of the second exception""," +
+                                            @"""InnerException"":null," +
+                                            @"""ExceptionType"":""Microsoft.Identity.Client.MsalClientException""," +
+                                            @"""AADErrorCode"":""AADSTS3""}," +
+                                        @"""ExceptionType"":""Microsoft.Identity.Client.MsalServiceException""," +
+                                        @"""AADErrorCode"":""AADSTS2""}" +
+                                    @"]";
             exceptionString.Should().Be(expectedExceptionStr);
         }
 
@@ -253,11 +285,25 @@ namespace Microsoft.Authentication.AzureAuth.Test
             };
 
             var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
-            var expectedExceptionStr = "[{\"Message\":\"System.AggregateException: One or more errors occurred. (Abra ca dabra)\"," +
-                "\"InnerException\":{\"Message\":\"System.Exception: Abra ca dabra\",\"InnerException\":null}}," +
-                "{\"Message\":\"Microsoft.Identity.Client.MsalServiceException: This is the second exception\"," +
-                "\"InnerException\":{\"Message\":\"Microsoft.Identity.Client.MsalClientException: This is the inner exception of the second exception\",\"InnerException\":null}}]";
+            string expectedExceptionStr = @"[" +
+                                            @"{""Message"":""One or more errors occurred. (Abra ca dabra)""," +
+                                            @"""InnerException"":" +
+                                                @"{""Message"":""Abra ca dabra""," +
+                                                @"""InnerException"":null," +
+                                                @"""ExceptionType"":""System.Exception""," +
+                                                @"""AADErrorCode"":null}," +
+                                            @"""ExceptionType"":""System.AggregateException""," +
+                                            @"""AADErrorCode"":null}," +
 
+                                            @"{""Message"":""This is the second exception""," +
+                                            @"""InnerException"":" +
+                                                @"{""Message"":""This is the inner exception of the second exception""," +
+                                                @"""InnerException"":null," +
+                                                @"""ExceptionType"":""Microsoft.Identity.Client.MsalClientException""," +
+                                                @"""AADErrorCode"":""AADSTS3""}," +
+                                            @"""ExceptionType"":""Microsoft.Identity.Client.MsalServiceException""," +
+                                            @"""AADErrorCode"":""AADSTS2""}" +
+                                        @"]";
             exceptionString.Should().Be(expectedExceptionStr);
         }
 
@@ -272,10 +318,26 @@ namespace Microsoft.Authentication.AzureAuth.Test
             };
 
             var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
-            var expectedExceptionString = "[{\"Message\":\"System.Exception: This is the first exception\",\"InnerException\":null}," +
-                "{\"Message\":null,\"InnerException\":null}," +
-                "{\"Message\":\"System.Exception: This is the third exception\"," +
-                "\"InnerException\":{\"Message\":\"System.Exception: This is the inner exception of the third exception\",\"InnerException\":null}}]";
+            var expectedExceptionString = @"[" +
+                                            @"{""Message"":""This is the first exception""," +
+                                            @"""InnerException"":null," +
+                                            @"""ExceptionType"":""System.Exception""," +
+                                            @"""AADErrorCode"":null}," +
+
+                                            @"{""Message"":null," +
+                                            @"""InnerException"":null," +
+                                            @"""ExceptionType"":null," +
+                                            @"""AADErrorCode"":null}," +
+
+                                            @"{""Message"":""This is the third exception""," +
+                                            @"""InnerException"":" +
+                                                @"{""Message"":""This is the inner exception of the third exception""," +
+                                                @"""InnerException"":null," +
+                                                @"""ExceptionType"":""System.Exception""," +
+                                                @"""AADErrorCode"":null}," +
+                                            @"""ExceptionType"":""System.Exception""," +
+                                            @"""AADErrorCode"":null}" +
+                                          @"]";
 
             exceptionString.Should().Be(expectedExceptionString);
         }
@@ -290,12 +352,56 @@ namespace Microsoft.Authentication.AzureAuth.Test
             };
 
             var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
-            var expectedExceptionString = "[{\"Message\":\"System.Exception: This is the first exception\",\"InnerException\":null}," +
-                "{\"Message\":\"System.Exception: This is the second exception\"," +
-                "\"InnerException\":{\"Message\":\"System.Exception: This is the inner exception of the second exception\"," +
-                "\"InnerException\":{\"Message\":\"System.Exception: This is the inner exception of the inner exception\",\"InnerException\":null}}}]";
+            var expectedExceptionString = @"[" +
+                                            @"{""Message"":""This is the first exception""," +
+                                            @"""InnerException"":null," +
+                                            @"""ExceptionType"":""System.Exception""," +
+                                            @"""AADErrorCode"":null}," +
 
+                                            @"{""Message"":""This is the second exception""," +
+                                            @"""InnerException"":" +
+                                                @"{""Message"":""This is the inner exception of the second exception""," +
+                                                @"""InnerException"":" +
+                                                    @"{""Message"":""This is the inner exception of the inner exception""," +
+                                                    @"""InnerException"":null," +
+                                                    @"""ExceptionType"":""System.Exception""," +
+                                                    @"""AADErrorCode"":null}," +
+                                                @"""ExceptionType"":""System.Exception""," +
+                                                @"""AADErrorCode"":null}," +
+                                            @"""ExceptionType"":""System.Exception""," +
+                                            @"""AADErrorCode"":null}" +
+                                          @"]";
             exceptionString.Should().Be(expectedExceptionString);
+        }
+
+        [Test]
+        public void ExceptionList_WithMSALExceptionsWithErrorCode()
+        {
+            List<Exception> exceptionList = new ()
+            {
+                new MsalServiceException("1", "This is an MSAL Service exception"),
+                new MsalClientException("2", "This is an MSAL Client exception"),
+                new MsalUiRequiredException("3", "This is an MSAL UI required exception"),
+            };
+
+            var exceptionString = ExceptionListToStringConverter.Execute(exceptionList);
+            string expectedExceptionStr = @"[" +
+                                            @"{""Message"":""This is an MSAL Service exception""," +
+                                            @"""InnerException"":null," +
+                                            @"""ExceptionType"":""Microsoft.Identity.Client.MsalServiceException""," +
+                                            @"""AADErrorCode"":""AADSTS1""}," +
+
+                                            @"{""Message"":""This is an MSAL Client exception""," +
+                                            @"""InnerException"":null," +
+                                            @"""ExceptionType"":""Microsoft.Identity.Client.MsalClientException""," +
+                                            @"""AADErrorCode"":""AADSTS2""}," +
+
+                                            @"{""Message"":""This is an MSAL UI required exception""," +
+                                            @"""InnerException"":null," +
+                                            @"""ExceptionType"":""Microsoft.Identity.Client.MsalUiRequiredException""," +
+                                            @"""AADErrorCode"":""AADSTS3""}" +
+                                        @"]";
+            exceptionString.Should().Be(expectedExceptionStr);
         }
     }
 }
