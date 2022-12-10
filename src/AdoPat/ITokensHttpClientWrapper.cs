@@ -9,9 +9,9 @@ namespace Microsoft.Authentication.AdoPat
     using Microsoft.VisualStudio.Services.DelegatedAuthorization;
 
     /// <summary>
-    /// TODO.
+    /// An interface for a transparent wrapper of <see cref="TokensHttpClient"/>.
     /// </summary>
-    public interface ITokensHttpClientProvider
+    public interface ITokensHttpClientWrapper
     {
         /// <summary>
         /// [Preview API] Creates a new personal access token (PAT) for the requesting user.
@@ -52,9 +52,9 @@ namespace Microsoft.Authentication.AdoPat
         /// <param name="userState">(Undocumented).</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>Void.</returns>
-        // Task RevokeAsync(
-        //    Guid authorizationId,
-        //    object userState = null,
-        //    CancellationToken cancellationToken = default);
+        Task RevokeAsync(
+            Guid authorizationId,
+            object userState = null,
+            CancellationToken cancellationToken = default);
     }
 }

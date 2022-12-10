@@ -14,47 +14,63 @@ namespace Microsoft.Authentication.AdoPat.Test
 
     public class PatClientTest
     {
+        private const bool AllOrgs = false;
+        private const string DisplayName = "Test PAT";
+        private const string Scope = "test.scope";
+
+        // This is a test token. A real value would be a much longer string.
+        private const string Token = "Test Token";
+
+        // The Unix Epoch is used as an obviously fake test time which occurs in the past and cannot accidentally be valid.
+        private readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // This list of accounts uses dummy data, not real accounts.
+        private readonly List<Guid> targetAccounts = new List<Guid> { new Guid("b7b59161-cd70-46e9-aca5-883f24060eb1") };
+
+        // This is a dummy authorization ID, not valid in any real contexts.
+        private readonly Guid authorizationId = new Guid("ee0c5586-a96f-4a44-b1d9-8613028b1078");
+
         [Test]
         public async Task CreatePatAsync()
         {
             // Arrange
-            var displayName = "Test PAT";
-            var scope = "test.scope";
-            var validTo = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var allOrgs = false;
             var patTokenCreateRequest = new PatTokenCreateRequest
             {
-                DisplayName = displayName,
-                Scope = scope,
-                ValidTo = validTo,
-                AllOrgs = allOrgs,
+                DisplayName = DisplayName,
+                Scope = Scope,
+                ValidTo = this.unixEpoch.AddDays(7),
+                AllOrgs = AllOrgs,
             };
             var patToken = new PatToken
             {
-                DisplayName = displayName,
-                Scope = scope,
-                TargetAccounts = new List<Guid> { new Guid("b7b59161-cd70-46e9-aca5-883f24060eb1") },
-                ValidTo = validTo,
-                ValidFrom = DateTime.UtcNow,
-                AuthorizationId = new Guid("ee0c5586-a96f-4a44-b1d9-8613028b1078"),
-                Token = "A real token would be much, much longer.",
+                DisplayName = DisplayName,
+                Scope = Scope,
+                TargetAccounts = this.targetAccounts,
+                ValidTo = this.unixEpoch.AddDays(7),
+                ValidFrom = this.unixEpoch,
+                AuthorizationId = this.authorizationId,
+                Token = Token,
             };
-            var expectedResult = new PatTokenResult { PatToken = patToken, PatTokenError = SessionTokenError.None };
+            var patTokenResult = new PatTokenResult
+            {
+                PatToken = patToken,
+                PatTokenError = SessionTokenError.None,
+            };
 
-            var client = new Mock<ITokensHttpClientProvider>(MockBehavior.Strict);
-            client.Setup(thcp => thcp.CreatePatAsync(
+            var client = new Mock<ITokensHttpClientWrapper>(MockBehavior.Strict);
+            client.Setup(c => c.CreatePatAsync(
                 It.IsAny<PatTokenCreateRequest>(),
                 It.IsAny<object>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expectedResult);
+            .ReturnsAsync(patTokenResult);
 
             var patClient = new PatClient(client.Object);
 
             // Act
-            var patTokenResult = await patClient.CreatePatAsync(patTokenCreateRequest);
+            var renewedPatToken = await patClient.CreatePatAsync(patTokenCreateRequest);
 
             // Assert
-            patTokenResult.Should().BeEquivalentTo(expectedResult);
+            renewedPatToken.Should().BeEquivalentTo(patToken);
         }
 
         [Test]
@@ -64,8 +80,8 @@ namespace Microsoft.Authentication.AdoPat.Test
             var emptyPage = new PagedPatTokens(continuationToken: string.Empty, patTokens: new List<PatToken> { });
             var expectedTokens = new HashSet<PatToken>();
 
-            var client = new Mock<ITokensHttpClientProvider>(MockBehavior.Strict);
-            client.SetupSequence(thcp => thcp.ListPatsAsync(
+            var client = new Mock<ITokensHttpClientWrapper>(MockBehavior.Strict);
+            client.Setup(c => c.ListPatsAsync(
                 It.IsAny<DisplayFilterOptions?>(),
                 It.IsAny<SortByOptions?>(),
                 It.IsAny<bool?>(),
@@ -94,8 +110,8 @@ namespace Microsoft.Authentication.AdoPat.Test
             var page2 = new PagedPatTokens(continuationToken: string.Empty, patTokens: new List<PatToken> { pat2 });
             var expectedTokens = new HashSet<PatToken>() { pat1, pat2 };
 
-            var client = new Mock<ITokensHttpClientProvider>(MockBehavior.Strict);
-            client.SetupSequence(thcp => thcp.ListPatsAsync(
+            var client = new Mock<ITokensHttpClientWrapper>(MockBehavior.Strict);
+            client.SetupSequence(c => c.ListPatsAsync(
                 It.IsAny<DisplayFilterOptions?>(),
                 It.IsAny<SortByOptions?>(),
                 It.IsAny<bool?>(),
@@ -113,6 +129,94 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // Assert
             activePats.Should().BeEquivalentTo(expectedTokens);
+        }
+
+        [Test]
+        public async Task RegeneratePatAsync_RevokesOldPatAndReturnsNewPat()
+        {
+            // Arrange
+            var issued = this.unixEpoch.AddDays(-7);
+            var validTo = this.unixEpoch;
+            var regeneratedValidTo = this.unixEpoch.AddDays(7);
+            var patToken = new PatToken
+            {
+                DisplayName = DisplayName,
+                Scope = Scope,
+                TargetAccounts = this.targetAccounts,
+                ValidTo = validTo,
+                ValidFrom = issued,
+                AuthorizationId = this.authorizationId,
+                Token = Token,
+            };
+
+            var expectedToken = patToken;
+            expectedToken.ValidTo = regeneratedValidTo;
+            expectedToken.ValidFrom = validTo;
+
+            var patTokenResult = new PatTokenResult { PatToken = expectedToken };
+
+            var client = new Mock<ITokensHttpClientWrapper>(MockBehavior.Strict);
+            client.Setup(c => c.CreatePatAsync(
+                It.IsAny<PatTokenCreateRequest>(),
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(patTokenResult);
+
+            // This returns a Task because it's normally a void method and
+            // moq has some trouble with that: https://stackoverflow.com/a/66799787/3288364
+            client.Setup(c => c.RevokeAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+            var patClient = new PatClient(client.Object);
+
+            // Act
+            var regeneratedPat = await patClient.RegeneratePatAsync(patToken, regeneratedValidTo);
+
+            // Assert
+            regeneratedPat.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public async Task RegeneratePatAsync_CreationFailureNullPatToken()
+        {
+            // Arrange
+            var issued = this.unixEpoch.AddDays(-7);
+            var validTo = this.unixEpoch;
+            var regeneratedValidTo = this.unixEpoch.AddDays(7);
+            var patToken = new PatToken
+            {
+                DisplayName = DisplayName,
+                Scope = Scope,
+                TargetAccounts = this.targetAccounts,
+                ValidTo = validTo,
+                ValidFrom = issued,
+                AuthorizationId = this.authorizationId,
+                Token = Token,
+            };
+            var failingResult = new PatTokenResult
+            {
+                PatToken = null,
+                PatTokenError = SessionTokenError.InvalidAuthorizationId,
+            };
+
+            var client = new Mock<ITokensHttpClientWrapper>(MockBehavior.Strict);
+            client.Setup(c => c.CreatePatAsync(
+                It.IsAny<PatTokenCreateRequest>(),
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(failingResult);
+
+            var patClient = new PatClient(client.Object);
+
+            // Act
+            Func<Task> act = () => patClient.RegeneratePatAsync(patToken, regeneratedValidTo);
+
+            // Assert
+            await act.Should().ThrowAsync<PatClientException>()
+                .WithMessage("Failed to create PAT during regeneration: InvalidAuthorizationId");
         }
     }
 }
