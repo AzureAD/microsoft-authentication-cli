@@ -21,7 +21,7 @@ This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/mic
       ``` 
    5. Select **Configure**.
 
-   ![WAM redirect URI configuration](wam-config.png)
+   ![WAM redirect URI configuration](wam-config.png "A screenshot of a WAM URI being configured as a custom redirect URI.")
 
 3. Configure redirect URIs for the **system web browser**
    1. Select the **Authentication** blade.
@@ -33,11 +33,11 @@ This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/mic
        (Note &mdash; do **not** use `https` here as this is for local redirect and TLS won't work.)
    4. Select **Save**.
 
-   ![System web browser redirect URI configuration](system-web-config.png "A screenshot of correctly configured Mobile and desktop applications redirect URIs. Two redirect URIs have been added by the user, one for WAM and another for system web browser.")
+   ![System web browser redirect URI configuration](system-web-config.png "A screenshot of localhost being added to the list of Mobile and desktop applications redirect URIs.")
 
 4. To support public client auth modes enable the **Allow public client flows** setting, in the **Authentication** blade.
 
-   ![Public Client Flows](public-client-flows.png)
+   ![Public Client Flows](public-client-flows.png "A screenshot of public client flows being enabled. The Enable the following mobile and desktop flows toggle is set to Yes.")
 
 ### Arguments to the CLI
 You always need to pass at least these three arguments in order to authenticate as something (client id), to something (resource ID), within some AAD tenant. These IDs can be found in the Azure Portal on the Overview of each application/resource/tenant in the AAD section. 
