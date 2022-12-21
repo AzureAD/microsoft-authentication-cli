@@ -259,7 +259,7 @@ Allowed values: [all, web, devicecode]";
 
             if (result.Success)
             {
-                eventData.Add("msal_correlation_ids", result.TokenResult.CorrelationID.ToString());
+                eventData.Add("msal_correlation_id", result.TokenResult.CorrelationID.ToString());
                 eventData.Add("token_validity_minutes", result.TokenResult.ValidFor.TotalMinutes);
                 eventData.Add("silent", result.TokenResult.IsSilent);
             }

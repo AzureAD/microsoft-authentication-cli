@@ -44,7 +44,7 @@ namespace Microsoft.Authentication.AzureAuth
             {
                 if (exception == null)
                 {
-                    return;
+                    throw new ArgumentNullException(nameof(exception));
                 }
 
                 if (exception.Message != null)

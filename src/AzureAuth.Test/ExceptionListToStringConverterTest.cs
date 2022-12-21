@@ -68,21 +68,10 @@ namespace Microsoft.Authentication.AzureAuth.Test
             };
 
             // Act
-            string result = ExceptionListToStringConverter.Execute(exceptions);
-            IEnumerable<SerializableException> expectedResult = new List<SerializableException>()
-            {
-                new SerializableException(),
-                new SerializableException()
-                    {
-                        AADErrorCode = "AADSTS2",
-                        ExceptionType = "Microsoft.Identity.Client.MsalServiceException",
-                        Message = "This is the second exception",
-                    },
-            };
+            Action subject = () => ExceptionListToStringConverter.Execute(exceptions);
 
             // Assert
-            var result_deserialized = JsonSerializer.Deserialize<List<SerializableException>>(result);
-            result_deserialized.Should().BeEquivalentTo(expectedResult);
+            subject.Should().Throw<ArgumentNullException>();
         }
 
         [Test]
@@ -241,44 +230,6 @@ namespace Microsoft.Authentication.AzureAuth.Test
                         AADErrorCode = "AADSTS3",
                         ExceptionType = "Microsoft.Identity.Client.MsalClientException",
                         Message = "This is the inner exception of the second exception",
-                    },
-                },
-            };
-
-            // Assert
-            var result_deserialized = JsonSerializer.Deserialize<List<SerializableException>>(result);
-            result_deserialized.Should().BeEquivalentTo(expectedResult);
-        }
-
-        [Test]
-        public void ExceptionList_WithNullAndInnerExceptions()
-        {
-            List<Exception> exceptionList = new ()
-            {
-                new Exception("This is the first exception"),
-                null,
-                new Exception(
-                    "This is the third exception",
-                    new Exception("This is the inner exception of the third exception")),
-            };
-
-            var result = ExceptionListToStringConverter.Execute(exceptionList);
-            IEnumerable<SerializableException> expectedResult = new List<SerializableException>()
-            {
-                new SerializableException()
-                {
-                    Message = "This is the first exception",
-                    ExceptionType = "System.Exception",
-                },
-                new SerializableException(),
-                new SerializableException()
-                {
-                    ExceptionType = "System.Exception",
-                    Message = "This is the third exception",
-                    InnerException = new SerializableException()
-                    {
-                        ExceptionType = "System.Exception",
-                        Message = "This is the inner exception of the third exception",
                     },
                 },
             };
