@@ -36,6 +36,8 @@ namespace Microsoft.Authentication.AzureAuth
         /// </summary>
         public class SerializableException
         {
+            private string message;
+
             /// <summary>
             /// Initializes a new instance of the <see cref="SerializableException"/> class.
             /// </summary>
@@ -49,7 +51,7 @@ namespace Microsoft.Authentication.AzureAuth
 
                 if (exception.Message != null)
                 {
-                    this.Message = exception.Message.Replace("\r", string.Empty);
+                    this.Message = exception.Message;
                 }
 
                 if (exception.InnerException != null)
@@ -71,7 +73,14 @@ namespace Microsoft.Authentication.AzureAuth
             }
 
             /// <summary>Gets or sets Message.</summary>
-            public string Message { get; set; }
+            public string Message
+            {
+                get => this.message;
+                set
+                {
+                    this.message = value.Replace("\r", string.Empty);
+                }
+            }
 
             /// <summary>Gets or sets InnerException.</summary>
             public SerializableException InnerException { get; set; }
