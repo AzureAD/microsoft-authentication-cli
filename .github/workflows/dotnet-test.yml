@@ -3,11 +3,6 @@ name: Build and Test
 on:
   pull_request:
     branches: [ main ]
-    paths:
-      - '.github/**'
-      - 'src/**'
-      - '**.sln'
-      - 'nuget.config'
 
 jobs:
   test:
@@ -19,14 +14,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET 5
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-        source-url: https://office.pkgs.visualstudio.com/DefaultCollection/_packaging/Office/nuget/v3/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.ADO_TOKEN }}
-
     - name: Setup .NET 6
       uses: actions/setup-dotnet@v1
       with:
@@ -37,9 +24,9 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
-      
+
     - name: Build
       run: dotnet build --no-restore
-      
+
     - name: Test
       run: dotnet test --no-build --verbosity normal

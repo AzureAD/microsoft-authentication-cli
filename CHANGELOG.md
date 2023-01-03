@@ -4,10 +4,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# Unreleased
+### Changed
+- Upgrade MSAL to 4.47.2 and opt-in native WAM mode.
+
+### Fixed
+- Remove `setx` usage and use `WM_SETTINGCHANGE` in the install script to prevent truncating `$PATH`.
+
+### Removed
+- Removed `--cache` option.
+
+## [0.6.0] - 2022-10-26
+### Fixed
+- Use system web browser as the UI for web mode auth on Windows to prevent conditional access based over-prompting.
+- Catch `FileNotFoundException` if an invalid configuration file is specified via the `AZUREAUTH_CONFIG` environment variable.
+
+### Changed
+- Upgrade the Windows build to use net6 now that net5 has reached end of life.
+- Set console output encoding to `utf-8` explicitly.
+
+## [0.5.4] - 2022-09-29
+### Fixed
+- Enable IWA authmode when interactive authentication is disabled.
+
+## [0.5.3] - 2022-09-28
+### Fixed
+- Increase IWA Timeout to 15 second and log WS-Trust endpoint error
+
 ## [0.5.2] - 2022-09-28
 ### Fixed
 - Option `--resource` is not needed if option `--scope` is provided.
-- Refactoring IWA AuthFlow to call GetTokenIWA when we have a MsalUiRequiredException 
+- Refactoring IWA AuthFlow to call GetTokenIWA when we have a MsalUiRequiredException
 
 ## [0.5.1] - 2022-09-08
 ### Fixed
@@ -73,7 +100,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.2...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.4...0.6.0
+[0.5.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.3...0.5.4
+[0.5.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.2...0.5.3
 [0.5.2]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.4.0...0.5.0

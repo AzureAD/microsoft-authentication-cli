@@ -33,10 +33,8 @@ namespace MSALWrapper.Test
         private ServiceProvider serviceProvider;
         private ILogger logger;
         private IEnumerable<string> scopes;
-        private string osxKeyChainSuffix;
         private string preferredDomain;
         private string promptHint;
-        private string cacheFilePath = $"Z:/test_cache_file.cache";
 
         [SetUp]
         public void Setup()
@@ -65,7 +63,6 @@ namespace MSALWrapper.Test
 
             this.logger = this.serviceProvider.GetService<ILogger<AuthFlowFactory>>();
             this.scopes = new[] { $"{ResourceId}/.default" };
-            this.osxKeyChainSuffix = "azureauth";
             this.preferredDomain = "contoso.com";
             this.promptHint = "Log into Contoso!";
         }
@@ -86,10 +83,8 @@ namespace MSALWrapper.Test
                 ClientId,
                 TenantId,
                 this.scopes,
-                this.cacheFilePath,
                 this.preferredDomain,
                 this.promptHint,
-                this.osxKeyChainSuffix,
                 pcaWrapper: this.pcaWrapperMock.Object,
                 platformUtils: this.platformUtilsMock.Object);
 

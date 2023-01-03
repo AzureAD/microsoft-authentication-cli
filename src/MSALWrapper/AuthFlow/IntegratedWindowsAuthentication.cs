@@ -25,7 +25,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The integrated windows auth flow timeout.
         /// </summary>
-        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(6);
+        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(15);
         #endregion
 
         /// <summary>
@@ -35,16 +35,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="clientId">The client id.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="scopes">The scopes.</param>
-        /// <param name="cacheFilePath">The pca cache file path.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
-        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string cacheFilePath, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
+        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
         {
             this.errors = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, null, cacheFilePath);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
         }
 
         /// <summary>
@@ -109,6 +108,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 this.logger.LogWarning($"Msal Client Exception! (Not expected)\n{ex.Message}");
                 this.errors.Add(ex);
+                if (ex.Message.Contains("WS-Trust endpoint not found"))
+                {
+                    this.logger.LogWarning($"IWA only works on Corp Net, please turn on VPN.");
+                }
             }
             catch (NullReferenceException ex)
             {
@@ -119,7 +122,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
@@ -131,7 +134,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     enablePiiLogging: false,
                     enableDefaultPlatformLogging: true);
 
-            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, null, cacheFilePath);
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)

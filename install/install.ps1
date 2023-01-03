@@ -12,6 +12,20 @@ if ([string]::IsNullOrEmpty($version)) {
     Write-Error 'No $AZUREAUTH_VERSION specified, unable to download a release'
 }
 
+# Send WM_SETTINGCHANGE after changing Environment variables.
+# Refer to https://gist.github.com/alphp/78fffb6d69e5bb863c76bbfc767effda
+function Send-SettingChange {
+    Add-Type -Namespace Win32 -Name NativeMethods -MemberDefinition @"
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, UIntPtr wParam, string lParam, uint fuFlags, uint uTimeout, out UIntPtr lpdwResult);
+"@
+    $HWND_BROADCAST = [IntPtr] 0xffff;
+    $WM_SETTINGCHANGE = 0x1a;
+    $result = [UIntPtr]::Zero
+    
+    [void] ([Win32.Nativemethods]::SendMessageTimeout($HWND_BROADCAST, $WM_SETTINGCHANGE, [UIntPtr]::Zero, "Environment", 2, 5000, [ref] $result))
+}
+
 function Install-Pre-0-4-0 {
     Write-Verbose "Installing using pre-0.4.0 method"
     $repo = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_REPO)) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
@@ -90,13 +104,11 @@ function Install-Pre-0-4-0 {
         } else {
             "${currentPath};${latestDirectory}"
         }
-        # Update the $PATH environment variable with any modifications made above. We use `setx` here instead of
-        # directly writing back the registry value because `setx` signals new processes to pick up on the environment
-        # variable changes.
-        setx PATH $newPath > $null
+        Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
+        Send-SettingChange
     }
     
-    Write-Output "Installed azureauth $version!"
+    Write-Output "Installed AzureAuth $version!"
 }
 
 function Install-Post-0-4-0 {
@@ -194,12 +206,10 @@ function Install-Post-0-4-0 {
                 $newPath = "${currentPath};${targetDirectory}"
             }
         }
-        # Update the $PATH environment variable with any modifications made above. We use `setx` here instead of
-        # directly writing back the registry value because `setx` signals new processes to pick up on the environment
-        # variable changes.
-        setx PATH $newPath > $null
+        Set-ItemProperty -Path $registryPath -Name PATH -Value $newPath
+        Send-SettingChange
     }
-    Write-Output "Installed azureauth $version!"
+    Write-Output "Installed AzureAuth $version!"
 }
 
 switch ($version) {

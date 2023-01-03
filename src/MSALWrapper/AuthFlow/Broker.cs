@@ -3,9 +3,6 @@
 
 namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
-#if NET472
-    using Microsoft.Identity.Client.Desktop;
-#endif
     using System;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
@@ -13,6 +10,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
+    using Microsoft.Identity.Client.Broker;
 
     /// <summary>
     /// The broker auth flow.
@@ -46,19 +44,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="clientId">The client id.</param>
         /// <param name="tenantId">The tenant id.</param>
         /// <param name="scopes">The scopes.</param>
-        /// <param name="cacheFilePath">The cache file path.</param>
-        /// <param name="osxKeyChainSuffix">The osx key chain suffix.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
-        public Broker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string cacheFilePath, string osxKeyChainSuffix = null, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
+        public Broker(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
         {
             this.errors = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId, osxKeyChainSuffix, cacheFilePath);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
         }
 
         private enum GetAncestorFlags
@@ -86,8 +82,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         public async Task<AuthFlowResult> GetTokenAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
-                ?? Identity.Client.PublicClientApplication.OperatingSystemAccount;
-            this.logger.LogDebug($"Using cached account '{account.Username}'");
+                 ?? PublicClientApplication.OperatingSystemAccount;
+            this.logger.LogDebug($"Using cached account '{account?.Username}'");
 
             try
             {
@@ -180,7 +176,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return ancestorHandle;
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
@@ -195,13 +191,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 {
                     HeaderText = this.promptHint,
                 })
-                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()); // Pass parent window handle to MSAL so it can parent the authentication dialogs.
-#if NETFRAMEWORK
-            clientBuilder.WithWindowsBroker();
-#else
-            clientBuilder.WithBroker();
-#endif
-            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId, osxKeyChainSuffix, cacheFilePath);
+                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()) // Pass parent window handle to MSAL so it can parent the authentication dialogs.
+                .WithBrokerPreview(); // Use native broker mode.
+
+            return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId);
         }
 
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)

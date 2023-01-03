@@ -8,6 +8,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
@@ -41,24 +42,34 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="pca">The public client application instance.</param>
         /// <param name="errors">The errors list to append error encountered to.</param>
         /// <param name="tenantId">The tenant ID to help key the cache off of.</param>
-        /// <param name="osxKeyChainSuffix">An optional (can be null) suffix to further customize key chain token caches on OSX.</param>
-        /// <param name="cacheFilePath">The cache filename.</param>
-        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId, string osxKeyChainSuffix, string cacheFilePath)
+        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId)
             : this(logger, pca)
         {
-            var cacher = new PCACache(logger, tenantId, cacheFilePath, osxKeyChainSuffix);
+            var cacher = new PCACache(logger, tenantId);
             cacher.SetupTokenCache(this.pca.UserTokenCache, errors);
         }
 
         /// <summary>
-        /// Gets or sets, The prompt hint displayed in the title bar.
+        /// Gets or sets the prompt hint displayed in the title bar.
         /// </summary>
         public string PromptHint { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether or not to use the system web browser for web mode prompts. Default: false.
+        /// </summary>
+        public bool UseEmbeddedWebView { get; private set; } = false;
 
         /// <inheritdoc/>
         public IPCAWrapper WithPromptHint(string promptHint)
         {
             this.PromptHint = promptHint;
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public IPCAWrapper WithEmbeddedWebView(bool enabled)
+        {
+            this.UseEmbeddedWebView = enabled;
             return this;
         }
 
@@ -78,6 +89,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 {
                     Title = this.PromptHint,
                 })
+                .WithUseEmbeddedWebView(this.UseEmbeddedWebView)
                 .WithAccount(account)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -93,6 +105,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 {
                     Title = this.PromptHint,
                 })
+                .WithUseEmbeddedWebView(this.UseEmbeddedWebView)
                 .WithClaims(claims)
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);

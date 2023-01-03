@@ -39,7 +39,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private Mock<IAccount> testAccount;
         private IEnumerable<string> scopes = new string[] { $"{ResourceId}/.default" };
         private TokenResult tokenResult;
-        private string cacheFilePath = $"Z:/test_cache_file.cache";
 
         [SetUp]
         public void Setup()
@@ -68,7 +67,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              .AddTransient<AuthFlow.IntegratedWindowsAuthentication>((provider) =>
              {
                  var logger = provider.GetService<ILogger<AuthFlow.IntegratedWindowsAuthentication>>();
-                 return new AuthFlow.IntegratedWindowsAuthentication(logger, ClientId, TenantId, this.scopes, this.cacheFilePath, pcaWrapper: this.pcaWrapperMock.Object);
+                 return new AuthFlow.IntegratedWindowsAuthentication(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object);
              })
              .BuildServiceProvider();
 
@@ -166,7 +165,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:06");
+            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
             authFlowResult.Errors[1].Should().BeOfType(typeof(NullTokenResultException));
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }

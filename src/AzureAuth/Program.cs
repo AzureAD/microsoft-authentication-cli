@@ -4,6 +4,8 @@
 namespace Microsoft.Authentication.AzureAuth
 {
     using System;
+    using System.Text;
+
     using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Office.Lasso;
     using Microsoft.Office.Lasso.Telemetry;
@@ -15,6 +17,10 @@ namespace Microsoft.Authentication.AzureAuth
     {
         private static void Main(string[] args)
         {
+            // Use UTF-8 output encoding.
+            // This will impact the NLog Console Target as well as any other Console usage.
+            Console.OutputEncoding = Encoding.UTF8;
+
             CommandLineApplication app = new CommandLineApplication<CommandMain>();
 
             // We always instantiate and depend on telemetry services, but these defaults

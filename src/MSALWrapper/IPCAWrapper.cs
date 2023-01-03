@@ -67,6 +67,14 @@ namespace Microsoft.Authentication.MSALWrapper
         IPCAWrapper WithPromptHint(string promptHint);
 
         /// <summary>
+        /// Enable or disable using an embedded web view for web mode prompts.
+        /// Embedded web view is inherently unreliable for passing CA conditions and is off by default.
+        /// </summary>
+        /// <param name="enabled">Whether or not to use the embedded web view for web mode prompts.</param>
+        /// <returns>This.</returns>
+        IPCAWrapper WithEmbeddedWebView(bool enabled);
+
+        /// <summary>
         /// Tries to return a cached account when the list has only one account using the preferred domain if provided.
         /// A null return indicates one of the following.
         /// No accounts were found in cache.
