@@ -77,9 +77,12 @@ changes take effect.
 
 Instructions on using AzureAuth CLI in your applications are available [here](docs/usage.md).
 
-# Data Collection
+# Data Collection Is Off By Default
+No telemetry will be collected unless you set the `AZUREAUTH_APPLICATION_INSIGHTS_INGESTION_TOKEN` environment variable
+to a valid [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
+ingestion token.
 
-The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use
+If you choose to turn data collection on, the software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use
 this information to provide services and improve our products and services. You may turn off the telemetry as described
 in the repository. There are also some features in the software that may enable you and Microsoft to collect data from
 users of your applications. If you use these features, you must comply with applicable law, including providing
@@ -87,12 +90,6 @@ appropriate notices to users of your applications together with a copy of Micros
 statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and
 use in the help documentation and our privacy statement. Your use of the software operates as your consent to these
 practices.
-
-## Telemetry Is Off By Default
-
-No telemetry will be collected unless you set the `AZUREAUTH_APPLICATION_INSIGHTS_INGESTION_TOKEN` environment variable
-to a valid [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
-ingestion token.
 
 # Trademarks
 
