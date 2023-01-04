@@ -233,25 +233,17 @@ Allowed values: [all, web, devicecode]";
             eventData.Add("success", result.Success);
             eventData.Add("duration_milliseconds", (int)result.Duration.TotalMilliseconds);
 
-            var correlationIDs = new List<string>();
-
             if (result.Errors.Any())
             {
                 var error_messages = ExceptionListToStringConverter.Execute(result.Errors);
                 eventData.Add("error_messages", error_messages);
-                correlationIDs = ExceptionListToStringConverter.ExtractCorrelationIDsFromException(result.Errors);
             }
 
             if (result.Success)
             {
-                correlationIDs.Add(result.TokenResult.CorrelationID.ToString());
+                eventData.Add("msal_correlation_id", result.TokenResult.CorrelationID.ToString());
                 eventData.Add("token_validity_minutes", result.TokenResult.ValidFor.TotalMinutes);
                 eventData.Add("silent", result.TokenResult.IsSilent);
-            }
-
-            if (correlationIDs.Any())
-            {
-                eventData.Add("msal_correlation_ids", correlationIDs);
             }
 
             return eventData;

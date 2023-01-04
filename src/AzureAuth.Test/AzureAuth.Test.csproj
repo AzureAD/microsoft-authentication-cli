@@ -18,7 +18,6 @@
 
     <!-- Stylecop warnings as errors flag for build to fail -->
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
