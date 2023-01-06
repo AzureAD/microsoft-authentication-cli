@@ -37,6 +37,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 this.User = this.jwt?.GetAzureUserName();
                 this.DisplayName = this.jwt?.GetDisplayName();
                 this.ValidFor = this.jwt == null ? default(TimeSpan) : (this.jwt.ValidTo - DateTime.UtcNow);
+                this.Sid = this.jwt?.GetUserSid();
             }
         }
 
@@ -69,6 +70,11 @@ namespace Microsoft.Authentication.MSALWrapper
         /// Gets a value indicating whether this token was acquired silently or not.
         /// </summary>
         public bool IsSilent { get; internal set; }
+
+        /// <summary>
+        /// Gets the user's Sid.
+        /// </summary>
+        public string Sid { get; internal set; }
 
         /// <summary>
         /// To string that shows successful authentication for user.
