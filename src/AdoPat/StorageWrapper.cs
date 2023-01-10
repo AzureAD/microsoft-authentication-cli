@@ -6,7 +6,7 @@ namespace Microsoft.Authentication.AdoPat
     using Microsoft.Identity.Client.Extensions.Msal;
 
     /// <summary>
-    /// TODO.
+    /// A thin wrapper around <see cref="Storage"/> to implement a testable interface.
     /// </summary>
     public class StorageWrapper : IStorageWrapper
     {

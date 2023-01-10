@@ -3,25 +3,21 @@
 
 namespace Microsoft.Authentication.AdoPat
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
     /// <summary>
-    /// TODO.
+    /// An interface for a thin, testable wrapper around MSAL's Storage class.
     /// </summary>
     public interface IStorageWrapper
     {
         /// <summary>
-        /// TODO.
+        /// Read and unprotect cache data.
         /// </summary>
-        /// <returns>TODO.</returns>
+        /// <returns>Unprotected cache data.</returns>
         byte[] ReadData();
 
         /// <summary>
-        /// TODO.
+        /// Protect and write cache data to a file. It overrides existing data.
         /// </summary>
-        /// <param name="data">TODO.</param>
+        /// <param name="data">Unprotected data to be cached.</param>
         void WriteData(byte[] data);
     }
 }

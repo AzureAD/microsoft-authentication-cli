@@ -5,13 +5,12 @@ namespace Microsoft.Authentication.AdoPat
 {
     using System;
     using System.Collections.Generic;
-    using System.Security.Cryptography;
     using System.Text;
     using System.Text.Json;
     using Microsoft.VisualStudio.Services.DelegatedAuthorization;
 
     /// <summary>
-    /// TODO.
+    /// A simple cache mapping <see cref="string"/> to <see cref="PatToken"/> backed by secure storage.
     /// </summary>
     public class PatCache
     {
@@ -21,44 +20,50 @@ namespace Microsoft.Authentication.AdoPat
         /// <summary>
         /// Initializes a new instance of the <see cref="PatCache"/> class.
         /// </summary>
-        /// <param name="storage">TODO.</param>
+        /// <param name="storage">A class which implements <see cref="IStorageWrapper"/>.</param>
         public PatCache(IStorageWrapper storage)
         {
+            // Note: This assumes any required persistance validity has been
+            // checked beforehand.
             this.storage = storage;
+
+            // The cache is lazy so that the initial cache read from the
+            // underlying storage only happens once and subsequent reads
+            // operate on the in-memory value.
             this.cache = new Lazy<Dictionary<string, PatToken>>(() => this.ReadStorage());
         }
 
         /// <summary>
-        /// TODO.
+        /// Get a <see cref="PatToken"/> from the cache.
         /// </summary>
-        /// <param name="key">TODO.</param>
-        /// <returns>TODO.</returns>
+        /// <param name="key">The key for the target entry.</param>
+        /// <returns>The target value.</returns>
         public PatToken GetPat(string key)
         {
             PatToken token = null;
-            var cache = this.Cache();
-            cache.TryGetValue(key, out token);
+            this.cache.Value.TryGetValue(key, out token);
             return token;
         }
 
         /// <summary>
-        /// TODO.
+        /// Put a <see cref="PatToken"/> into the cache. May overwrite existing values.
         /// </summary>
-        /// <param name="key">TODO.</param>
-        /// <param name="patToken">TODO.</param>
-        /// <returns>TODO.</returns>
-        public PatToken PutPat(string key, PatToken patToken)
+        /// <param name="key">The key for this entry.</param>
+        /// <param name="patToken">The value for this entry.</param>
+        public void PutPat(string key, PatToken patToken)
         {
-            var data = Encoding.UTF8.GetBytes("data");
+            // Insert or overwrite the key with the given PatToken. Skip
+            // intermediate string serialization by serializing directly to
+            // UTF-8 bytes.
+            this.cache.Value[key] = patToken;
+            var data = JsonSerializer.SerializeToUtf8Bytes(this.cache.Value);
+
+            // We follow a "write-through" caching method to ensure the
+            // persistent storage never differs from the in-memory cache.
             this.storage.WriteData(data);
-            return null;
         }
 
-        private Dictionary<string, PatToken> Cache()
-        {
-            return this.cache.Value;
-        }
-
+        // A helper method to wrap cache deserialization and ensure a Dictionary is always returned.
         private Dictionary<string, PatToken> ReadStorage()
         {
             var data = this.storage.ReadData();
