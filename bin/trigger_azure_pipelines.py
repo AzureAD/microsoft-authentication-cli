@@ -14,7 +14,7 @@ from msrest.authentication import BasicAuthentication
 
 # https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/get?view=azure-devops-rest-6.0#runresult
 FAILED_STATUSES: set[str] = {"canceled", "failed", "unknown"}
-
+COMPLETED_STATUSES: set[str] = {"completed"} 
 
 def ado_connection(organization: str, ado_pat: str) -> Connection:
     """Returns an ADO connection to call the ADO REST APIs."""
@@ -35,7 +35,7 @@ def wait_for_pipeline_run(pipeline_client: PipelinesClient, project: str, pipeli
 
     # Wait until the build have a complete status.
     # https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/get?view=azure-devops-rest-6.0#runstate
-    while run.state != "completed":
+    while run.state not in COMPLETED_STATUSES:
         time.sleep(polling_interval_seconds)
         run = pipeline_client.get_run(project, pipeline_id, run_id)
     return run
@@ -44,10 +44,10 @@ def wait_for_pipeline_run(pipeline_client: PipelinesClient, project: str, pipeli
 def trigger_azure_pipeline_and_wait_until_its_completed(
     organization: str,
     project: str,
-    pipeline_id: int,
+    pipeline_id: str,
     ado_pat: str,
     version: str,
-    commitSHA: str
+    commit_hash: str
 ) -> None:
     """Triggers an azure pipeline and waits for it to be finished"""
     ado_client = ado_connection(organization, ado_pat).clients_v6_0
@@ -57,7 +57,7 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     # run pipeline API: https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/run-pipeline?view=azure-devops-rest-6.0 
     # queue build API: https://learn.microsoft.com/en-us/rest/api/azure/devops/build/builds/queue?view=azure-devops-rest-6.0
 
-    run_parameters = {"templateParameters": {"version": version, "commitSHA": commitSHA}}
+    run_parameters = {"templateParameters": {"version": version, "commit_hash": commit_hash}}
     pipeline_status = pipeline_client.run_pipeline(run_parameters, project, pipeline_id)
     pipeline_url = f"https://dev.azure.com/{organization}/{project}/_build/results?buildId={pipeline_status.id}&view=results"
     print(
@@ -79,7 +79,7 @@ def main() -> None:
         project = os.environ["ADO_PROJECT"]
         pipeline_id = os.environ["ADO_AZUREAUTH_LINUX_PIPELINE_ID"]
         version = os.environ["VERSION"]
-        commitSHA = os.environ["commitSHA"]
+        commit_hash = os.environ["GITHUB_SHA"]
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
         name = str(exc).replace("'", "")
@@ -92,7 +92,7 @@ def main() -> None:
         pipeline_id,
         ado_pat,
         version,
-        commitSHA
+        commit_hash
     )
 
 
