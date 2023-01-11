@@ -72,7 +72,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public bool IsSilent { get; internal set; }
 
         /// <summary>
-        /// Gets the user's Sid.
+        /// Gets the user's security identifier.
         /// </summary>
         public string Sid { get; internal set; }
 

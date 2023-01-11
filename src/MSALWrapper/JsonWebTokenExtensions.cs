@@ -54,7 +54,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Get a user's Sid.
         /// </summary>
-        /// <param name="jwt">The jwt.</param>
+        /// <param name="jwt">The JSON web token.</param>
         /// <returns>The <see cref="string"/>.</returns>
         public static string GetUserSid(this JsonWebToken jwt)
         {
