@@ -52,11 +52,11 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Get a user's Sid.
+        /// Get the SID.
         /// </summary>
         /// <param name="jwt">The JSON web token.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        public static string GetUserSid(this JsonWebToken jwt)
+        public static string GetSID(this JsonWebToken jwt)
         {
             jwt.TryGetClaim("onprem_sid", out Claim sid);
             return sid?.Value;

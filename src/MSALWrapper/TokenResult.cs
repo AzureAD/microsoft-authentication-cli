@@ -37,7 +37,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 this.User = this.jwt?.GetAzureUserName();
                 this.DisplayName = this.jwt?.GetDisplayName();
                 this.ValidFor = this.jwt == null ? default(TimeSpan) : (this.jwt.ValidTo - DateTime.UtcNow);
-                this.Sid = this.jwt?.GetUserSid();
+                this.SID = this.jwt?.GetSID();
             }
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Gets the user's security identifier.
         /// </summary>
-        public string Sid { get; internal set; }
+        public string SID { get; internal set; }
 
         /// <summary>
         /// To string that shows successful authentication for user.

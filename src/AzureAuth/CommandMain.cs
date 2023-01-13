@@ -475,7 +475,7 @@ Allowed values: [all, web, devicecode]";
 
                 var tokenResult = successfulResult.TokenResult;
                 this.eventData.Add("silent", tokenResult.IsSilent);
-                this.eventData.Add("sid", tokenResult.Sid);
+                this.eventData.Add("sid", tokenResult.SID);
                 this.eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
 
                 switch (this.Output)
