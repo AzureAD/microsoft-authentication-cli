@@ -38,6 +38,9 @@ def sign_operation(key_code: str, operation: str) -> JSON:
         "ToolVersion": "1.0",
     }
 
+def linux_sign(key_code: str) -> JSON:
+    """Return the JSON for a `LinuxSign` operation."""
+    return sign_operation(key_code, operation="LinuxSign")
 
 def mac_app_developer_sign(key_code: str) -> JSON:
     """Return the JSON for a `MacAppDeveloperSign` operation."""
@@ -152,6 +155,29 @@ def osx_batches(
     dylibs_zip.unlink()
 
 
+@contextmanager
+def linux_batches(
+    source: Path,
+    key_codes: dict[str, str],
+    customer_correlation_id: str,
+) -> Generator[JSON, None, None]:
+    """Yield the JSON signing batches for the linux-x64 runtime."""
+    files = [
+        sign_request_file(path, customer_correlation_id)
+        for path in source.iterdir()
+        if path.suffix in [".deb"] and path.is_file()
+    ]
+
+    key_code = key_codes["linux"]
+    operations = [sign_tool_sign(key_code), sign_tool_verify(key_code)]
+
+    # Yield the batches to ESRPClient.exe signing.
+    yield {
+        "Version": "1.0.0",
+        "SignBatches": [batch(source, files, operations)],
+    }
+
+
 def auth(tenant_id: str, client_id: str) -> JSON:
     """Return auth JSON metadata."""
     return {
@@ -212,7 +238,7 @@ def parse_args() -> Namespace:
     )
     parser.add_argument(
         "--runtime",
-        choices=["win10-x64", "osx-x64", "osx-arm64"],
+        choices=["win10-x64", "osx-x64", "osx-arm64", "linux-x64"],
         help="the runtime of the build in source",
         default="win10-x64",
     )
@@ -233,14 +259,15 @@ def main() -> None:
         key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
         # This key code is used for signing .dylibs on Macs.
         key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
+        # This key code is used for signing .deb on Linux.
+        key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
         customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
 
-    key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac}
-
+    key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac, "linux": key_code_linux}
     esrp_path = args.esrp_client.resolve()
     source_path = args.source.resolve()
     auth_path = Path("auth.json").resolve()
@@ -258,6 +285,12 @@ def main() -> None:
             )
         case "osx-x64" | "osx-arm64":
             batchmaker = osx_batches(
+                source=source_path,
+                key_codes=key_codes,
+                customer_correlation_id=customer_correlation_id,
+            )
+        case "linux-x64":
+            batchmaker = linux_batches(
                 source=source_path,
                 key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
@@ -302,3 +335,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    
