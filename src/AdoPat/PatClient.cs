@@ -15,7 +15,11 @@ namespace Microsoft.Authentication.AdoPat
     public class PatClient
     {
         private const int PageSize = 100; // Using the maximum allowable page size allows us to reduce HTTP calls.
-        private const bool AllOrgs = false; // Azure DevOps have recommended we always set this to false.
+
+        // The AllOrgs field controls whether a PAT token create request is for all of a user's accessible organizations.
+        // The default of false means that the token is for a specific organization. The Azure DevOps team have
+        // recommended we always set this to false.
+        private const bool AllOrgs = false;
 
         private ITokensHttpClientWrapper client;
 
