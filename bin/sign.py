@@ -38,9 +38,18 @@ def sign_operation(key_code: str, operation: str) -> JSON:
         "ToolVersion": "1.0",
     }
 
+def sign_operation_linux(key_code: str, operation: str) -> JSON:
+    return {
+        "KeyCode" : key_code,
+        "OperationCode" : operation,
+        "Parameters" : {},
+        "ToolName" : "sign",
+        "ToolVersion" : "1.0"
+    }
+
 def linux_sign(key_code: str) -> JSON:
     """Return the JSON for a `LinuxSign` operation."""
-    return sign_operation(key_code, operation="LinuxSign")
+    return sign_operation_linux(key_code, operation="LinuxSign")
 
 def mac_app_developer_sign(key_code: str) -> JSON:
     """Return the JSON for a `MacAppDeveloperSign` operation."""
@@ -169,7 +178,7 @@ def linux_batches(
     ]
 
     key_code = key_codes["linux"]
-    operations = [sign_tool_sign(key_code), sign_tool_verify(key_code)]
+    operations = [linux_sign(key_code)]
 
     # Yield the batches to ESRPClient.exe signing.
     yield {
@@ -189,6 +198,7 @@ def auth(tenant_id: str, client_id: str) -> JSON:
             "SubjectName": f"CN={client_id}.microsoft.com",
             "StoreLocation": "LocalMachine",
             "StoreName": "My",
+            "SendX5c" :  "true"
         },
         "RequestSigningCert": {
             "SubjectName": f"CN={client_id}",
