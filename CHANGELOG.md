@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 # Unreleased
 ### Added
-- Set the environment variable for Azure pipeline and Cloud Build Agent machine to avoid skewing aggregated telemetry.
+- Collect environment variables in telemetry distinguishing Azure Pipelines and Cloud Build.
 
 ### Added
 - Added On-premises Security Identifier in Telemetry as `sid`.
