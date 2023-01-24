@@ -44,12 +44,12 @@ namespace Microsoft.Authentication.AzureAuth
                 backend = TelemetryOutput.ApplicationInsights;
             }
 
-            TelemetryConfig telemetryConfig = new TelemetryConfig()
-            {
-                Backend = backend,
-                IngestionToken = ingestionToken,
-                Async = true,
-            };
+            TelemetryConfig telemetryConfig = new TelemetryConfig(
+                eventNamespace: "azureauth",
+                backend: backend,
+                ingestionToken: ingestionToken,
+                useAsync: true,
+                envVarsToCollect: new[] { "SYSTEM_DEFINITIONID", "QBUILD_DISTRIBUTED" });
 
             // We want redirect stdout to get just token output
             // while warnings and errors still go to stderr to be seen by a user.
