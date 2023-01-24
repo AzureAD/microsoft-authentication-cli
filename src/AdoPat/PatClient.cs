@@ -52,7 +52,7 @@ namespace Microsoft.Authentication.AdoPat
 
             if (patTokenResult.PatToken == null)
             {
-                throw new PatClientException($"Failed to create PAT during regeneration: {patTokenResult.PatTokenError}");
+                throw new PatClientException($"Failed to create PAT: {patTokenResult.PatTokenError}");
             }
 
             return patTokenResult.PatToken;
