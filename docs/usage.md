@@ -10,34 +10,34 @@ AzureAuth is a generic Azure credential provider. It currently supports the foll
 This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet). This means it does not provide any client ID (aka app registration) by default. You must register and configure your own app registration to authenticate with.
 
 ### Configure your App Registration
-1. You can follow [this quick start guide](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app) to setup your application.
-2. To support **WAM** (the Windows broker):
-    1. In the menu of the app properties, select **Authentication**.
-    2. Under Platform configurations, select **Add a platform**.
-    3. In the Configure platforms pane, select **Mobile and desktop applications**.
-    4. In the Configure Desktop + devices pane, under Custom redirect URIs, specify   
-         ```
-         ms-appx-web://Microsoft.AAD.BrokerPlugin/<ClientID>  
-         ``` 
-    5. Select Configure.
+1. Follow [this quick start guide](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app) to setup your application.
+2. Configure redirect URIs for **WAM** (the Windows broker)
+   1. Select the **Authentication** blade.
+   2. Under Platform configurations, select **Add a platform**.
+   3. In the Configure platforms pane, select **Mobile and desktop applications**.
+   4. In the Configure Desktop + devices pane, under Custom redirect URIs, specify   
+      ```
+      ms-appx-web://Microsoft.AAD.BrokerPlugin/<ClientID>  
+      ``` 
+   5. Select **Configure**.
 
-    ![Mobile and desktop platform configuration](mobile-desktop-platform-config.png)
+   ![WAM redirect URI configuration](wam-config.png "A screenshot of a WAM URI being configured as a custom redirect URI.")
 
-3. To support **system web browser**:
-    1. In the menu of the app properties, select **Authentication**.
-    2. Under Platform configurations, select **Add a platform**.
-    3. In the Configure platforms pane, select **Web** and enter
-        ```
-         http://localhost
-        ```
-        (Note - do not use `https` here, this is for local redirect and TLS won't work here.)
-    5. Select Configure.
+3. Configure redirect URIs for the **system web browser**
+   1. Select the **Authentication** blade.
+   2. Under Platform configurations, find **Mobile and desktop applications**
+   3. Select **Add URI** and enter
+       ```
+       http://localhost
+       ```
+       (Note &mdash; do **not** use `https` here as this is for local redirect and TLS won't work.)
+   4. Select **Save**.
 
-    ![Web platform configuration](web-platform-config.png)
+   ![System web browser redirect URI configuration](system-web-config.png "A screenshot of localhost being added to the list of Mobile and desktop applications redirect URIs.")
 
-4. In order to support public client auth modes enable the **"Allow public client flows"** setting, in the bottom of the Authentication Blade.
+4. To support public client auth modes enable the **Allow public client flows** setting, in the **Authentication** blade.
 
-    ![Public Client Flows](public-client-flows.png)
+   ![Public Client Flows](public-client-flows.png "A screenshot of public client flows being enabled. The Enable the following mobile and desktop flows toggle is set to Yes.")
 
 ### Arguments to the CLI
 You always need to pass at least these three arguments in order to authenticate as something (client id), to something (resource ID), within some AAD tenant. These IDs can be found in the Azure Portal on the Overview of each application/resource/tenant in the AAD section. 
