@@ -176,6 +176,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var regeneratedPat = await patClient.RegeneratePatAsync(patToken, regeneratedValidTo);
 
             // Assert
+            client.VerifyAll();
             regeneratedPat.Should().BeEquivalentTo(expectedToken);
         }
 

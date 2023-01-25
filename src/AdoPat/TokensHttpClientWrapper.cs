@@ -66,7 +66,7 @@ namespace Microsoft.Authentication.AdoPat
             object userState = null,
             CancellationToken cancellationToken = default)
         {
-            await this.RevokeAsync(
+            await this.client.RevokeAsync(
                 authorizationId,
                 userState,
                 cancellationToken)
