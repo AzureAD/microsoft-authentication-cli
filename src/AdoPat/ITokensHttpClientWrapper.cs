@@ -46,7 +46,7 @@ namespace Microsoft.Authentication.AdoPat
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// TODO.
+        /// [Preview API] Revokes a personal access token (PAT) by authorizationId.
         /// </summary>
         /// <param name="authorizationId">The authorizationId identifying a single, unique personal access token (PAT).</param>
         /// <param name="userState">(Undocumented).</param>
