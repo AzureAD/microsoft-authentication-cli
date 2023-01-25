@@ -216,7 +216,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // Assert
             await act.Should().ThrowAsync<PatClientException>()
-                .WithMessage("Failed to create PAT during regeneration: InvalidAuthorizationId");
+                .WithMessage("Failed to create PAT: InvalidAuthorizationId");
         }
     }
 }
