@@ -62,14 +62,14 @@ namespace Microsoft.Authentication.AdoPat
         /// Gets all active PATs.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-        /// <returns>The set of active PATs.</returns>
-        public async Task<ISet<PatToken>> GetActivePatsAsync(CancellationToken cancellationToken = default)
+        /// <returns>A mapping of authorization ID to active PATs.</returns>
+        public async Task<IDictionary<Guid, PatToken>> GetActivePatsAsync(CancellationToken cancellationToken = default)
         {
             // Initialize a PagedPatTokens so that we can use the continuation token
             // in the scope of the conditional of the do while loop below. Azure
             // DevOps will return the empty string when there are no more pages.
             var pagedPatTokens = new PagedPatTokens(continuationToken: string.Empty, patTokens: new List<PatToken>());
-            var pats = new HashSet<PatToken>();
+            var pats = new Dictionary<Guid, PatToken>();
             do
             {
                 pagedPatTokens = await this.client.ListPatsAsync(
@@ -82,7 +82,7 @@ namespace Microsoft.Authentication.AdoPat
 
                 foreach (PatToken pat in pagedPatTokens.PatTokens)
                 {
-                    pats.Add(pat);
+                    pats.Add(pat.AuthorizationId, pat);
                 }
             }
             while (!string.IsNullOrEmpty(pagedPatTokens.ContinuationToken));

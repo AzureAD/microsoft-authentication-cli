@@ -74,11 +74,11 @@ namespace Microsoft.Authentication.AdoPat.Test
         }
 
         [Test]
-        public async Task GetActivePatsAsync_ReturnsEmptySetWithNoResults()
+        public async Task GetActivePatsAsync_ReturnsEmptyDictionaryWithNoResults()
         {
             // Arrange
             var emptyPage = new PagedPatTokens(continuationToken: string.Empty, patTokens: new List<PatToken> { });
-            var expectedTokens = new HashSet<PatToken>();
+            var expectedTokens = new Dictionary<Guid, PatToken>();
 
             var client = new Mock<ITokensHttpClientWrapper>(MockBehavior.Strict);
             client.Setup(c => c.ListPatsAsync(
@@ -101,14 +101,14 @@ namespace Microsoft.Authentication.AdoPat.Test
         }
 
         [Test]
-        public async Task GetActivePatsAsync_ReturnsSetWithAllPages()
+        public async Task GetActivePatsAsync_ReturnsDictionaryWithAllPages()
         {
             // Arrange
-            var pat1 = new PatToken { DisplayName = "PAT 1" };
-            var pat2 = new PatToken { DisplayName = "PAT 2" };
+            var pat1 = new PatToken { AuthorizationId = new Guid("8e510ed2-f485-4dfb-963c-bbaa30d60ba0"), DisplayName = "PAT 1" };
+            var pat2 = new PatToken { AuthorizationId = new Guid("40ba0030-1dad-4bbe-82c5-8c49266d4e1d"), DisplayName = "PAT 2" };
             var page1 = new PagedPatTokens(continuationToken: "Page 1", patTokens: new List<PatToken> { pat1 });
             var page2 = new PagedPatTokens(continuationToken: string.Empty, patTokens: new List<PatToken> { pat2 });
-            var expectedTokens = new HashSet<PatToken>() { pat1, pat2 };
+            var expectedTokens = new Dictionary<Guid, PatToken>() { { pat1.AuthorizationId, pat1 }, { pat2.AuthorizationId, pat2 } };
 
             var client = new Mock<ITokensHttpClientWrapper>(MockBehavior.Strict);
             client.SetupSequence(c => c.ListPatsAsync(
