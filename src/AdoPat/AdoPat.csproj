@@ -4,8 +4,6 @@
     <PackageId>Microsoft.Authentication.AdoPat</PackageId>
     <TargetFrameworks>net6.0</TargetFrameworks>
     <RootNamespace>Microsoft.Authentication.AdoPat</RootNamespace>
-    <!-- TODO? <ImplicitUsings>enable</ImplicitUsings> -->
-    <!-- TODO? <Nullable>enable</Nullable> -->
   </PropertyGroup>
 
     <ItemGroup>

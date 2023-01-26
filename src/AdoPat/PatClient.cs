@@ -35,10 +35,7 @@ namespace Microsoft.Authentication.AdoPat
         /// <summary>
         /// Creates a new PAT.
         /// </summary>
-        /// <param name="patTokenCreateRequest">
-        /// XXX: Not documented by Visual Studio client libraries. Should we depend on this or
-        /// should this method use the corresponding primitives as arguments? Not yet clear.
-        /// </param>
+        /// <param name="patTokenCreateRequest">The PAT creation request.</param>
         /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>A <see cref="Task"/> returning a <see cref="PatTokenResult"/>.</returns>
         public async Task<PatToken> CreatePatAsync(
@@ -128,10 +125,8 @@ namespace Microsoft.Authentication.AdoPat
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
-            // XXX: If we create a new PAT, but fail to revoke the old PAT, should
-            // we continue or should we try to undo the creation and bail? It's
-            // possible this could fail because the token has already been revoked.
-            // Is that an error we should allow?
+            // Note: This method will not try to undo creation of a PAT if the
+            // revocation fails.
             await this.client.RevokeAsync(
                 patToken.AuthorizationId,
                 cancellationToken: cancellationToken)
