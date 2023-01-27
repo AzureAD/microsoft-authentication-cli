@@ -15,6 +15,10 @@ namespace Microsoft.Authentication.AdoPat
     public class PatCache
     {
         private IStorageWrapper storage;
+
+        // The cache is lazy so that the initial cache read from the
+        // underlying storage only happens once and subsequent reads
+        // operate on the in-memory value.
         private Lazy<Dictionary<string, PatToken>> cache;
 
         /// <summary>
@@ -26,10 +30,6 @@ namespace Microsoft.Authentication.AdoPat
             // Note: This assumes any required persistance validity has been
             // checked beforehand.
             this.storage = storage;
-
-            // The cache is lazy so that the initial cache read from the
-            // underlying storage only happens once and subsequent reads
-            // operate on the in-memory value.
             this.cache = new Lazy<Dictionary<string, PatToken>>(() => this.ReadStorage());
         }
 
