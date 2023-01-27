@@ -185,7 +185,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             // Then, add our target PatToken to the expected data for later
             // comparison.
             pats.Add(key, pat);
-            var expected_data = JsonSerializer.SerializeToUtf8Bytes(pats);
+            var expectedData = JsonSerializer.SerializeToUtf8Bytes(pats);
 
             var data = new byte[] { };
             var storage = new Mock<IStorageWrapper>(MockBehavior.Strict);
@@ -201,7 +201,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             // The in-memory cache should contain the PatToken and so should
             // the underlying storage.
             cache.GetPat(key).Should().BeEquivalentTo(pat);
-            data.Should().BeEquivalentTo(expected_data);
+            data.Should().BeEquivalentTo(expectedData);
         }
 
         [Test]
@@ -229,7 +229,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // Then, overwrite the existing data with the expected token.
             pats[key] = expectedPat;
-            var expected_data = JsonSerializer.SerializeToUtf8Bytes(pats);
+            var expectedData = JsonSerializer.SerializeToUtf8Bytes(pats);
 
             var data = new byte[] { };
             var storage = new Mock<IStorageWrapper>(MockBehavior.Strict);
@@ -245,7 +245,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             // The in-memory cache should contain *ONLY* the expected PatToken
             // and so should the underlying storage.
             cache.GetPat(key).Should().BeEquivalentTo(expectedPat);
-            data.Should().BeEquivalentTo(expected_data);
+            data.Should().BeEquivalentTo(expectedData);
         }
     }
 }
