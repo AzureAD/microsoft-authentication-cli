@@ -49,7 +49,9 @@ namespace Microsoft.Authentication.AzureAuth
                 backend: backend,
                 ingestionToken: ingestionToken,
                 useAsync: true,
-                envVarsToCollect: new[] { "SYSTEM_DEFINITIONID", "QBUILD_DISTRIBUTED" });
+                envVarsToCollect: new[] { "SYSTEM_DEFINITIONID", "QBUILD_DISTRIBUTED" },
+                hideAlias: true,
+                hideMachineName: true);
 
             // We want redirect stdout to get just token output
             // while warnings and errors still go to stderr to be seen by a user.

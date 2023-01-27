@@ -29,5 +29,10 @@ namespace Microsoft.Authentication.AzureAuth
         /// The none.
         /// </summary>
         None,
+
+        /// <summary>
+        /// The SID.
+        /// </summary>
+        SID,
     }
 }

@@ -23,6 +23,7 @@ namespace Microsoft.Authentication.AzureAuth
     /// The command main class parses commands and dispatches to the corresponding methods.
     /// </summary>
     [Command(Name = "azureauth", Description = "A CLI interface to MSAL authentication")]
+    [Subcommand(typeof(CommandInfo))]
     public class CommandMain
     {
         private const string ResourceOption = "--resource";
@@ -488,6 +489,9 @@ Allowed values: [all, web, devicecode]";
                         break;
                     case OutputMode.Json:
                         Console.Write(tokenResult.ToJson());
+                        break;
+                    case OutputMode.SID:
+                        Console.Write(tokenResult.SID);
                         break;
                     case OutputMode.None:
                         break;
