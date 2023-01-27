@@ -28,12 +28,6 @@ namespace Microsoft.Authentication.AzureAuth
             string azureauthVersion = assembly.GetName().Version.ToString();
             logger.LogInformation($"AzureAuth Version: {azureauthVersion}");
 
-            string lassoVersion = Office.Lasso.Version.LassoVersion();
-            logger.LogInformation($"Lasso Version: {lassoVersion}");
-
-            string clrVersion = assembly.ImageRuntimeVersion;
-            logger.LogInformation($"CLR Version: {clrVersion}");
-
             string deviceID = TelemetryMachineIDHelper.GetRandomDeviceIDAsync(fileSystem).Result;
             logger.LogInformation($"Device ID: {deviceID}");
 
