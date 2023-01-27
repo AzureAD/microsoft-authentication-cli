@@ -180,7 +180,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // First, write existing data as bytes without our target PatToken.
             var pats = new Dictionary<string, PatToken> { { "lol", new PatToken { DisplayName = "wut" } } };
-            var existing_data = JsonSerializer.SerializeToUtf8Bytes(pats);
+            var existingData = JsonSerializer.SerializeToUtf8Bytes(pats);
 
             // Then, add our target PatToken to the expected data for later
             // comparison.
@@ -189,7 +189,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             var data = new byte[] { };
             var storage = new Mock<IStorageWrapper>(MockBehavior.Strict);
-            storage.Setup(s => s.ReadData()).Returns(existing_data);
+            storage.Setup(s => s.ReadData()).Returns(existingData);
             storage.Setup(s => s.WriteData(It.IsAny<byte[]>())).Callback((byte[] d) => data = d);
 
             var cache = new PatCache(storage.Object);
@@ -225,7 +225,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // First, write existing data as bytes.
             var pats = new Dictionary<string, PatToken> { { key, pat } };
-            var existing_data = JsonSerializer.SerializeToUtf8Bytes(pats);
+            var existingData = JsonSerializer.SerializeToUtf8Bytes(pats);
 
             // Then, overwrite the existing data with the expected token.
             pats[key] = expectedPat;
@@ -233,7 +233,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             var data = new byte[] { };
             var storage = new Mock<IStorageWrapper>(MockBehavior.Strict);
-            storage.Setup(s => s.ReadData()).Returns(existing_data);
+            storage.Setup(s => s.ReadData()).Returns(existingData);
             storage.Setup(s => s.WriteData(It.IsAny<byte[]>())).Callback((byte[] d) => data = d);
 
             var cache = new PatCache(storage.Object);
