@@ -33,11 +33,8 @@ jobs:
     needs: [validate]
     strategy:
       matrix:
-        # We build on Linux, but don't yet ship Linux because we can't easily sign those releases.
-        runtime: [linux-x64, osx-x64, osx-arm64, win10-x64]
+        runtime: [osx-x64, osx-arm64, win10-x64]
         include:
-          - runtime: linux-x64
-            os: ubuntu-latest
           - runtime: osx-x64
             os: macos-latest
           - runtime: osx-arm64
@@ -65,7 +62,6 @@ jobs:
       with:
         name: azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
         path: dist/${{ matrix.runtime }}
-
   sign:
     # This step has to run on Windows because ESRPClient.exe is currently only available for that platform.
     runs-on: windows-latest
@@ -168,10 +164,23 @@ jobs:
       with:
         name: azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
         path: azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
+      
+  linux_release:
+    runs-on: ubuntu-latest
+    needs: [validate]
+    steps:
+    - name: Build, Sign and Publish Linux binaries
+      run: python .\bin\trigger_azure_pipelines.py
+      env:
+        AZURE_DEVOPS_BUILD_PAT: ${{ secrets.AZURE_DEVOPS_BUILD_PAT }}
+        ADO_ORGANIZATION: ${{ secrets.ADO_ORGANIZATION }}
+        ADO_PROJECT: ${{ secrets.ADO_PROJECT}}
+        ADO_AZUREAUTH_LINUX_PIPELINE_ID: ${{ secrets.ADO_AZUREAUTH_LINUX_PIPELINE_ID }}
+        VERSION: ${{ github.event.inputs.version }}
 
   release:
     runs-on: ubuntu-latest
-    needs: [package]
+    needs: [package, linux_release]
     # The 'release' environment is what requires reviews before creating the release.
     environment:
       name: release
