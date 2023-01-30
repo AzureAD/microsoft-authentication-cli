@@ -16,8 +16,8 @@ namespace Microsoft.Authentication.AdoPat
         /// <summary>
         /// [Preview API] Creates a new personal access token (PAT) for the requesting user.
         /// </summary>
-        /// <param name="patTokenCreateRequest">(Undocumented).</param>
-        /// <param name="userState">(Undocumented).</param>
+        /// <param name="patTokenCreateRequest">A PAT token creation request. Undocumented by <see cref="TokensHttpClient"/>.</param>
+        /// <param name="userState">An arbitrary user-defined object. Undocumented by <see cref="TokensHttpClient"/>.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>A <see cref="Task"/> returning a <see cref="PatTokenResult"/>.</returns>
         Task<PatTokenResult> CreatePatAsync(
@@ -33,7 +33,7 @@ namespace Microsoft.Authentication.AdoPat
         /// <param name="isSortAscending">(Optional) Ascending or descending.</param>
         /// <param name="continuationToken">(Optional) Where to start returning tokens from.</param>
         /// <param name="top">(Optional) How many tokens to return, limit of 100.</param>
-        /// <param name="userState">(Undocumented).</param>
+        /// <param name="userState">An arbitrary user-defined object. Undocumented by <see cref="TokensHttpClient"/>.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>A <see cref="Task"/> with <see cref="PagedPatTokens"/>.</returns>
         Task<PagedPatTokens> ListPatsAsync(
@@ -49,7 +49,7 @@ namespace Microsoft.Authentication.AdoPat
         /// [Preview API] Revokes a personal access token (PAT) by authorizationId.
         /// </summary>
         /// <param name="authorizationId">The authorizationId identifying a single, unique personal access token (PAT).</param>
-        /// <param name="userState">(Undocumented).</param>
+        /// <param name="userState">An arbitrary user-defined object. Undocumented by <see cref="TokensHttpClient"/>.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>Void.</returns>
         Task RevokeAsync(
