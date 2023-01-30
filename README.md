@@ -73,6 +73,22 @@ curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/
 of currently running processes, so you'll need to relaunch applications (or source your shell profile) before the `$PATH`
 changes take effect.
 
+## Linux
+
+We provide a `.deb` file that can be downloaded and installed by the following code. The code installs the package repository and the signing key.  
+
+```bash
+sudo apt-get install wget gpg
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/microsoft-ubuntu-focal-prod/ focal main" > /etc/apt/sources.list.d/azureauth.list'
+rm -f packages.microsoft.gpg
+
+sudo apt install apt-transport-https
+sudo apt update
+sudo apt install azureauth
+```
+
 # Using AzureAuth
 
 Instructions on using AzureAuth CLI in your applications are available [here](docs/usage.md).
