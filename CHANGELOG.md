@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added On-premises Security Identifier in Telemetry as `sid`.
+- Added Subcommand `info` and its option `--reset-device-id` to show or reset the device ID.
 
 ### Changed
 - Upgrade MSAL to 4.47.2 and opt-in native WAM mode.

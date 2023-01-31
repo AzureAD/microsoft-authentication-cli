@@ -15,6 +15,14 @@ namespace Microsoft.Authentication.AzureAuth
     [Command(Name = "info", Description = "Show debug information of AzureAuth. Please provide when asking for help.")]
     internal class CommandInfo
     {
+        private const string OptionResetDeviceID = "--reset-device-id";
+
+        /// <summary>
+        /// Gets or sets a value indicating whether reset device id.
+        /// </summary>
+        [Option(OptionResetDeviceID, "Reset Device ID", CommandOptionType.NoValue)]
+        public bool ResetDeviceID { get; set; }
+
         /// <summary>
         /// This method executes the info process.
         /// </summary>
@@ -23,18 +31,32 @@ namespace Microsoft.Authentication.AzureAuth
         /// <returns>The error code: 0 is normal execution, and the rest means errors during execution.</returns>
         public int OnExecute(ILogger<CommandInfo> logger, IFileSystem fileSystem)
         {
+            if (this.ResetDeviceID)
+            {
+                return this.ResetID(logger, fileSystem);
+            }
+
             Assembly assembly = Assembly.GetExecutingAssembly();
-
             string azureauthVersion = assembly.GetName().Version.ToString();
-            logger.LogInformation($"AzureAuth Version: {azureauthVersion}");
-
             string deviceID = TelemetryMachineIDHelper.GetRandomDeviceIDAsync(fileSystem).Result;
-            logger.LogInformation($"Device ID: {deviceID}");
+            string deviceIDLocation = TelemetryMachineIDHelper.GetIdentifierLocation(fileSystem);
 
-            logger.LogInformation($"Device Identifier File Location: {TelemetryMachineIDHelper.GetIdentifierLocation(fileSystem)}");
-            logger.LogInformation($"To reset your device identifier, delete the file at {TelemetryMachineIDHelper.GetIdentifierLocation(fileSystem)}.");
+            logger.LogInformation(
+                $"AzureAuth Version: {azureauthVersion} \n" +
+                $"Device ID: {deviceID} \n" +
+                $"Device ID Path: {deviceIDLocation} \n" +
+                $"To reset your device identifier, Run `azureauth info {OptionResetDeviceID}` \n" +
+                $"\n" +
+                $"To get the user's sid, use option --output=sid. For example:\n" +
+                $"azureauth --client <client> --scope <scope> --tenant <tenant> --output sid");
 
-            logger.LogInformation($"\nTo get the user's sid, use option --output=sid in normal authentication process.");
+            return 0;
+        }
+
+        private int ResetID(ILogger<CommandInfo> logger, IFileSystem fileSystem)
+        {
+            fileSystem.File.Delete(TelemetryMachineIDHelper.GetIdentifierLocation(fileSystem));
+            logger.LogInformation($"Device ID was reset.");
 
             return 0;
         }
