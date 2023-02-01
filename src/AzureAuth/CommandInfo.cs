@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.AzureAuth
     /// <summary>
     /// The command <see cref="CommandInfo"/> shows debug information and system runtime.
     /// </summary>
-    [Command(Name = "info", Description = "Show debug information of AzureAuth. Please provide when asking for help.")]
+    [Command(Name = "info", Description = "Shows AzureAuth debug information. Please provide when asking for help.")]
     internal class CommandInfo
     {
         private const string OptionResetDeviceID = "--reset-device-id";

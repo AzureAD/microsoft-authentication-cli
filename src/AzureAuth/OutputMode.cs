@@ -31,7 +31,7 @@ namespace Microsoft.Authentication.AzureAuth
         None,
 
         /// <summary>
-        /// The SID.
+        /// The Security Identifier.
         /// </summary>
         SID,
     }

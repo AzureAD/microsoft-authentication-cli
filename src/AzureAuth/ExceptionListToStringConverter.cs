@@ -100,7 +100,7 @@ namespace Microsoft.Authentication.AzureAuth
             /// <summary>
             /// Sets the error code.
             /// </summary>
-            /// <param name="exception">exception from which error code is extracted.</param>
+            /// <param name="exception">Exception from which error code is extracted.</param>
             private void SetAADErrorCode(Exception exception)
             {
                 var exceptionType = exception.GetType();
