@@ -16,6 +16,19 @@ namespace Microsoft.Authentication.AzureAuth
     internal class CommandInfo
     {
         private const string OptionResetDeviceID = "--reset-device-id";
+        private readonly ILogger<CommandInfo> logger;
+        private readonly IFileSystem fileSystem;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandInfo"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="fileSystem">The file system.</param>
+        public CommandInfo(ILogger<CommandInfo> logger, IFileSystem fileSystem)
+        {
+            this.logger = logger;
+            this.fileSystem = fileSystem;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether reset device id.
@@ -26,37 +39,33 @@ namespace Microsoft.Authentication.AzureAuth
         /// <summary>
         /// This method executes the info process.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="fileSystem">The file system.</param>
         /// <returns>The error code: 0 is normal execution, and the rest means errors during execution.</returns>
-        public int OnExecute(ILogger<CommandInfo> logger, IFileSystem fileSystem)
+        public int OnExecute()
         {
             if (this.ResetDeviceID)
             {
-                return this.ResetID(logger, fileSystem);
+                return this.ResetID();
             }
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             string azureauthVersion = assembly.GetName().Version.ToString();
-            string deviceID = TelemetryMachineIDHelper.GetRandomDeviceIDAsync(fileSystem).Result;
-            string deviceIDLocation = TelemetryMachineIDHelper.GetIdentifierLocation(fileSystem);
+            string deviceID = TelemetryMachineIDHelper.GetRandomDeviceIDAsync(this.fileSystem).Result;
+            string deviceIDLocation = TelemetryMachineIDHelper.GetIdentifierLocation(this.fileSystem);
 
-            logger.LogInformation(
+            this.logger.LogInformation(
                 $"AzureAuth Version: {azureauthVersion} \n" +
                 $"Device ID: {deviceID} \n" +
                 $"Device ID Path: {deviceIDLocation} \n" +
-                $"To reset your device identifier, Run `azureauth info {OptionResetDeviceID}` \n" +
-                $"\n" +
-                $"To get the user's sid, use option --output=sid. For example:\n" +
-                $"azureauth --client <client> --scope <scope> --tenant <tenant> --output sid");
+                $"To reset your device identifier, Run `azureauth info {OptionResetDeviceID}` \n");
 
             return 0;
         }
 
-        private int ResetID(ILogger<CommandInfo> logger, IFileSystem fileSystem)
+        private int ResetID()
         {
-            fileSystem.File.Delete(TelemetryMachineIDHelper.GetIdentifierLocation(fileSystem));
-            logger.LogInformation($"Device ID was reset.");
+            string deviceIDPath = TelemetryMachineIDHelper.GetIdentifierLocation(this.fileSystem);
+            this.fileSystem.File.Delete(deviceIDPath);
+            this.logger.LogInformation($"Device ID was reset.");
 
             return 0;
         }

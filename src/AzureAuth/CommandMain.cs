@@ -490,9 +490,6 @@ Allowed values: [all, web, devicecode]";
                     case OutputMode.Json:
                         Console.Write(tokenResult.ToJson());
                         break;
-                    case OutputMode.SID:
-                        Console.Write(tokenResult.SID);
-                        break;
                     case OutputMode.None:
                         break;
                 }
