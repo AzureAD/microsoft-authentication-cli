@@ -6,7 +6,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     using McMaster.Extensions.CommandLineUtils;
 
     [Command("pat", Description = "TODO")]
-    internal class CommandPat
+    public class CommandPat
     {
         public CommandPat() { }
 

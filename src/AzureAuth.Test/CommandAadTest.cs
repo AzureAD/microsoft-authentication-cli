@@ -5,11 +5,13 @@ namespace Microsoft.Authentication.AzureAuth.Test
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.IO.Abstractions;
     using System.IO.Abstractions.TestingHelpers;
     using System.Runtime.InteropServices;
+
     using FluentAssertions;
+
+    using Microsoft.Authentication.AzureAuth;
     using Microsoft.Authentication.AzureAuth.Commands;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
@@ -24,6 +26,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
     using NLog.Extensions.Logging;
     using NLog.Targets;
+
     using NUnit.Framework;
 
     /// <summary>
@@ -73,35 +76,35 @@ invalid_key = ""this is not a valid alias key""
         [SetUp]
         public void Setup()
         {
-            this.eventData = new CommandExecuteEventData();
-            this.fileSystem = new MockFileSystem();
-            this.fileSystem.Directory.CreateDirectory(RootDrive());
+            eventData = new CommandExecuteEventData();
+            fileSystem = new MockFileSystem();
+            fileSystem.Directory.CreateDirectory(RootDrive());
 
             // Setup in memory logging target with NLog - allows making assertions against what has been logged.
             var loggingConfig = new NLog.Config.LoggingConfiguration();
-            this.logTarget = new MemoryTarget("memory_target");
-            this.logTarget.Layout = "${message}"; // Define a simple layout so we don't get timestamps in messages.
-            loggingConfig.AddTarget(this.logTarget);
-            loggingConfig.AddRuleForAllLevels(this.logTarget);
+            logTarget = new MemoryTarget("memory_target");
+            logTarget.Layout = "${message}"; // Define a simple layout so we don't get timestamps in messages.
+            loggingConfig.AddTarget(logTarget);
+            loggingConfig.AddRuleForAllLevels(logTarget);
 
-            this.envMock = new Mock<IEnv>(MockBehavior.Strict);
-            this.telemetryServiceMock = new Mock<ITelemetryService>(MockBehavior.Strict);
-            this.authFlowMock = new Mock<IAuthFlow>(MockBehavior.Strict);
+            envMock = new Mock<IEnv>(MockBehavior.Strict);
+            telemetryServiceMock = new Mock<ITelemetryService>(MockBehavior.Strict);
+            authFlowMock = new Mock<IAuthFlow>(MockBehavior.Strict);
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject").
-            this.serviceProvider = new ServiceCollection()
+            serviceProvider = new ServiceCollection()
                 .AddLogging(loggingBuilder =>
                 {
                     loggingBuilder.ClearProviders();
                     loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                     loggingBuilder.AddNLog(loggingConfig);
                 })
-                .AddSingleton(this.eventData)
-                .AddSingleton(this.fileSystem)
-                .AddSingleton<IEnv>(this.envMock.Object)
-                .AddSingleton<ITelemetryService>(this.telemetryServiceMock.Object)
-                .AddSingleton<IAuthFlow>(this.authFlowMock.Object)
-                .AddTransient<CommandAzureAuth>()
+                .AddSingleton(eventData)
+                .AddSingleton(fileSystem)
+                .AddSingleton(envMock.Object)
+                .AddSingleton(telemetryServiceMock.Object)
+                .AddSingleton(authFlowMock.Object)
+                .AddTransient<CommandAad>()
                 .BuildServiceProvider();
         }
 
@@ -111,12 +114,12 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsProvidedAliasMissingConfigFile()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
-            this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns((string)null);
+            envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain("The --alias field was given, but no --config was specified.");
+            logTarget.Logs.Should().Contain("The --alias field was given, but no --config was specified.");
         }
 
         /// <summary>
@@ -126,14 +129,14 @@ invalid_key = ""this is not a valid alias key""
         public void TestEvaluateOptionsProvidedAliasNotInEmptyConfigFile()
         {
             string configFile = RootPath("empty.toml");
-            this.fileSystem.File.Create(configFile);
+            fileSystem.File.Create(configFile);
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "notfound";
             subject.ConfigFilePath = configFile;
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain($"Alias 'notfound' was not found in {configFile}");
+            logTarget.Logs.Should().Contain($"Alias 'notfound' was not found in {configFile}");
         }
 
         /// <summary>
@@ -143,14 +146,14 @@ invalid_key = ""this is not a valid alias key""
         public void TestEvaluateOptionsProvidedAliasNotInPopulatedConfigFile()
         {
             string configFile = RootPath("partial.toml");
-            this.fileSystem.File.WriteAllText(configFile, PartialAliasTOML);
+            fileSystem.File.WriteAllText(configFile, PartialAliasTOML);
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "notfound";
             subject.ConfigFilePath = configFile;
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain($"Alias 'notfound' was not found in {configFile}");
+            logTarget.Logs.Should().Contain($"Alias 'notfound' was not found in {configFile}");
         }
 
         /// <summary>
@@ -160,8 +163,8 @@ invalid_key = ""this is not a valid alias key""
         public void TestEvaluateOptionsProvidedAliasWithoutCommandLineOptions()
         {
             string configFile = RootPath("complete.toml");
-            this.fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             Alias expected = new Alias
             {
                 Resource = "67eeda51-3891-4101-a0e3-bf0c64047157",
@@ -172,7 +175,7 @@ invalid_key = ""this is not a valid alias key""
                 PromptHint = "sample prompt hint.",
             };
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = configFile;
 
@@ -188,7 +191,7 @@ invalid_key = ""this is not a valid alias key""
         {
             string configFile = RootPath("complete.toml");
             string clientOverride = "3933d919-5ba4-4eb7-b4b1-19d33e8b82c0";
-            this.fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
+            fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
             Alias expected = new Alias
             {
                 Resource = "67eeda51-3891-4101-a0e3-bf0c64047157",
@@ -199,11 +202,11 @@ invalid_key = ""this is not a valid alias key""
                 PromptHint = "sample prompt hint.",
             };
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = configFile;
 
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             // Specify a client override on the command line.
             subject.Client = clientOverride;
@@ -220,7 +223,7 @@ invalid_key = ""this is not a valid alias key""
         {
             string configFile = RootPath("complete.toml");
             string clientOverride = "3933d919-5ba4-4eb7-b4b1-19d33e8b82c0";
-            this.fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
+            fileSystem.File.WriteAllText(configFile, CompleteAliasTOML);
             Alias expected = new Alias
             {
                 Resource = "67eeda51-3891-4101-a0e3-bf0c64047157",
@@ -231,19 +234,19 @@ invalid_key = ""this is not a valid alias key""
                 PromptHint = "sample prompt hint.",
             };
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = null;
 
             // Specify config via env var
-            this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
+            envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
 
             // Specify a client override on the command line.
             subject.Client = clientOverride;
 
             subject.EvaluateOptions().Should().BeTrue();
             subject.TokenFetcherOptions.Should().BeEquivalentTo(expected);
-            this.envMock.VerifyAll();
+            envMock.VerifyAll();
         }
 
         /// <summary>
@@ -253,14 +256,14 @@ invalid_key = ""this is not a valid alias key""
         public void TestEvaluateOptionsProvidedInvalidConfig()
         {
             string configFile = RootPath("invalid.toml");
-            this.fileSystem.File.WriteAllText(configFile, InvalidTOML);
+            fileSystem.File.WriteAllText(configFile, InvalidTOML);
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = configFile;
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().ContainMatch($"Error parsing TOML in config file at '{configFile}':*");
+            logTarget.Logs.Should().ContainMatch($"Error parsing TOML in config file at '{configFile}':*");
         }
 
         /// <summary>
@@ -271,16 +274,16 @@ invalid_key = ""this is not a valid alias key""
         {
             string configFile = RootPath("does_not_exists_config.toml");
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = null;
 
             // Specify config via env var
-            this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
+            envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().ContainMatch($"The file '{configFile}' does not exist.*");
-            this.envMock.VerifyAll();
+            logTarget.Logs.Should().ContainMatch($"The file '{configFile}' does not exist.*");
+            envMock.VerifyAll();
         }
 
         /// <summary>
@@ -290,14 +293,14 @@ invalid_key = ""this is not a valid alias key""
         public void TestEvaluateOptionsProvidedInvalidAlias()
         {
             string configFile = RootPath("invalid.toml");
-            this.fileSystem.File.WriteAllText(configFile, InvalidAliasTOML);
+            fileSystem.File.WriteAllText(configFile, InvalidAliasTOML);
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.AliasName = "litware";
             subject.ConfigFilePath = configFile;
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().ContainMatch($"Error parsing TOML in config file at '{configFile}':*");
+            logTarget.Logs.Should().ContainMatch($"Error parsing TOML in config file at '{configFile}':*");
         }
 
         /// <summary>
@@ -306,14 +309,14 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithoutAliasMissingResource()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.Resource = null;
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain("The --resource field or the --scope field is required.");
+            logTarget.Logs.Should().Contain("The --resource field or the --scope field is required.");
         }
 
         /// <summary>
@@ -322,14 +325,14 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithoutAliasMissingClient()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = null;
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain("The --client field is required.");
+            logTarget.Logs.Should().Contain("The --client field is required.");
         }
 
         /// <summary>
@@ -338,14 +341,14 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithoutAliasMissingTenant()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = null;
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain("The --tenant field is required.");
+            logTarget.Logs.Should().Contain("The --tenant field is required.");
         }
 
         /// <summary>
@@ -354,14 +357,14 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithoutAliasMissingRequiredOptions()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.Resource = null;
             subject.Client = null;
             subject.Tenant = null;
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeFalse();
-            this.logTarget.Logs.Should().Contain(new[]
+            logTarget.Logs.Should().Contain(new[]
             {
                 "The --resource field or the --scope field is required.",
                 "The --client field is required.",
@@ -375,12 +378,12 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithOverridedScopes()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.Resource = null;
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
             subject.Scopes = new string[] { "f0e8d801-3a50-48fd-b2da-6476d6e832a2/.default" };
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
         }
@@ -391,11 +394,11 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithNormalParameters()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
         }
@@ -406,15 +409,15 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithResourceAndScopes()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
             subject.Scopes = new string[] { "f0e8d801-3a50-48fd-b2da-6476d6e832a2/.default" };
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
-            this.logTarget.Logs.Should().Contain(new[]
+            logTarget.Logs.Should().Contain(new[]
             {
                 "The --scope option was provided with the --resource option. Only --scope will be used.",
             });
@@ -435,11 +438,11 @@ invalid_key = ""this is not a valid alias key""
                 Scopes = null,
             };
 
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             subject.EvaluateOptions().Should().BeTrue();
             subject.TokenFetcherOptions.Should().BeEquivalentTo(expected);
@@ -453,7 +456,7 @@ invalid_key = ""this is not a valid alias key""
         {
             string promptHintOption = "Test Prompt Hint";
 
-            CommandAzureAuth.PrefixedPromptHint(promptHintOption)
+            CommandAad.PrefixedPromptHint(promptHintOption)
                 .Should().BeEquivalentTo($"{PromptHintPrefix}: {promptHintOption}");
         }
 
@@ -463,8 +466,8 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestPromptHintPrefixWithoutOption()
         {
-CommandAzureAuth.PrefixedPromptHint(null)
-                .Should().BeEquivalentTo(PromptHintPrefix);
+            CommandAad.PrefixedPromptHint(null)
+                            .Should().BeEquivalentTo(PromptHintPrefix);
         }
 
         /// <summary>
@@ -474,7 +477,7 @@ CommandAzureAuth.PrefixedPromptHint(null)
         public void TestGenerateEvent_FromNullAuthResult()
         {
             AuthFlowResult authFlowResult = null;
-            var subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            var subject = serviceProvider.GetService<CommandAad>();
 
             // Act
             var eventData = subject.AuthFlowEventData(authFlowResult);
@@ -490,7 +493,7 @@ CommandAzureAuth.PrefixedPromptHint(null)
         public void TestGenerateEvent_From_AuthFlowResult_With_Null_TokenResult_Null_Errors()
         {
             AuthFlowResult authFlowResult = new AuthFlowResult(null, null, "AuthFlowName");
-            var subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            var subject = serviceProvider.GetService<CommandAad>();
 
             // Act
             var eventData = subject.AuthFlowEventData(authFlowResult);
@@ -518,7 +521,7 @@ CommandAzureAuth.PrefixedPromptHint(null)
             };
 
             AuthFlowResult authFlowResult = new AuthFlowResult(null, errors, "AuthFlowName");
-            var subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            var subject = serviceProvider.GetService<CommandAad>();
 
             // Act
             var eventData = subject.AuthFlowEventData(authFlowResult);
@@ -543,15 +546,15 @@ CommandAzureAuth.PrefixedPromptHint(null)
 
             AuthFlowResult authFlowResult = new AuthFlowResult(null, errors, "Sample");
 
-            this.authFlowMock.Setup((a) => a.GetTokenAsync()).ReturnsAsync(authFlowResult);
+            authFlowMock.Setup((a) => a.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
             // It would be nice to increase the assertion level here to include specific attributes on the eventData sent.
             // The mock setup matching with strict behavior is difficult to get right, and we have other tests already validating the contents
             // of events generated have what we expect. This validates we are in fact sending them.
-            this.telemetryServiceMock.Setup(s => s.SendEvent("authflow_Sample", It.IsAny<EventData>()));
+            telemetryServiceMock.Setup(s => s.SendEvent("authflow_Sample", It.IsAny<EventData>()));
 
-            var subject = this.serviceProvider.GetService<CommandAzureAuth>();
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            var subject = serviceProvider.GetService<CommandAad>();
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             // mock valid args
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
@@ -564,7 +567,7 @@ CommandAzureAuth.PrefixedPromptHint(null)
             subject.OnExecute().Should().Be(1);
 
             // Assert
-            this.telemetryServiceMock.VerifyAll();
+            telemetryServiceMock.VerifyAll();
         }
 
         /// <summary>
@@ -591,7 +594,7 @@ CommandAzureAuth.PrefixedPromptHint(null)
             var tokenResult = new TokenResult(new JsonWebToken(FakeToken), tokenResultCorrelationID);
 
             AuthFlowResult authFlowResult = new AuthFlowResult(tokenResult, errors, "AuthFlowName");
-            var subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            var subject = serviceProvider.GetService<CommandAad>();
 
             // Act
             var eventData = subject.AuthFlowEventData(authFlowResult);
@@ -617,7 +620,7 @@ CommandAzureAuth.PrefixedPromptHint(null)
             var tokenResult = new TokenResult(new JsonWebToken(FakeToken), tokenResultCorrelationID);
 
             AuthFlowResult authFlowResult = new AuthFlowResult(tokenResult, null, "AuthFlowName");
-            var subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            var subject = serviceProvider.GetService<CommandAad>();
 
             var expectedCorrelationIDs = $"{tokenResultCorrelationID}";
 
@@ -640,9 +643,9 @@ CommandAzureAuth.PrefixedPromptHint(null)
         [TestCase("", false)]
         public void InteractiveAuth_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
             subject.InteractiveAuthDisabled().Should().Be(expected);
         }
 
@@ -652,17 +655,17 @@ CommandAzureAuth.PrefixedPromptHint(null)
         [TestCase("", false)]
         public void InteractiveAuth_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
             subject.InteractiveAuthDisabled().Should().Be(expected);
         }
 
         [Test]
         public void InteractiveAuth_IsEnabledIfEnvVarsAreNotSet()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
+            envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             subject.InteractiveAuthDisabled().Should().BeFalse();
         }
 
@@ -670,14 +673,14 @@ CommandAzureAuth.PrefixedPromptHint(null)
         [TestCase("non-empty-string")]
         public void GetCombinedAuthMode_withInteractiveAuthDisabled(string noUser)
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
-            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
+            envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
             subject.CombinedAuthMode.Should().Be(AuthMode.IWA);
         }
 
         public void GetCombinedAuthMode_withInteractiveAuthEnabled()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             var authModes = new List<AuthMode>();
             authModes.Add(AuthMode.Broker);
             subject.AuthModes = authModes;
@@ -687,7 +690,7 @@ CommandAzureAuth.PrefixedPromptHint(null)
 
         public void GetCombinedAuthMode_withInteractiveAuthEnabled_NonWindowsPlatform()
         {
-            CommandAzureAuth subject = this.serviceProvider.GetService<CommandAzureAuth>();
+            CommandAad subject = serviceProvider.GetService<CommandAad>();
             var authModes = new List<AuthMode>();
             authModes.Add(AuthMode.Web);
             subject.AuthModes = authModes;

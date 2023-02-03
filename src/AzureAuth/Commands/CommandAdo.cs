@@ -7,7 +7,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
 
     [Command("ado", Description = "todo")]
     [Subcommand(typeof(Ado.CommandPat), typeof(Ado.CommandToken))]
-    internal class CommandAdo
+    public class CommandAdo
     {
         public CommandAdo() { }
 

@@ -6,7 +6,7 @@ using McMaster.Extensions.CommandLineUtils;
 namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 {
     [Command("token", Description = "TODO")]
-    internal class CommandToken
+    public class CommandToken
     {
         public CommandToken() { }
 
