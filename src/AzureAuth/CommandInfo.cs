@@ -13,7 +13,7 @@ namespace Microsoft.Authentication.AzureAuth
     /// The command <see cref="CommandInfo"/> shows debug information and system runtime.
     /// </summary>
     [Command(Name = "info", Description = "Shows AzureAuth debug information. Please provide when asking for help.")]
-    internal class CommandInfo
+    public class CommandInfo
     {
         private const string OptionResetDeviceID = "--reset-device-id";
         private readonly ILogger<CommandInfo> logger;
@@ -44,7 +44,7 @@ namespace Microsoft.Authentication.AzureAuth
         {
             if (this.ResetDeviceID)
             {
-                return this.ResetID();
+                return this.ExecuteResetDeviceID();
             }
 
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -61,7 +61,11 @@ namespace Microsoft.Authentication.AzureAuth
             return 0;
         }
 
-        private int ResetID()
+        /// <summary>
+        /// Reset the current device ID.
+        /// </summary>
+        /// <returns>The error code: 0 is normal execution, and the rest means errors during execution.</returns>
+        public int ExecuteResetDeviceID()
         {
             string deviceIDPath = TelemetryMachineIDHelper.GetIdentifierLocation(this.fileSystem);
             this.fileSystem.File.Delete(deviceIDPath);
