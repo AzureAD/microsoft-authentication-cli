@@ -49,13 +49,11 @@ namespace Microsoft.Authentication.AzureAuth
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             string azureauthVersion = assembly.GetName().Version.ToString();
-            string deviceID = TelemetryMachineIDHelper.GetRandomDeviceIDAsync(this.fileSystem).Result;
-            string deviceIDLocation = TelemetryMachineIDHelper.GetIdentifierLocation(this.fileSystem);
+            string deviceID = TelemetryDeviceID.GetAsync(this.fileSystem).Result;
 
             this.logger.LogInformation(
                 $"AzureAuth Version: {azureauthVersion} \n" +
                 $"Device ID: {deviceID} \n" +
-                $"Device ID Path: {deviceIDLocation} \n" +
                 $"To reset your device identifier, Run `azureauth info {OptionResetDeviceID}` \n");
 
             return 0;
@@ -67,8 +65,7 @@ namespace Microsoft.Authentication.AzureAuth
         /// <returns>The error code: 0 is normal execution, and the rest means errors during execution.</returns>
         public int ExecuteResetDeviceID()
         {
-            string deviceIDPath = TelemetryMachineIDHelper.GetIdentifierLocation(this.fileSystem);
-            this.fileSystem.File.Delete(deviceIDPath);
+            TelemetryDeviceID.Delete(this.fileSystem);
             this.logger.LogInformation($"Device ID was reset.");
 
             return 0;

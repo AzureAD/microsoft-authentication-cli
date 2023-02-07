@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Office.Lasso" Version="2023.2.3.1" />
+    <PackageReference Include="Microsoft.Office.Lasso" Version="2023.2.6.2" />
     <PackageReference Include="Tomlyn" Version="0.11.0" />
   </ItemGroup>
 
