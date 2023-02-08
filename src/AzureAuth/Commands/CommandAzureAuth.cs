@@ -3,7 +3,11 @@
 
 namespace Microsoft.Authentication.AzureAuth.Commands
 {
+    using System.IO.Abstractions;
     using McMaster.Extensions.CommandLineUtils;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Office.Lasso.Interfaces;
+    using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
     /// The command main class parses commands and dispatches to the corresponding methods.
@@ -12,24 +16,14 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     [Subcommand(typeof(CommandAad))]
     [Subcommand(typeof(CommandAdo))]
     [Subcommand(typeof(CommandInfo))]
-    public class CommandAzureAuth
+    public class CommandAzureAuth : CommandAad
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandAzureAuth"/> class.
-        /// </summary>
-        public CommandAzureAuth()
+#pragma warning disable SA1648 // inheritdoc should be used with inheriting class
+        /// <inheritdoc/>
+        public CommandAzureAuth(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandAzureAuth> logger, IFileSystem fileSystem, IEnv env)
+#pragma warning restore SA1648 // inheritdoc should be used with inheriting class
+            : base(eventData, telemetryService, logger, fileSystem, env)
         {
-        }
-
-        /// <summary>
-        /// Execute.
-        /// </summary>
-        /// <param name="app"><see cref="CommandLineApplication"/> instance of the current command.</param>
-        /// <returns>0 - this command only shows help.</returns>
-        public int OnExecute(CommandLineApplication app)
-        {
-            app.ShowHelp();
-            return 0;
         }
     }
 }
