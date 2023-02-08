@@ -12,7 +12,12 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     /// <summary>
     /// The command main class parses commands and dispatches to the corresponding methods.
     /// </summary>
-    [Command(Name = "azureauth", Description = "A CLI interface to MSAL (Microsoft Authentication Library)")]
+    [Command(Name = "azureauth", Description = "A CLI interface to MSAL (Microsoft Authentication Library)." +
+        "\n\n⚠️ NOTICE: This top level command has moved!" +
+        "\n\nCalling 'azureauth' with no commands in future versions will print the avaialble commands instead of performing authentication." +
+        "\n\n ❌ azureauth [options]" +
+        "\n              ⬇️⬇️" +
+        "\n ✅ azureauth aad [options]\n")]
     [Subcommand(typeof(CommandAad))]
     [Subcommand(typeof(CommandAdo))]
     [Subcommand(typeof(CommandInfo))]
