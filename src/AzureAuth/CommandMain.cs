@@ -11,6 +11,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Threading;
     using System.Threading.Tasks;
     using McMaster.Extensions.CommandLineUtils;
+    using Microsoft.Authentication.AzureAuth.Commands;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
