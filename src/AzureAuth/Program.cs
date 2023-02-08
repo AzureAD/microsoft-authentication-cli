@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Text;
 
     using McMaster.Extensions.CommandLineUtils;
+    using Microsoft.Authentication.AzureAuth.Commands;
     using Microsoft.Office.Lasso;
     using Microsoft.Office.Lasso.Telemetry;
 
@@ -21,7 +22,7 @@ namespace Microsoft.Authentication.AzureAuth
             // This will impact the NLog Console Target as well as any other Console usage.
             Console.OutputEncoding = Encoding.UTF8;
 
-            CommandLineApplication app = new CommandLineApplication<CommandMain>();
+            CommandLineApplication app = new CommandLineApplication<CommandAzureAuth>();
 
             // We always instantiate and depend on telemetry services, but these defaults
             // mean telemetry is effectively disabled by using a nonsensical ingest token
