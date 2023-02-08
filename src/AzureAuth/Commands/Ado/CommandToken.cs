@@ -11,9 +11,8 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     /// <summary>
     /// ADO Command for using either an ADO PAT or acquiring an AAD Access Token.
     /// </summary>
-    [Command("token", Description = @"Return an AzureDevops PAT from an env var or authenticate the user via MSAL.
-This command should only be used by short running processes that can use either an Azure Devops PAT (long-lived)
-or an AAD Access Token (short-lived).")]
+    [Command("token", Description = @"Get a PAT from env vars or an AAD AT for Azure Devops.
+For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
     public class CommandToken
     {
         /// <summary>
