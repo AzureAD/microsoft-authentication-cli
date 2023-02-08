@@ -29,10 +29,12 @@ namespace Microsoft.Authentication.AzureAuth.Commands
             string azureauthVersion = assembly.GetName().Version.ToString();
             string deviceID = TelemetryDeviceID.GetAsync(fileSystem).Result;
 
-            logger.LogInformation(
-                $"AzureAuth Version: {azureauthVersion} \n" +
-                $"Device ID: {deviceID} \n" +
-                $"To reset your device identifier, Run `azureauth info reset-device-id`");
+            logger.LogInformation($"AzureAuth Version: {azureauthVersion}");
+            logger.LogInformation($"Telemetry Device ID: {deviceID}");
+            logger.LogInformation(string.Empty);
+
+            logger.LogInformation("To reset your device identifier run the following command:");
+            logger.LogInformation("  azureauth info reset-device-id");
 
             return 0;
         }
