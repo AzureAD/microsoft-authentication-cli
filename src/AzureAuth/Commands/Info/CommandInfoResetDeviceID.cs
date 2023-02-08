@@ -6,6 +6,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Info
     using System.IO.Abstractions;
     using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Office.Lasso.Extensions;
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
