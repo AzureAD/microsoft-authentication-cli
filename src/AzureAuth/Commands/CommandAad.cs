@@ -1,17 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Authentication.AzureAuth
+namespace Microsoft.Authentication.AzureAuth.Commands
 {
     using System;
     using System.Collections.Generic;
     using System.IO.Abstractions;
     using System.Linq;
-    using System.Text.Json;
     using System.Threading;
     using System.Threading.Tasks;
+
     using McMaster.Extensions.CommandLineUtils;
-    using Microsoft.Authentication.AzureAuth.Commands;
+
+    using Microsoft.Authentication.AzureAuth;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
@@ -21,11 +22,10 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
-    /// The command main class parses commands and dispatches to the corresponding methods.
+    /// Command class for authenticating with AAD.
     /// </summary>
-    [Command(Name = "azureauth", Description = "A CLI interface to MSAL authentication")]
-    [Subcommand(typeof(CommandInfo))]
-    public class CommandMain
+    [Command("aad", Description = "todo")]
+    public class CommandAad
     {
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
@@ -57,7 +57,7 @@ Allowed values: [all, web, devicecode]";
         private static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
 
         private readonly EventData eventData;
-        private readonly ILogger<CommandMain> logger;
+        private readonly ILogger<CommandAzureAuth> logger;
         private readonly IFileSystem fileSystem;
         private readonly IEnv env;
         private Alias authSettings;
@@ -71,14 +71,14 @@ Allowed values: [all, web, devicecode]";
         private TimeSpan promptMutexTimeout = TimeSpan.FromMinutes(15);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandMain"/> class.
+        /// Initializes a new instance of the <see cref="CommandAad"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
         /// <param name="telemetryService">The telemetry service.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="env">The environment interface.</param>
-        public CommandMain(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env)
+        public CommandAad(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandAzureAuth> logger, IFileSystem fileSystem, IEnv env)
         {
             this.eventData = eventData;
             this.telemetryService = telemetryService;
@@ -88,7 +88,7 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandMain"/> class.
+        /// Initializes a new instance of the <see cref="CommandAad"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
         /// <param name="telemetryService">The telemetry service.</param>
@@ -96,7 +96,7 @@ Allowed values: [all, web, devicecode]";
         /// <param name="fileSystem">The file system.</param>
         /// <param name="env">The environment interface.</param>
         /// <param name="authFlow">An injected <see cref="IAuthFlow"/> (defined for testability).</param>
-        public CommandMain(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandMain> logger, IFileSystem fileSystem, IEnv env, IAuthFlow authFlow)
+        public CommandAad(CommandExecuteEventData eventData, ITelemetryService telemetryService, ILogger<CommandAzureAuth> logger, IFileSystem fileSystem, IEnv env, IAuthFlow authFlow)
             : this(eventData, telemetryService, logger, fileSystem, env)
         {
             this.authFlow = authFlow;

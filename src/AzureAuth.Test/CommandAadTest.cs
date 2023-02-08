@@ -5,11 +5,14 @@ namespace Microsoft.Authentication.AzureAuth.Test
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.IO.Abstractions;
     using System.IO.Abstractions.TestingHelpers;
     using System.Runtime.InteropServices;
+
     using FluentAssertions;
+
+    using Microsoft.Authentication.AzureAuth;
+    using Microsoft.Authentication.AzureAuth.Commands;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +26,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
     using NLog.Extensions.Logging;
     using NLog.Targets;
+
     using NUnit.Framework;
 
     /// <summary>
@@ -97,10 +101,10 @@ invalid_key = ""this is not a valid alias key""
                 })
                 .AddSingleton(this.eventData)
                 .AddSingleton(this.fileSystem)
-                .AddSingleton<IEnv>(this.envMock.Object)
-                .AddSingleton<ITelemetryService>(this.telemetryServiceMock.Object)
-                .AddSingleton<IAuthFlow>(this.authFlowMock.Object)
-                .AddTransient<CommandMain>()
+                .AddSingleton(this.envMock.Object)
+                .AddSingleton(this.telemetryServiceMock.Object)
+                .AddSingleton(this.authFlowMock.Object)
+                .AddTransient<CommandAad>()
                 .BuildServiceProvider();
         }
 
@@ -110,7 +114,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsProvidedAliasMissingConfigFile()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns((string)null);
 
@@ -127,7 +131,7 @@ invalid_key = ""this is not a valid alias key""
             string configFile = RootPath("empty.toml");
             this.fileSystem.File.Create(configFile);
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "notfound";
             subject.ConfigFilePath = configFile;
 
@@ -144,7 +148,7 @@ invalid_key = ""this is not a valid alias key""
             string configFile = RootPath("partial.toml");
             this.fileSystem.File.WriteAllText(configFile, PartialAliasTOML);
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "notfound";
             subject.ConfigFilePath = configFile;
 
@@ -171,7 +175,7 @@ invalid_key = ""this is not a valid alias key""
                 PromptHint = "sample prompt hint.",
             };
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = configFile;
 
@@ -198,7 +202,7 @@ invalid_key = ""this is not a valid alias key""
                 PromptHint = "sample prompt hint.",
             };
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = configFile;
 
@@ -230,7 +234,7 @@ invalid_key = ""this is not a valid alias key""
                 PromptHint = "sample prompt hint.",
             };
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = null;
 
@@ -254,7 +258,7 @@ invalid_key = ""this is not a valid alias key""
             string configFile = RootPath("invalid.toml");
             this.fileSystem.File.WriteAllText(configFile, InvalidTOML);
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = configFile;
 
@@ -270,7 +274,7 @@ invalid_key = ""this is not a valid alias key""
         {
             string configFile = RootPath("does_not_exists_config.toml");
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "contoso";
             subject.ConfigFilePath = null;
 
@@ -291,7 +295,7 @@ invalid_key = ""this is not a valid alias key""
             string configFile = RootPath("invalid.toml");
             this.fileSystem.File.WriteAllText(configFile, InvalidAliasTOML);
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.AliasName = "litware";
             subject.ConfigFilePath = configFile;
 
@@ -305,7 +309,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithoutAliasMissingResource()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.Resource = null;
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
@@ -321,7 +325,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithoutAliasMissingClient()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = null;
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
@@ -337,7 +341,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithoutAliasMissingTenant()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = null;
@@ -353,7 +357,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithoutAliasMissingRequiredOptions()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.Resource = null;
             subject.Client = null;
             subject.Tenant = null;
@@ -374,7 +378,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithOverridedScopes()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.Resource = null;
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
@@ -390,7 +394,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithNormalParameters()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
@@ -405,7 +409,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestEvaluateOptionsWithResourceAndScopes()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
@@ -434,7 +438,7 @@ invalid_key = ""this is not a valid alias key""
                 Scopes = null,
             };
 
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
             subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
             subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
@@ -452,7 +456,7 @@ invalid_key = ""this is not a valid alias key""
         {
             string promptHintOption = "Test Prompt Hint";
 
-            CommandMain.PrefixedPromptHint(promptHintOption)
+            CommandAad.PrefixedPromptHint(promptHintOption)
                 .Should().BeEquivalentTo($"{PromptHintPrefix}: {promptHintOption}");
         }
 
@@ -462,8 +466,8 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void TestPromptHintPrefixWithoutOption()
         {
-            CommandMain.PrefixedPromptHint(null)
-                .Should().BeEquivalentTo(PromptHintPrefix);
+            CommandAad.PrefixedPromptHint(null)
+                            .Should().BeEquivalentTo(PromptHintPrefix);
         }
 
         /// <summary>
@@ -473,7 +477,7 @@ invalid_key = ""this is not a valid alias key""
         public void TestGenerateEvent_FromNullAuthResult()
         {
             AuthFlowResult authFlowResult = null;
-            var subject = this.serviceProvider.GetService<CommandMain>();
+            var subject = this.serviceProvider.GetService<CommandAad>();
 
             // Act
             var eventData = subject.AuthFlowEventData(authFlowResult);
@@ -489,7 +493,7 @@ invalid_key = ""this is not a valid alias key""
         public void TestGenerateEvent_From_AuthFlowResult_With_Null_TokenResult_Null_Errors()
         {
             AuthFlowResult authFlowResult = new AuthFlowResult(null, null, "AuthFlowName");
-            var subject = this.serviceProvider.GetService<CommandMain>();
+            var subject = this.serviceProvider.GetService<CommandAad>();
 
             // Act
             var eventData = subject.AuthFlowEventData(authFlowResult);
@@ -517,7 +521,7 @@ invalid_key = ""this is not a valid alias key""
             };
 
             AuthFlowResult authFlowResult = new AuthFlowResult(null, errors, "AuthFlowName");
-            var subject = this.serviceProvider.GetService<CommandMain>();
+            var subject = this.serviceProvider.GetService<CommandAad>();
 
             // Act
             var eventData = subject.AuthFlowEventData(authFlowResult);
@@ -549,7 +553,7 @@ invalid_key = ""this is not a valid alias key""
             // of events generated have what we expect. This validates we are in fact sending them.
             this.telemetryServiceMock.Setup(s => s.SendEvent("authflow_Sample", It.IsAny<EventData>()));
 
-            var subject = this.serviceProvider.GetService<CommandMain>();
+            var subject = this.serviceProvider.GetService<CommandAad>();
             this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
 
             // mock valid args
@@ -590,7 +594,7 @@ invalid_key = ""this is not a valid alias key""
             var tokenResult = new TokenResult(new JsonWebToken(FakeToken), tokenResultCorrelationID);
 
             AuthFlowResult authFlowResult = new AuthFlowResult(tokenResult, errors, "AuthFlowName");
-            var subject = this.serviceProvider.GetService<CommandMain>();
+            var subject = this.serviceProvider.GetService<CommandAad>();
 
             // Act
             var eventData = subject.AuthFlowEventData(authFlowResult);
@@ -616,7 +620,7 @@ invalid_key = ""this is not a valid alias key""
             var tokenResult = new TokenResult(new JsonWebToken(FakeToken), tokenResultCorrelationID);
 
             AuthFlowResult authFlowResult = new AuthFlowResult(tokenResult, null, "AuthFlowName");
-            var subject = this.serviceProvider.GetService<CommandMain>();
+            var subject = this.serviceProvider.GetService<CommandAad>();
 
             var expectedCorrelationIDs = $"{tokenResultCorrelationID}";
 
@@ -639,7 +643,7 @@ invalid_key = ""this is not a valid alias key""
         [TestCase("", false)]
         public void InteractiveAuth_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
             subject.InteractiveAuthDisabled().Should().Be(expected);
@@ -651,7 +655,7 @@ invalid_key = ""this is not a valid alias key""
         [TestCase("", false)]
         public void InteractiveAuth_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
             subject.InteractiveAuthDisabled().Should().Be(expected);
@@ -660,7 +664,7 @@ invalid_key = ""this is not a valid alias key""
         [Test]
         public void InteractiveAuth_IsEnabledIfEnvVarsAreNotSet()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             subject.InteractiveAuthDisabled().Should().BeFalse();
         }
@@ -669,14 +673,14 @@ invalid_key = ""this is not a valid alias key""
         [TestCase("non-empty-string")]
         public void GetCombinedAuthMode_withInteractiveAuthDisabled(string noUser)
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
             subject.CombinedAuthMode.Should().Be(AuthMode.IWA);
         }
 
         public void GetCombinedAuthMode_withInteractiveAuthEnabled()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             var authModes = new List<AuthMode>();
             authModes.Add(AuthMode.Broker);
             subject.AuthModes = authModes;
@@ -686,7 +690,7 @@ invalid_key = ""this is not a valid alias key""
 
         public void GetCombinedAuthMode_withInteractiveAuthEnabled_NonWindowsPlatform()
         {
-            CommandMain subject = this.serviceProvider.GetService<CommandMain>();
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
             var authModes = new List<AuthMode>();
             authModes.Add(AuthMode.Web);
             subject.AuthModes = authModes;
