@@ -3,7 +3,6 @@
 
 namespace Microsoft.Authentication.AzureAuth.Commands
 {
-    using McMaster.Extensions.CommandLineUtils;
     using System;
     using System.Collections.Generic;
     using System.IO.Abstractions;
@@ -11,8 +10,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Microsoft.Authentication.AzureAuth;
+    using McMaster.Extensions.CommandLineUtils;
 
+    using Microsoft.Authentication.AzureAuth;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
@@ -21,6 +21,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
 
+    /// <summary>
+    /// Command class for authenticating with AAD.
+    /// </summary>
     [Command("aad", Description = "todo")]
     public class CommandAad
     {
@@ -85,7 +88,7 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandAzureAuth"/> class.
+        /// Initializes a new instance of the <see cref="CommandAad"/> class.
         /// </summary>
         /// <param name="eventData">The event data.</param>
         /// <param name="telemetryService">The telemetry service.</param>
@@ -177,7 +180,7 @@ Allowed values: [all, web, devicecode]";
         /// </summary>
         public Alias TokenFetcherOptions
         {
-            get { return authSettings; }
+            get { return this.authSettings; }
         }
 
         /// <summary>
@@ -187,7 +190,7 @@ Allowed values: [all, web, devicecode]";
         {
             get
             {
-                if (InteractiveAuthDisabled())
+                if (this.InteractiveAuthDisabled())
                 {
 #if PlatformWindows
                     return AuthMode.IWA;
@@ -196,7 +199,7 @@ Allowed values: [all, web, devicecode]";
 #endif
                 }
 
-                return AuthModes.Aggregate((a1, a2) => a1 | a2);
+                return this.AuthModes.Aggregate((a1, a2) => a1 | a2);
             }
         }
 
@@ -259,58 +262,58 @@ Allowed values: [all, web, devicecode]";
             // We start with the assumption that we only have command line options.
             Alias evaluatedOptions = new Alias
             {
-                Resource = Resource,
-                Client = Client,
-                Domain = PreferredDomain,
-                Tenant = Tenant,
-                PromptHint = PromptHint,
-                Scopes = Scopes?.ToList(),
+                Resource = this.Resource,
+                Client = this.Client,
+                Domain = this.PreferredDomain,
+                Tenant = this.Tenant,
+                PromptHint = this.PromptHint,
+                Scopes = this.Scopes?.ToList(),
             };
 
             // We only load options from a config file if an alias is given.
-            if (!string.IsNullOrEmpty(AliasName))
+            if (!string.IsNullOrEmpty(this.AliasName))
             {
-                ConfigFilePath = ConfigFilePath ?? env.Get(EnvVars.Config);
-                if (string.IsNullOrEmpty(ConfigFilePath))
+                this.ConfigFilePath = this.ConfigFilePath ?? this.env.Get(EnvVars.Config);
+                if (string.IsNullOrEmpty(this.ConfigFilePath))
                 {
                     // This is a fatal error. We can't load aliases without a config file.
-                    logger.LogError($"The {AliasOption} field was given, but no {ConfigOption} was specified.");
+                    this.logger.LogError($"The {AliasOption} field was given, but no {ConfigOption} was specified.");
                     return false;
                 }
 
-                string fullConfigPath = fileSystem.Path.GetFullPath(ConfigFilePath);
+                string fullConfigPath = this.fileSystem.Path.GetFullPath(this.ConfigFilePath);
 
                 try
                 {
-                    Config config = Config.FromFile(fullConfigPath, fileSystem);
-                    if (config.Alias is null || !config.Alias.ContainsKey(AliasName))
+                    Config config = Config.FromFile(fullConfigPath, this.fileSystem);
+                    if (config.Alias is null || !config.Alias.ContainsKey(this.AliasName))
                     {
                         // This is a fatal error. We can't load a missing alias.
-                        logger.LogError($"Alias '{AliasName}' was not found in {ConfigFilePath}");
+                        this.logger.LogError($"Alias '{this.AliasName}' was not found in {this.ConfigFilePath}");
                         return false;
                     }
 
                     // Load the requested alias and merge it with any command line options.
-                    Alias configFileOptions = config.Alias[AliasName];
+                    Alias configFileOptions = config.Alias[this.AliasName];
                     evaluatedOptions = configFileOptions.Override(evaluatedOptions);
                 }
                 catch (System.IO.FileNotFoundException)
                 {
-                    logger.LogError($"The file '{fullConfigPath}' does not exist.");
+                    this.logger.LogError($"The file '{fullConfigPath}' does not exist.");
                     return false;
                 }
                 catch (Tomlyn.TomlException ex)
                 {
-                    logger.LogError($"Error parsing TOML in config file at '{fullConfigPath}':\n{ex.Message}");
+                    this.logger.LogError($"Error parsing TOML in config file at '{fullConfigPath}':\n{ex.Message}");
                     return false;
                 }
             }
 
             // Set the token fetcher options so they can be used later on.
-            authSettings = evaluatedOptions;
+            this.authSettings = evaluatedOptions;
 
             // Evaluation is a two-part task. Parse, then validate. Validation is complex, so we call a separate helper.
-            return ValidateOptions();
+            return this.ValidateOptions();
         }
 
         /// <summary>
@@ -321,32 +324,32 @@ Allowed values: [all, web, devicecode]";
         /// </returns>
         public int OnExecute()
         {
-            if (!EvaluateOptions())
+            if (!this.EvaluateOptions())
             {
-                eventData.Add("validargs", false);
+                this.eventData.Add("validargs", false);
                 return 1;
             }
 
-            eventData.Add("validargs", true);
-            eventData.Add("settings_client", authSettings.Client);
-            eventData.Add("settings_resource", authSettings.Resource);
-            eventData.Add("settings_tenant", authSettings.Tenant);
-            eventData.Add("settings_prompthint", authSettings.PromptHint);
+            this.eventData.Add("validargs", true);
+            this.eventData.Add("settings_client", this.authSettings.Client);
+            this.eventData.Add("settings_resource", this.authSettings.Resource);
+            this.eventData.Add("settings_tenant", this.authSettings.Tenant);
+            this.eventData.Add("settings_prompthint", this.authSettings.PromptHint);
 
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
-            eventData.Add("settings_scopes", authSettings.Scopes ?? new List<string>());
+            this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            if (InteractiveAuthDisabled())
+            if (this.InteractiveAuthDisabled())
             {
-                eventData.Add(EnvVars.CorextNonInteractive, env.Get(EnvVars.CorextNonInteractive));
-                eventData.Add(EnvVars.NoUser, env.Get(EnvVars.NoUser));
-                logger.LogWarning($"Interactive authentication is disabled.");
+                this.eventData.Add(EnvVars.CorextNonInteractive, this.env.Get(EnvVars.CorextNonInteractive));
+                this.eventData.Add(EnvVars.NoUser, this.env.Get(EnvVars.NoUser));
+                this.logger.LogWarning($"Interactive authentication is disabled.");
 #if PlatformWindows
-                logger.LogWarning($"Supported auth mode is Integrated Windows Authentication");
+                this.logger.LogWarning($"Supported auth mode is Integrated Windows Authentication");
 #endif
             }
 
-            return ClearCache ? ClearLocalCache() : GetToken();
+            return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
         }
 
         /// <summary>
@@ -355,36 +358,36 @@ Allowed values: [all, web, devicecode]";
         /// <returns>A boolean to indicate PCA is disabled.</returns>
         public bool InteractiveAuthDisabled()
         {
-            return !string.IsNullOrEmpty(env.Get(EnvVars.NoUser)) ||
-                string.Equals("1", env.Get(EnvVars.CorextNonInteractive));
+            return !string.IsNullOrEmpty(this.env.Get(EnvVars.NoUser)) ||
+                string.Equals("1", this.env.Get(EnvVars.CorextNonInteractive));
         }
 
         private bool ValidateOptions()
         {
             bool validOptions = true;
 
-            int scopesCount = authSettings.Scopes?.Count ?? 0;
+            int scopesCount = this.authSettings.Scopes?.Count ?? 0;
 
-            if (string.IsNullOrEmpty(authSettings.Resource) && scopesCount == 0)
+            if (string.IsNullOrEmpty(this.authSettings.Resource) && scopesCount == 0)
             {
-                logger.LogError($"The {ResourceOption} field or the {ScopeOption} field is required.");
+                this.logger.LogError($"The {ResourceOption} field or the {ScopeOption} field is required.");
                 validOptions = false;
             }
 
-            if (!string.IsNullOrEmpty(authSettings.Resource) && scopesCount > 0)
+            if (!string.IsNullOrEmpty(this.authSettings.Resource) && scopesCount > 0)
             {
-                logger.LogWarning($"The {ScopeOption} option was provided with the {ResourceOption} option. Only {ScopeOption} will be used.");
+                this.logger.LogWarning($"The {ScopeOption} option was provided with the {ResourceOption} option. Only {ScopeOption} will be used.");
             }
 
-            if (string.IsNullOrEmpty(authSettings.Client))
+            if (string.IsNullOrEmpty(this.authSettings.Client))
             {
-                logger.LogError($"The {ClientOption} field is required.");
+                this.logger.LogError($"The {ClientOption} field is required.");
                 validOptions = false;
             }
 
-            if (string.IsNullOrEmpty(authSettings.Tenant))
+            if (string.IsNullOrEmpty(this.authSettings.Tenant))
             {
-                logger.LogError($"The {TenantOption} field is required.");
+                this.logger.LogError($"The {TenantOption} field is required.");
                 validOptions = false;
             }
 
@@ -393,17 +396,17 @@ Allowed values: [all, web, devicecode]";
 
         private int ClearLocalCache()
         {
-            var pca = PublicClientApplicationBuilder.Create(authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(logger, pca, new List<Exception>(), new Guid(authSettings.Tenant));
+            var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant));
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())
             {
                 var account = accounts.First();
-                logger.LogInformation($"Removing {account.Username} from the cache...");
+                this.logger.LogInformation($"Removing {account.Username} from the cache...");
                 pcaWrapper.RemoveAsync(account).Wait();
                 accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
-                logger.LogInformation("Cleared.");
+                this.logger.LogInformation("Cleared.");
             }
 
             return 0;
@@ -413,14 +416,14 @@ Allowed values: [all, web, devicecode]";
         {
             try
             {
-                AuthFlowExecutor authFlowExecutor = AuthFlowExecutor();
+                AuthFlowExecutor authFlowExecutor = this.AuthFlowExecutor();
                 AuthFlowResult successfulResult = null;
                 AuthFlowResult[] results = null;
 
                 // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
                 // They may prompt many times, which is annoying and unexpected.
                 // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
-                string lockName = $"Local\\{Resource}_{Client}_{Tenant}";
+                string lockName = $"Local\\{this.Resource}_{this.Client}_{this.Tenant}";
 
                 // First parameter InitiallyOwned indicated whether this lock is owned by current thread.
                 // It should be false otherwise a dead lock could occur.
@@ -430,7 +433,7 @@ Allowed values: [all, web, devicecode]";
                     try
                     {
                         // Wait for the other session to exit.
-                        lockAcquired = mutex.WaitOne(promptMutexTimeout);
+                        lockAcquired = mutex.WaitOne(this.promptMutexTimeout);
                     }
 
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
@@ -440,7 +443,7 @@ Allowed values: [all, web, devicecode]";
                         lockAcquired = true;
 
                         // In this case, basicly we can just leave a log warning, because the worst side effect is propmting more than once.
-                        logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
+                        this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
                     }
 
                     if (!lockAcquired)
@@ -460,27 +463,27 @@ Allowed values: [all, web, devicecode]";
                 }
 
                 var errors = results.SelectMany(result => result.Errors).ToArray();
-                eventData.Add("error_count", errors.Length);
-                eventData.Add("authflow_count", results.Length);
+                this.eventData.Add("error_count", errors.Length);
+                this.eventData.Add("authflow_count", results.Length);
 
                 // Send custom telemetry events for each authflow result.
-                SendAuthFlowTelemetryEvents(results);
+                this.SendAuthFlowTelemetryEvents(results);
 
                 if (successfulResult == null)
                 {
-                    logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
+                    this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
                     return 1;
                 }
 
                 var tokenResult = successfulResult.TokenResult;
-                eventData.Add("silent", tokenResult.IsSilent);
-                eventData.Add("sid", tokenResult.SID);
-                eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
+                this.eventData.Add("silent", tokenResult.IsSilent);
+                this.eventData.Add("sid", tokenResult.SID);
+                this.eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
 
-                switch (Output)
+                switch (this.Output)
                 {
                     case OutputMode.Status:
-                        logger.LogSuccess(tokenResult.ToString());
+                        this.logger.LogSuccess(tokenResult.ToString());
                         break;
                     case OutputMode.Token:
                         Console.Write(tokenResult.Token);
@@ -494,8 +497,8 @@ Allowed values: [all, web, devicecode]";
             }
             catch (Exception ex)
             {
-                eventData.Add(ex);
-                logger.LogCritical(ex.Message);
+                this.eventData.Add(ex);
+                this.logger.LogCritical(ex.Message);
                 return 1;
             }
 
@@ -506,10 +509,10 @@ Allowed values: [all, web, devicecode]";
         {
             Parallel.ForEach(results, result =>
             {
-                var eventData = AuthFlowEventData(result);
+                var eventData = this.AuthFlowEventData(result);
                 if (eventData != null)
                 {
-                    telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
+                    this.telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
                 }
             });
         }
@@ -517,35 +520,35 @@ Allowed values: [all, web, devicecode]";
         private AuthFlowExecutor AuthFlowExecutor()
         {
             // TODO: Really we need to get rid of Resource
-            var scopes = Scopes ?? new string[] { $"{authSettings.Resource}/.default" };
+            var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
 
             IEnumerable<IAuthFlow> authFlows = null;
-            if (authFlow != null)
+            if (this.authFlow != null)
             {
                 // if this.authFlow has been injected - use that.
-                authFlows = new[] { authFlow };
+                authFlows = new[] { this.authFlow };
             }
             else
             {
                 // Normal production flow
                 authFlows = AuthFlowFactory.Create(
-                logger,
-                CombinedAuthMode,
-                new Guid(authSettings.Client),
-                new Guid(authSettings.Tenant),
+                this.logger,
+                this.CombinedAuthMode,
+                new Guid(this.authSettings.Client),
+                new Guid(this.authSettings.Tenant),
                 scopes,
-                PreferredDomain,
-                PrefixedPromptHint(authSettings.PromptHint));
+                this.PreferredDomain,
+                PrefixedPromptHint(this.authSettings.PromptHint));
             }
 
-            authFlowExecutor = new AuthFlowExecutor(logger, authFlows, StopwatchTracker());
+            this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());
 
-            return authFlowExecutor;
+            return this.authFlowExecutor;
         }
 
         private IStopwatch StopwatchTracker()
         {
-            return new StopwatchTracker(TimeSpan.FromMinutes(Timeout));
+            return new StopwatchTracker(TimeSpan.FromMinutes(this.Timeout));
         }
     }
 }

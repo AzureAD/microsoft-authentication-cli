@@ -5,17 +5,19 @@ namespace Microsoft.Authentication.AzureAuth.Commands
 {
     using McMaster.Extensions.CommandLineUtils;
 
-    [Command("ado", Description = "todo")]
-    [Subcommand(typeof(Ado.CommandPat), typeof(Ado.CommandToken))]
+    /// <summary>
+    /// Parent command for Azure Devops specific commands.
+    /// </summary>
+    [Command("ado", Description = "A collection of Azure Devops (ADO) specific authentication commands.")]
+    [Subcommand(typeof(Ado.CommandPat))]
+    [Subcommand(typeof(Ado.CommandToken))]
     public class CommandAdo
     {
-        public CommandAdo() { }
-
         /// <summary>
-        /// Execute.
+        /// Execute the command, showing the help text since this is only a parent command. returns 0.
         /// </summary>
-        /// <param name="app">The app insntace of the current command.</param>
-        /// <returns>Exit code</returns>
+        /// <param name="app">The command app insntace.</param>
+        /// <returns>An Exit code of 0 since showingthe help should never fail.</returns>
         public int OnExecute(CommandLineApplication app)
         {
             app.ShowHelp();
