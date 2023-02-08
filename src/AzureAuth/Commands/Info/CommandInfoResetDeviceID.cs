@@ -11,7 +11,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Info
     /// <summary>
     /// The command <see cref="CommandResetDeviceID"/> reset the device ID in local storage.
     /// </summary>
-    [Command(Name = "reset-device-id", Description = "Reset your device identifier.")]
+    [Command(Name = "reset-device-id", Description = "Reset your AzureAuth telemetry device identifier.")]
     public class CommandResetDeviceID
     {
         /// <summary>
@@ -23,7 +23,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Info
         public int OnExecute(ILogger<CommandResetDeviceID> logger, IFileSystem fileSystem)
         {
             TelemetryDeviceID.Delete(fileSystem);
-            logger.LogInformation($"Device ID was reset.");
+            logger.LogSuccess($"Telemetry Device ID was reset.");
 
             return 0;
         }
