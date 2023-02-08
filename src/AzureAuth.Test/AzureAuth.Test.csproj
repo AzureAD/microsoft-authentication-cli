@@ -1,19 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-
   <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
 
     <!-- Stylecop warnings as errors flag for build to fail -->
