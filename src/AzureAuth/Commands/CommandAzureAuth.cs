@@ -11,6 +11,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     [Command(Name = "azureauth", Description = "A CLI interface to MSAL (Microsoft Authentication Library)")]
     [Subcommand(typeof(CommandAad))]
     [Subcommand(typeof(CommandAdo))]
+    [Subcommand(typeof(CommandInfo))]
     public class CommandAzureAuth
     {
         /// <summary>
