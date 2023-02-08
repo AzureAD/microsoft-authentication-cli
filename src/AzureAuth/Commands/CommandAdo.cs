@@ -16,7 +16,8 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// <summary>
         /// Execute the command, showing the help text since this is only a parent command. returns 0.
         /// </summary>
-        /// <param name="app">The command app insntace.</param>
+        /// <param name="app">The command app instance.</param>
+
         /// <returns>An Exit code of 0 since showingthe help should never fail.</returns>
         public int OnExecute(CommandLineApplication app)
         {
