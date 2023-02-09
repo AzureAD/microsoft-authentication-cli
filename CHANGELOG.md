@@ -4,22 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# Unreleased
+## Unreleased
 ### Added
-- Collect environment variables in telemetry distinguishing Azure Pipelines and Cloud Build.
-
-### Added
-- Added On-premises Security Identifier in Telemetry as `sid`.
-- Added Subcommand `info` and its subcommand `reset-device-id` to show or reset the device ID.
+- New telemetry fields for:
+  - environment variables identifying Azure Pipelines and Cloud Build environments.
+  - on-premises security identifier as `sid`.
+    This is only collected on successful authentication attempts.
+- New `aad` command. This command is the future home to what is currently the top-level `azureauth` command. The functionality is duplicated in both commands for backwards compatibility but will be removed from the top-level command in a future release.
+- New `info` commands
+  - `azureauth info` : reports AzureAuth version and a new local randomly generated and cached telemetry device ID.
+  - `azureauth info reset-device-id` : regenerates the cached telemetry device id.
+- New `ado` commands 
+  - `azureauth ado` : Prints the help for Azure Devops commands.
+  - `azureauth ado pat` : Command for creating, and locally caching Azure Devops <abbr title="Personal Access Tokens">PAT</abbr>s.
+  - `azureauth ado token` : Command for passing back a <abbr title="Personal Access Tokens">PAT</abbr> from an env var, or authenticating and returning an <abbr title="Azure Active Directory">AAD</abbr> access token.
 
 ### Changed
-- Upgrade MSAL to 4.47.2 and opt-in native WAM mode.
+- Migrate from single command <abbr title="Command Line Interface">CLI</abbr> to multi-command structure.
+  - Existing `azureauth` command is now replicated as `azureauth aad`.
+- Upgrade MSAL to 4.47.2 and opt-into native WAM mode.
+- Improve error telemetry collection by collecting JSON serialized version of MSAL errors. This now includes inner exceptions from MSAL which previously were missed.
 
 ### Fixed
-- Remove `setx` usage and use `WM_SETTINGCHANGE` in the install script to prevent truncating `$PATH`.
+- Replace `setx` usage with `WM_SETTINGCHANGE` in the Windows install script to prevent truncating `$PATH`.
+- Skip validating cache file logic on Mac, which could cause an unhandled exception when certain Special Folders don't exist for the current user.
 
 ### Removed
-- Removed `--cache` option.
+- Removed the `--cache` option from what is now `azureauth aad`, because cache file sharing is not the recommended way to achieve <abbr title="Single Sign On">SSO</abbr>.
 
 ## [0.6.0] - 2022-10-26
 ### Fixed
