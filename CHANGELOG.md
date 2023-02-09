@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - environment variables identifying Azure Pipelines and Cloud Build environments.
   - on-premises security identifier as `sid`.
     This is only collected on successful authentication attempts.
+- New `aad` command. This command is the future home to what is currently the top-level `azureauth` command. The functionality is duplicated in both commands for backwards compatibility but will be removed from the top-level command in a future release.
 - New `info` commands
   - `azureauth info` : reports AzureAuth version and a new local randomly generated and cached telemetry device ID.
   - `azureauth info reset-device-id` : regenerates the cached telemetry device id.
@@ -19,11 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `azureauth ado token` : Command for passing back a <abbr title="Personal Access Tokens">PAT</abbr> from an env var, or authenticating and returning an <abbr title="Azure Active Directory">AAD</abbr> access token.
 
 ### Changed
-⚠️ This release contains breaking changes!
 - Migrate from single command <abbr title="Command Line Interface">CLI</abbr> to multi-command structure.
-  - Existing `azureauth` command is now `azureauth aad`.
+  - Existing `azureauth` command is now replicated as `azureauth aad`.
 - Upgrade MSAL to 4.47.2 and opt-into native WAM mode.
-- Improve error telemetry collection by collecting JSON serialized version of MSAL errors. This now includes inner exceptions from MSAL which previously were missed. 
+- Improve error telemetry collection by collecting JSON serialized version of MSAL errors. This now includes inner exceptions from MSAL which previously were missed.
 
 ### Fixed
 - Replace `setx` usage with `WM_SETTINGCHANGE` in the Windows install script to prevent truncating `$PATH`.
