@@ -26,7 +26,8 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         public static class Scope
         {
             /// <summary>
-            /// The default scope used for Azure Devops.
+            /// The default scope used for Azure DevOps.
+
             /// </summary>
             public static string AzureDevopsDefault = "499b84ac-1321-427f-aa17-267ca6975798/.default";
         }
