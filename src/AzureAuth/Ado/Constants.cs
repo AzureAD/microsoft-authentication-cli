@@ -4,7 +4,8 @@
 namespace Microsoft.Authentication.AzureAuth.Ado
 {
     /// <summary>
-    /// Azure Devops constant values.
+    /// Azure DevOps constant values.
+
     /// </summary>
     internal static class Constants
     {
