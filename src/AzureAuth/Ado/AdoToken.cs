@@ -19,10 +19,10 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         };
 
         /// <summary>
-        /// Get either an ADO PAT from the environment. If one is not set, then do normal ADO AAD Auth.
+        /// Get an ADO PAT from the environment.
         /// </summary>
         /// <param name="env">The <see cref="IEnv"/> to use for interacting with the environment.</param>
-        /// <returns>A PAT from the env if set, otherwise null.</returns>
+        /// <returns>A <see cref="PatResult"/>.</returns>
         public static PatResult PatFromEnv(IEnv env)
         {
             foreach (var envVar in PatEnvVars)
