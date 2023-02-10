@@ -48,7 +48,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         }
 
         /// <summary>
-        /// The result struct for retrieving a PAT out of the environment.
+        /// The result for retrieving a PAT out of the environment.
         /// </summary>
         public record PatResult
         {
