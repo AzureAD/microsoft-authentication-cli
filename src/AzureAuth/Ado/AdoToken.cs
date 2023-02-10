@@ -3,9 +3,7 @@
 
 namespace Microsoft.Authentication.AzureAuth.Ado
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Microsoft.Office.Lasso.Interfaces;
 
@@ -56,7 +54,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         public record PatResult
         {
             /// <summary>
-            /// Gets a value indicating whether a PAT was found in the env.
+            /// Gets a value indicating whether a PAT was found in the environment.
             /// </summary>
             public bool Exists { get; init; }
 
