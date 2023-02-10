@@ -8,7 +8,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     using Microsoft.Office.Lasso.Interfaces;
 
     /// <summary>
-    /// A class for getting an ADO PAT from an <see cref="IEnv"/> or doing normal AAD Authentication.
+    /// A class for getting an ADO PAT from an <see cref="IEnv"/> or an AAD access token through MSAL.
     /// </summary>
     public static class AdoToken
     {
