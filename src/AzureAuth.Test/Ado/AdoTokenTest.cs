@@ -14,6 +14,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
     public class AdoTokenTest
     {
+        private const string NotARealPat = "<imagine PAT here>";
         private const string SystemAT = "SYSTEM_ACCESSTOKEN";
         private const string AzureAuthADOPAT = "AZUREAUTH_ADO_PAT";
         private Mock<IEnv> mockEnv;
@@ -22,6 +23,12 @@ namespace Microsoft.Authentication.AzureAuth.Test
         public void SetUp()
         {
             this.mockEnv = new Mock<IEnv>(MockBehavior.Strict);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.mockEnv.VerifyAll();
         }
 
         [Test]
@@ -41,7 +48,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
         }
 
         [Test]
-        public void EmptyPAT()
+        public void Empty_PAT()
         {
             this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns(string.Empty);
             this.mockEnv.Setup(e => e.Get(SystemAT)).Returns(string.Empty);
@@ -57,35 +64,36 @@ namespace Microsoft.Authentication.AzureAuth.Test
         }
 
         [Test]
-        public void Returns_First_PAT_From_EnvVar_List()
+        public void AzureAuth_EnvVar_Is_Checked_First()
         {
-            var pat = "some long pat value";
-            this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns(pat);
+            // Note: this.mockEnv is in strict mode and the TearDown method verifies the mock.
+            // This means that by not mocking a response for any other env vars,
+            // we are also asserting that no other env vars are checked.
+            // Meaning AzureAuth's env var always takes priority.
+            this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns(NotARealPat);
 
             AdoToken.PatResult expected = new()
             {
                 Exists = true,
                 EnvVarSource = AzureAuthADOPAT,
-                Value = pat,
+                Value = NotARealPat,
             };
 
             AdoToken.PatFromEnv(this.mockEnv.Object).Should().Be(expected);
         }
 
         [Test]
-        public void Returns_Second_PAT_From_EnvVar_List()
+        public void FallBack_To_SystemAccessToken()
         {
             // Arrange
-            string pat = "some long pat value";
-            this.mockEnv = new Mock<IEnv>(MockBehavior.Strict);
             this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns<string>(default);
-            this.mockEnv.Setup(e => e.Get(SystemAT)).Returns(pat);
+            this.mockEnv.Setup(e => e.Get(SystemAT)).Returns(NotARealPat);
 
             AdoToken.PatResult expected = new()
             {
                 Exists = true,
                 EnvVarSource = SystemAT,
-                Value = pat,
+                Value = NotARealPat,
             };
 
             // Act + Assert.

@@ -1,4 +1,5 @@
 <LUTConfig Version="1.0">
+  <!-- This config file is required by Visual Studio 2022 in order to launch Live Unit Testing (LUT) -->
   <Repository />
   <ParallelBuilds>true</ParallelBuilds>
   <ParallelTestRuns>true</ParallelTestRuns>
