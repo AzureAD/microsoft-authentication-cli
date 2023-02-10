@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
     using NUnit.Framework;
 
-    public class AdoTokenTest
+    internal class AdoTokenTest
     {
         private const string NotARealPat = "<imagine PAT here>";
         private const string SystemAT = "SYSTEM_ACCESSTOKEN";

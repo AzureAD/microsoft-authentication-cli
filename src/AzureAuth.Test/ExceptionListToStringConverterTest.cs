@@ -6,12 +6,16 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using System;
     using System.Collections.Generic;
     using System.Text.Json;
+
     using FluentAssertions;
+
     using Microsoft.Identity.Client;
+
     using NUnit.Framework;
+
     using static Microsoft.Authentication.AzureAuth.ExceptionListToStringConverter;
 
-    public class ExceptionListToStringConverterTest
+    internal class ExceptionListToStringConverterTest
     {
         [Test]
         public void EmptyExceptionList()
@@ -155,7 +159,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
         [Test]
         public void ExceptionList_WithInnerExceptions()
         {
-            List<Exception> exceptionList = new ()
+            List<Exception> exceptionList = new()
             {
                 new Exception("This is the first exception"),
                 new MsalServiceException(
@@ -196,7 +200,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
         [Test]
         public void ExceptionList_WithAggregateAndInnerExceptions()
         {
-            List<Exception> exceptionList = new ()
+            List<Exception> exceptionList = new()
             {
                 new AggregateException(new Exception("Abra ca dabra")),
                 new MsalServiceException(
@@ -242,7 +246,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
         [Test]
         public void ExceptionList_WithInnerExceptionHavingAnotherInnerException()
         {
-            List<Exception> exceptionList = new ()
+            List<Exception> exceptionList = new()
             {
                 new Exception("This is the first exception"),
                 new Exception(
@@ -285,7 +289,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
         [Test]
         public void ExceptionList_WithMSALExceptionsWithErrorCode()
         {
-            List<Exception> exceptions = new ()
+            List<Exception> exceptions = new()
             {
                 new MsalServiceException("1", "This is an MSAL Service exception"),
                 new MsalClientException("2", "This is an MSAL Client exception"),
@@ -332,7 +336,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
             var msalUIRequiredExceptionNoCorrelationId = new MsalUiRequiredException("3", "An MSAL UI Required Exception message without correlation ID");
 
-            List<Exception> exceptions = new ()
+            List<Exception> exceptions = new()
             {
                 msalServiceException,
                 msalUIRequiredException,
