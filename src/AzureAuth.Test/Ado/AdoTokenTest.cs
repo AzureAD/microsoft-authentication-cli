@@ -57,7 +57,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
         }
 
         [Test]
-        public void Returns_First_PAT_Found_From_List()
+        public void Returns_First_PAT_From_EnvVar_List()
         {
             var pat = "some long pat value";
             this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns(pat);
@@ -73,7 +73,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
         }
 
         [Test]
-        public void Returns_Second_PAT_From_EnvVar()
+        public void Returns_Second_PAT_From_EnvVar_List()
         {
             // Arrange
             string pat = "some long pat value";
