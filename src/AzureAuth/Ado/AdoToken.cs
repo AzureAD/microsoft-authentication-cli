@@ -15,7 +15,11 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     /// </summary>
     public static class AdoToken
     {
-        private static readonly IEnumerable<string> PatEnvVars = new[] { "SYSTEM_ACCESSTOKEN" };
+        private static readonly IEnumerable<string> PatEnvVars = new[]
+        {
+            EnvVars.AdoPat,
+            EnvVars.SystemAccessToken,
+        };
 
         /// <summary>
         /// Get either an ADO PAT from the environment. If one is not set, then do normal ADO AAD Auth.
@@ -24,13 +28,25 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <returns>A PAT from the env if set, otherwise null.</returns>
         public static PatResult PatFromEnv(IEnv env)
         {
-            string pat = env.Get(PatEnvVars.First());
-            var exists = !string.IsNullOrEmpty(pat);
+            foreach (var envVar in PatEnvVars)
+            {
+                var pat = env.Get(envVar);
+                var exists = !string.IsNullOrEmpty(pat);
+
+                if (exists)
+                {
+                    return new ()
+                    {
+                        Exists = exists,
+                        Value = pat,
+                        EnvVarSource = envVar,
+                    };
+                }
+            }
+
             return new ()
             {
-                Exists = exists,
-                Value = exists ? pat : default,
-                EnvVarSource = exists ? PatEnvVars.First() : default,
+                Exists = false,
             };
         }
 
