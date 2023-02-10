@@ -10,6 +10,7 @@
 
     <!-- Stylecop warnings as errors flag for build to fail -->
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <PackageId>Microsoft.Authentication.AzureAuth.Test</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,10 +36,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AzureAuth\AzureAuth.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Commands\" />
   </ItemGroup>
 
 </Project>
