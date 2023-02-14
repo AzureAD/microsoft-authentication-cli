@@ -47,6 +47,13 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: csharp
+
     - name: Setup .NET 6
       uses: actions/setup-dotnet@v1
       with:
@@ -57,6 +64,10 @@ jobs:
         ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Test
       run: dotnet test --no-restore --configuration release
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
     - name: Build artifacts
       run: dotnet publish src/AzureAuth/AzureAuth.csproj -p:Version=${{ github.event.inputs.version }} --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}
       env:
