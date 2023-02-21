@@ -2,4 +2,4 @@
 :: Licensed under the MIT License.
 
 @ECHO OFF
-CALL dotnet run --project src\AzureAuth -- %* --debug
+CALL %~dp0\dotnet.cmd run --project %~dp0\..\src\AzureAuth -- %* --debug
