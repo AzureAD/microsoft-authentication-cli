@@ -56,6 +56,8 @@ jobs:
         NUGET_AUTH_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Install dependencies
       run: dotnet restore --runtime ${{ matrix.runtime }}
+      env:
+          NUGET_AUTH_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Test
       run: dotnet test --no-restore --configuration release
     - name: Build artifacts
