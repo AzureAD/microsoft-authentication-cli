@@ -8,14 +8,14 @@ namespace Microsoft.Authentication.AzureAuth.Test
     using System.IO.Abstractions;
     using System.IO.Abstractions.TestingHelpers;
     using System.Runtime.InteropServices;
+
     using FluentAssertions;
+
     using NUnit.Framework;
+
     using Tomlyn;
 
-    /// <summary>
-    /// The config test.
-    /// </summary>
-    public class ConfigTest
+    internal class ConfigTest
     {
         private const string InvalidTOML = @"[invalid TOML"; // Note the missing closing square bracket here.
         private const string CompleteAliasTOML = @"

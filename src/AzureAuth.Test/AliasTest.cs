@@ -4,13 +4,12 @@
 namespace Microsoft.Authentication.AzureAuth.Test
 {
     using System.Collections.Generic;
+
     using FluentAssertions;
+
     using NUnit.Framework;
 
-    /// <summary>
-    /// The alias test.
-    /// </summary>
-    public class AliasTest
+    internal class AliasTest
     {
         private Alias alias;
         private Alias other;
