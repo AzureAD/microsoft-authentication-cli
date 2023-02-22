@@ -9,6 +9,17 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     internal static class Constants
     {
         /// <summary>
+        /// Azure tenant IDs.
+        /// </summary>
+        public static class Tenant
+        {
+            /// <summary>
+            /// Microsoft tenant ID.
+            /// </summary>
+            public static string Msft = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+        }
+
+        /// <summary>
         /// App Registration Client IDs.
         /// </summary>
         public static class Client
