@@ -20,9 +20,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 6.0.x
-          source-url: https://office.pkgs.visualstudio.com/DefaultCollection/_packaging/Office/nuget/v3/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.ADO_TOKEN }}
 
       - name: Restore dependencies
         run: dotnet restore
