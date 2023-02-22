@@ -27,7 +27,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.ADO_TOKEN }}
+          ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
 
       - name: Build
         run: dotnet build --no-restore
