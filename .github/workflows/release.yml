@@ -58,7 +58,9 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --configuration release
     - name: Build artifacts
-      run: dotnet publish src/AzureAuth/AzureAuth.csproj --no-restore -p:Version=${{ github.event.inputs.version }} --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}
+      run: dotnet publish src/AzureAuth/AzureAuth.csproj -p:Version=${{ github.event.inputs.version }} --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}
+      env:
+        ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
