@@ -265,19 +265,12 @@ def main() -> None:
     try:
         aad_id = os.environ["SIGNING_AAD_ID"]
         tenant_id = os.environ["SIGNING_TENANT_ID"]
-        # This key code is used for signing .exes and .dlls on both Windows and Mac.
-        key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
-        # This key code is used for signing .dylibs on Macs.
-        key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
-        # This key code is used for signing .deb on Linux.
-        key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
         customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
 
-    key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac, "linux": key_code_linux}
     esrp_path = args.esrp_client.resolve()
     source_path = args.source.resolve()
     auth_path = Path("auth.json").resolve()
@@ -288,18 +281,29 @@ def main() -> None:
     # 3. Determine runtime & create a batchmaker.
     match args.runtime.lower():
         case "win10-x64":
+            # This key code is used for signing .exes and .dlls on both Windows and Mac.
+            key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
+            key_codes = {"authenticode": key_code_authenticode}
             batchmaker = windows_batches(
                 source=source_path,
                 key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
             )
         case "osx-x64" | "osx-arm64":
+            # This key code is used for signing .exes and .dlls on both Windows and Mac.
+            key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
+            # This key code is used for signing .dylibs on Macs.
+            key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
+            key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac}
             batchmaker = osx_batches(
                 source=source_path,
                 key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
             )
         case "linux-x64":
+            # This key code is used for signing .deb on Linux.
+            key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
+            key_codes = {"linux": key_code_linux}
             batchmaker = linux_batches(
                 source=source_path,
                 key_codes=key_codes,
