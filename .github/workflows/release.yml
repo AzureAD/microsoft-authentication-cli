@@ -122,6 +122,7 @@ jobs:
           SIGNING_TENANT_ID: ${{ secrets.SIGNING_TENANT_ID }}
           SIGNING_KEY_CODE_AUTHENTICODE: ${{ secrets.SIGNING_KEY_CODE_AUTHENTICODE }}
           SIGNING_KEY_CODE_MAC: ${{ secrets.SIGNING_KEY_CODE_MAC }}
+          SIGNING_KEY_CODE_LINUX: ${{ secrets.SIGNING_KEY_CODE_LINUX }}
           SIGNING_CUSTOMER_CORRELATION_ID: ${{ secrets.SIGNING_CUSTOMER_CORRELATION_ID }}
           ESRP_CLIENT_EXE: ".\\esrp\\Microsoft.EsrpClient.${{ secrets.ESRP_VERSION }}\\tools\\EsrpClient.exe"
         run: python .\bin\sign.py "$env:ESRP_CLIENT_EXE" --runtime=${{ matrix.runtime }} --source=azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
