@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Replace `setx` usage with `WM_SETTINGCHANGE` in the Windows install script to prevent truncating `$PATH`.
 - Skip validating cache file logic on Mac, which could cause an unhandled exception when certain Special Folders don't exist for the current user.
+- Updated Lasso, fixing an issue where callers shelling out to AzureAuth were blocked on the asynchronous telemetry child processes.
 
 ### Removed
 - Removed the `--cache` option from what is now `azureauth aad`, because cache file sharing is not the recommended way to achieve <abbr title="Single Sign On">SSO</abbr>.
