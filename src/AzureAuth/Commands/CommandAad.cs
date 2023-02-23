@@ -28,22 +28,22 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     public class CommandAad
     {
         /// <summary>
-        /// The option syntax for the Domain option.
+        /// The Domain option.
         /// </summary>
         public const string DomainOption = "--domain";
 
         /// <summary>
-        /// The option syntax for the Tenant option.
+        /// The Tenant option.
         /// </summary>
         public const string TenantOption = "--tenant";
 
         /// <summary>
-        /// The option syntax for the Timeout option.
+        /// The Timeout option.
         /// </summary>
         public const string TimeoutOption = "--timeout";
 
         /// <summary>
-        /// The option syntax for the Mode option.
+        /// The Mode option.
         /// </summary>
         public const string ModeOption = "--mode";
 
