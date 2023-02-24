@@ -15,6 +15,8 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Info
     [Command(Name = "reset-device-id", Description = "Reset your AzureAuth telemetry device identifier.")]
     public class CommandResetDeviceID
     {
+        private const string ApplicationName = "azureauth";
+
         /// <summary>
         /// This method executes the reset device ID process.
         /// </summary>
@@ -23,7 +25,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Info
         /// <returns>The error code: 0 is normal execution, and the rest means errors during execution.</returns>
         public int OnExecute(ILogger<CommandResetDeviceID> logger, IFileSystem fileSystem)
         {
-            TelemetryDeviceID.Delete(fileSystem);
+            TelemetryDeviceID.Delete(fileSystem, ApplicationName);
             logger.LogSuccess($"Telemetry Device ID was reset.");
 
             return 0;
