@@ -226,6 +226,37 @@ def json_tempfile(path: Path, data: JSON) -> Generator[None, None, None]:
     path.unlink()
 
 
+def parse_env_vars(runtime: str):
+    """Parse and return environment variables"""
+    try:
+        aad_id = os.environ["SIGNING_AAD_ID"]
+        tenant_id = os.environ["SIGNING_TENANT_ID"]
+        customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
+        match runtime:
+            case "win10-x64":
+                # This key code is used for signing .exes and .dlls on both Windows and Mac.
+                key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
+                key_codes = {"authenticode": key_code_authenticode}
+            case "osx-x64" | "osx-arm64":
+                # This key code is used for signing .exes and .dlls on both Windows and Mac.
+                key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
+                # This key code is used for signing .dylibs on Macs.
+                key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
+                key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac}
+            case "linux-x64":
+                # This key code is used for signing .deb on Linux.
+                key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
+                key_codes = {"linux": key_code_linux}
+            case _:
+                # This should be unreachable because of argparse, but let's be safe.
+                raise Exception(f"Error: Invalid runtime: {args.runtime}")
+        return aad_id, tenant_id, customer_correlation_id, key_codes
+    except KeyError as exc:
+        # See https://stackoverflow.com/a/24999035/3288364.
+        name = str(exc).replace("'", "")
+        raise KeyError(f"Error: missing env var: {name}")
+
+
 def parse_args() -> Namespace:
     """Parse and return command line arguments."""
     cwd = Path.cwd()
@@ -260,16 +291,10 @@ def main() -> None:
     """Determine target runtime, generate inputs, and run ESRPClient.exe."""
     # 1. Parse command line arguments.
     args = parse_args()
+    runtime = args.runtime.lower()
 
     # 2. Read env vars.
-    try:
-        aad_id = os.environ["SIGNING_AAD_ID"]
-        tenant_id = os.environ["SIGNING_TENANT_ID"]
-        customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
-    except KeyError as exc:
-        # See https://stackoverflow.com/a/24999035/3288364.
-        name = str(exc).replace("'", "")
-        sys.exit(f"Error: missing env var: {name}")
+    aad_id, tenant_id, customer_correlation_id, key_codes = parse_env_vars(runtime)
 
     esrp_path = args.esrp_client.resolve()
     source_path = args.source.resolve()
@@ -279,31 +304,20 @@ def main() -> None:
     output_path = Path("output.json").resolve()
 
     # 3. Determine runtime & create a batchmaker.
-    match args.runtime.lower():
+    match runtime:
         case "win10-x64":
-            # This key code is used for signing .exes and .dlls on both Windows and Mac.
-            key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
-            key_codes = {"authenticode": key_code_authenticode}
             batchmaker = windows_batches(
                 source=source_path,
                 key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
             )
         case "osx-x64" | "osx-arm64":
-            # This key code is used for signing .exes and .dlls on both Windows and Mac.
-            key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
-            # This key code is used for signing .dylibs on Macs.
-            key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
-            key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac}
             batchmaker = osx_batches(
                 source=source_path,
                 key_codes=key_codes,
                 customer_correlation_id=customer_correlation_id,
             )
         case "linux-x64":
-            # This key code is used for signing .deb on Linux.
-            key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
-            key_codes = {"linux": key_code_linux}
             batchmaker = linux_batches(
                 source=source_path,
                 key_codes=key_codes,
