@@ -247,9 +247,7 @@ def parse_env_vars(runtime: str):
                 # This key code is used for signing .deb on Linux.
                 key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
                 key_codes = {"linux": key_code_linux}
-            case _:
-                # This should be unreachable because of argparse, but let's be safe.
-                raise Exception(f"Error: Invalid runtime: {args.runtime}")
+                
         return aad_id, tenant_id, customer_correlation_id, key_codes
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
