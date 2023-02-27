@@ -226,35 +226,6 @@ def json_tempfile(path: Path, data: JSON) -> Generator[None, None, None]:
     path.unlink()
 
 
-def parse_env_vars(runtime: str):
-    """Parse and return environment variables"""
-    try:
-        aad_id = os.environ["SIGNING_AAD_ID"]
-        tenant_id = os.environ["SIGNING_TENANT_ID"]
-        customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
-        match runtime:
-            case "win10-x64":
-                # This key code is used for signing .exes and .dlls on both Windows and Mac.
-                key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
-                key_codes = {"authenticode": key_code_authenticode}
-            case "osx-x64" | "osx-arm64":
-                # This key code is used for signing .exes and .dlls on both Windows and Mac.
-                key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
-                # This key code is used for signing .dylibs on Macs.
-                key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
-                key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac}
-            case "linux-x64":
-                # This key code is used for signing .deb on Linux.
-                key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
-                key_codes = {"linux": key_code_linux}
-                
-        return aad_id, tenant_id, customer_correlation_id, key_codes
-    except KeyError as exc:
-        # See https://stackoverflow.com/a/24999035/3288364.
-        name = str(exc).replace("'", "")
-        raise KeyError(f"Error: missing env var: {name}")
-
-
 def parse_args() -> Namespace:
     """Parse and return command line arguments."""
     cwd = Path.cwd()
@@ -289,11 +260,24 @@ def main() -> None:
     """Determine target runtime, generate inputs, and run ESRPClient.exe."""
     # 1. Parse command line arguments.
     args = parse_args()
-    runtime = args.runtime.lower()
 
     # 2. Read env vars.
-    aad_id, tenant_id, customer_correlation_id, key_codes = parse_env_vars(runtime)
+    try:
+        aad_id = os.environ["SIGNING_AAD_ID"]
+        tenant_id = os.environ["SIGNING_TENANT_ID"]
+        # This key code is used for signing .exes and .dlls on both Windows and Mac.
+        key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
+        # This key code is used for signing .dylibs on Macs.
+        key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
+        # This key code is used for signing .deb on Linux.
+        key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
+        customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
+    except KeyError as exc:
+        # See https://stackoverflow.com/a/24999035/3288364.
+        name = str(exc).replace("'", "")
+        sys.exit(f"Error: missing env var: {name}")
 
+    key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac, "linux": key_code_linux}
     esrp_path = args.esrp_client.resolve()
     source_path = args.source.resolve()
     auth_path = Path("auth.json").resolve()
@@ -302,7 +286,7 @@ def main() -> None:
     output_path = Path("output.json").resolve()
 
     # 3. Determine runtime & create a batchmaker.
-    match runtime:
+    match args.runtime.lower():
         case "win10-x64":
             batchmaker = windows_batches(
                 source=source_path,
@@ -356,7 +340,7 @@ def main() -> None:
         stack.enter_context(json_tempfile(input_path, batches))
 
         # Run ESRPClient.exe.
-        subprocess.run(esrp_args)
+        subprocess.run(esrp_args, check=True)
 
 
 if __name__ == "__main__":
