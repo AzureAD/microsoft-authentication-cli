@@ -145,7 +145,6 @@ jobs:
         ADO_PROJECT: ${{ secrets.ADO_PROJECT}}
         ADO_AZUREAUTH_LINUX_PIPELINE_ID: ${{ secrets.ADO_AZUREAUTH_LINUX_PIPELINE_ID }}
         VERSION: ${{ github.event.inputs.version }}
-    
         
   # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
   package:
