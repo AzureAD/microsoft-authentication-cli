@@ -36,7 +36,7 @@ namespace Microsoft.Authentication.AdoPat
         }
 
         /// <inheritdoc/>
-        public async Task<PatToken> CreatePatAsync(
+        public async Task<PatToken> CreateAsync(
             PatTokenCreateRequest patTokenCreateRequest,
             CancellationToken cancellationToken = default)
         {
@@ -54,7 +54,7 @@ namespace Microsoft.Authentication.AdoPat
         }
 
         /// <inheritdoc/>
-        public async Task<IDictionary<Guid, PatToken>> GetActivePatsAsync(CancellationToken cancellationToken = default)
+        public async Task<IDictionary<Guid, PatToken>> ListActiveAsync(CancellationToken cancellationToken = default)
         {
             // Initialize a PagedPatTokens so that we can use the continuation token
             // in the scope of the conditional of the do while loop below. Azure
@@ -82,7 +82,7 @@ namespace Microsoft.Authentication.AdoPat
         }
 
         /// <inheritdoc/>
-        public async Task<PatToken> RegeneratePatAsync(
+        public async Task<PatToken> RegenerateAsync(
             PatToken patToken,
             DateTime validTo,
             CancellationToken cancellationToken = default)
@@ -108,7 +108,7 @@ namespace Microsoft.Authentication.AdoPat
                 AllOrgs = AllOrgs,
             };
 
-            var renewedPatToken = await this.CreatePatAsync(
+            var renewedPatToken = await this.CreateAsync(
                 patTokenCreateRequest,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);

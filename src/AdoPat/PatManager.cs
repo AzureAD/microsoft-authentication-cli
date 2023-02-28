@@ -59,13 +59,13 @@ namespace Microsoft.Authentication.AdoPat
                     ValidTo = this.now().AddDays(ValidToExtensionDays),
                     AllOrgs = default,
                 };
-                pat = await this.client.CreatePatAsync(patTokencreateRequest, cancellationToken).ConfigureAwait(false);
+                pat = await this.client.CreateAsync(patTokencreateRequest, cancellationToken).ConfigureAwait(false);
                 writeBack = true;
             }
 
             if (this.ExpiringSoon(pat))
             {
-                pat = await this.client.RegeneratePatAsync(
+                pat = await this.client.RegenerateAsync(
                     pat,
                     this.now().AddDays(ValidToExtensionDays),
                     cancellationToken)
@@ -84,7 +84,7 @@ namespace Microsoft.Authentication.AdoPat
         // Whether the given PAT is still considered active by Azure DevOps.
         private async Task<bool> Inactive(PatToken pat, CancellationToken cancellationToken = default)
         {
-            var activePats = await this.client.GetActivePatsAsync(cancellationToken).ConfigureAwait(false);
+            var activePats = await this.client.ListActiveAsync(cancellationToken).ConfigureAwait(false);
             return !activePats.ContainsKey(pat.AuthorizationId);
         }
 

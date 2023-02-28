@@ -90,7 +90,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             this.cache.Setup(c => c.Get(It.IsAny<string>())).Returns(expectedPat);
 
             // The client needs to be injected into the manager, but should be unused.
-            this.client.Setup(c => c.GetActivePatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
+            this.client.Setup(c => c.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
 
             var manager = new PatManager(
                 this.cache.Object,
@@ -116,7 +116,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             this.cache.Setup(c => c.Put(expectedKey, expectedPat));
 
             // The client will return a new PatToken upon creation request.
-            this.client.Setup(c => c.CreatePatAsync(
+            this.client.Setup(c => c.CreateAsync(
                 It.IsAny<PatTokenCreateRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedPat);
@@ -154,8 +154,8 @@ namespace Microsoft.Authentication.AdoPat.Test
             this.cache.Setup(c => c.Put(expectedKey, expectedPat));
 
             // The client will return a new PatToken upon creation request.
-            this.client.Setup(c => c.GetActivePatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
-            this.client.Setup(c => c.RegeneratePatAsync(
+            this.client.Setup(c => c.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
+            this.client.Setup(c => c.RegenerateAsync(
                 It.IsAny<PatToken>(),
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
@@ -191,8 +191,8 @@ namespace Microsoft.Authentication.AdoPat.Test
             this.cache.Setup(c => c.Put(expectedKey, expectedPat));
 
             // The client will return a new PatToken upon creation request.
-            this.client.Setup(c => c.GetActivePatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
-            this.client.Setup(c => c.CreatePatAsync(
+            this.client.Setup(c => c.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
+            this.client.Setup(c => c.CreateAsync(
                 It.IsAny<PatTokenCreateRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedPat);

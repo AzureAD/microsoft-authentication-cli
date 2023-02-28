@@ -20,14 +20,14 @@ namespace Microsoft.Authentication.AdoPat
         /// <param name="patTokenCreateRequest">The PAT creation request.</param>
         /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>A <see cref="Task"/> returning a <see cref="PatTokenResult"/>.</returns>
-        Task<PatToken> CreatePatAsync(PatTokenCreateRequest patTokenCreateRequest, CancellationToken cancellationToken = default);
+        Task<PatToken> CreateAsync(PatTokenCreateRequest patTokenCreateRequest, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets all active PATs.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>A mapping of authorization ID to active PATs.</returns>
-        Task<IDictionary<Guid, PatToken>> GetActivePatsAsync(CancellationToken cancellationToken = default);
+        Task<IDictionary<Guid, PatToken>> ListActiveAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Creates a new PAT with a new 'valid to' date by replicating an existing one.
@@ -36,6 +36,6 @@ namespace Microsoft.Authentication.AdoPat
         /// <param name="validTo">The new expiration date for the regenerated token.</param>
         /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>A <see cref="Task"/> returning a <see cref="PatToken"/>.</returns>
-        Task<PatToken> RegeneratePatAsync(PatToken patToken, DateTime validTo, CancellationToken cancellationToken = default);
+        Task<PatToken> RegenerateAsync(PatToken patToken, DateTime validTo, CancellationToken cancellationToken = default);
     }
 }

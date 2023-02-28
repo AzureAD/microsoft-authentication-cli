@@ -64,7 +64,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var renewedPatToken = await patClient.CreatePatAsync(patTokenCreateRequest);
+            var renewedPatToken = await patClient.CreateAsync(patTokenCreateRequest);
 
             // Assert
             renewedPatToken.Should().BeEquivalentTo(patToken);
@@ -91,7 +91,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var activePats = await patClient.GetActivePatsAsync();
+            var activePats = await patClient.ListActiveAsync();
 
             // Assert
             activePats.Should().BeEquivalentTo(expectedTokens);
@@ -122,7 +122,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var activePats = await patClient.GetActivePatsAsync();
+            var activePats = await patClient.ListActiveAsync();
 
             // Assert
             activePats.Should().BeEquivalentTo(expectedTokens);
@@ -170,7 +170,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var regeneratedPat = await patClient.RegeneratePatAsync(patToken, regeneratedValidTo);
+            var regeneratedPat = await patClient.RegenerateAsync(patToken, regeneratedValidTo);
 
             // Assert
             client.VerifyAll();
@@ -210,7 +210,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            Func<Task> act = () => patClient.RegeneratePatAsync(patToken, regeneratedValidTo);
+            Func<Task> act = () => patClient.RegenerateAsync(patToken, regeneratedValidTo);
 
             // Assert
             await act.Should().ThrowAsync<PatClientException>()
