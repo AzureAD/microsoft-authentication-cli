@@ -36,8 +36,7 @@ namespace Microsoft.Authentication.AdoPat
         /// <inheritdoc/>
         public PatToken GetPat(string key)
         {
-            PatToken token = null;
-            this.cache.Value.TryGetValue(key, out token);
+            this.cache.Value.TryGetValue(key, out PatToken token);
             return token;
         }
 
