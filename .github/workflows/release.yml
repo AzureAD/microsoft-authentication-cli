@@ -138,7 +138,9 @@ jobs:
     needs: [validate]
     steps:
     - name: Build, Sign and Publish Linux binaries
-      run: python ./bin/trigger_azure_pipelines.py
+      run: |
+        pip install -r ./bin/requirements.txt
+        python ./bin/trigger_azure_pipelines.py
       env:
         AZURE_DEVOPS_BUILD_PAT: ${{ secrets.AZURE_DEVOPS_BUILD_PAT }}
         ADO_ORGANIZATION: ${{ secrets.ADO_ORGANIZATION }}

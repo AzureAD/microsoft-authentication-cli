@@ -57,7 +57,7 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     # run pipeline API: https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/run-pipeline?view=azure-devops-rest-6.0 
     # queue build API: https://learn.microsoft.com/en-us/rest/api/azure/devops/build/builds/queue?view=azure-devops-rest-6.0
 
-    run_parameters = {"templateParameters": {"version": version, "commit_hash": commit_hash}}
+    run_parameters = {"templateParameters": {"upstream_version": version, "commit_hash": commit_hash}}
     pipeline_status = pipeline_client.run_pipeline(run_parameters, project, pipeline_id)
     pipeline_url = f"https://dev.azure.com/{organization}/{project}/_build/results?buildId={pipeline_status.id}&view=results"
     print(
