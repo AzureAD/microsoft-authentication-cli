@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Microsoft.Authentication.AdoPat
 {
     /// <summary>
@@ -30,14 +33,9 @@ namespace Microsoft.Authentication.AdoPat
         /// <returns>The string representation of these PAT options.</returns>
         public override string ToString()
         {
-            string output = $"{this.Organization} {this.DisplayName}";
-
-            foreach (var scope in this.Scopes)
-            {
-                output += $" {scope.ToString()}";
-            }
-
-            return output;
+            var strings = new List<string> { this.Organization, this.DisplayName };
+            strings.AddRange(this.Scopes);
+            return string.Join(" ", strings);
         }
     }
 }
