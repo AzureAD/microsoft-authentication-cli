@@ -76,7 +76,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// The help text for the <see cref="DomainOption"/> option.
         /// </summary>
-        public const string DomainHelpText = "Preferred domain to filter cached accounts by.If a single account matching the preferred domain is in the cache it is used, otherwise an account picker will be launched.\n";
+        public const string DomainHelpText = "Preferred domain to filter cached accounts by. If a single account matching the preferred domain is in the cache it is used, otherwise an account picker will be launched.\n";
 
         /// <summary>
         /// The help text for the <see cref="TimeoutOption"/> option.
