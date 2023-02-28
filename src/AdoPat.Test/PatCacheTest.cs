@@ -19,9 +19,6 @@ namespace Microsoft.Authentication.AdoPat.Test
         // This is a test token. A real value would be a much longer string.
         private const string Token = "Test Token";
 
-        // The Unix Epoch is used as an obviously fake test time which occurs in the past and cannot accidentally be valid.
-        private readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
         // This list of accounts uses dummy data, not real accounts.
         private readonly List<Guid> targetAccounts = new List<Guid> { new Guid("b7b59161-cd70-46e9-aca5-883f24060eb1") };
 
@@ -75,8 +72,8 @@ namespace Microsoft.Authentication.AdoPat.Test
                 DisplayName = DisplayName,
                 Scope = Scope,
                 TargetAccounts = this.targetAccounts,
-                ValidTo = this.unixEpoch.AddDays(-7),
-                ValidFrom = this.unixEpoch,
+                ValidTo = DateTime.UnixEpoch.AddDays(-7),
+                ValidFrom = DateTime.UnixEpoch,
                 AuthorizationId = this.authorizationId,
                 Token = Token,
             };
@@ -105,8 +102,8 @@ namespace Microsoft.Authentication.AdoPat.Test
                 DisplayName = DisplayName,
                 Scope = Scope,
                 TargetAccounts = this.targetAccounts,
-                ValidTo = this.unixEpoch.AddDays(-7),
-                ValidFrom = this.unixEpoch,
+                ValidTo = DateTime.UnixEpoch.AddDays(-7),
+                ValidFrom = DateTime.UnixEpoch,
                 AuthorizationId = this.authorizationId,
                 Token = Token,
             };
@@ -138,8 +135,8 @@ namespace Microsoft.Authentication.AdoPat.Test
                 DisplayName = DisplayName,
                 Scope = Scope,
                 TargetAccounts = this.targetAccounts,
-                ValidTo = this.unixEpoch.AddDays(-7),
-                ValidFrom = this.unixEpoch,
+                ValidTo = DateTime.UnixEpoch.AddDays(-7),
+                ValidFrom = DateTime.UnixEpoch,
                 AuthorizationId = this.authorizationId,
                 Token = Token,
             };
@@ -172,8 +169,8 @@ namespace Microsoft.Authentication.AdoPat.Test
                 DisplayName = DisplayName,
                 Scope = Scope,
                 TargetAccounts = this.targetAccounts,
-                ValidTo = this.unixEpoch.AddDays(-7),
-                ValidFrom = this.unixEpoch,
+                ValidTo = DateTime.UnixEpoch.AddDays(-7),
+                ValidFrom = DateTime.UnixEpoch,
                 AuthorizationId = this.authorizationId,
                 Token = Token,
             };
@@ -213,8 +210,8 @@ namespace Microsoft.Authentication.AdoPat.Test
                 DisplayName = DisplayName,
                 Scope = Scope,
                 TargetAccounts = this.targetAccounts,
-                ValidTo = this.unixEpoch.AddDays(-7),
-                ValidFrom = this.unixEpoch,
+                ValidTo = DateTime.UnixEpoch.AddDays(-7),
+                ValidFrom = DateTime.UnixEpoch,
                 AuthorizationId = this.authorizationId,
                 Token = Token,
             };
