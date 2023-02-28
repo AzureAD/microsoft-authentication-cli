@@ -90,7 +90,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             };
 
             // The cache should contain our target PAT.
-            this.cache.Setup(c => c.GetPat(It.IsAny<string>())).Returns(expectedPat);
+            this.cache.Setup(c => c.Get(It.IsAny<string>())).Returns(expectedPat);
 
             // The client needs to be injected into the manager, but should be unused.
             this.client.Setup(c => c.GetActivePatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
@@ -115,8 +115,8 @@ namespace Microsoft.Authentication.AdoPat.Test
             var expectedPat = this.PatToken();
 
             // The cache is empty and therefore returns `null` for any key.
-            this.cache.Setup(c => c.GetPat(It.IsAny<string>())).Returns<PatToken>(null);
-            this.cache.Setup(c => c.PutPat(expectedKey, expectedPat));
+            this.cache.Setup(c => c.Get(It.IsAny<string>())).Returns<PatToken>(null);
+            this.cache.Setup(c => c.Put(expectedKey, expectedPat));
 
             // The client will return a new PatToken upon creation request.
             this.client.Setup(c => c.CreatePatAsync(
@@ -153,8 +153,8 @@ namespace Microsoft.Authentication.AdoPat.Test
             };
 
             // The PAT is found within the cache, but it has expired.
-            this.cache.Setup(c => c.GetPat(It.IsAny<string>())).Returns(expiringPat);
-            this.cache.Setup(c => c.PutPat(expectedKey, expectedPat));
+            this.cache.Setup(c => c.Get(It.IsAny<string>())).Returns(expiringPat);
+            this.cache.Setup(c => c.Put(expectedKey, expectedPat));
 
             // The client will return a new PatToken upon creation request.
             this.client.Setup(c => c.GetActivePatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
@@ -190,8 +190,8 @@ namespace Microsoft.Authentication.AdoPat.Test
             var activePats = new Dictionary<Guid, PatToken> { };
 
             // The cache is empty and therefore returns `null` for any key.
-            this.cache.Setup(c => c.GetPat(It.IsAny<string>())).Returns(inactivePat);
-            this.cache.Setup(c => c.PutPat(expectedKey, expectedPat));
+            this.cache.Setup(c => c.Get(It.IsAny<string>())).Returns(inactivePat);
+            this.cache.Setup(c => c.Put(expectedKey, expectedPat));
 
             // The client will return a new PatToken upon creation request.
             this.client.Setup(c => c.GetActivePatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);

@@ -37,14 +37,14 @@ namespace Microsoft.Authentication.AdoPat
         }
 
         /// <inheritdoc/>
-        public PatToken GetPat(string key)
+        public PatToken Get(string key)
         {
             this.cache.Value.TryGetValue(key, out PatToken token);
             return token;
         }
 
         /// <inheritdoc/>
-        public void PutPat(string key, PatToken patToken)
+        public void Put(string key, PatToken patToken)
         {
             // Insert or overwrite the key with the given PatToken. Skip
             // intermediate string serialization by serializing directly to

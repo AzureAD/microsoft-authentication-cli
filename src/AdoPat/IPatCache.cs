@@ -15,13 +15,13 @@ namespace Microsoft.Authentication.AdoPat
         /// </summary>
         /// <param name="key">The key for the target entry.</param>
         /// <returns>The target value.</returns>
-        PatToken GetPat(string key);
+        PatToken Get(string key);
 
         /// <summary>
         /// Put a <see cref="PatToken"/> into the cache. May overwrite existing values.
         /// </summary>
         /// <param name="key">The key for this entry.</param>
         /// <param name="patToken">The value for this entry.</param>
-        void PutPat(string key, PatToken patToken);
+        void Put(string key, PatToken patToken);
     }
 }
