@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.AdoPat
     /// <summary>
     /// An abstraction over common operations with the Azure DevOps PAT Lifecycle Management REST API.
     /// </summary>
-    public class PatClient
+    public class PatClient : IPatClient
     {
         private const int PageSize = 100; // Using the maximum allowable page size allows us to reduce HTTP calls.
 
@@ -32,12 +32,7 @@ namespace Microsoft.Authentication.AdoPat
             this.client = client;
         }
 
-        /// <summary>
-        /// Creates a new PAT.
-        /// </summary>
-        /// <param name="patTokenCreateRequest">The PAT creation request.</param>
-        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-        /// <returns>A <see cref="Task"/> returning a <see cref="PatTokenResult"/>.</returns>
+        /// <inheritdoc/>
         public async Task<PatToken> CreatePatAsync(
             PatTokenCreateRequest patTokenCreateRequest,
             CancellationToken cancellationToken = default)
@@ -55,11 +50,7 @@ namespace Microsoft.Authentication.AdoPat
             return patTokenResult.PatToken;
         }
 
-        /// <summary>
-        /// Gets all active PATs.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-        /// <returns>A mapping of authorization ID to active PATs.</returns>
+        /// <inheritdoc/>
         public async Task<IDictionary<Guid, PatToken>> GetActivePatsAsync(CancellationToken cancellationToken = default)
         {
             // Initialize a PagedPatTokens so that we can use the continuation token
@@ -87,13 +78,7 @@ namespace Microsoft.Authentication.AdoPat
             return pats;
         }
 
-        /// <summary>
-        /// Creates a new PAT with a new 'valid to' date by replicating an existing one.
-        /// </summary>
-        /// <param name="patToken">An existing <see cref="PatToken"/>.</param>
-        /// <param name="validTo">The new expiration date for the regenerated token.</param>
-        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-        /// <returns>A <see cref="Task"/> returning a <see cref="PatToken"/>.</returns>
+        /// <inheritdoc/>
         public async Task<PatToken> RegeneratePatAsync(
             PatToken patToken,
             DateTime validTo,

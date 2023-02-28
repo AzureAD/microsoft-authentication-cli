@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.AdoPat
     /// <summary>
     /// A simple cache mapping <see cref="string"/> to <see cref="PatToken"/> backed by secure storage.
     /// </summary>
-    public class PatCache
+    public class PatCache : IPatCache
     {
         private IStorageWrapper storage;
 
@@ -33,11 +33,7 @@ namespace Microsoft.Authentication.AdoPat
             this.cache = new Lazy<Dictionary<string, PatToken>>(() => this.ReadStorage());
         }
 
-        /// <summary>
-        /// Get a <see cref="PatToken"/> from the cache.
-        /// </summary>
-        /// <param name="key">The key for the target entry.</param>
-        /// <returns>The target value.</returns>
+        /// <inheritdoc/>
         public PatToken GetPat(string key)
         {
             PatToken token = null;
@@ -45,11 +41,7 @@ namespace Microsoft.Authentication.AdoPat
             return token;
         }
 
-        /// <summary>
-        /// Put a <see cref="PatToken"/> into the cache. May overwrite existing values.
-        /// </summary>
-        /// <param name="key">The key for this entry.</param>
-        /// <param name="patToken">The value for this entry.</param>
+        /// <inheritdoc/>
         public void PutPat(string key, PatToken patToken)
         {
             // Insert or overwrite the key with the given PatToken. Skip
