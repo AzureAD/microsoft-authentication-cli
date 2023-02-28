@@ -47,6 +47,16 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// </summary>
         public const string ModeOption = "--mode";
 
+        /// <summary>
+        /// The Prompt Hint option.
+        /// </summary>
+        public const string PromptHintOption = "--prompt-hint";
+
+        /// <summary>
+        /// The Prompt Hint help text.
+        /// </summary>
+        public const string PromptHintHelpText = "A prompt hint to contextualize prompts and identify uses in telemetry";
+
 #if PlatformWindows
         /// <summary>
         /// The help text for the <see cref="ModeOption"/> option.
@@ -81,7 +91,6 @@ Allowed values: [all, web, devicecode]";
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
 
-        private const string PromptHintOption = "--prompt-hint";
         private const string ScopeOption = "--scope";
         private const string ClearOption = "--clear";
 
@@ -157,7 +166,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the customized prompt hint text for WAM prompts and web mode.
         /// </summary>
-        [Option(PromptHintOption, "The prompt hint text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
+        [Option(PromptHintOption, PromptHintHelpText, CommandOptionType.SingleValue)]
         public string PromptHint { get; set; }
 
         /// <summary>

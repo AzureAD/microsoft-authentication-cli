@@ -41,6 +41,12 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         public double Timeout { get; set; } = CommandAad.GlobalTimeout.TotalMinutes;
 
         /// <summary>
+        /// Gets or sets the prompt hint.
+        /// </summary>
+        [Option(CommandAad.PromptHintOption, CommandAad.PromptHintHelpText, CommandOptionType.SingleValue)]
+        public string PromptHint { get; set; }
+
+        /// <summary>
         /// Executes the command and returns a status code indicating the success or failure of the execution.
         /// </summary>
         /// <param name="logger">The <see cref="ILogger{T}"/> instance that is used for logging.</param>
