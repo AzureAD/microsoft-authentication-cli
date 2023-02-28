@@ -12,6 +12,9 @@ namespace Microsoft.Authentication.AdoPat
     /// <summary>
     /// An abstraction over common operations with the Azure DevOps PAT Lifecycle Management REST API.
     /// </summary>
+    /// <remarks>
+    /// This class and its methods are not threadsafe. Locking must be handled externally.
+    /// </remarks>
     public class PatClient : IPatClient
     {
         private const int PageSize = 100; // Using the maximum allowable page size allows us to reduce HTTP calls.

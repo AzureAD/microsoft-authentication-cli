@@ -11,6 +11,9 @@ namespace Microsoft.Authentication.AdoPat
     /// <summary>
     /// Manage the interaction between the PAT cache and Azure DevOps.
     /// </summary>
+    /// <remarks>
+    /// This class and its methods are not threadsafe. Locking must be handled externally.
+    /// </remarks>
     public class PatManager
     {
         private const int ValidToExtensionDays = 7;

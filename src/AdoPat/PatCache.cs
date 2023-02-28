@@ -12,6 +12,9 @@ namespace Microsoft.Authentication.AdoPat
     /// <summary>
     /// A simple cache mapping <see cref="string"/> to <see cref="PatToken"/> backed by secure storage.
     /// </summary>
+    /// <remarks>
+    /// This class and its methods are not threadsafe. Locking must be handled externally.
+    /// </remarks>
     public class PatCache : IPatCache
     {
         private IStorageWrapper storage;
