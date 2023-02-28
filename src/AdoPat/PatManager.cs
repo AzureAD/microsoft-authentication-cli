@@ -48,7 +48,7 @@ namespace Microsoft.Authentication.AdoPat
             CancellationToken cancellationToken = default)
         {
             bool writeBack = false;
-            var pat = this.cache.Get(options.ToString());
+            var pat = this.cache.Get(options.CacheKey());
 
             if (pat == null || await this.Inactive(pat, cancellationToken).ConfigureAwait(false))
             {
@@ -75,7 +75,7 @@ namespace Microsoft.Authentication.AdoPat
 
             if (writeBack)
             {
-                this.cache.Put(options.ToString(), pat);
+                this.cache.Put(options.CacheKey(), pat);
             }
 
             return pat;
