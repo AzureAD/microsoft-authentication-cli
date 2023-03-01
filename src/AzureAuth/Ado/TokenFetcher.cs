@@ -24,7 +24,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <param name="prompt">Prompt Hint.</param>
         /// <param name="timeout">Timeout.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        public static async Task<AADTokenFetcher.TokenFetcherResult> AccessTokenAsync(ILogger logger, AuthMode mode, string domain, string prompt, TimeSpan timeout)
+        public static async Task<AADTokenFetcher.Result> AccessTokenAsync(ILogger logger, AuthMode mode, string domain, string prompt, TimeSpan timeout)
         {
             return await AADTokenFetcher.AccessTokenAsync(
                 logger: logger,

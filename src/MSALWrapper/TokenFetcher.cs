@@ -21,7 +21,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// The result of running <see cref="TokenFetcher"/>.
         /// </summary>
-        public record TokenFetcherResult
+        public record Result
         {
             /// <summary>
             /// Gets the success <see cref="AuthFlowResult"/> from <see cref="Attempts"/> if one exists, null otherwise.
@@ -46,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="prompt">Prompt Hint.</param>
         /// <param name="timeout">Timeout.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        public static async Task<TokenFetcherResult> AccessTokenAsync(ILogger logger, Guid client, Guid tenant, IEnumerable<string> scopes, AuthMode mode, string domain, string prompt, TimeSpan timeout)
+        public static async Task<Result> AccessTokenAsync(ILogger logger, Guid client, Guid tenant, IEnumerable<string> scopes, AuthMode mode, string domain, string prompt, TimeSpan timeout)
         {
             var authFlows = AuthFlowFactory.Create(
                 logger: logger,
@@ -103,7 +103,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 }
             }
 
-            return new TokenFetcherResult { Attempts = results };
+            return new Result { Attempts = results };
         }
     }
 }
