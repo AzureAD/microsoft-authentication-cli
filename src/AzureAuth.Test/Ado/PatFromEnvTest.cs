@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
 
     using NUnit.Framework;
 
-    internal class AdoTokenPatTest
+    internal class PatFromEnvTest
     {
         private const string NotARealPat = "<imagine PAT here>";
         private const string SystemAT = "SYSTEM_ACCESSTOKEN";
@@ -37,14 +37,14 @@ namespace Microsoft.Authentication.AzureAuth.Test
             this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns<string>(default);
             this.mockEnv.Setup(e => e.Get(SystemAT)).Returns<string>(default);
 
-            AdoToken.PatResult expected = new()
+            PatFromEnv.Result expected = new()
             {
                 Exists = false,
                 EnvVarSource = null,
                 Value = null,
             };
 
-            AdoToken.PatFromEnv(this.mockEnv.Object).Should().Be(expected);
+            PatFromEnv.Get(this.mockEnv.Object).Should().Be(expected);
         }
 
         [Test]
@@ -53,14 +53,14 @@ namespace Microsoft.Authentication.AzureAuth.Test
             this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns(string.Empty);
             this.mockEnv.Setup(e => e.Get(SystemAT)).Returns(string.Empty);
 
-            AdoToken.PatResult expected = new()
+            PatFromEnv.Result expected = new()
             {
                 Exists = false,
                 EnvVarSource = null,
                 Value = null,
             };
 
-            AdoToken.PatFromEnv(this.mockEnv.Object).Should().Be(expected);
+            PatFromEnv.Get(this.mockEnv.Object).Should().Be(expected);
         }
 
         [Test]
@@ -72,14 +72,14 @@ namespace Microsoft.Authentication.AzureAuth.Test
             // Meaning AzureAuth's env var always takes priority.
             this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns(NotARealPat);
 
-            AdoToken.PatResult expected = new()
+            PatFromEnv.Result expected = new()
             {
                 Exists = true,
                 EnvVarSource = AzureAuthADOPAT,
                 Value = NotARealPat,
             };
 
-            AdoToken.PatFromEnv(this.mockEnv.Object).Should().Be(expected);
+            PatFromEnv.Get(this.mockEnv.Object).Should().Be(expected);
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
             this.mockEnv.Setup(e => e.Get(AzureAuthADOPAT)).Returns<string>(default);
             this.mockEnv.Setup(e => e.Get(SystemAT)).Returns(NotARealPat);
 
-            AdoToken.PatResult expected = new()
+            PatFromEnv.Result expected = new()
             {
                 Exists = true,
                 EnvVarSource = SystemAT,
@@ -97,7 +97,7 @@ namespace Microsoft.Authentication.AzureAuth.Test
             };
 
             // Act + Assert.
-            AdoToken.PatFromEnv(this.mockEnv.Object).Should().Be(expected);
+            PatFromEnv.Get(this.mockEnv.Object).Should().Be(expected);
         }
     }
 }
