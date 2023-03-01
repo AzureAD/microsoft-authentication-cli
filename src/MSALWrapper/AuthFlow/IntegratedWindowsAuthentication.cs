@@ -46,6 +46,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
         }
 
+        /// <inheritdoc/>
+        public Task<IAccount> GetCachedAccountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Get a jwt token for a resource.
         /// </summary>
@@ -120,6 +126,18 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
 
             return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+        }
+
+        /// <inheritdoc/>
+        public Task<AuthFlowResult> GetTokenInteractiveAsync(IAccount account)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<AuthFlowResult> GetTokenSilentAsync(IAccount account)
+        {
+            throw new NotImplementedException();
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)

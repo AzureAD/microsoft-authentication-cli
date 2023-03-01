@@ -114,6 +114,24 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return new AuthFlowResult(null, this.errors, this.GetType().Name);
         }
 
+        /// <inheritdoc/>
+        public Task<IAccount> GetCachedAccountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<AuthFlowResult> GetTokenInteractiveAsync(IAccount account)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<AuthFlowResult> GetTokenSilentAsync(IAccount account)
+        {
+            throw new NotImplementedException();
+        }
+
         private static HttpClient CreateHttpClient()
         {
             HttpClientHandler handler = new HttpClientHandler();

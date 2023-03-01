@@ -5,8 +5,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
@@ -56,69 +54,39 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
         }
 
-        /// <summary>
-        /// Get a token for a resource.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
-        public async Task<AuthFlowResult> GetTokenAsync()
+        /// <inheritdoc/>
+        public async Task<IAccount> GetCachedAccountAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain).ConfigureAwait(false) ?? null;
 
             if (account != null)
             {
                 this.logger.LogDebug($"Using cached account '{account.Username}'");
             }
 
+            return account;
+        }
+
+        /// <summary>
+        /// Get a token for a resource.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
+        public async Task<AuthFlowResult> GetTokenAsync()
+        {
+            IAccount account = await this.GetCachedAccountAsync().ConfigureAwait(false);
+
             try
             {
-                try
+                if (account != null)
                 {
-                    try
+                    var tokenResult = await this.GetTokenSilentAsync(account).ConfigureAwait(false);
+                    if (tokenResult != null)
                     {
-                        var tokenResult = await TaskExecutor.CompleteWithin(
-                            this.logger,
-                            this.silentAuthTimeout,
-                            "Get Token Silent",
-                            (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
-                            this.errors)
-                            .ConfigureAwait(false);
-                        tokenResult.SetSilent();
-
-                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
-                    }
-                    catch (MsalUiRequiredException ex)
-                    {
-                        this.errors.Add(ex);
-                        this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
-                        var tokenResult = await TaskExecutor.CompleteWithin(
-                            this.logger,
-                            this.interactiveAuthTimeout,
-                            "Interactive Auth",
-                            (cancellationToken) => this.pcaWrapper
-                            .WithPromptHint(this.promptHint)
-                            .GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
-                            this.errors)
-                            .ConfigureAwait(false);
-
-                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                        return tokenResult;
                     }
                 }
-                catch (MsalUiRequiredException ex)
-                {
-                    this.errors.Add(ex);
-                    this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
-                    var tokenResult = await TaskExecutor.CompleteWithin(
-                        this.logger,
-                        this.interactiveAuthTimeout,
-                        "Interactive Auth (with extra claims)",
-                        (cancellationToken) => this.pcaWrapper
-                        .WithPromptHint(this.promptHint)
-                        .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
-                        this.errors)
-                        .ConfigureAwait(false);
 
-                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
-                }
+                return await this.GetTokenInteractiveAsync(account).ConfigureAwait(false);
             }
             catch (MsalServiceException ex)
             {
@@ -137,6 +105,63 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
 
             return new AuthFlowResult(null, this.errors, this.GetType().Name);
+        }
+
+        /// <inheritdoc/>
+        public async Task<AuthFlowResult> GetTokenInteractiveAsync(IAccount account)
+        {
+            try
+            {
+                var tokenResult = await TaskExecutor.CompleteWithin(
+                    this.logger,
+                    this.interactiveAuthTimeout,
+                    "Interactive Auth",
+                    (cancellationToken) => this.pcaWrapper
+                    .WithPromptHint(this.promptHint)
+                    .GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
+                    this.errors)
+                    .ConfigureAwait(false);
+
+                return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+            }
+            catch (MsalUiRequiredException ex)
+            {
+                // MsalUiRequiredException should not be treated as error here.
+                // this.errors.Add(ex);
+                // this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
+                var tokenResult = await TaskExecutor.CompleteWithin(
+                    this.logger,
+                    this.interactiveAuthTimeout,
+                    "Interactive Auth (with extra claims)",
+                    (cancellationToken) => this.pcaWrapper
+                    .WithPromptHint(this.promptHint)
+                    .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
+                    this.errors)
+                    .ConfigureAwait(false);
+
+                return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<AuthFlowResult> GetTokenSilentAsync(IAccount account)
+        {
+            try
+            {
+                var tokenResult = await TaskExecutor.CompleteWithin(
+                    this.logger,
+                    this.silentAuthTimeout,
+                    "Get Token Silent",
+                    (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
+                    this.errors)
+                    .ConfigureAwait(false);
+                tokenResult.SetSilent();
+                return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+            }
+            catch (MsalUiRequiredException)
+            {
+                return null;
+            }
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)

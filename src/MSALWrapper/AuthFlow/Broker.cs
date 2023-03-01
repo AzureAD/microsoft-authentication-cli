@@ -155,6 +155,24 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return new AuthFlowResult(null, this.errors, this.GetType().Name);
         }
 
+        /// <inheritdoc/>
+        public Task<IAccount> GetCachedAccountAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<AuthFlowResult> GetTokenInteractiveAsync(IAccount account)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<AuthFlowResult> GetTokenSilentAsync(IAccount account)
+        {
+            throw new NotImplementedException();
+        }
+
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
 
