@@ -80,7 +80,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 if (account != null)
                 {
                     var tokenResult = await this.GetTokenSilentAsync(account).ConfigureAwait(false);
-                    if (tokenResult != null)
+                    if (tokenResult.Success)
                     {
                         return tokenResult;
                     }
@@ -127,8 +127,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             catch (MsalUiRequiredException ex)
             {
                 // MsalUiRequiredException should not be treated as error here.
-                // this.errors.Add(ex);
-                // this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
+                this.errors.Add(ex);
+                this.logger.LogDebug($"Interactive auth failed, Attempting auth with extra claims.\n{ex.Message}");
+
                 var tokenResult = await TaskExecutor.CompleteWithin(
                     this.logger,
                     this.interactiveAuthTimeout,
@@ -158,9 +159,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 tokenResult.SetSilent();
                 return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
             }
-            catch (MsalUiRequiredException)
+            catch (MsalUiRequiredException ex)
             {
-                return null;
+                this.errors.Add(ex);
+                return new AuthFlowResult(null, this.errors, this.GetType().Name);
             }
         }
 
