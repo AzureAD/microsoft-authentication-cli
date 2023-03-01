@@ -47,7 +47,6 @@ namespace Microsoft.Authentication.AdoPat
             PatOptions options,
             CancellationToken cancellationToken = default)
         {
-            bool writeBack = false;
             var pat = this.cache.Get(options.CacheKey());
 
             if (pat == null || await this.Inactive(pat, cancellationToken).ConfigureAwait(false))
@@ -60,21 +59,15 @@ namespace Microsoft.Authentication.AdoPat
                     AllOrgs = default,
                 };
                 pat = await this.client.CreateAsync(patTokencreateRequest, cancellationToken).ConfigureAwait(false);
-                writeBack = true;
+                this.cache.Put(options.CacheKey(), pat);
             }
-
-            if (this.ExpiringSoon(pat))
+            else if (this.ExpiringSoon(pat))
             {
                 pat = await this.client.RegenerateAsync(
                     pat,
                     this.now().AddDays(ValidToExtensionDays),
                     cancellationToken)
                 .ConfigureAwait(false);
-                writeBack = true;
-            }
-
-            if (writeBack)
-            {
                 this.cache.Put(options.CacheKey(), pat);
             }
 
