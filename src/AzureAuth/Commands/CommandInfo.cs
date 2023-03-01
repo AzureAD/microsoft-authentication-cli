@@ -8,7 +8,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Authentication.AzureAuth.Commands.Info;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Office.Lasso.Interfaces;
+    using Microsoft.Office.Lasso.Extensions;
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
@@ -22,13 +22,14 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// This method executes the info process.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="telemetryService">The telemetry service.</param>
+        /// <param name="fileSystem">The file system.</param>
+        /// <param name="app">The command line application.</param>
         /// <returns>The error code: 0 is normal execution, and the rest means errors during execution.</returns>
-        public int OnExecute(ILogger<CommandInfo> logger, ITelemetryService telemetryService)
+        public int OnExecute(ILogger<CommandInfo> logger, IFileSystem fileSystem, CommandLineApplication<CommandInfo> app)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string azureauthVersion = assembly.GetName().Version.ToString();
-            string deviceID = (telemetryService as TelemetryServiceBase)?.MachineGUID;
+            string deviceID = TelemetryDeviceID.GetAsync(fileSystem, app.GetRoot().Name).Result;
 
             logger.LogInformation($"AzureAuth Version: {azureauthVersion}");
             logger.LogInformation($"Telemetry Device ID: {deviceID}");
