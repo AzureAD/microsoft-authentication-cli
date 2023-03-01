@@ -5,6 +5,8 @@ namespace Microsoft.Authentication.AzureAuth.Ado
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
@@ -70,18 +72,6 @@ namespace Microsoft.Authentication.AzureAuth.Ado
             /// Gets the PAT value itself.
             /// </summary>
             public string Value { get; init; }
-        }
-
-        public static string AccessToken(ILogger logger, AuthMode mode, string domain, string prompt)
-        {
-            var authFlows = AuthFlowFactory.Create(
-                logger,
-                mode,
-                new Guid(Constants.Client.VisualStudio),
-                new Guid(Constants.Tenant.Microsoft),
-                new[] { Constants.Scope.AzureDevopsDefault },
-                domain,
-                prompt);
         }
     }
 }
