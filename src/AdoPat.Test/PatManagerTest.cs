@@ -117,7 +117,9 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // The client will return a new PatToken upon creation request.
             this.client.Setup(c => c.CreateAsync(
-                It.IsAny<PatTokenCreateRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedPat);
 
@@ -193,7 +195,9 @@ namespace Microsoft.Authentication.AdoPat.Test
             // The client will return a new PatToken upon creation request.
             this.client.Setup(c => c.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
             this.client.Setup(c => c.CreateAsync(
-                It.IsAny<PatTokenCreateRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedPat);
 

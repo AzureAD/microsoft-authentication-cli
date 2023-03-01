@@ -17,10 +17,12 @@ namespace Microsoft.Authentication.AdoPat
         /// <summary>
         /// Creates a new PAT.
         /// </summary>
-        /// <param name="patTokenCreateRequest">The PAT creation request.</param>
+        /// <param name="displayName">The token name.</param>
+        /// <param name="scope">The token scopes for accessing Azure DevOps resources.</param>
+        /// <param name="validTo">The token expiration date.</param>
         /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>A <see cref="Task"/> returning a <see cref="PatTokenResult"/>.</returns>
-        Task<PatToken> CreateAsync(PatTokenCreateRequest patTokenCreateRequest, CancellationToken cancellationToken = default);
+        Task<PatToken> CreateAsync(string displayName, string scope, DateTime validTo, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets all active PATs.

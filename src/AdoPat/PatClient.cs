@@ -37,9 +37,18 @@ namespace Microsoft.Authentication.AdoPat
 
         /// <inheritdoc/>
         public async Task<PatToken> CreateAsync(
-            PatTokenCreateRequest patTokenCreateRequest,
+            string displayName,
+            string scope,
+            DateTime validTo,
             CancellationToken cancellationToken = default)
         {
+            var patTokenCreateRequest = new PatTokenCreateRequest
+            {
+                DisplayName = displayName,
+                Scope = scope,
+                ValidTo = validTo,
+                AllOrgs = AllOrgs,
+            };
             var patTokenResult = await this.client.CreatePatAsync(
                 patTokenCreateRequest,
                 cancellationToken: cancellationToken)
@@ -100,16 +109,10 @@ namespace Microsoft.Authentication.AdoPat
             //
             // For more info see:
             // https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/manage-personal-access-tokens-via-api?view=azure-devops#q-how-can-i-regeneraterotate-pats-through-the-api-i-saw-that-option-in-the-ui-but-i-dont-see-a-similar-method-in-the-api
-            PatTokenCreateRequest patTokenCreateRequest = new PatTokenCreateRequest
-            {
-                DisplayName = patToken.DisplayName,
-                Scope = patToken.Scope,
-                ValidTo = validTo,
-                AllOrgs = AllOrgs,
-            };
-
             var renewedPatToken = await this.CreateAsync(
-                patTokenCreateRequest,
+                patToken.DisplayName,
+                patToken.Scope,
+                validTo: validTo,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 

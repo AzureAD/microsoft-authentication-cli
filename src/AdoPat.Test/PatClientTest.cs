@@ -31,13 +31,6 @@ namespace Microsoft.Authentication.AdoPat.Test
         public async Task CreatePatAsync()
         {
             // Arrange
-            var patTokenCreateRequest = new PatTokenCreateRequest
-            {
-                DisplayName = DisplayName,
-                Scope = Scope,
-                ValidTo = DateTime.UnixEpoch.AddDays(7),
-                AllOrgs = AllOrgs,
-            };
             var patToken = new PatToken
             {
                 DisplayName = DisplayName,
@@ -64,7 +57,10 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var renewedPatToken = await patClient.CreateAsync(patTokenCreateRequest);
+            var renewedPatToken = await patClient.CreateAsync(
+                DisplayName,
+                Scope,
+                validTo: DateTime.UnixEpoch.AddDays(7));
 
             // Assert
             renewedPatToken.Should().BeEquivalentTo(patToken);

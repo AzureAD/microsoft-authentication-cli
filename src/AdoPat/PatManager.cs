@@ -51,14 +51,12 @@ namespace Microsoft.Authentication.AdoPat
 
             if (pat == null || await this.Inactive(pat, cancellationToken).ConfigureAwait(false))
             {
-                var patTokencreateRequest = new PatTokenCreateRequest
-                {
-                    DisplayName = options.DisplayName,
-                    Scope = string.Join(" ", options.Scopes),
-                    ValidTo = this.now().AddDays(ValidToExtensionDays),
-                    AllOrgs = default,
-                };
-                pat = await this.client.CreateAsync(patTokencreateRequest, cancellationToken).ConfigureAwait(false);
+                pat = await this.client.CreateAsync(
+                    displayName: options.DisplayName,
+                    scope: string.Join(" ", options.Scopes),
+                    validTo: this.now().AddDays(ValidToExtensionDays),
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
                 this.cache.Put(options.CacheKey(), pat);
             }
             else if (this.ExpiringSoon(pat))
