@@ -6,21 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- New telemetry fields for:
-  - environment variables identifying Azure Pipelines and Cloud Build environments.
-  - on-premises security identifier as `sid`.
-    This is only collected on successful authentication attempts.
-- New `aad` command. This command is the future home to what is currently the top-level `azureauth` command. The functionality is duplicated in both commands for backwards compatibility but will be removed from the top-level command in a future release.
-- New `info` commands
-  - `azureauth info` : reports AzureAuth version and a new local randomly generated and cached telemetry device ID.
-  - `azureauth info reset-device-id` : regenerates the cached telemetry device id.
 - New `ado` commands 
   - `azureauth ado` : Prints the help for Azure Devops commands.
   - `azureauth ado pat` : Command for creating, and locally caching Azure Devops <abbr title="Personal Access Tokens">PAT</abbr>s.
   - `azureauth ado token` : Command for passing back a <abbr title="Personal Access Tokens">PAT</abbr> from an env var, or authenticating and returning an <abbr title="Azure Active Directory">AAD</abbr> access token.
 
+## [0.7.0] - 2023-02-22
+### Added
+- New telemetry fields for:
+  - environment variables identifying Azure Pipelines and Cloud Build environments.
+  - on-premises security identifier as `sid`.
+    This is only collected on successful authentication attempts.
+- New `aad` command. This command is the long-term home for what is currently the top-level `azureauth` command. The functionality is duplicated in both commands for backwards compatibility but will be removed from the top-level command in a future release.
+- New `info` commands
+  - `azureauth info` : reports AzureAuth version and a new local randomly generated and cached telemetry device ID.
+  - `azureauth info reset-device-id` : regenerates the cached telemetry device id.
+
 ### Changed
-- Migrate from single command <abbr title="Command Line Interface">CLI</abbr> to multi-command structure.
+- Migrate from single command <abbr title="Command Line Interface">CLI</abbr> to sub-command structure.
   - Existing `azureauth` command is now replicated as `azureauth aad`.
 - Upgrade MSAL to 4.47.2 and opt-into native WAM mode.
 - Improve error telemetry collection by collecting JSON serialized version of MSAL errors. This now includes inner exceptions from MSAL which previously were missed.
@@ -28,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Replace `setx` usage with `WM_SETTINGCHANGE` in the Windows install script to prevent truncating `$PATH`.
 - Skip validating cache file logic on Mac, which could cause an unhandled exception when certain Special Folders don't exist for the current user.
+- Updated Lasso, fixing an issue where callers shelling out to AzureAuth were blocked on the asynchronous telemetry child processes.
 
 ### Removed
 - Removed the `--cache` option from what is now `azureauth aad`, because cache file sharing is not the recommended way to achieve <abbr title="Single Sign On">SSO</abbr>.
@@ -118,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.4...0.6.0
 [0.5.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.3...0.5.4
 [0.5.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.2...0.5.3

@@ -51,15 +51,16 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        source-url: https://office.pkgs.visualstudio.com/DefaultCollection/_packaging/Office/nuget/v3/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Install dependencies
       run: dotnet restore --runtime ${{ matrix.runtime }}
+      env:
+        ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Test
       run: dotnet test --no-restore --configuration release
     - name: Build artifacts
       run: dotnet publish src/AzureAuth/AzureAuth.csproj -p:Version=${{ github.event.inputs.version }} --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}
+      env:
+        ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -101,15 +102,13 @@ jobs:
           AZURE_SUBSCRIPTION: ${{ secrets.AZURE_SUBSCRIPTION }}
           AZURE_VAULT: ${{ secrets.AZURE_VAULT }}
           ESRP_AAD_CERT_NAME: ${{ secrets.AZURE_VAULT_ESRP_AAD_CERT_NAME }}
-          ESRP_AAD_CERT_VERSION: ${{ secrets.AZURE_VAULT_ESRP_AAD_CERT_VERSION }}
           ESRP_REQ_CERT_NAME: ${{ secrets.AZURE_VAULT_ESRP_REQ_CERT_NAME }}
-          ESRP_REQ_CERT_VERSION: ${{ secrets.AZURE_VAULT_ESRP_REQ_CERT_VERSION }}
         run: |
-          az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" --version "$env:ESRP_AAD_CERT_VERSION" -f cert.pfx
+          az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
           certutil -f -importpfx cert.pfx
           Remove-Item cert.pfx
 
-          az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" --version "$env:ESRP_REQ_CERT_VERSION" -f cert.pfx
+          az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
           certutil -f -importpfx cert.pfx
           Remove-Item cert.pfx
       # We download all artifacts and overwrite them with signed files, but only upload ones which we can properly sign.
@@ -121,6 +120,7 @@ jobs:
           SIGNING_TENANT_ID: ${{ secrets.SIGNING_TENANT_ID }}
           SIGNING_KEY_CODE_AUTHENTICODE: ${{ secrets.SIGNING_KEY_CODE_AUTHENTICODE }}
           SIGNING_KEY_CODE_MAC: ${{ secrets.SIGNING_KEY_CODE_MAC }}
+          SIGNING_KEY_CODE_LINUX: ${{ secrets.SIGNING_KEY_CODE_LINUX }}
           SIGNING_CUSTOMER_CORRELATION_ID: ${{ secrets.SIGNING_CUSTOMER_CORRELATION_ID }}
           ESRP_CLIENT_EXE: ".\\esrp\\Microsoft.EsrpClient.${{ secrets.ESRP_VERSION }}\\tools\\EsrpClient.exe"
         run: python .\bin\sign.py "$env:ESRP_CLIENT_EXE" --runtime=${{ matrix.runtime }} --source=azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}

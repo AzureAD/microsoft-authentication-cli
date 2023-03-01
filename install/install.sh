@@ -194,7 +194,7 @@ install_post_0_4_0() {
         do
             if ! grep "${new_path}" "${shell_profile}" &>/dev/null; then
                 verbose "Appending '${target_directory}' to \$PATH in ${shell_profile}"
-                printf "${new_path}\n" >> $shell_profile
+                printf "\n${new_path}\n" >> $shell_profile
             fi
         done
     fi

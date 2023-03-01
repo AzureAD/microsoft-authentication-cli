@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+set -e
+
+here=$(dirname $(readlink -f "$0"))
+"${here}/dotnet" run --project "${here}/../src/AzureAuth" -- $* --debug
