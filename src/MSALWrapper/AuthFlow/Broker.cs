@@ -17,6 +17,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class Broker : IAuthFlow
     {
+        private const string NameValue = "broker";
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
@@ -74,6 +75,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             /// </summary>
             GetRootOwner = 3,
         }
+
+        /// <inheritdoc/>
+        public string Name() => NameValue;
 
         /// <summary>
         /// Get a jwt token for a resource.

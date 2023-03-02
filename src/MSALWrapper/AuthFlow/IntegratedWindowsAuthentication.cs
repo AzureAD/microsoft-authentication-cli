@@ -14,6 +14,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class IntegratedWindowsAuthentication : IAuthFlow
     {
+        private const string NameValue = "iwa";
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
@@ -45,6 +46,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.preferredDomain = preferredDomain;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
         }
+
+        /// <inheritdoc/>
+        public string Name() => NameValue;
 
         /// <summary>
         /// Get a jwt token for a resource.

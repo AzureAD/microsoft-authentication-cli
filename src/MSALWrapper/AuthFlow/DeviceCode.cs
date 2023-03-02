@@ -16,6 +16,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class DeviceCode : IAuthFlow
     {
+        private const string NameValue = "device_code";
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
@@ -36,6 +37,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private TimeSpan deviceCodeFlowTimeout = TimeSpan.FromMinutes(15);
         #endregion
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceCode"/> class.
         /// </summary>
@@ -55,6 +57,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.promptHint = promptHint;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
         }
+
+        /// <inheritdoc/>
+        public string Name() => NameValue;
 
         /// <summary>
         /// Get a token for a resource.
