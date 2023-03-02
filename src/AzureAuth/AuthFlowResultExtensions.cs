@@ -15,11 +15,6 @@ namespace Microsoft.Authentication.AzureAuth
     /// </summary>
     public static class AuthFlowResultExtensions
     {
-        public static void SendTelemetry(this IEnumerable<AuthFlowResult> results, ITelemetryService telemetryService)
-        {
-
-        }
-
         /// <summary>
         /// Convert to an <see cref="Office.Lasso.Telemetry.EventData"/>.
         /// </summary>
@@ -51,6 +46,19 @@ namespace Microsoft.Authentication.AzureAuth
             }
 
             return eventData;
+        }
+
+        /// <summary>
+        /// Send telemetry events for n <see cref="AuthFlowResult"/> instance.
+        /// </summary>
+        /// <param name="results"><see cref="AuthFlowResult"/>s to send telemetry for.</param>
+        /// <param name="telemetryService">The <see cref="ITelemetryService"/> to use to send the events.</param>
+        public static void SendTelemetry(this IEnumerable<AuthFlowResult> results, ITelemetryService telemetryService)
+        {
+            foreach (var result in results)
+            {
+                telemetryService.SendEvent($"authflow_{result.AuthFlowName}", result.EventData());
+            }
         }
     }
 }

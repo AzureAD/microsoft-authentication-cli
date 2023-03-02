@@ -462,7 +462,7 @@ Allowed values: [all, web, devicecode]";
                 this.eventData.Add("authflow_count", results.Length);
 
                 // Send custom telemetry events for each authflow result.
-                this.SendAuthFlowTelemetryEvents(results);
+                results.SendTelemetry(this.telemetryService);
 
                 if (successfulResult == null)
                 {
@@ -498,18 +498,6 @@ Allowed values: [all, web, devicecode]";
             }
 
             return 0;
-        }
-
-        private void SendAuthFlowTelemetryEvents(AuthFlowResult[] results)
-        {
-            Parallel.ForEach(results, result =>
-            {
-                var eventData = result.EventData();
-                if (eventData != null)
-                {
-                    this.telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
-                }
-            });
         }
 
         private AuthFlowExecutor AuthFlowExecutor()
