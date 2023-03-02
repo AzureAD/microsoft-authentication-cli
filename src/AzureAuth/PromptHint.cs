@@ -13,6 +13,11 @@ namespace Microsoft.Authentication.AzureAuth
         /// </summary>
         public const string AzureAuth = "Azure Auth";
 
+        /// <summary>
+        /// Prefix a prompt hint for display.
+        /// </summary>
+        /// <param name="prompt">Original supplied prompt hint.</param>
+        /// <returns>Prefixed prompt hint or our default prefix <see cref="AzureAuth"/>.</returns>
         public static string Prefixed(string prompt)
         {
             if (string.IsNullOrEmpty(prompt))

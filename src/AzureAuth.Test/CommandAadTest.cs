@@ -446,16 +446,6 @@ invalid_key = ""this is not a valid alias key""
         }
 
         /// <summary>
-        /// The test to ensure the prompt hint text has a valid prefix without user's option.
-        /// </summary>
-        [Test]
-        public void TestPromptHintPrefixWithoutOption()
-        {
-            CommandAad.PrefixedPromptHint(null)
-                            .Should().BeEquivalentTo(PromptHintPrefix);
-        }
-
-        /// <summary>
         /// Test to generate event data from a null authflow result.
         /// </summary>
         [Test]
