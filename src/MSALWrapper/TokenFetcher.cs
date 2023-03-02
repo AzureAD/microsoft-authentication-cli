@@ -37,16 +37,24 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Run the authenticatuion process.
         /// </summary>
-        /// <param name="logger">A logger.</param>
-        /// <param name="client">Client.</param>
-        /// <param name="tenant">Tenant.</param>
-        /// <param name="scopes">Scopes.</param>
-        /// <param name="mode">Modes.</param>
-        /// <param name="domain">Domain.</param>
-        /// <param name="prompt">Prompt Hint.</param>
-        /// <param name="timeout">Timeout.</param>
+        /// <param name="logger">A <see cref="ILogger"/> to use.</param>
+        /// <param name="client">The client ID to authenticate as.</param>
+        /// <param name="tenant">The Azure tenant containing the client.</param>
+        /// <param name="scopes">The list of scopes to request access for.</param>
+        /// <param name="mode">The <see cref="AuthMode"/>. Controls which <see cref="IAuthFlow"/>s should be used.</param>
+        /// <param name="domain">The domain (account suffix) to filter cached accounts with.</param>
+        /// <param name="prompt">A prompt hint to display to the user if needed.</param>
+        /// <param name="timeout">The max <see cref="TimeSpan"/> we should spend attempting token acquisition for.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        public static async Task<Result> AccessTokenAsync(ILogger logger, Guid client, Guid tenant, IEnumerable<string> scopes, AuthMode mode, string domain, string prompt, TimeSpan timeout)
+        public static async Task<Result> AccessTokenAsync(
+            ILogger logger,
+            Guid client,
+            Guid tenant,
+            IEnumerable<string> scopes,
+            AuthMode mode,
+            string domain,
+            string prompt,
+            TimeSpan timeout)
         {
             var authFlows = AuthFlowFactory.Create(
                 logger: logger,
@@ -67,8 +75,8 @@ namespace Microsoft.Authentication.MSALWrapper
             string resource = string.Join(' ', scopes);
             string lockName = $"Local\\{resource}_{client}_{tenant}";
 
-            // First parameter initiallyOwned indicates whether this lock is owned by current thread.
-            // It should be false otherwise a dead lock could occur.
+            // The first parameter 'initiallyOwned' indicates whether this lock is owned by current thread.
+            // It should be false otherwise a deadlock could occur.
             using (Mutex mutex = new Mutex(initiallyOwned: false, name: lockName))
             {
                 bool lockAcquired = false;

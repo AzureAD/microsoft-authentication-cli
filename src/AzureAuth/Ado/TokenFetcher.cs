@@ -6,6 +6,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     using System;
     using System.Threading.Tasks;
     using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
 
     using AADTokenFetcher = Microsoft.Authentication.MSALWrapper.TokenFetcher;
@@ -18,13 +19,18 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <summary>
         /// Get an Azure Devops AAD access token.
         /// </summary>
-        /// <param name="logger">Logger.</param>
-        /// <param name="mode">Auth Mode.</param>
-        /// <param name="domain">Domain.</param>
-        /// <param name="prompt">Prompt Hint.</param>
-        /// <param name="timeout">Timeout.</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        public static async Task<AADTokenFetcher.Result> AccessTokenAsync(ILogger logger, AuthMode mode, string domain, string prompt, TimeSpan timeout)
+        /// <param name="logger">A <see cref="ILogger"/> to use.</param>
+        /// <param name="mode">The <see cref="AuthMode"/>. Controls which <see cref="IAuthFlow"/>s should be used.</param>
+        /// <param name="domain">The domain (account suffix) to filter cached accounts with.</param>
+        /// <param name="prompt">A prompt hint to display to the user if needed.</param>
+        /// <param name="timeout">The max <see cref="TimeSpan"/> we should spend attempting token acquisition for.</param>
+        /// <returns>A <see cref="AADTokenFetcher.Result"/>.</returns>
+        public static async Task<AADTokenFetcher.Result> AccessTokenAsync(
+            ILogger logger,
+            AuthMode mode,
+            string domain,
+            string prompt,
+            TimeSpan timeout)
         {
             return await AADTokenFetcher.AccessTokenAsync(
                 logger: logger,
