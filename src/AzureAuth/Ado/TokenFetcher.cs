@@ -17,7 +17,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     internal static class TokenFetcher
     {
         /// <summary>
-        /// Get an Azure Devops AAD access token.
+        /// Get an Azure DevOps AAD access token.
         /// </summary>
         /// <param name="logger">A <see cref="ILogger"/> to use.</param>
         /// <param name="mode">The <see cref="AuthMode"/>. Controls which <see cref="IAuthFlow"/>s should be used.</param>
