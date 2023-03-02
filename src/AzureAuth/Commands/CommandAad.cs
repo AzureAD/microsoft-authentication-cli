@@ -247,21 +247,6 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
-        /// Combine the <see cref="PromptHintPrefix"/> with the caller provided prompt hint.
-        /// </summary>
-        /// <param name="promptHint">The provided prompt hint.</param>
-        /// <returns>The combined prefix and prompt hint or just the prefix if no prompt hint was given.</returns>
-        public static string PrefixedPromptHint(string promptHint)
-        {
-            if (string.IsNullOrEmpty(promptHint))
-            {
-                return PromptHintPrefix;
-            }
-
-            return $"{PromptHintPrefix}: {promptHint}";
-        }
-
-        /// <summary>
         /// Generates event data from the AuthFlowResult.
         /// </summary>
         /// <param name="result">The AuthFlowResult.</param>
@@ -581,7 +566,7 @@ Allowed values: [all, web, devicecode]";
                 new Guid(this.authSettings.Tenant),
                 scopes,
                 this.PreferredDomain,
-                PrefixedPromptHint(this.authSettings.PromptHint));
+                AzureAuth.PromptHint.Prefixed(this.authSettings.PromptHint));
             }
 
             this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());
