@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageId>Microsoft.Authentication.AdoPat</PackageId>
@@ -10,7 +10,7 @@
     <!-- Stylecop required items -->
     <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
     <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
-    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.25.3" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.26.0" />
     <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="19.212.0-preview" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
