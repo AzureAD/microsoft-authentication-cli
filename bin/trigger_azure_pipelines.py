@@ -2,10 +2,11 @@
 # Licensed under the MIT License.
 
 """A script which triggers and waits for Azure DevOps to complete a build"""
-
+import io
 import os
 import sys
 import time
+import zipfile
 
 from azure.devops.connection import Connection
 from azure.devops.v6_0.pipelines.pipelines_client import PipelinesClient
@@ -42,24 +43,26 @@ def wait_for_pipeline_run(pipeline_client: PipelinesClient, project: str, pipeli
 
 
 def trigger_azure_pipeline_and_wait_until_its_completed(
+    ado_client: Connection,
     organization: str,
     project: str,
     pipeline_id: str,
-    ado_pat: str,
     version: str,
-    commit_hash: str
-) -> None:
+    commit_hash: str,
+) -> str:
     """Triggers an azure pipeline and waits for it to be finished"""
-    ado_client = ado_connection(organization, ado_pat).clients_v6_0
     pipeline_client = ado_client.get_pipelines_client()
     
     # NOTE: We run a pipeline instead of queuing a build because only the run pipeline API allows us to pass template parameters and build API doesn't support it.
     # run pipeline API: https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/run-pipeline?view=azure-devops-rest-6.0 
     # queue build API: https://learn.microsoft.com/en-us/rest/api/azure/devops/build/builds/queue?view=azure-devops-rest-6.0
 
-    run_parameters = {"templateParameters": {"version": version, "commit_hash": commit_hash}}
+    run_parameters = {
+        "templateParameters": {"upstream_version": version, "commit_hash": commit_hash}
+    }
     pipeline_status = pipeline_client.run_pipeline(run_parameters, project, pipeline_id)
-    pipeline_url = f"https://dev.azure.com/{organization}/{project}/_build/results?buildId={pipeline_status.id}&view=results"
+    run_id = pipeline_status.id
+    pipeline_url = f"https://dev.azure.com/{organization}/{project}/_build/results?buildId={run_id}&view=results"
     print(
         "Successfully triggered a pipeline. Waiting for the run to be completed.\n"
         f"More details on the triggered pipeline can be found here: {pipeline_url}"
@@ -67,6 +70,35 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     completed_run = wait_for_pipeline_run(pipeline_client, project, pipeline_id, pipeline_status.id)
     if completed_run.result in FAILED_STATUSES:
         raise Exception("Azure DevOps pipeline run failed!")
+
+    return run_id
+
+
+def download_callback(chunk) -> None:
+    print(f"Downloaded chunk of size: {str(len(chunk))}")
+
+
+def download_artifact(
+    ado_client: Connection,
+    project: str,
+    run_id: str,
+    ado_artifact_name: str,
+    artifact_download_path: str,
+) -> None:
+    """Download the ADO artifact to the given download path"""
+    build_client = ado_client.get_build_client()
+    artifact = build_client.get_artifact_content_zip(
+        project, run_id, ado_artifact_name, download=True, callback=download_callback
+    )
+
+    # Read the stream of bytes to a bytearray.
+    # The bytestream is a zip file.
+    # And then extract the zip contents to given path.
+    content = bytearray()
+    for chunk in artifact:
+        content += bytearray(chunk)
+    zf = zipfile.ZipFile(io.BytesIO(content), "r")
+    zf.extractall(artifact_download_path)
 
 
 def main() -> None:
@@ -80,19 +112,30 @@ def main() -> None:
         pipeline_id = os.environ["ADO_AZUREAUTH_LINUX_PIPELINE_ID"]
         version = os.environ["VERSION"]
         commit_hash = os.environ["GITHUB_SHA"]
+        ado_artifact_name = os.environ["ADO_LINUX_ARTIFACT_NAME"]
+        artifact_download_path = os.environ["ADO_LINUX_ARTIFACT_DOWNLOAD_PATH"]
+
     except KeyError as exc:
         # See https://stackoverflow.com/a/24999035/3288364.
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
 
+    ado_client = ado_connection(organization, ado_pat).clients_v6_0
+
     # 2. Trigger azure pipeline and wait for it to be finished.
-    trigger_azure_pipeline_and_wait_until_its_completed(
+    run_id = trigger_azure_pipeline_and_wait_until_its_completed(
+        ado_client,
         organization,
         project,
         pipeline_id,
         ado_pat,
         version,
-        commit_hash
+        commit_hash,
+    )
+
+    # 3. Download the artifact
+    download_artifact(
+        ado_client, project, run_id, ado_artifact_name, artifact_download_path
     )
 
 
