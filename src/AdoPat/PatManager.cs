@@ -49,6 +49,10 @@ namespace Microsoft.Authentication.AdoPat
         {
             var pat = this.cache.Get(options.CacheKey());
 
+            // If the PAT is null it means it wasn't present in the cache, so we must create one.
+            // If the PAT was present in the cache, but is inactive we must also create a new one.
+            // If the PAT was present in the cache, but will expire soon we must regenerate it.
+            // Otherwise we can simply return the PAT as is.
             if (pat == null || await this.Inactive(pat, cancellationToken).ConfigureAwait(false))
             {
                 pat = await this.client.CreateAsync(
