@@ -36,7 +36,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
                 logger: logger,
                 client: new Guid(Constants.Client.VisualStudio),
                 tenant: new Guid(Constants.Tenant.Microsoft),
-                scopes: new[] { Constants.Scope.AzureDevopsDefault },
+                scopes: new[] { Constants.Scope.AzureDevOpsDefault },
                 mode: mode,
                 domain: domain,
                 prompt: prompt,
