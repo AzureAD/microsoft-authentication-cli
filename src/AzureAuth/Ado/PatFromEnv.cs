@@ -73,6 +73,5 @@ namespace Microsoft.Authentication.AzureAuth.Ado
                 Exists = false,
             };
         }
-
     }
 }
