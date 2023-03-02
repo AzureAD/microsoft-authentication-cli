@@ -83,7 +83,7 @@ def download_artifact(
     project: str,
     run_id: str,
     ado_artifact_name: str,
-    artifact_download_path: str,
+    download_path: str,
 ) -> None:
     """Download the ADO artifact to the given download path"""
     build_client = ado_client.get_build_client()
@@ -98,7 +98,7 @@ def download_artifact(
     for chunk in artifact:
         content += bytearray(chunk)
     zf = zipfile.ZipFile(io.BytesIO(content), "r")
-    zf.extractall(artifact_download_path)
+    zf.extractall(download_path)
 
 
 def main() -> None:
