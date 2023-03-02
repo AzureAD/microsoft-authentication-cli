@@ -74,7 +74,7 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     return run_id
 
 
-def download_callback(chunk) -> None:
+def download_callback(chunk, response) -> None:
     print(f"Downloaded chunk of size: {str(len(chunk))}")
 
 
