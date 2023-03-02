@@ -1,5 +1,10 @@
 {
     "cSpell.words": [
-        "MSAL"
+        "authflow",
+        "Corext",
+        "devicecode",
+        "MSAL",
+        "prompthint",
+        "validargs"
     ]
 }

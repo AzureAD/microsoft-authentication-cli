@@ -8,6 +8,12 @@ on:
 
 jobs:
   test:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      statuses: write
+      
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -15,11 +21,17 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup .NET 6
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0.x
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: csharp
 
       - name: Restore dependencies
         run: dotnet restore
@@ -31,3 +43,8 @@ jobs:
 
       - name: Test
         run: dotnet test --no-build --verbosity normal
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:csharp"

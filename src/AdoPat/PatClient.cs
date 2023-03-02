@@ -12,7 +12,10 @@ namespace Microsoft.Authentication.AdoPat
     /// <summary>
     /// An abstraction over common operations with the Azure DevOps PAT Lifecycle Management REST API.
     /// </summary>
-    public class PatClient
+    /// <remarks>
+    /// This class and its methods are not threadsafe. Locking must be handled externally.
+    /// </remarks>
+    public class PatClient : IPatClient
     {
         private const int PageSize = 100; // Using the maximum allowable page size allows us to reduce HTTP calls.
 
@@ -32,16 +35,20 @@ namespace Microsoft.Authentication.AdoPat
             this.client = client;
         }
 
-        /// <summary>
-        /// Creates a new PAT.
-        /// </summary>
-        /// <param name="patTokenCreateRequest">The PAT creation request.</param>
-        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-        /// <returns>A <see cref="Task"/> returning a <see cref="PatTokenResult"/>.</returns>
-        public async Task<PatToken> CreatePatAsync(
-            PatTokenCreateRequest patTokenCreateRequest,
+        /// <inheritdoc/>
+        public async Task<PatToken> CreateAsync(
+            string displayName,
+            string scope,
+            DateTime validTo,
             CancellationToken cancellationToken = default)
         {
+            var patTokenCreateRequest = new PatTokenCreateRequest
+            {
+                DisplayName = displayName,
+                Scope = scope,
+                ValidTo = validTo,
+                AllOrgs = AllOrgs,
+            };
             var patTokenResult = await this.client.CreatePatAsync(
                 patTokenCreateRequest,
                 cancellationToken: cancellationToken)
@@ -55,12 +62,8 @@ namespace Microsoft.Authentication.AdoPat
             return patTokenResult.PatToken;
         }
 
-        /// <summary>
-        /// Gets all active PATs.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-        /// <returns>A mapping of authorization ID to active PATs.</returns>
-        public async Task<IDictionary<Guid, PatToken>> GetActivePatsAsync(CancellationToken cancellationToken = default)
+        /// <inheritdoc/>
+        public async Task<IDictionary<Guid, PatToken>> ListActiveAsync(CancellationToken cancellationToken = default)
         {
             // Initialize a PagedPatTokens so that we can use the continuation token
             // in the scope of the conditional of the do while loop below. Azure
@@ -87,14 +90,8 @@ namespace Microsoft.Authentication.AdoPat
             return pats;
         }
 
-        /// <summary>
-        /// Creates a new PAT with a new 'valid to' date by replicating an existing one.
-        /// </summary>
-        /// <param name="patToken">An existing <see cref="PatToken"/>.</param>
-        /// <param name="validTo">The new expiration date for the regenerated token.</param>
-        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-        /// <returns>A <see cref="Task"/> returning a <see cref="PatToken"/>.</returns>
-        public async Task<PatToken> RegeneratePatAsync(
+        /// <inheritdoc/>
+        public async Task<PatToken> RegenerateAsync(
             PatToken patToken,
             DateTime validTo,
             CancellationToken cancellationToken = default)
@@ -112,16 +109,10 @@ namespace Microsoft.Authentication.AdoPat
             //
             // For more info see:
             // https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/manage-personal-access-tokens-via-api?view=azure-devops#q-how-can-i-regeneraterotate-pats-through-the-api-i-saw-that-option-in-the-ui-but-i-dont-see-a-similar-method-in-the-api
-            PatTokenCreateRequest patTokenCreateRequest = new PatTokenCreateRequest
-            {
-                DisplayName = patToken.DisplayName,
-                Scope = patToken.Scope,
-                ValidTo = validTo,
-                AllOrgs = AllOrgs,
-            };
-
-            var renewedPatToken = await this.CreatePatAsync(
-                patTokenCreateRequest,
+            var renewedPatToken = await this.CreateAsync(
+                patToken.DisplayName,
+                patToken.Scope,
+                validTo: validTo,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 

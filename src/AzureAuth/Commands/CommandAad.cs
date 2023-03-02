@@ -27,34 +27,77 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     [Command("aad", Description = "todo")]
     public class CommandAad
     {
-        private const string ResourceOption = "--resource";
-        private const string ClientOption = "--client";
-        private const string TenantOption = "--tenant";
-        private const string PromptHintOption = "--prompt-hint";
-        private const string ScopeOption = "--scope";
-        private const string ClearOption = "--clear";
-        private const string DomainOption = "--domain";
-        private const string ModeOption = "--mode";
-        private const string OutputOption = "--output";
-        private const string AliasOption = "--alias";
-        private const string ConfigOption = "--config";
-        private const string PromptHintPrefix = "AzureAuth";
-        private const string TimeoutOption = "--timeout";
+        /// <summary>
+        /// The Domain option.
+        /// </summary>
+        public const string DomainOption = "--domain";
+
+        /// <summary>
+        /// The Tenant option.
+        /// </summary>
+        public const string TenantOption = "--tenant";
+
+        /// <summary>
+        /// The Timeout option.
+        /// </summary>
+        public const string TimeoutOption = "--timeout";
+
+        /// <summary>
+        /// The Mode option.
+        /// </summary>
+        public const string ModeOption = "--mode";
+
+        /// <summary>
+        /// The Prompt Hint option.
+        /// </summary>
+        public const string PromptHintOption = "--prompt-hint";
+
+        /// <summary>
+        /// The Prompt Hint help text.
+        /// </summary>
+        public const string PromptHintHelpText = "A prompt hint to contextualize prompts and identify uses in telemetry";
 
 #if PlatformWindows
-        private const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
+        /// <summary>
+        /// The help text for the <see cref="ModeOption"/> option.
+        /// </summary>
+        public const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
 You can use any combination of modes with multiple instances of the --mode flag.
 Allowed values: [all, iwa, broker, web, devicecode]";
 #else
-        private const string AuthModeHelperText = @"Authentication mode. Default: web.
+        /// <summary>
+        /// The help text for the <see cref="ModeOption"/> option.
+        /// </summary>
+        public const string AuthModeHelperText = @"Authentication mode. Default: web.
 You can use any combination with multiple instances of the --mode flag.
 Allowed values: [all, web, devicecode]";
 #endif
 
         /// <summary>
+        /// The help text for the <see cref="DomainOption"/> option.
+        /// </summary>
+        public const string DomainHelpText = "Preferred domain to filter cached accounts by. If a single account matching the preferred domain is in the cache it is used, otherwise an account picker will be launched.\n";
+
+        /// <summary>
+        /// The help text for the <see cref="TimeoutOption"/> option.
+        /// </summary>
+        public const string TimeoutHelpText = "The number of minutes before authentication times out.\nDefault: 15 minutes.";
+
+        /// <summary>
         /// The default number of minutes CLI is allowed to run.
         /// </summary>
-        private static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
+        public static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
+
+        private const string ResourceOption = "--resource";
+        private const string ClientOption = "--client";
+
+        private const string ScopeOption = "--scope";
+        private const string ClearOption = "--clear";
+
+        private const string OutputOption = "--output";
+        private const string AliasOption = "--alias";
+        private const string ConfigOption = "--config";
+        private const string PromptHintPrefix = "AzureAuth";
 
         private readonly EventData eventData;
         private readonly ILogger<CommandAzureAuth> logger;
@@ -123,7 +166,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the customized prompt hint text for WAM prompts and web mode.
         /// </summary>
-        [Option(PromptHintOption, "The prompt hint text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
+        [Option(PromptHintOption, PromptHintHelpText, CommandOptionType.SingleValue)]
         public string PromptHint { get; set; }
 
         /// <summary>
@@ -141,7 +184,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the preferred domain.
         /// </summary>
-        [Option(DomainOption, "Preferred domain to filter cached accounts by. If a single account matching the preferred domain is in the cache it is used, otherwise an account picker will be launched.\n", CommandOptionType.SingleValue)]
+        [Option(DomainOption, DomainHelpText, CommandOptionType.SingleValue)]
         public string PreferredDomain { get; set; }
 
         /// <summary>
@@ -172,7 +215,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets global Timeout.
         /// </summary>
-        [Option(TimeoutOption, "The number of minutes before authentication times out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
+        [Option(TimeoutOption, TimeoutHelpText, CommandOptionType.SingleValue)]
         public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
 
         /// <summary>
@@ -439,10 +482,10 @@ Allowed values: [all, web, devicecode]";
                     // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
                     catch (AbandonedMutexException)
                     {
-                        // If another process crashes or exits accidently, we can still acquire the lock.
+                        // If another process crashes or exits accidentally, we can still acquire the lock.
                         lockAcquired = true;
 
-                        // In this case, basicly we can just leave a log warning, because the worst side effect is propmting more than once.
+                        // In this case, basically we can just leave a log warning, because the worst side effect is prompting more than once.
                         this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
                     }
 
