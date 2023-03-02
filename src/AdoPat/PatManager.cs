@@ -39,6 +39,7 @@ namespace Microsoft.Authentication.AdoPat
 
         /// <summary>
         /// Fetches a PAT matching the given options from the cache, creating or regenerating a new PAT as necessary.
+        /// The cache controlled by this PatManager is not a shared cache and is *only* updated by this method.
         /// </summary>
         /// <param name="options">Options used to match the PAT in the cache or when creating/regenerating a new one.</param>
         /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
