@@ -33,7 +33,8 @@ jobs:
       actions: read
       contents: read
       security-events: write
-
+      statuses: write
+      
     runs-on: ${{ matrix.os }}
     needs: [validate]
     strategy:
