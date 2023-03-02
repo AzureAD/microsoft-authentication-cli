@@ -65,9 +65,8 @@ namespace Microsoft.Authentication.MSALWrapper
                 preferredDomain: domain,
                 promptHint: prompt);
 
-            var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));
-
             List<AuthFlowResult> results = new List<AuthFlowResult>();
+            var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));
 
             // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
             // They may prompt many times, which is annoying and unexpected.
