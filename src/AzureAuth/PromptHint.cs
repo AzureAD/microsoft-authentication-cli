@@ -11,7 +11,7 @@ namespace Microsoft.Authentication.AzureAuth
         /// <summary>
         /// Azure Auth Display name for prompt hints.
         /// </summary>
-        public const string AzureAuth = "Azure Auth";
+        public const string AzureAuth = "AzureAuth";
 
         /// <summary>
         /// Prefix a prompt hint for display.
