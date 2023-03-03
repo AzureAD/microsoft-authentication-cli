@@ -35,7 +35,8 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Run the authenticatuion process.
+        /// Run the authenticatuion process using a global lock around the client, tenant, scopes trio to prevent multiple
+        /// auth prompts for the same tokens.
         /// </summary>
         /// <param name="logger">A <see cref="ILogger"/> to use.</param>
         /// <param name="client">The client ID to authenticate as.</param>
