@@ -247,39 +247,6 @@ Allowed values: [all, web, devicecode]";
         }
 
         /// <summary>
-        /// Generates event data from the AuthFlowResult.
-        /// </summary>
-        /// <param name="result">The AuthFlowResult.</param>
-        /// <returns>The event data.</returns>
-        public EventData AuthFlowEventData(AuthFlowResult result)
-        {
-            if (result == null)
-            {
-                return null;
-            }
-
-            var eventData = new EventData();
-            eventData.Add("authflow", result.AuthFlowName);
-            eventData.Add("success", result.Success);
-            eventData.Add("duration_milliseconds", (int)result.Duration.TotalMilliseconds);
-
-            if (result.Errors.Any())
-            {
-                var error_messages = ExceptionListToStringConverter.Execute(result.Errors);
-                eventData.Add("error_messages", error_messages);
-            }
-
-            if (result.Success)
-            {
-                eventData.Add("msal_correlation_id", result.TokenResult.CorrelationID.ToString());
-                eventData.Add("token_validity_minutes", result.TokenResult.ValidFor.TotalMinutes);
-                eventData.Add("silent", result.TokenResult.IsSilent);
-            }
-
-            return eventData;
-        }
-
-        /// <summary>
         /// This method evaluates whether the options are valid or not.
         /// </summary>
         /// <returns>
@@ -495,7 +462,7 @@ Allowed values: [all, web, devicecode]";
                 this.eventData.Add("authflow_count", results.Length);
 
                 // Send custom telemetry events for each authflow result.
-                this.SendAuthFlowTelemetryEvents(results);
+                results.SendTelemetry(this.telemetryService);
 
                 if (successfulResult == null)
                 {
@@ -531,18 +498,6 @@ Allowed values: [all, web, devicecode]";
             }
 
             return 0;
-        }
-
-        private void SendAuthFlowTelemetryEvents(AuthFlowResult[] results)
-        {
-            Parallel.ForEach(results, result =>
-            {
-                var eventData = this.AuthFlowEventData(result);
-                if (eventData != null)
-                {
-                    this.telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
-                }
-            });
         }
 
         private AuthFlowExecutor AuthFlowExecutor()
