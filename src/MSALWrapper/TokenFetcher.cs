@@ -18,6 +18,8 @@ namespace Microsoft.Authentication.MSALWrapper
     /// </summary>
     public static class TokenFetcher
     {
+        private static readonly TimeSpan MaxLockWaitTime = TimeSpan.FromMinutes(15);
+
         /// <summary>
         /// The result of running <see cref="TokenFetcher"/>.
         /// </summary>
@@ -35,7 +37,7 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Run the authenticatuion process using a global lock around the client, tenant, scopes trio to prevent multiple
+        /// Run the authentication process using a global lock around the client, tenant, scopes trio to prevent multiple
         /// auth prompts for the same tokens.
         /// </summary>
         /// <param name="logger">A <see cref="ILogger"/> to use.</param>
@@ -82,8 +84,8 @@ namespace Microsoft.Authentication.MSALWrapper
                 bool lockAcquired = false;
                 try
                 {
-                    // Wait for the other session to exit.
-                    lockAcquired = mutex.WaitOne(TimeSpan.FromMinutes(15)); // TODO: Inject mutex timeout?
+                    // Wait for other sessions to exit.
+                    lockAcquired = mutex.WaitOne(MaxLockWaitTime);
                 }
                 catch (AbandonedMutexException)
                 {
