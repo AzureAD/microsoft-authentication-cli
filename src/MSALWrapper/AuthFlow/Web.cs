@@ -161,6 +161,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
             catch (MsalUiRequiredException ex)
             {
+                this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
                 this.errors.Add(ex);
                 return new AuthFlowResult(null, this.errors, this.GetType().Name);
             }
