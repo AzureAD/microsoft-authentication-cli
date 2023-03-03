@@ -25,7 +25,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// <param name="fileSystem">The file system.</param>
         /// <param name="app">The command line application.</param>
         /// <returns>The error code: 0 is normal execution, and the rest means errors during execution.</returns>
-        public int OnExecute(ILogger<CommandInfo> logger, IFileSystem fileSystem, CommandLineApplication<CommandInfo> app)
+        public int OnExecute(ILogger<CommandInfo> logger, IFileSystem fileSystem, CommandLineApplication app)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string azureauthVersion = assembly.GetName().Version.ToString();
