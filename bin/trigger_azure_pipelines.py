@@ -138,7 +138,6 @@ def main() -> None:
         organization,
         project,
         pipeline_id,
-        ado_pat,
         version,
         commit_hash,
     )
