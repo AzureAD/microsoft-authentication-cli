@@ -3,11 +3,11 @@
 
 namespace Microsoft.Authentication.AzureAuth
 {
-    using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Office.Lasso.Interfaces;
-
     using System.Collections.Generic;
     using System.Linq;
+
+    using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Office.Lasso.Interfaces;
 
     /// <summary>
     /// Extensions to <see cref="AuthMode"/>s.
@@ -20,7 +20,7 @@ namespace Microsoft.Authentication.AzureAuth
         /// <param name="authModes"><see cref="AuthMode"/>s to aggregate and filter.</param>
         /// <param name="env">An <see cref="IEnv"/> to use.</param>
         /// <returns>A single aggregate <see cref="AuthMode"/> filtered for interactivity.</returns>
-        public static AuthMode FilterInteraction(this IEnumerable<AuthMode> authModes, IEnv env)
+        public static AuthMode CombinedAuthMode(this IEnumerable<AuthMode> authModes, IEnv env)
         {
             if (InteractiveAuthDisabled(env))
             {

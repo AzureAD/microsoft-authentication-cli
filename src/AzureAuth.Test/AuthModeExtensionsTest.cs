@@ -69,7 +69,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.IWA, AuthMode.Web, AuthMode.Broker };
 
             // Act + Assert
-            subject.FilterInteraction(this.envMock.Object).Should().Be(AuthMode.Default);
+            subject.CombinedAuthMode(this.envMock.Object).Should().Be(AuthMode.Default);
         }
 
         [TestCase("AZUREAUTH_NO_USER")]
@@ -81,7 +81,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.IWA, AuthMode.Web, AuthMode.Broker, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.FilterInteraction(this.envMock.Object).Should().Be(AuthMode.IWA);
+            subject.CombinedAuthMode(this.envMock.Object).Should().Be(AuthMode.IWA);
         }
 #else
 
