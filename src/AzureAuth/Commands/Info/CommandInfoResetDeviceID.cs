@@ -20,10 +20,11 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Info
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="fileSystem">The file system.</param>
+        /// <param name="app">The command line application.</param>
         /// <returns>The error code: 0 is normal execution, and the rest means errors during execution.</returns>
-        public int OnExecute(ILogger<CommandResetDeviceID> logger, IFileSystem fileSystem)
+        public int OnExecute(ILogger<CommandResetDeviceID> logger, IFileSystem fileSystem, CommandLineApplication app)
         {
-            TelemetryDeviceID.Delete(fileSystem);
+            TelemetryDeviceID.Delete(fileSystem, app.GetRoot().Name);
             logger.LogSuccess($"Telemetry Device ID was reset.");
 
             return 0;
