@@ -30,7 +30,7 @@ namespace AzureAuth.Test
 
 #if PlatformWindows
         [Test]
-        public void FilterInteraction_Allowed()
+        public void CombinedAuthMode_Allowed()
         {
             // Arrange
             this.envMock.Setup(e => e.Get(EnvVars.NoUser)).Returns(string.Empty);
@@ -54,8 +54,7 @@ namespace AzureAuth.Test
             subject.CombinedAuthMode(this.envMock.Object).Should().Be(AuthMode.IWA);
         }
 #else
-
-        public void FilterInteraction_Allowed()
+        public void CombinedAuthMode_Allowed()
         {
             // Arrange
             this.envMock.Setup(e => e.Get(EnvVars.NoUser)).Returns(string.Empty);
@@ -64,7 +63,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.FilterInteraction(this.envMock.Object).Should().Be(AuthMode.Default);
+            subject.CombinedAuthMode(this.envMock.Object).Should().Be(AuthMode.Default);
         }
 
         [TestCase("AZUREAUTH_NO_USER")]
@@ -76,7 +75,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.FilterInteraction(this.envMock.Object).Should().Be((AuthMode)0);
+            subject.CombinedAuthMode(this.envMock.Object).Should().Be((AuthMode)0);
         }
 #endif
     }
