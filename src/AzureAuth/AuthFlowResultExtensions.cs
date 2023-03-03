@@ -26,7 +26,7 @@ namespace Microsoft.Authentication.AzureAuth
         /// Convert to an <see cref="Office.Lasso.Telemetry.EventData"/>.
         /// </summary>
         /// <param name="result">Current <see cref="AuthFlowResult"/>.</param>
-        /// <returns>An <see cref="Office.Lasso.Telemetry.EventData"/> representng this <see cref="AuthFlowResult"/>.</returns>
+        /// <returns>An <see cref="Office.Lasso.Telemetry.EventData"/> representing this <see cref="AuthFlowResult"/>.</returns>
         /// <remarks>
         /// Why is this an extension method? <see cref="AuthFlowResult"/> is owned by <see cref="MSALWrapper"/>
         /// and <see cref="Office.Lasso.Telemetry.EventData"/> is owned by <see cref="Office.Lasso"/>.
