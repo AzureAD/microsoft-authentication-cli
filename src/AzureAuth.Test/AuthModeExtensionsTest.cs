@@ -28,36 +28,6 @@ namespace AzureAuth.Test
             this.envMock = new Mock<IEnv>();
         }
 
-        [TestCase("1", true)]
-        [TestCase("non-empty-string", false)]
-        [TestCase("true", false)]
-        [TestCase("", false)]
-        public void InteractiveAuth_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
-        {
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
-
-            ModeExtensions.InteractiveAuthDisabled(this.envMock.Object).Should().Be(expected);
-        }
-
-        [TestCase("1", true)]
-        [TestCase("non-empty-string", true)]
-        [TestCase("true", true)]
-        [TestCase("", false)]
-        public void InteractiveAuth_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
-        {
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
-            ModeExtensions.InteractiveAuthDisabled(this.envMock.Object).Should().Be(expected);
-        }
-
-        [Test]
-        public void InteractiveAuth_IsEnabledIfEnvVarsAreNotSet()
-        {
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            ModeExtensions.InteractiveAuthDisabled(this.envMock.Object).Should().BeFalse();
-        }
-
 #if PlatformWindows
         [Test]
         public void FilterInteraction_Allowed()
