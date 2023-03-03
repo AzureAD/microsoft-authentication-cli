@@ -15,8 +15,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Info
     [Command(Name = "reset-device-id", Description = "Reset your AzureAuth telemetry device identifier.")]
     public class CommandResetDeviceID
     {
-        private const string ApplicationName = "azureauth";
-
         /// <summary>
         /// This method executes the reset device ID process.
         /// </summary>
