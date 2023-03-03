@@ -316,7 +316,7 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            if (ModeExtensions.InteractiveAuthDisabled(this.env))
+            if (this.env.InteractiveAuthDisabled())
             {
                 this.eventData.Add(EnvVars.CorextNonInteractive, this.env.Get(EnvVars.CorextNonInteractive));
                 this.eventData.Add(EnvVars.NoUser, this.env.Get(EnvVars.NoUser));
