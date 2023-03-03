@@ -23,8 +23,6 @@
     <NuspecFile>AzureAuth.nuspec</NuspecFile>
     <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration);Version=$(Version)$(VersionSuffix)</NuspecProperties>
 
-    <!-- Stylecop warnings as errors flag for build to fail -->
-    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
