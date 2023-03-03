@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `azureauth ado pat` : Command for creating, and locally caching Azure Devops <abbr title="Personal Access Tokens">PAT</abbr>s.
   - `azureauth ado token` : Command for passing back a <abbr title="Personal Access Tokens">PAT</abbr> from an env var, or authenticating and returning an <abbr title="Azure Active Directory">AAD</abbr> access token.
 
+## [0.7.1] - 2023-03-03
+### Fixed
+- Upgrade to a new version of Lasso which patches a concurrency bug.
+
 ## [0.7.0] - 2023-02-22
 ### Added
 - New telemetry fields for:
@@ -122,7 +126,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.0...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.1...HEAD
+[0.7.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.4...0.6.0
 [0.5.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.5.3...0.5.4
