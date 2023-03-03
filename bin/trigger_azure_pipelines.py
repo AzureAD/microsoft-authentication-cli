@@ -12,10 +12,12 @@ from azure.devops.connection import Connection
 from azure.devops.v6_0.pipelines.pipelines_client import PipelinesClient
 from azure.devops.v6_0.pipelines.models import Run
 from msrest.authentication import BasicAuthentication
+from requests import Response
 
 # https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/get?view=azure-devops-rest-6.0#runresult
 FAILED_STATUSES: set[str] = {"canceled", "failed", "unknown"}
-COMPLETED_STATUSES: set[str] = {"completed"} 
+COMPLETED_STATUSES: set[str] = {"completed"}
+
 
 def ado_connection(organization: str, ado_pat: str) -> Connection:
     """Returns an ADO connection to call the ADO REST APIs."""
@@ -26,7 +28,9 @@ def ado_connection(organization: str, ado_pat: str) -> Connection:
     )
 
 
-def wait_for_pipeline_run(pipeline_client: PipelinesClient, project: str, pipeline_id: int, run_id: str) -> Run:
+def wait_for_pipeline_run(
+    pipeline_client: PipelinesClient, project: str, pipeline_id: int, run_id: str
+) -> Run:
     """Wait for the azure devops pipepline run to finish"""
     run = pipeline_client.get_run(project, pipeline_id, run_id)
 
@@ -52,9 +56,9 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
 ) -> str:
     """Triggers an azure pipeline and waits for it to be finished"""
     pipeline_client = ado_client.get_pipelines_client()
-    
+
     # NOTE: We run a pipeline instead of queuing a build because only the run pipeline API allows us to pass template parameters and build API doesn't support it.
-    # run pipeline API: https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/run-pipeline?view=azure-devops-rest-6.0 
+    # run pipeline API: https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/run-pipeline?view=azure-devops-rest-6.0
     # queue build API: https://learn.microsoft.com/en-us/rest/api/azure/devops/build/builds/queue?view=azure-devops-rest-6.0
 
     run_parameters = {
@@ -67,15 +71,17 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
         "Successfully triggered a pipeline. Waiting for the run to be completed.\n"
         f"More details on the triggered pipeline can be found here: {pipeline_url}"
     )
-    completed_run = wait_for_pipeline_run(pipeline_client, project, pipeline_id, pipeline_status.id)
+    completed_run = wait_for_pipeline_run(
+        pipeline_client, project, pipeline_id, pipeline_status.id
+    )
     if completed_run.result in FAILED_STATUSES:
         raise Exception("Azure DevOps pipeline run failed!")
 
     return run_id
 
 
-def download_callback(chunk, response) -> None:
-    print(f"Downloaded chunk of size: {str(len(chunk))}")
+def download_callback(chunk: bytes, response: Response) -> None:
+    print(f"Downloaded chunk of size: {len(chunk)}")
 
 
 def download_artifact(
@@ -88,7 +94,11 @@ def download_artifact(
     """Download the ADO artifact to the given download path"""
     build_client = ado_client.get_build_client()
     artifact = build_client.get_artifact_content_zip(
-        project, run_id, ado_artifact_name, download=True, callback=download_callback
+        project,
+        run_id,
+        ado_artifact_name,
+        download=True,
+        callback=download_callback,
     )
 
     # Read the stream of bytes to a bytearray.
