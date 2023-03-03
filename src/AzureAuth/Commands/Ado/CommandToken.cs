@@ -20,7 +20,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         /// Gets or sets the Azure Tenant ID to use for authentication.
         /// </summary>
         [Option(CommandAad.TenantOption, Description = "The Azure Tenant ID to use for authentication. Defaults to Microsoft.")]
-        public string Tenant { get; set; } = AzureAuth.Ado.Constants.Tenant.Msft;
+        public string Tenant { get; set; } = AzureAuth.Ado.Constants.Tenant.Microsoft;
 
         /// <summary>
         /// Gets or sets the auth modes.
