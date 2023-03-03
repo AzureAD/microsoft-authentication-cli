@@ -6,7 +6,7 @@ namespace Microsoft.Authentication.AzureAuth
     /// <summary>
     /// A static class to hold env var names.
     /// </summary>
-    internal static class EnvVars
+    public static class EnvVars
     {
         /// <summary>
         /// Holds the name of the env var to get an application insights ingestion token.

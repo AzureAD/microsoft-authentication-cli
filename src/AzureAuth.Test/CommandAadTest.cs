@@ -478,66 +478,6 @@ invalid_key = ""this is not a valid alias key""
             this.telemetryServiceMock.VerifyAll();
         }
 
-        [TestCase("1", true)]
-        [TestCase("non-empty-string", false)]
-        [TestCase("true", false)]
-        [TestCase("", false)]
-        public void InteractiveAuth_IsDisabledOnCorextEnvVar(string corextNonInteractive, bool expected)
-        {
-            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(corextNonInteractive);
-            subject.InteractiveAuthDisabled().Should().Be(expected);
-        }
-
-        [TestCase("1", true)]
-        [TestCase("non-empty-string", true)]
-        [TestCase("true", true)]
-        [TestCase("", false)]
-        public void InteractiveAuth_IsDisabledOnNoUserEnvVar(string noUser, bool expected)
-        {
-            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
-            subject.InteractiveAuthDisabled().Should().Be(expected);
-        }
-
-        [Test]
-        public void InteractiveAuth_IsEnabledIfEnvVarsAreNotSet()
-        {
-            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            subject.InteractiveAuthDisabled().Should().BeFalse();
-        }
-
-#if PlatformWindows
-        [TestCase("non-empty-string")]
-        public void GetCombinedAuthMode_withInteractiveAuthDisabled(string noUser)
-        {
-            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
-            this.envMock.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns(noUser);
-            subject.CombinedAuthMode.Should().Be(AuthMode.IWA);
-        }
-
-        public void GetCombinedAuthMode_withInteractiveAuthEnabled()
-        {
-            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
-            var authModes = new List<AuthMode>();
-            authModes.Add(AuthMode.Broker);
-            subject.AuthModes = authModes;
-            subject.CombinedAuthMode.Should().Be(AuthMode.Broker);
-        }
-#endif
-
-        public void GetCombinedAuthMode_withInteractiveAuthEnabled_NonWindowsPlatform()
-        {
-            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
-            var authModes = new List<AuthMode>();
-            authModes.Add(AuthMode.Web);
-            subject.AuthModes = authModes;
-            subject.CombinedAuthMode.Should().Be(AuthMode.Web);
-        }
-
         /// <summary>
         /// The root path.
         /// </summary>
