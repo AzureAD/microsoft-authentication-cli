@@ -7,7 +7,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using System.Collections.Generic;
     using System.IO.Abstractions;
     using System.Linq;
-    using System.Threading;
+    using System.Threading.Tasks;
 
     using McMaster.Extensions.CommandLineUtils;
 
@@ -16,6 +16,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
+    using Microsoft.IdentityModel.Tokens;
     using Microsoft.Office.Lasso.Extensions;
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
@@ -85,7 +86,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// The default number of minutes CLI is allowed to run.
         /// </summary>
-        public static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
+        public static readonly TimeSpan GlobalTimeout = 15.0.Minutes();
 
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
@@ -96,21 +97,14 @@ Allowed values: [all, web, devicecode]";
         private const string OutputOption = "--output";
         private const string AliasOption = "--alias";
         private const string ConfigOption = "--config";
-        private const string PromptHintPrefix = "AzureAuth";
 
         private readonly EventData eventData;
         private readonly ILogger<CommandAzureAuth> logger;
         private readonly IFileSystem fileSystem;
         private readonly IEnv env;
         private Alias authSettings;
-        private IAuthFlow authFlow;
-        private AuthFlowExecutor authFlowExecutor;
         private ITelemetryService telemetryService;
-
-        /// <summary>
-        /// The maximum time we will wait to acquire a mutex around prompting the user.
-        /// </summary>
-        private TimeSpan promptMutexTimeout = TimeSpan.FromMinutes(15);
+        private IAuthFlow authFlow;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandAad"/> class.
@@ -283,6 +277,13 @@ Allowed values: [all, web, devicecode]";
                 }
             }
 
+            // Handle Resource Shorthand for Default Scope
+            if (evaluatedOptions.Scopes.IsNullOrEmpty() && !string.IsNullOrEmpty(evaluatedOptions.Resource))
+            {
+                evaluatedOptions.Scopes = new List<string>() { $"{evaluatedOptions.Resource}/.default" };
+                evaluatedOptions.Resource = null;
+            }
+
             // Set the token fetcher options so they can be used later on.
             this.authSettings = evaluatedOptions;
 
@@ -380,69 +381,34 @@ Allowed values: [all, web, devicecode]";
         {
             try
             {
-                AuthFlowExecutor authFlowExecutor = this.AuthFlowExecutor();
-                AuthFlowResult successfulResult = null;
-                AuthFlowResult[] results = null;
+                var results = TokenFetcher.AccessToken(
+                    logger: this.logger,
+                    client: new Guid(this.authSettings.Client),
+                    tenant: new Guid(this.authSettings.Tenant),
+                    scopes: this.authSettings.Scopes,
+                    mode: this.AuthModes.Combine().PreventInteractionIfNeeded(this.env),
+                    domain: this.authSettings.Domain,
+                    prompt: AzureAuth.PromptHint.Prefixed(this.authSettings.PromptHint),
+                    timeout: this.Timeout.Minutes());
 
-                // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
-                // They may prompt many times, which is annoying and unexpected.
-                // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
-                string lockName = $"Local\\{this.Resource}_{this.Client}_{this.Tenant}";
-
-                // First parameter InitiallyOwned indicated whether this lock is owned by current thread.
-                // It should be false otherwise a dead lock could occur.
-                using (Mutex mutex = new Mutex(false, lockName))
-                {
-                    bool lockAcquired = false;
-                    try
-                    {
-                        // Wait for the other session to exit.
-                        lockAcquired = mutex.WaitOne(this.promptMutexTimeout);
-                    }
-
-                    // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
-                    catch (AbandonedMutexException)
-                    {
-                        // If another process crashes or exits accidentally, we can still acquire the lock.
-                        lockAcquired = true;
-
-                        // In this case, basically we can just leave a log warning, because the worst side effect is prompting more than once.
-                        this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
-                    }
-
-                    if (!lockAcquired)
-                    {
-                        throw new TimeoutException("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
-                    }
-
-                    try
-                    {
-                        results = authFlowExecutor.GetTokenAsync().Result.ToArray();
-                        successfulResult = results.FirstOrDefault(result => result.Success);
-                    }
-                    finally
-                    {
-                        mutex.ReleaseMutex();
-                    }
-                }
-
-                var errors = results.SelectMany(result => result.Errors).ToArray();
+                var errors = results.Attempts.SelectMany(attempt => attempt.Errors).ToArray();
                 this.eventData.Add("error_count", errors.Length);
-                this.eventData.Add("authflow_count", results.Length);
+                this.eventData.Add("authflow_count", results.Attempts.Count);
 
                 // Send custom telemetry events for each authflow result.
-                results.SendTelemetry(this.telemetryService);
+                results.Attempts.SendTelemetry(this.telemetryService);
 
-                if (successfulResult == null)
+                var success = results.Success;
+                if (success == null)
                 {
                     this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
                     return 1;
                 }
 
-                var tokenResult = successfulResult.TokenResult;
+                var tokenResult = success.TokenResult;
                 this.eventData.Add("silent", tokenResult.IsSilent);
                 this.eventData.Add("sid", tokenResult.SID);
-                this.eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
+                this.eventData.Add("succeeded_mode", success.AuthFlowName);
 
                 switch (this.Output)
                 {
@@ -467,40 +433,6 @@ Allowed values: [all, web, devicecode]";
             }
 
             return 0;
-        }
-
-        private AuthFlowExecutor AuthFlowExecutor()
-        {
-            // TODO: Really we need to get rid of Resource
-            var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
-
-            IEnumerable<IAuthFlow> authFlows = null;
-            if (this.authFlow != null)
-            {
-                // if this.authFlow has been injected - use that.
-                authFlows = new[] { this.authFlow };
-            }
-            else
-            {
-                // Normal production flow
-                authFlows = AuthFlowFactory.Create(
-                this.logger,
-                this.AuthModes.Combine().PreventInteractionIfNeeded(this.env),
-                new Guid(this.authSettings.Client),
-                new Guid(this.authSettings.Tenant),
-                scopes,
-                this.PreferredDomain,
-                AzureAuth.PromptHint.Prefixed(this.authSettings.PromptHint));
-            }
-
-            this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());
-
-            return this.authFlowExecutor;
-        }
-
-        private IStopwatch StopwatchTracker()
-        {
-            return new StopwatchTracker(TimeSpan.FromMinutes(this.Timeout));
         }
     }
 }
