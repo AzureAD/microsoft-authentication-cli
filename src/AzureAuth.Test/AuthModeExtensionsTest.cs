@@ -75,7 +75,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.Combined().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.None);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.None);
         }
 #endif
     }
