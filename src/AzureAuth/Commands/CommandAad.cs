@@ -8,7 +8,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using System.IO.Abstractions;
     using System.Linq;
     using System.Threading;
-    using System.Threading.Tasks;
 
     using McMaster.Extensions.CommandLineUtils;
 
@@ -21,12 +20,10 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
 
-    using ModeExtensions = Microsoft.Authentication.AzureAuth.AuthModeExtensions;
-
     /// <summary>
     /// Command class for authenticating with AAD.
     /// </summary>
-    [Command("aad", Description = "todo")]
+    [Command("aad", Description = "Acquire an Azure Access Token")]
     public class CommandAad
     {
         /// <summary>
