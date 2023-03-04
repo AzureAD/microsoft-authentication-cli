@@ -488,7 +488,7 @@ Allowed values: [all, web, devicecode]";
                 // Normal production flow
                 authFlows = AuthFlowFactory.Create(
                 this.logger,
-                this.AuthModes.CombinedAuthMode(this.env),
+                this.AuthModes.Combine().PreventInteractionIfNeeded(this.env),
                 new Guid(this.authSettings.Client),
                 new Guid(this.authSettings.Tenant),
                 scopes,

@@ -17,10 +17,10 @@ namespace Microsoft.Authentication.AzureAuth
         /// <summary>
         /// Filters a list of <see cref="AuthMode"/> for interaction returning a single aggregate <see cref="AuthMode"/>.
         /// </summary>
-        /// <param name="authModes"><see cref="AuthMode"/>s to aggregate and filter.</param>
+        /// <param name="authMode">Starting <see cref="AuthMode"/>to filter.</param>
         /// <param name="env">An <see cref="IEnv"/> to use.</param>
-        /// <returns>A single aggregate <see cref="AuthMode"/> filtered for interactivity.</returns>
-        public static AuthMode CombinedAuthMode(this IEnumerable<AuthMode> authModes, IEnv env)
+        /// <returns>An <see cref="AuthMode"/> with only non-interactive auth modes allowed, if specificed by the environment.</returns>
+        public static AuthMode PreventInteractionIfNeeded(this AuthMode authMode, IEnv env)
         {
             if (env.InteractiveAuthDisabled())
             {
@@ -31,7 +31,7 @@ namespace Microsoft.Authentication.AzureAuth
 #endif
             }
 
-            return authModes.Aggregate((a1, a2) => a1 | a2);
+            return authMode;
         }
     }
 }
