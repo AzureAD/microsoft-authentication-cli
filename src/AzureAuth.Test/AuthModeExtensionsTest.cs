@@ -39,7 +39,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.IWA, AuthMode.Web, AuthMode.Broker };
 
             // Act + Assert
-            subject.CombinedAuthMode(this.envMock.Object).Should().Be(AuthMode.Default);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.Default);
         }
 
         [TestCase("AZUREAUTH_NO_USER")]
@@ -51,7 +51,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.IWA, AuthMode.Web, AuthMode.Broker, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.CombinedAuthMode(this.envMock.Object).Should().Be(AuthMode.IWA);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.IWA);
         }
 #else
         public void CombinedAuthMode_Allowed()
@@ -63,7 +63,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.CombinedAuthMode(this.envMock.Object).Should().Be(AuthMode.Default);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.Default);
         }
 
         [TestCase("AZUREAUTH_NO_USER")]
@@ -75,7 +75,7 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.CombinedAuthMode(this.envMock.Object).Should().Be((AuthMode)0);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.None);
         }
 #endif
     }
