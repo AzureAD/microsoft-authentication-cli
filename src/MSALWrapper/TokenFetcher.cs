@@ -106,7 +106,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 {
                     // GetTokenAsync returns an empty list instead of null so no null check required here.
                     results.AddRange(executor.GetTokenAsync().Result);
-                 }
+                }
                 finally
                 {
                     mutex.ReleaseMutex();
