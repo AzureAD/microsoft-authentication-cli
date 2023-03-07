@@ -86,7 +86,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// The default number of minutes CLI is allowed to run.
         /// </summary>
-        public static readonly TimeSpan GlobalTimeout = 15.0.Minutes();
+        public static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
 
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
@@ -389,7 +389,7 @@ Allowed values: [all, web, devicecode]";
                     mode: this.AuthModes.Combine().PreventInteractionIfNeeded(this.env),
                     domain: this.authSettings.Domain,
                     prompt: AzureAuth.PromptHint.Prefixed(this.authSettings.PromptHint),
-                    timeout: this.Timeout.Minutes());
+                    timeout: TimeSpan.FromMinutes(this.Timeout));
 
                 var errors = results.Attempts.SelectMany(attempt => attempt.Errors).ToArray();
                 this.eventData.Add("error_count", errors.Length);
