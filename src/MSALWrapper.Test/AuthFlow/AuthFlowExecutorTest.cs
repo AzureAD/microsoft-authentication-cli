@@ -860,6 +860,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 this.delay = delay;
             }
 
+            public Task<IAccount> GetCachedAccountAsync()
+            {
+                throw new NotImplementedException();
+            }
+
             public async Task<AuthFlowResult> GetTokenAsync()
             {
                 var errors = new[]
@@ -869,6 +874,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 var authFlowResult = new AuthFlowResult(null, errors, "DelayAuthFlow");
                 await Task.Delay(this.delay);
                 return authFlowResult;
+            }
+
+            public Task<AuthFlowResult> GetTokenInteractiveAsync(IAccount account)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<AuthFlowResult> GetTokenSilentAsync(IAccount account)
+            {
+                throw new NotImplementedException();
             }
         }
     }
