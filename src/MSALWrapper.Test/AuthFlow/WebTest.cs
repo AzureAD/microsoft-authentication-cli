@@ -101,18 +101,17 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task WebAuthFlow_NoAccount()
         {
             this.pcaWrapperMock.Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>())).ReturnsAsync((IAccount)null);
-            this.SilentAuthUIRequired();
             this.InteractiveAuthResult();
+            this.SetupInteractiveAuthWithPromptHint();
 
             // Act
-            AuthFlow.Web deviceCode = this.Subject();
-            var authFlowResult = await deviceCode.GetTokenAsync();
+            AuthFlow.Web web = this.Subject();
+            var authFlowResult = await web.GetTokenAsync();
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
-            authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.AuthFlowName.Should().Be("Web");
         }
 
@@ -125,11 +124,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             AuthFlow.Web web = this.Subject();
-            var authFlowResult = await web.GetTokenAsync();
+            IAccount account = await web.GetCachedAccountAsync();
+            var authFlowResult = await web.GetTokenSilentAsync(account);
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
-            authFlowResult.TokenResult.Should().Be(null);
+            authFlowResult.Success.Should().BeFalse();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("Web");
         }
@@ -225,7 +225,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             AuthFlow.Web web = this.Subject();
-            var authFlowResult = await web.GetTokenAsync();
+            IAccount account = await web.GetCachedAccountAsync();
+            var authFlowResult = await web.GetTokenSilentAsync(account);
 
             // Assert
             this.pcaWrapperMock.VerifyAll();

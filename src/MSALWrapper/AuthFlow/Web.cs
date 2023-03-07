@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// <summary>
     /// The web auth flow.
     /// </summary>
-    public class Web : IAuthFlow, IAuthFlowSilent
+    public class Web : IAuthFlow, ISilentAuthFlow, IInteractiveAuthFlow
     {
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
@@ -157,6 +157,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.errors)
                     .ConfigureAwait(false);
                 tokenResult.SetSilent();
+
                 return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
             }
             catch (MsalUiRequiredException ex)

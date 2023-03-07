@@ -14,7 +14,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// <summary>
     /// The device code auth flow.
     /// </summary>
-    public class DeviceCode : IAuthFlow, IAuthFlowSilent
+    public class DeviceCode : IAuthFlow, ISilentAuthFlow, IInteractiveAuthFlow
     {
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
@@ -28,7 +28,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The silent auth timeout.
         /// </summary>
-        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(15);
+        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(30);
 
         /// <summary>
         /// The device code flow timeout.

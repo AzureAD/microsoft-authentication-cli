@@ -103,7 +103,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task DeviceCodeAuthFlow_NoAccount()
         {
             this.pcaWrapperMock.Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>())).ReturnsAsync((IAccount)null);
-            this.SilentAuthUIRequired();
             this.DeviceCodeAuthResult();
 
             // Act
@@ -114,7 +113,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
-            authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 
@@ -127,7 +126,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             AuthFlow.DeviceCode deviceCode = this.Subject();
-            var authFlowResult = await deviceCode.GetTokenAsync();
+            IAccount account = await deviceCode.GetCachedAccountAsync();
+            var authFlowResult = await deviceCode.GetTokenSilentAsync(account);
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
@@ -145,14 +145,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             AuthFlow.DeviceCode deviceCode = this.Subject();
-            var authFlowResult = await deviceCode.GetTokenAsync();
+            IAccount account = await deviceCode.GetCachedAccountAsync();
+            var authFlowResult = await deviceCode.GetTokenSilentAsync(account);
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
+            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:30");
             authFlowResult.AuthFlowName.Should().Be("DeviceCode");
         }
 

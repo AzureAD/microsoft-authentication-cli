@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// <summary>
     /// The broker auth flow.
     /// </summary>
-    public class IntegratedWindowsAuthentication : IAuthFlow
+    public class IntegratedWindowsAuthentication : IAuthFlow, ISilentAuthFlow, IInteractiveAuthFlow
     {
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;

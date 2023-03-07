@@ -103,7 +103,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
-            var authFlowResult = await iwa.GetTokenAsync();
+            IAccount account = await iwa.GetCachedAccountAsync();
+            var authFlowResult = await iwa.GetTokenSilentAsync(account);
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
@@ -158,14 +159,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
-            var authFlowResult = await iwa.GetTokenAsync();
+            IAccount account = await iwa.GetCachedAccountAsync();
+            var authFlowResult = await iwa.GetTokenSilentAsync(account);
 
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
+            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:30");
             authFlowResult.Errors[1].Should().BeOfType(typeof(NullTokenResultException));
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }
@@ -210,7 +212,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task NoCachedAccounts_IWASuccess()
         {
             this.MockAccountReturnsNull();
-            this.CachedAuthUIRequiredNoAccount();
             this.IWAReturnsResult();
 
             // Act
@@ -221,7 +222,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeTrue();
-            authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }
 
@@ -229,7 +230,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task GetTokenIWA_ReturnsNull()
         {
             this.MockAccountReturnsNull();
-            this.CachedAuthUIRequired();
             this.IWAReturnsNull();
 
             // Act
@@ -239,16 +239,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
-            authFlowResult.Errors.Should().HaveCount(1);
-            authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.Errors.Should().BeEmpty();
         }
 
         [Test]
         public async Task GetTokenIWA_MsalUIRequired_2FA()
         {
             this.MockAccountReturnsNull();
-            this.CachedAuthUIRequired();
             this.IWAUIRequiredFor2FA();
 
             // Act
@@ -257,10 +254,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
-            authFlowResult.Errors.Should().HaveCount(2);
+            authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[1].Message.Should().Be("AADSTS50076 MSAL UI Required Exception!");
+            authFlowResult.Errors[0].Message.Should().Be("AADSTS50076 MSAL UI Required Exception!");
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }
 
@@ -268,7 +264,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task GetTokenIWA_GenericMsalUIRequired()
         {
             this.MockAccountReturnsNull();
-            this.CachedAuthUIRequired();
             this.IWAGenericUIRequiredException();
 
             // Act
@@ -277,10 +272,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
-            authFlowResult.Errors.Should().HaveCount(2);
+            authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[1].Message.Should().Be("MSAL UI Required Exception!");
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }
 
@@ -288,7 +281,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task GetTokenIWA_MsalServiceException()
         {
             this.MockAccountReturnsNull();
-            this.CachedAuthUIRequired();
             this.IWAServiceException();
 
             // Act
@@ -299,9 +291,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // our caller can retry auth another way.
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
-            authFlowResult.Errors.Should().HaveCount(2);
-            authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[1].Should().BeOfType(typeof(MsalServiceException));
+            authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }
 
@@ -309,7 +300,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task GetTokenIWA_MsalClientException()
         {
             this.MockAccountReturnsNull();
-            this.CachedAuthUIRequired();
             this.IWAClientException();
 
             // Act
@@ -319,9 +309,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
-            authFlowResult.Errors.Should().HaveCount(2);
-            authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[1].Should().BeOfType(typeof(MsalClientException));
+            authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
             authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
         }
 
