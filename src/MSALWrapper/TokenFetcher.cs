@@ -49,7 +49,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="prompt">A prompt hint to display to the user if needed.</param>
         /// <param name="timeout">The max <see cref="TimeSpan"/> we should spend attempting token acquisition for.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        public static async Task<Result> AccessTokenAsync(
+        public static Result AccessToken(
             ILogger logger,
             Guid client,
             Guid tenant,
@@ -105,7 +105,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 try
                 {
                     // GetTokenAsync returns an empty list instead of null so no null check required here.
-                    results.AddRange(await executor.GetTokenAsync());
+                    results.AddRange(executor.GetTokenAsync().Result);
                 }
                 finally
                 {

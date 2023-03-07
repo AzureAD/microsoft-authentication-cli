@@ -6,4 +6,4 @@
 set -e
 
 here=$(dirname $(readlink -f "$0"))
-"${here}/dotnet" run --project "${here}/../src/AzureAuth" -- $* --debug
+dotnet run --project "${here}/../src/AzureAuth" -- $* --debug

@@ -25,14 +25,14 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <param name="prompt">A prompt hint to display to the user if needed.</param>
         /// <param name="timeout">The max <see cref="TimeSpan"/> we should spend attempting token acquisition for.</param>
         /// <returns>A <see cref="AADTokenFetcher.Result"/>.</returns>
-        public static async Task<AADTokenFetcher.Result> AccessTokenAsync(
+        public static AADTokenFetcher.Result AccessToken(
             ILogger logger,
             AuthMode mode,
             string domain,
             string prompt,
             TimeSpan timeout)
         {
-            return await AADTokenFetcher.AccessTokenAsync(
+            return AADTokenFetcher.AccessToken(
                 logger: logger,
                 client: new Guid(Constants.Client.VisualStudio),
                 tenant: new Guid(Constants.Tenant.Microsoft),
