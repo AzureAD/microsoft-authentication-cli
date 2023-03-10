@@ -11,8 +11,8 @@ namespace AzureAuth.Test.Commands.Ado
     internal class CommandTokenTest
     {
         [TestCase("foobar", CommandToken.OutputMode.Token, "foobar")]
-        [TestCase("foobar", CommandToken.OutputMode.HeaderValue, "Basic :Zm9vYmFy")]
-        [TestCase("foobar", CommandToken.OutputMode.Header, "Authorization: Basic :Zm9vYmFy")]
+        [TestCase("foobar", CommandToken.OutputMode.HeaderValue, "Basic OmZvb2Jhcg==")]
+        [TestCase("foobar", CommandToken.OutputMode.Header, "Authorization: Basic OmZvb2Jhcg==")]
         public void FormatToken_Basic(string input, CommandToken.OutputMode mode, string expected)
         {
             CommandToken.FormatToken(input, mode, Authorization.Basic).Should().Be(expected);

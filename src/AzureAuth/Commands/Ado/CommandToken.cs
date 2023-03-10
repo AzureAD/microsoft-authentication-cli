@@ -46,19 +46,6 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             HeaderValue,
         }
 
-        /// <summary>
-        /// Format a PAT based on <paramref name="output"/>.
-        /// </summary>
-        /// <param name="value">The PAT value.</param>
-        /// <param name="output">The output mode.</param>
-        /// <returns>The formatted PAT value ready for printing.</returns>
-        public static string FormatToken(string value, OutputMode output, Authorization scheme) => output switch
-        {
-            OutputMode.Token => value,
-            OutputMode.Header => value.AsHeader(scheme),
-            OutputMode.HeaderValue => value.AsHeaderValue(scheme),
-        };
-
         [Option(OutputOption, OutputOptionDescription, CommandOptionType.SingleValue)]
         private OutputMode Output { get; set; } = OutputMode.Token;
 
@@ -76,6 +63,21 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
 
         [Option(CommandAad.PromptHintOption, CommandAad.PromptHintHelpText, CommandOptionType.SingleValue)]
         private string PromptHint { get; set; }
+
+        /// <summary>
+        /// Format a PAT based on <paramref name="output"/>.
+        /// </summary>
+        /// <param name="value">The PAT value.</param>
+        /// <param name="output">The output mode.</param>
+        /// <param name="scheme">The <see cref="Authorization"/> scheme to use.</param>
+        /// <returns>The formatted PAT value ready for printing.</returns>
+        public static string FormatToken(string value, OutputMode output, Authorization scheme) => output switch
+        {
+            OutputMode.Token => value,
+            OutputMode.Header => value.AsHeader(scheme),
+            OutputMode.HeaderValue => value.AsHeaderValue(scheme),
+            _ => throw new ArgumentOutOfRangeException(nameof(scheme)),
+        };
 
         /// <summary>
         /// Executes the command and returns a status code indicating the success or failure of the execution.
