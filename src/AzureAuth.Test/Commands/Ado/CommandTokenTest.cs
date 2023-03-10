@@ -4,27 +4,26 @@
 namespace AzureAuth.Test.Commands.Ado
 {
     using FluentAssertions;
+    using Microsoft.Authentication.AzureAuth.Ado;
     using Microsoft.Authentication.AzureAuth.Commands.Ado;
     using NUnit.Framework;
 
     internal class CommandTokenTest
     {
-        [Test]
-        public void FormatPat_Token()
+        [TestCase("foobar", CommandToken.OutputMode.Token, "foobar")]
+        [TestCase("foobar", CommandToken.OutputMode.HeaderValue, "Basic Zm9vYmFy")]
+        [TestCase("foobar", CommandToken.OutputMode.Header, "Authorization: Basic Zm9vYmFy")]
+        public void FormatToken_Basic(string input, CommandToken.OutputMode mode, string expected)
         {
-            CommandToken.FormatPat("foobar", CommandToken.OutputMode.Token).Should().Be("foobar");
+            CommandToken.FormatToken(input, mode, Authorization.Basic).Should().Be(expected);
         }
 
-        [Test]
-        public void FormatPat_HeaderValue()
+        [TestCase("foobar", CommandToken.OutputMode.Token, "foobar")]
+        [TestCase("foobar", CommandToken.OutputMode.HeaderValue, "Bearer foobar")]
+        [TestCase("foobar", CommandToken.OutputMode.Header, "Authorization: Bearer foobar")]
+        public void FormatToken_Bearer(string input, CommandToken.OutputMode mode, string expected)
         {
-            CommandToken.FormatPat("foobar", CommandToken.OutputMode.HeaderValue).Should().Be("Basic Zm9vYmFy");
-        }
-
-        [Test]
-        public void FormatPat_Header()
-        {
-            CommandToken.FormatPat("foobar", CommandToken.OutputMode.Header).Should().Be("Authorization: Basic Zm9vYmFy");
+            CommandToken.FormatToken(input, mode, Authorization.Bearer).Should().Be(expected);
         }
     }
 }

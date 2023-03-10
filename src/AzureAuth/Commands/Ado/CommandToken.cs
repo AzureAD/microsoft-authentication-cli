@@ -28,32 +28,6 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         private const string OutputOptionDescription = "How to print the token. One of [token, header, headervalue].\nDefault: token";
 
         /// <summary>
-        /// Format a PAT based on <paramref name="output"/>.
-        /// </summary>
-        /// <param name="value">The PAT value.</param>
-        /// <param name="output">The output mode.</param>
-        /// <returns>The formatted PAT value ready for printing.</returns>
-        public static string FormatPat(string value, OutputMode output) => output switch
-        {
-            OutputMode.Token => value,
-            OutputMode.Header => TokenFormatter.HeaderBasic(value),
-            OutputMode.HeaderValue => TokenFormatter.HeaderBasicValue(value),
-        };
-
-        /// <summary>
-        /// Format an Access Token based on <paramref name="output"/>.
-        /// </summary>
-        /// <param name="value">The access token.</param>
-        /// <param name="output">The output mode.</param>
-        /// <returns>The formatted Access Toekn ready for printing.</returns>
-        public static string FormatAccessToken(string value, OutputMode output) => output switch
-        {
-            OutputMode.Token => value,
-            OutputMode.Header => TokenFormatter.HeaderBearer(value),
-            OutputMode.HeaderValue => TokenFormatter.HeaderBearerValue(value),
-        };
-
-        /// <summary>
         /// The available Token Formats.
         /// </summary>
         public enum OutputMode
@@ -71,6 +45,19 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             /// <summary> TODO </summary>
             HeaderValue,
         }
+
+        /// <summary>
+        /// Format a PAT based on <paramref name="output"/>.
+        /// </summary>
+        /// <param name="value">The PAT value.</param>
+        /// <param name="output">The output mode.</param>
+        /// <returns>The formatted PAT value ready for printing.</returns>
+        public static string FormatToken(string value, OutputMode output, Authorization scheme) => output switch
+        {
+            OutputMode.Token => value,
+            OutputMode.Header => value.AsHeader(scheme),
+            OutputMode.HeaderValue => value.AsHeaderValue(scheme),
+        };
 
         [Option(OutputOption, OutputOptionDescription, CommandOptionType.SingleValue)]
         private OutputMode Output { get; set; } = OutputMode.Token;
@@ -104,7 +91,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             if (pat.Exists)
             {
                 logger.LogDebug($"Using PAT from env var {pat.EnvVarSource}");
-                logger.LogInformation(FormatPat(pat.Value, this.Output));
+                logger.LogInformation(FormatToken(pat.Value, this.Output, Authorization.Basic));
                 return 0;
             }
 
@@ -116,12 +103,11 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
                 prompt: AzureAuth.PromptHint.Prefixed(this.PromptHint),
                 timeout: TimeSpan.FromMinutes(this.Timeout));
 
-
             var authflow = authResult.Success;
             if (authflow != null)
             {
                 logger.LogDebug($"Acquired AAD AT via {authflow.AuthFlowName} in {authflow.Duration.TotalSeconds:0.00} sec");
-                logger.LogInformation(FormatAccessToken(authflow.TokenResult.Token, this.Output));
+                logger.LogInformation(FormatToken(authflow.TokenResult.Token, this.Output, Authorization.Bearer));
                 return 0;
             }
 
