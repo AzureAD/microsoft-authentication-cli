@@ -34,7 +34,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <returns>A full Authorization header using the Basic scheme.</returns>
         public static string AsHeader(this string value, Authorization scheme)
         {
-            return string.Join(' ', new[] { AuthorizationHeader, scheme.AsString(), scheme.FormatValue(value) });
+            return string.Join(' ', new[] { AuthorizationHeader, scheme.ToString(), scheme.FormatValue(value) });
         }
 
         /// <summary>
@@ -46,19 +46,13 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <returns>The Authorization header value.</returns>
         public static string AsHeaderValue(this string value, Authorization scheme)
         {
-            return string.Join(' ', new[] { scheme.AsString(), scheme.FormatValue(value) });
+            return string.Join(' ', new[] { scheme.ToString(), scheme.FormatValue(value) });
         }
 
         private static string FormatValue(this Authorization scheme, string value) => scheme switch
         {
             Authorization.Basic => value.Base64(),
             Authorization.Bearer => value,
-        };
-
-        private static string AsString(this Authorization scheme) => scheme switch
-        {
-            Authorization.Basic => Basic,
-            Authorization.Bearer => Bearer,
         };
     }
 }
