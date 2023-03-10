@@ -9,18 +9,18 @@ namespace AzureAuth.Test.Ado
 
     using NUnit.Framework;
 
-    internal class HeaderFormatterTest
+    internal class TokenFormatterTest
     {
         [Test]
         public void Header_Bearer()
         {
-            HeaderFormatter.HeaderBearer("foobar").Should().Be("Authorization: Bearer foobar");
+            TokenFormatter.HeaderBearer("foobar").Should().Be("Authorization: Bearer foobar");
         }
 
         [Test]
         public void Header_Bearer_Value()
         {
-            HeaderFormatter.HeaderBearerValue("foobar").Should().Be("Bearer foobar");
+            TokenFormatter.HeaderBearerValue("foobar").Should().Be("Bearer foobar");
         }
 
         /*
@@ -33,16 +33,25 @@ namespace AzureAuth.Test.Ado
 
         [TestCase("foobar", "Zm9vYmFy")]
         [TestCase("foobars", "Zm9vYmFycw==")]
+        public void Base64(string input, string output)
+        {
+            TokenFormatter.Base64(input).Should().Be(output);
+        }
+
+        [TestCase("foobar", "Zm9vYmFy")]
+        [TestCase("foobars", "Zm9vYmFycw==")]
         public void Header_Basic(string input, string output)
         {
-            HeaderFormatter.HeaderBasic(input).Should().Be($"Authorization: Basic {output}");
+            TokenFormatter.HeaderBasic(input).Should().Be($"Authorization: Basic {output}");
         }
 
         [TestCase("foobar", "Zm9vYmFy")]
         [TestCase("foobars", "Zm9vYmFycw==")]
         public void Header_Basic_Value(string input, string output)
         {
-            HeaderFormatter.HeaderBasicValue(input).Should().Be($"Basic {output}");
+            TokenFormatter.HeaderBasicValue(input).Should().Be($"Basic {output}");
         }
+
+        
     }
 }
