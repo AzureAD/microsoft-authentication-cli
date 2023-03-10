@@ -49,6 +49,10 @@ namespace Microsoft.Authentication.AzureAuth.Ado
             return string.Join(' ', new[] { scheme.ToString(), scheme.FormatValue(value) });
         }
 
+        /// <summary>
+        /// For Basic scheme, we expect to be using PATs - so we inject a ':' ahead of the value
+        /// to denote an empty username before the password.
+        /// </summary>
         private static string FormatValue(this Authorization scheme, string value) => scheme switch
         {
             Authorization.Basic => $":{value.Base64()}",
