@@ -51,7 +51,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
 
         private static string FormatValue(this Authorization scheme, string value) => scheme switch
         {
-            Authorization.Basic => value.Base64(),
+            Authorization.Basic => $":{value.Base64()}",
             Authorization.Bearer => value,
         };
     }
