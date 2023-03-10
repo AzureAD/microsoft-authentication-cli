@@ -9,7 +9,7 @@ namespace AzureAuth.Test.Ado
 
     using NUnit.Framework;
 
-    internal class TokenFormattingTest
+    internal class TokenFormattingExtensionsTest
     {
         [Test]
         public void Header_Bearer()

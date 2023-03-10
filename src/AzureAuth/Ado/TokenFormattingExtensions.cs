@@ -9,7 +9,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     /// <summary>
     /// <see cref="string"/> extension methods for formatting tokens.
     /// </summary>
-    public static class TokenFormatting
+    public static class TokenFormattingExtensions
     {
         private const string AuthorizationHeader = "Authorization:";
         private const string Basic = "Basic";
@@ -57,6 +57,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         {
             Authorization.Basic => $":{value}".Base64(),
             Authorization.Bearer => value,
+            _ => throw new ArgumentOutOfRangeException(nameof(scheme)),
         };
     }
 }
