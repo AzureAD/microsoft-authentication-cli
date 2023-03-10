@@ -44,7 +44,6 @@ jobs:
     strategy:
       matrix:
           os: [ubuntu-latest, macos-latest, windows-latest]
-          language: [ 'csharp' ]
       fail-fast: false
 
     steps:
@@ -55,7 +54,7 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
-        languages: ${{ matrix.language }}
+        languages: csharp
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
@@ -67,4 +66,4 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
       with:
-        category: "/language:${{matrix.language}}"
+        category: "/language:csharp"
