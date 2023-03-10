@@ -28,7 +28,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         private const string OutputOptionDescription = "How to print the token. One of [token, header, headervalue].\nDefault: token";
 
         /// <summary>
-        /// Format a PAT based on <see cref="OutputMode"/>.
+        /// Format a PAT based on <paramref name="output"/>.
         /// </summary>
         /// <param name="value">The PAT value.</param>
         /// <param name="output">The output mode.</param>
@@ -38,6 +38,19 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             OutputMode.Token => value,
             OutputMode.Header => TokenFormatter.HeaderBasic(value),
             OutputMode.HeaderValue => TokenFormatter.HeaderBasicValue(value),
+        };
+
+        /// <summary>
+        /// Format an Access Token based on <paramref name="output"/>.
+        /// </summary>
+        /// <param name="value">The access token.</param>
+        /// <param name="output">The output mode.</param>
+        /// <returns>The formatted Access Toekn ready for printing.</returns>
+        public static string FormatAccessToken(string value, OutputMode output) => output switch
+        {
+            OutputMode.Token => value,
+            OutputMode.Header => TokenFormatter.HeaderBearer(value),
+            OutputMode.HeaderValue => TokenFormatter.HeaderBearerValue(value),
         };
 
         /// <summary>
@@ -103,11 +116,12 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
                 prompt: AzureAuth.PromptHint.Prefixed(this.PromptHint),
                 timeout: TimeSpan.FromMinutes(this.Timeout));
 
+
             var authflow = authResult.Success;
             if (authflow != null)
             {
                 logger.LogDebug($"Acquired AAD AT via {authflow.AuthFlowName} in {authflow.Duration.TotalSeconds:0.00} sec");
-                //PrintToken(logger, this.Output, authflow.TokenResult.Token, Bearer);
+                logger.LogInformation(FormatAccessToken(authflow.TokenResult.Token, this.Output));
                 return 0;
             }
 
