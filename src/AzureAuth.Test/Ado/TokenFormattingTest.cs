@@ -38,18 +38,18 @@ namespace AzureAuth.Test.Ado
             input.Base64().Should().Be(output);
         }
 
-        [TestCase("foobar", "Zm9vYmFy")]
-        [TestCase("foobars", "Zm9vYmFycw==")]
+        [TestCase("foobar", "OmZvb2Jhcg==")]
+        [TestCase("foobars", "OmZvb2JhcnM=")]
         public void Header_Basic(string input, string output)
         {
-            input.AsHeader(Authorization.Basic).Should().Be($"Authorization: Basic :{output}");
+            input.AsHeader(Authorization.Basic).Should().Be($"Authorization: Basic {output}");
         }
 
-        [TestCase("foobar", "Zm9vYmFy")]
-        [TestCase("foobars", "Zm9vYmFycw==")]
+        [TestCase("foobar", "OmZvb2Jhcg==")]
+        [TestCase("foobars", "OmZvb2JhcnM=")]
         public void Header_Basic_Value(string input, string output)
         {
-            input.AsHeaderValue(Authorization.Basic).Should().Be($"Basic :{output}");
+            input.AsHeaderValue(Authorization.Basic).Should().Be($"Basic {output}");
         }
     }
 }
