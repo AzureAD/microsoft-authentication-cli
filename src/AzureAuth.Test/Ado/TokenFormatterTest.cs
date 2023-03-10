@@ -26,7 +26,7 @@ namespace AzureAuth.Test.Ado
         /*
         * Base64 encoding takes an input, turns it into binary form, (typically 8-bit characters)
         * And then takes 6-bit chunks and represents the string using the 2^6 (64) characters.
-        * Because of the difference in lengths of encoding between 8 bit and 6 bit (decoded and encoded values) 
+        * Because of the difference in lengths of encoding between 8 bit and 6 bit (decoded and encoded values)
         * the encoded values may contain padding.
         * See https://en.wikipedia.org/wiki/Base64#Output_padding for details.
         */
@@ -51,7 +51,5 @@ namespace AzureAuth.Test.Ado
         {
             TokenFormatter.HeaderBasicValue(input).Should().Be($"Basic {output}");
         }
-
-        
     }
 }
