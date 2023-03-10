@@ -1,7 +1,7 @@
 # Microsoft Authentication CLI
 
 [![Tests](https://img.shields.io/github/actions/workflow/status/AzureAd/microsoft-authentication-cli/.github/workflows/dotnet-test.yml?branch=main&style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/actions/workflows/dotnet-test.yml)
-[![Release](https://shields.io/github/v/release/AzureAD/microsoft-authentication-cli?display_name=tag&include_prereleases&sort=semver&style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/0.7.2)
+[![Release](https://img.shields.io/badge/Release-0.7.2-orange?style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/0.7.2)
 ![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/azuread/microsoft-authentication-cli/0.7.2/total?logo=github&style=for-the-badge&color=blue)
 [![License](https://shields.io/badge/license-MIT-purple?style=for-the-badge)](./LICENSE.txt)
 
