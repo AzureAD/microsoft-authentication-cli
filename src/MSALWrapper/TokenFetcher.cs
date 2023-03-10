@@ -69,7 +69,6 @@ namespace Microsoft.Authentication.MSALWrapper
                 promptHint: prompt);
 
             List<AuthFlowResult> results = new List<AuthFlowResult>();
-            var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));
 
             // When running multiple AzureAuth processes with the same client, and tenant IDs,
             // They may prompt many times, which is annoying and unexpected.
@@ -104,7 +103,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 try
                 {
                     // GetTokenAsync returns an empty list instead of null so no null check required here.
-                    results.AddRange(executor.GetTokenAsync().Result);
+                    results.AddRange(AuthFlowExecutor.GetToken(logger, authFlows, new StopwatchTracker(timeout), "LOCAL\\AzureAUth").Attempts);
                 }
                 finally
                 {

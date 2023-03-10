@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Logging;
@@ -14,65 +15,75 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// <summary>
     /// The auth flows class.
     /// </summary>
-    public class AuthFlowExecutor
+    public static class AuthFlowExecutor
     {
+        /// <summary>
+        /// The result of running <see cref="AuthFlowExecutor"/>.
+        /// </summary>
+        public record Result
+        {
+            /// <summary>
+            /// Gets the success <see cref="AuthFlowResult"/> from <see cref="Attempts"/> if one exists, null otherwise.
+            /// </summary>
+            public AuthFlowResult Success => this.Attempts?.FirstOrDefault(result => result.Success);
+
+            /// <summary>
+            /// Gets all the attempts made to authenticate.
+            /// </summary>
+            public List<AuthFlowResult> Attempts { get; init; } = new List<AuthFlowResult>();
+        }
+
         /// <summary>
         /// The amount of time to wait before we start warning on stderr about waiting for auth.
         /// </summary>
         public static TimeSpan WarningDelay = TimeSpan.FromSeconds(20);
 
-        private readonly IEnumerable<IAuthFlow> authflows;
-        private readonly ILogger logger;
-        private readonly IStopwatch stopwatch;
-
-        private TimeSpan pollingInterval = TimeSpan.FromMinutes(5);
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AuthFlowExecutor"/> class.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="authFlows">The list of auth flows.</param>
-        /// <param name="stopwatch">The stopwatch to handle timeout.</param>
-        public AuthFlowExecutor(ILogger logger, IEnumerable<IAuthFlow> authFlows, IStopwatch stopwatch)
-        {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.authflows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
-            this.stopwatch = stopwatch ?? throw new ArgumentNullException(nameof(stopwatch));
-        }
+        private static readonly TimeSpan MaxLockWaitTime = TimeSpan.FromMinutes(15);
+        private static readonly TimeSpan pollingInterval = TimeSpan.FromMinutes(5);
 
         /// <summary>
         /// Get a auth flow result.
         /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public async Task<IEnumerable<AuthFlowResult>> GetTokenAsync()
+        /// <param name="logger">The logger.</param>
+        /// <param name="authFlows">The list of auth flows.</param>
+        /// <param name="stopwatch">The stopwatch to handle timeout.</param>
+        /// <param name="lockName">The name to use when locking this series of auth flow executions.</param>
+        /// <returns>A <see cref="Result"/>.</returns>
+        public static Result GetToken(ILogger logger, IEnumerable<IAuthFlow> authFlows, IStopwatch stopwatch, string lockName)
         {
-            this.stopwatch.Start();
-            var resultList = new List<AuthFlowResult>();
-
-            if (this.authflows.Count() == 0)
+            if (authFlows.Count() == 0)
             {
-                this.logger.LogWarning("Warning: There are 0 auth modes to execute!");
+                logger.LogWarning("Warning: There are 0 auth modes to execute!");
+                return new Result();
             }
 
-            foreach (var authFlow in this.authflows)
+            return LockedExecute(logger, lockName, async () => await ExecuteAuthFlowsAsync(logger, authFlows, stopwatch));
+        }
+
+        private static async Task<Result> ExecuteAuthFlowsAsync(ILogger logger, IEnumerable<IAuthFlow> authFlows, IStopwatch stopwatch)
+        {
+            List<AuthFlowResult> results = new List<AuthFlowResult>();
+            stopwatch.Start();
+            foreach (var authFlow in authFlows)
             {
                 var authFlowName = authFlow.GetType().Name;
-                this.logger.LogDebug($"Starting {authFlowName}...");
-                Stopwatch watch = Stopwatch.StartNew();
-                var attempt = await this.GetTokenAndPollAsync(authFlow);
-                watch.Stop();
+                logger.LogDebug($"Starting {authFlowName}...");
+
+                Stopwatch timer = Stopwatch.StartNew();
+                var attempt = await GetTokenAndPollAsync(logger, authFlow, stopwatch);
+                timer.Stop();
 
                 if (attempt == null)
                 {
                     var oopsMessage = $"Auth flow '{authFlowName}' returned a null AuthFlowResult.";
-                    this.logger.LogDebug(oopsMessage);
+                    logger.LogDebug(oopsMessage);
 
                     attempt = new AuthFlowResult(null, null, authFlowName);
                     attempt.Errors.Add(new NullTokenResultException(oopsMessage));
                 }
 
-                attempt.Duration = watch.Elapsed;
-                resultList.Add(attempt);
+                attempt.Duration = timer.Elapsed;
+                results.Add(attempt);
 
                 if (attempt.Errors.OfType<TimeoutException>().Any())
                 {
@@ -81,31 +92,68 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
                 if (attempt.Success)
                 {
-                    this.logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
+                    logger.LogDebug($"{authFlowName} success: {attempt.Success}.");
                     break;
                 }
             }
 
-            return resultList;
+            return new Result() { Attempts = results };
         }
 
-        /// <summary>
-        /// Run the auth mode in a separate task and
-        /// poll to see if we hit global timeout before the auth flow completes.
-        /// </summary>
-        /// <param name="authFlow">Auth Flow that we are executing.</param>
-        /// <returns>AuthFlowResult containing Error if CLI times out; else actual result of the AuthFlow.</returns>
-        private async Task<AuthFlowResult> GetTokenAndPollAsync(IAuthFlow authFlow)
+        private static T LockedExecute<T>(ILogger logger, string lockName, Func<Task<T>> subject)
+        {
+            T result = default(T);
+
+            // The first parameter 'initiallyOwned' indicates whether this lock is owned by current thread.
+            // It should be false otherwise a deadlock could occur.
+            using (Mutex mutex = new Mutex(initiallyOwned: false, name: lockName))
+            {
+                bool lockAcquired = false;
+                try
+                {
+                    // Wait for other sessions to exit.
+                    lockAcquired = mutex.WaitOne(MaxLockWaitTime);
+                }
+                catch (AbandonedMutexException)
+                {
+                    // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
+                    // If another process crashes or exits accidentally, we can still acquire the lock.
+                    lockAcquired = true;
+
+                    // In this case, basically we can just leave a log warning, because the worst side effect is prompting more than once.
+                    logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
+                }
+
+                if (!lockAcquired)
+                {
+                    throw new TimeoutException("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
+                }
+
+                try
+                {
+                    result = subject().Result;
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
+
+            return result;
+        }
+
+        // Run the auth mode in a separate task and poll to see if we hit global timeout before the auth flow completes.
+        private static async Task<AuthFlowResult> GetTokenAndPollAsync(ILogger logger, IAuthFlow authFlow, IStopwatch stopwatch)
         {
             var flowResult = Task.Run(() => authFlow.GetTokenAsync());
             var authFlowName = authFlow.GetType().Name;
 
             while (!flowResult.IsCompleted)
             {
-                if (this.stopwatch.TimedOut())
+                if (stopwatch.TimedOut())
                 {
-                    this.stopwatch.Stop();
-                    this.logger.LogError($"Timed out while waiting for {authFlowName} authentication!");
+                    stopwatch.Stop();
+                    logger.LogError($"Timed out while waiting for {authFlowName} authentication!");
                     AuthFlowResult timeoutResult = new AuthFlowResult(null, null, authFlow.GetType().Name);
                     timeoutResult.Errors.Add(new TimeoutException($"Global timeout hit during {authFlowName}"));
 
@@ -114,13 +162,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     return timeoutResult;
                 }
 
-                if (this.stopwatch.Elapsed() >= WarningDelay)
+                if (stopwatch.Elapsed() >= WarningDelay)
                 {
-                    this.logger.LogWarning($"Waiting for {authFlowName} authentication. Look for an auth prompt.");
-                    this.logger.LogWarning($"Timeout in {this.stopwatch.Remaining():mm}m {this.stopwatch.Remaining():ss}s!");
+                    logger.LogWarning($"Waiting for {authFlowName} authentication. Look for an auth prompt.");
+                    logger.LogWarning($"Timeout in {stopwatch.Remaining():mm}m {stopwatch.Remaining():ss}s!");
                 }
 
-                await Task.WhenAny(Task.Delay(this.Delay()), flowResult);
+                await Task.WhenAny(Task.Delay(Delay(stopwatch)), flowResult);
             }
 
             return await flowResult;
@@ -131,16 +179,16 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// at the beginning of timer and at the end of timeout period.
         /// </summary>
         /// <returns>Time to wait before polling.</returns>
-        private TimeSpan Delay()
+        private static TimeSpan Delay(IStopwatch stopwatch)
         {
-            if (this.stopwatch.Elapsed() < WarningDelay)
+            if (stopwatch.Elapsed() < WarningDelay)
             {
                 return WarningDelay;
             }
             else
             {
-                return this.stopwatch.Remaining() < this.pollingInterval ?
-                this.stopwatch.Remaining() : this.pollingInterval;
+                return stopwatch.Remaining() < pollingInterval ?
+                stopwatch.Remaining() : pollingInterval;
             }
         }
     }
