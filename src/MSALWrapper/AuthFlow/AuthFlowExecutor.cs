@@ -51,9 +51,14 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>A <see cref="Result"/>.</returns>
         public static Result GetToken(ILogger logger, IEnumerable<IAuthFlow> authFlows, IStopwatch stopwatch, string lockName)
         {
+            logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            authFlows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
+            stopwatch = stopwatch ?? throw new ArgumentNullException(nameof(stopwatch));
+            lockName = string.IsNullOrWhiteSpace(lockName) ? throw new ArgumentException($"Parameter '{nameof(lockName)}' cannot be null, empty, or whitespace") : lockName;
+
             if (authFlows.Count() == 0)
             {
-                logger.LogWarning("Warning: There are 0 auth modes to execute!");
+                logger.LogWarning("Warning: There are 0 auth flows to execute!");
                 return new Result();
             }
 

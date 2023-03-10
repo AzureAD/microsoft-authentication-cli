@@ -18,6 +18,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
     using Moq;
+
+    using NLog;
     using NLog.Extensions.Logging;
     using NLog.Targets;
     using NUnit.Framework;
@@ -26,10 +28,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     {
         private const string NullAuthFlowResultExceptionMessage = "Auth flow 'IAuthFlowProxy' returned a null AuthFlowResult.";
 
-        private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
+        private ServiceProvider serviceProvider;
+        private Extensions.Logging.ILogger logger;
         private TokenResult tokenResult;
-        private IEnumerable<IAuthFlow> authFlows;
         private IStopwatch stopwatch;
 
         [SetUp]
@@ -38,9 +40,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Setup in memory logging target with NLog - allows making assertions against what has been logged.
             var loggingConfig = new NLog.Config.LoggingConfiguration();
             this.logTarget = new MemoryTarget("memory_target");
+            this.logTarget.Layout = "${message}";
             loggingConfig.AddTarget(this.logTarget);
             loggingConfig.AddRuleForAllLevels(this.logTarget);
-            this.authFlows = new List<IAuthFlow>();
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject")
             this.serviceProvider = new ServiceCollection()
@@ -53,48 +55,61 @@ namespace Microsoft.Authentication.MSALWrapper.Test
              })
              .BuildServiceProvider();
 
+            this.logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutorTest>>();
+
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
             this.stopwatch = new StopwatchTracker(TimeSpan.FromSeconds(60));
         }
 
-        //[Test]
-        //public void ConstructorWith_AllNullArgs()
-        //{
-        //    Action authFlowExecutor = () => new AuthFlowExecutor(null, null, null);
+        [Test]
+        public void GetToken_AllNullArgs()
+        {
+            Action authFlowExecutor = () => AuthFlowExecutor.GetToken(null, null, null, null);
 
-        //    // Assert
-        //    authFlowExecutor.Should().Throw<ArgumentNullException>();
-        //}
+            // Assert
+            authFlowExecutor.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'logger')");
+        }
 
-        //[Test]
-        //public void ConstructorWith_Null_Logger()
-        //{
-        //    Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows, this.stopwatch);
+        [Test]
+        public void GetToken_Null_AuthFlows()
+        {
+            Action authFlowExecutor = () => AuthFlowExecutor.GetToken(this.logger, null, null, null);
 
-        //    // Assert
-        //    authFlowExecutor.Should().Throw<ArgumentNullException>();
-        //}
+            // Assert
+            authFlowExecutor.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'authFlows')");
+        }
 
-        //[Test]
-        //public void ConstructorWith_Null_AuthFlows()
-        //{
-        //    var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-        //    Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, this.stopwatch);
+        [Test]
+        public void GetToken_Null_StopWatch()
+        {
+            Action authFlowExecutor = () => AuthFlowExecutor.GetToken(this.logger, new List<IAuthFlow>(), null, null);
 
-        //    // Assert
-        //    authFlowExecutor.Should().Throw<ArgumentNullException>();
-        //}
+            // Assert
+            authFlowExecutor.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'stopWatch')");
+        }
 
-        //[Test]
-        //public void ConstructorWith_Valid_Arguments()
-        //{
-        //    var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-        //    Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows, this.stopwatch);
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("  ")]
+        public void GetToken_Bad_LockName(string lockName)
+        {
+            Action authFlowExecutor = () => AuthFlowExecutor.GetToken(this.logger, new List<IAuthFlow>(), this.stopwatch, lockName);
 
-        //    // Assert
-        //    authFlowExecutor.Should().NotThrow<ArgumentNullException>();
-        //}
+            // Assert
+            authFlowExecutor.Should().Throw<ArgumentException>().WithMessage("Parameter 'lockName' cannot be null, empty, or whitespace");
+        }
+
+        [Test]
+        public void GetToken_No_AuthFlows()
+        {
+            var expected = new AuthFlowExecutor.Result();
+
+            var subject = this.Subject(new List<IAuthFlow>());
+
+            subject.Should().BeEquivalentTo(expected);
+            this.logTarget.Logs.Should().StartWith("Warning: There are 0 auth flows to execute!");
+        }
 
         //[Test]
         //public async Task SingleAuthFlow_Returns_TokenResult()
@@ -846,8 +861,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         private AuthFlowExecutor.Result Subject(IEnumerable<IAuthFlow> authFlows)
         {
-            var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutorTest>>();
-            return AuthFlowExecutor.GetToken(logger, authFlows, this.stopwatch, "Local\\authflow_executor_tests");
+            return AuthFlowExecutor.GetToken(this.logger, authFlows, this.stopwatch, "Local\\authflow_executor_tests");
         }
 
         // This auth flow is for delaying the return and testing timeout.

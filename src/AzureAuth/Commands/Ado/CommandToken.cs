@@ -11,6 +11,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
     using Microsoft.Authentication.AzureAuth.Ado;
     using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
@@ -97,13 +98,19 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
                 return 0;
             }
 
-            // If no PAT then use AAD AT.
-            var authResult = AzureAuth.Ado.TokenFetcher.AccessToken(
+            // If no PAT
+            // Time to do AAD Auth
+            var authflows = AuthFlowFactory.Create(
                 logger: logger,
-                mode: this.AuthModes.Combine().PreventInteractionIfNeeded(env),
-                domain: this.Domain,
-                prompt: AzureAuth.PromptHint.Prefixed(this.PromptHint),
-                timeout: TimeSpan.FromMinutes(this.Timeout));
+                authMode: this.AuthModes.Combine().PreventInteractionIfNeeded(env),
+                clientId: new Guid(AzureAuth.Ado.Constants.Client.VisualStudio),
+                tenantId: new Guid(AzureAuth.Ado.Constants.Tenant.Microsoft),
+                scopes: new[] { AzureAuth.Ado.Constants.Scope.AzureDevOpsDefault },
+                preferredDomain: this.Domain,
+                promptHint: AzureAuth.PromptHint.Prefixed(this.PromptHint));
+
+            var lockName = $"Local\\{AzureAuth.Ado.Constants.Client.VisualStudio}_{AzureAuth.Ado.Constants.Tenant.Microsoft}";
+            var authResult = AuthFlowExecutor.GetToken(logger, authflows, new StopwatchTracker(TimeSpan.FromMinutes(this.Timeout)), lockName);
 
             var authflow = authResult.Success;
             if (authflow != null)
