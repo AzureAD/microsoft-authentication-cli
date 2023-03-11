@@ -39,7 +39,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         public static TimeSpan WarningDelay = TimeSpan.FromSeconds(20);
 
         private static readonly TimeSpan MaxLockWaitTime = TimeSpan.FromMinutes(15);
-        private static readonly TimeSpan pollingInterval = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan PollingInterval = TimeSpan.FromMinutes(5);
 
         /// <summary>
         /// Get a auth flow result.
@@ -192,8 +192,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
             else
             {
-                return stopwatch.Remaining() < pollingInterval ?
-                stopwatch.Remaining() : pollingInterval;
+                return stopwatch.Remaining() < PollingInterval ?
+                stopwatch.Remaining() : PollingInterval;
             }
         }
     }

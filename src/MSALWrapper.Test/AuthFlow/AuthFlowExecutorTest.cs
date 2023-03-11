@@ -324,451 +324,155 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             result.Should().BeEquivalentTo(expected, opts => opts.WithStrictOrdering());
         }
 
-        //[Test]
-        //public void HasThreeAuthFlows_Returns_Null_TokenResult()
-        //{
-        //    var authFlowResult1 = new AuthFlowResult(null, null, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(null, null, "authFlow2");
-        //    var authFlowResult3 = new AuthFlowResult(this.tokenResult, null, "authFlow3");
-
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
-
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
-
-        //    var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
-
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-        //    authFlowResultList.Add(authFlowResult3);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    authFlow3.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2);
-        //    resultList[2].Should().BeEquivalentTo(authFlowResult3);
-        //}
-
-        //[Test]
-        //public void HasThreeAuthFlows_Returns_Null_TokenResult_With_Errors()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new Exception("Exception 1."),
-        //    };
-
-        //    var errors2 = new[]
-        //    {
-        //        new Exception("Exception 2."),
-        //    };
-
-        //    var errors3 = new[]
-        //    {
-        //        new Exception("Exception 3."),
-        //        new Exception("Exception 4."),
-        //    };
-
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(null, errors2, "authFlow2");
-        //    var authFlowResult3 = new AuthFlowResult(this.tokenResult, errors3, "authFlow3");
-
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-        //    authFlowResultList.Add(authFlowResult3);
-
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
-
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
-
-        //    var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    authFlow3.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2);
-        //    resultList[2].Should().BeEquivalentTo(authFlowResult3);
-        //}
-
-        //[Test]
-        //public void HasThreeAuthFlows_Returns_Null_AuthFlowResult()
-        //{
-        //    var expectedError = new[]
-        //    {
-        //        new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-        //    };
-
-        //    var authFlowResult1 = new AuthFlowResult(null, null, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(null, null, "authFlow2");
-        //    var authFlowResult3 = new AuthFlowResult(null, expectedError, "IAuthFlowProxy");
-
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
-
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
-
-        //    var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
-
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-        //    authFlowResultList.Add(authFlowResult3);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    authFlow3.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-        //    resultList[2].Should().BeEquivalentTo(authFlowResult3, this.ExcludeDurationTimeSpan);
-        //}
-
-        //[Test]
-        //public void HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_Errors()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new Exception("Exception 1"),
-        //    };
-
-        //    var errors2 = new[]
-        //    {
-        //        new Exception("Exception 2"),
-        //    };
-
-        //    var errors3 = new[]
-        //    {
-        //        new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-        //    };
-
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(null, errors2, "authFlow2");
-        //    var authFlowResult3 = new AuthFlowResult(null, errors3, "IAuthFlowProxy");
-
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
-
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
-
-        //    var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
-
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-        //    authFlowResultList.Add(authFlowResult3);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    authFlow3.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-        //    resultList[2].Should().BeEquivalentTo(authFlowResult3, this.ExcludeDurationTimeSpan);
-        //}
-
-        //[Test]
-        //public void HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_Errors_InTheSecondAuthFlow()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new Exception("Exception 1"),
-        //    };
-
-        //    var errors2 = new[]
-        //    {
-        //        new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-        //    };
-
-        //    var errors3 = new[]
-        //    {
-        //        new Exception("Exception 2"),
-        //    };
-
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(null, errors2, "IAuthFlowProxy");
-        //    var authFlowResult3 = new AuthFlowResult(null, errors3, "authFlow3");
-
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
-
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
-
-        //    var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
-
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-        //    authFlowResultList.Add(authFlowResult3);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    authFlow3.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-        //    resultList[2].Should().BeEquivalentTo(authFlowResult3, this.ExcludeDurationTimeSpan);
-        //}
-
-        //[Test]
-        //public void HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_TokenResultAndErrors()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new Exception("Exception 1"),
-        //    };
-
-        //    var errors2 = new[]
-        //    {
-        //        new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-        //    };
-
-        //    var errors3 = new[]
-        //    {
-        //        new Exception("Exception 2"),
-        //        new Exception("Exception 3"),
-        //    };
-
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(null, errors2, "IAuthFlowProxy");
-        //    var authFlowResult3 = new AuthFlowResult(this.tokenResult, errors3, "authFlow3");
-
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
-
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
-
-        //    var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
-
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-        //    authFlowResultList.Add(authFlowResult3);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    authFlow3.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-        //    resultList[2].Should().BeEquivalentTo(authFlowResult3, this.ExcludeDurationTimeSpan);
-        //}
-
-        //[Test]
-        //public void HasThreeAuthFlows_Returns_Early_With_TokenResultAndErrors()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new Exception("Exception 1"),
-        //    };
-
-        //    var errors2 = new[]
-        //    {
-        //        new Exception("Exception 2"),
-        //        new Exception("Exception 3"),
-        //    };
-
-        //    var errors3 = new[]
-        //    {
-        //        new Exception("This is a catastrophic failure. AuthFlow result is null!"),
-        //    };
-
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(this.tokenResult, errors2, "authFlow2");
-
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
-
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
-
-        //    var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
-
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-        //}
-
-        //[Test]
-        //public void Timeout_Kills_Current_AuthFlow_Returns_TimeoutException()
-        //{
-        //    var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
-        //    this.stopwatch = stopwatch.Object;
-
-        //    var timeAfterwarningLength = AuthFlowExecutor.WarningDelay + TimeSpan.FromSeconds(1);
-        //    var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
-
-        //    stopwatch.Setup(tm => tm.Start());
-        //    stopwatch.Setup(tm => tm.TimedOut()).Returns(true);
-        //    stopwatch.Setup(tm => tm.Stop());
-
-        //    var alwaysTimesOutAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(100));
-
-        //    // This auth flow has no setups, because they should never be used.
-        //    var neverUsedAuthFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
-
-        //    var timeoutError = new[]
-        //    {
-        //        new TimeoutException("Global timeout hit during DelayAuthFlow"),
-        //    };
-        //    var authFlowResult = new AuthFlowResult(null, timeoutError, "DelayAuthFlow");
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { alwaysTimesOutAuthFlow, neverUsedAuthFlow.Object });
-
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    stopwatch.VerifyAll();
-        //    neverUsedAuthFlow.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Count.Should().Be(1);
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult, this.ExcludeDurationTimeSpan);
-        //}
-
-        //[Test]
-        //public void MultipleAuthFlows_Returns_Early_When_TimedOut()
-        //{
-        //    var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
-        //    this.stopwatch = stopwatch.Object;
-
-        //    var timeAfterwarningLength = AuthFlowExecutor.WarningDelay + TimeSpan.FromSeconds(1);
-        //    var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
-
-        //    stopwatch.Setup(tm => tm.Start());
-        //    stopwatch.Setup(tm => tm.Elapsed()).Returns(timeAfterwarningLength);
-        //    stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
-        //    stopwatch.SetupSequence(tm => tm.TimedOut()).Returns(false).Returns(true);
-        //    stopwatch.Setup(tm => tm.Stop());
-
-        //    var waitAndFailAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(1));
-        //    var alwaysTimesOutAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(100));
-
-        //    // This auth flow has no setups, because they should never be used.
-        //    var neverUsedAuthFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
-
-        //    var authFlowError = new[]
-        //    {
-        //        new Exception("Exception 1"),
-        //    };
-        //    var timeoutError = new[]
-        //    {
-        //        new TimeoutException("Global timeout hit during DelayAuthFlow"),
-        //    };
-        //    var waitAndFailResult = new AuthFlowResult(null, authFlowError, "DelayAuthFlow");
-        //    var alwaysTimesOutResult = new AuthFlowResult(null, timeoutError, "DelayAuthFlow");
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(waitAndFailResult);
-        //    authFlowResultList.Add(alwaysTimesOutResult);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { waitAndFailAuthFlow, alwaysTimesOutAuthFlow, neverUsedAuthFlow.Object });
-
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    stopwatch.VerifyAll();
-        //    neverUsedAuthFlow.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Count.Should().Be(2);
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(waitAndFailResult, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(alwaysTimesOutResult, this.ExcludeDurationTimeSpan);
-        //}
+        [Test]
+        public void Three_AuthFlows_First_Two_Return_Null_TokenResult_Third_Succeeds()
+        {
+            var authFlowResult1 = new AuthFlowResult(null, null, "authFlow1");
+            var authFlowResult2 = new AuthFlowResult(null, null, "authFlow2");
+            var authFlowResult3 = new AuthFlowResult(this.tokenResult, null, "authFlow3");
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow3.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult3);
+
+            var attempts = new List<AuthFlowResult>()
+            {
+                authFlowResult1,
+                authFlowResult2,
+                authFlowResult3,
+            };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
+
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            authFlow3.VerifyAll();
+            result.Should().BeEquivalentTo(expected, opts => opts.WithStrictOrdering());
+        }
+
+        [Test]
+        public void Three_AuthFlows_Returns_Early_On_Second_Success()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1"),
+            };
+
+            var errors2 = new[]
+            {
+                new Exception("Exception 2"),
+                new Exception("Exception 3"),
+            };
+
+            var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
+            var authFlowResult2 = new AuthFlowResult(this.tokenResult, errors2, "authFlow2");
+
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+
+            var authFlow3 = new Mock<IAuthFlow>(MockBehavior.Strict);
+
+            var attempts = new List<AuthFlowResult>() { authFlowResult1, authFlowResult2 };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
+
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object, authFlow2.Object, authFlow3.Object });
+
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            authFlow3.VerifyAll();
+            result.Should().BeEquivalentTo(expected, opts => opts.WithStrictOrdering());
+        }
+
+        [Test]
+        public void Timeout_Kills_Current_AuthFlow_Returns_TimeoutException()
+        {
+            var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
+            this.stopwatch = stopwatch.Object;
+
+            var timeAfterwarningLength = AuthFlowExecutor.WarningDelay + TimeSpan.FromSeconds(1);
+            var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
+
+            stopwatch.Setup(tm => tm.Start());
+            stopwatch.Setup(tm => tm.TimedOut()).Returns(true);
+            stopwatch.Setup(tm => tm.Stop());
+
+            var alwaysTimesOutAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(100));
+
+            // This auth flow has no setups, because they should never be used.
+            var neverUsedAuthFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
+
+            var timeoutError = new[]
+            {
+                new TimeoutException("Global timeout hit during DelayAuthFlow"),
+            };
+            var authFlowResult = new AuthFlowResult(null, timeoutError, "DelayAuthFlow");
+            var attempts = new List<AuthFlowResult>() { authFlowResult };
+
+            // Act
+            var result = this.Subject(new[] { alwaysTimesOutAuthFlow, neverUsedAuthFlow.Object });
+
+            // Assert
+            stopwatch.VerifyAll();
+            neverUsedAuthFlow.VerifyAll();
+            result.Success.Should().BeNull();
+            result.Attempts.Should().BeEquivalentTo(attempts, this.ExcludeDurationTimeSpan);
+        }
+
+        [Test]
+        public void MultipleAuthFlows_Returns_Early_When_TimedOut()
+        {
+            var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
+            this.stopwatch = stopwatch.Object;
+
+            var timeAfterwarningLength = AuthFlowExecutor.WarningDelay + TimeSpan.FromSeconds(1);
+            var remainingTimeForWarningMessage = TimeSpan.FromSeconds(10);
+
+            stopwatch.Setup(tm => tm.Start());
+            stopwatch.Setup(tm => tm.Elapsed()).Returns(timeAfterwarningLength);
+            stopwatch.Setup(tm => tm.Remaining()).Returns(remainingTimeForWarningMessage);
+            stopwatch.SetupSequence(tm => tm.TimedOut()).Returns(false).Returns(true);
+            stopwatch.Setup(tm => tm.Stop());
+
+            var waitAndFailAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(1));
+            var alwaysTimesOutAuthFlow = new DelayAuthFlow(TimeSpan.FromSeconds(100));
+
+            // This auth flow has no setups, because they should never be used.
+            var neverUsedAuthFlow = new Mock<IAuthFlow>(MockBehavior.Strict);
+
+            var authFlowError = new[]
+            {
+                new Exception("Exception 1"),
+            };
+            var timeoutError = new[]
+            {
+                new TimeoutException("Global timeout hit during DelayAuthFlow"),
+            };
+            var waitAndFailResult = new AuthFlowResult(null, authFlowError, "DelayAuthFlow");
+            var alwaysTimesOutResult = new AuthFlowResult(null, timeoutError, "DelayAuthFlow");
+            var attempts = new List<AuthFlowResult>() { waitAndFailResult, alwaysTimesOutResult };
+
+            // Act
+            var result = this.Subject(new[] { waitAndFailAuthFlow, alwaysTimesOutAuthFlow, neverUsedAuthFlow.Object });
+
+            // Assert
+            stopwatch.VerifyAll();
+            neverUsedAuthFlow.VerifyAll();
+            result.Success.Should().BeNull();
+            result.Attempts.Should().BeEquivalentTo(attempts, this.ExcludeDurationTimeSpan);
+        }
 
         private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
         {
