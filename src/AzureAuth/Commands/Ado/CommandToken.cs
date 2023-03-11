@@ -100,7 +100,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
 
             // If no PAT
             // Time to do AAD Auth
-            var authflows = AuthFlowFactory.Create(
+            var authFlows = AuthFlowFactory.Create(
                 logger: logger,
                 authMode: this.AuthModes.Combine().PreventInteractionIfNeeded(env),
                 clientId: new Guid(AzureAuth.Ado.Constants.Client.VisualStudio),
@@ -110,13 +110,13 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
                 promptHint: AzureAuth.PromptHint.Prefixed(this.PromptHint));
 
             var lockName = $"Local\\{AzureAuth.Ado.Constants.Client.VisualStudio}_{AzureAuth.Ado.Constants.Tenant.Microsoft}";
-            var authResult = AuthFlowExecutor.GetToken(logger, authflows, new StopwatchTracker(TimeSpan.FromMinutes(this.Timeout)), lockName);
+            var authResult = AuthFlowExecutor.GetToken(logger, authFlows, new StopwatchTracker(TimeSpan.FromMinutes(this.Timeout)), lockName);
 
-            var authflow = authResult.Success;
-            if (authflow != null)
+            var authFlow = authResult.Success;
+            if (authFlow != null)
             {
-                logger.LogDebug($"Acquired AAD AT via {authflow.AuthFlowName} in {authflow.Duration.TotalSeconds:0.00} sec");
-                logger.LogInformation(FormatToken(authflow.TokenResult.Token, this.Output, Authorization.Bearer));
+                logger.LogDebug($"Acquired AAD AT via {authFlow.AuthFlowName} in {authFlow.Duration.TotalSeconds:0.00} sec");
+                logger.LogInformation(FormatToken(authFlow.TokenResult.Token, this.Output, Authorization.Bearer));
                 return 0;
             }
 

@@ -52,7 +52,7 @@ namespace AzureAuth.Test
         }
 
         /// <summary>
-        /// Test to generate event data from an authflow result with null token result and some errors.
+        /// Test to generate event data from an AuthFlowResult with null token result and some errors.
         /// </summary>
         [Test]
         public void TestGenerateEvent_From_AuthFlowResult_With_Errors_And_Null_TokenResult()
@@ -79,7 +79,7 @@ namespace AzureAuth.Test
         }
 
         /// <summary>
-        /// Test to generate event data from an authflow result with token result and msal errors.
+        /// Test to generate event data from an AuthFlowResult with token result and msal errors.
         /// </summary>
         [Test]
         public void Event_From_AuthFlowResult_With_MsalErrors_And_TokenResult()

@@ -8,8 +8,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+
     using FluentAssertions;
     using FluentAssertions.Equivalency;
+
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.MSALWrapper.Test;
@@ -17,11 +19,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
+
     using Moq;
 
     using NLog;
     using NLog.Extensions.Logging;
     using NLog.Targets;
+
     using NUnit.Framework;
 
     public class AuthFlowExecutorTest
@@ -111,304 +115,217 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.logTarget.Logs.Should().StartWith("Warning: There are 0 auth flows to execute!");
         }
 
-        //[Test]
-        //public async Task SingleAuthFlow_Returns_TokenResult()
-        //{
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    var authFlowName = "authFlowName1";
-        //    var authFlowResult = new AuthFlowResult(this.tokenResult, null, authFlowName);
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
+        [Test]
+        public void Single_AuthFlow_Returns_TokenResult()
+        {
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            var authFlowName = "authFlowName1";
+            var authFlowResult = new AuthFlowResult(this.tokenResult, null, authFlowName);
+            var attempts = new List<AuthFlowResult> { authFlowResult };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
 
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList);
-        //    resultList.Should().Contain(authFlowResult);
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object });
 
-        //    // Assert Order of results.
-        //    resultList.ToList()[0].Should().BeEquivalentTo(authFlowResult);
-        //}
+            // Assert
+            authFlow1.VerifyAll();
+            result.Should().BeEquivalentTo(expected);
+        }
 
-        //[Test]
-        //public async Task SingleAuthFlow_Returns_Null_TokenResult()
-        //{
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    var authFlowName = "authFlowName1";
-        //    var authFlowResult = new AuthFlowResult(null, null, authFlowName);
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
+        [Test]
+        public void Single_AuthFlow_Returns_Null_TokenResult()
+        {
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            var authFlowName = "authFlowName1";
+            var authFlowResult = new AuthFlowResult(null, null, authFlowName);
+            var attempts = new List<AuthFlowResult>() { authFlowResult };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
 
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList);
-        //    resultList.Should().Contain(authFlowResult);
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object });
 
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult);
-        //}
+            // Assert
+            authFlow1.VerifyAll();
+            result.Should().BeEquivalentTo(expected);
+        }
 
-        //[Test]
-        //public async Task SingleAuthFlow_Returns_Null_TokenResult_With_Errors()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new Exception("Exception 1."),
-        //    };
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    var authFlowName = "authFlowName1";
-        //    var authFlowResult = new AuthFlowResult(null, errors1, authFlowName);
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
+        [Test]
+        public void Single_AuthFlow_Returns_Null_TokenResult_With_Errors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1."),
+            };
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            var authFlowName = "authFlowName1";
+            var authFlowResult = new AuthFlowResult(null, errors1, authFlowName);
+            var attempts = new List<AuthFlowResult>() { authFlowResult };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
 
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult);
 
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList);
-        //    resultList.Should().Contain(authFlowResult);
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object });
 
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult);
-        //}
+            // Assert
+            authFlow1.VerifyAll();
+            result.Should().BeEquivalentTo(expected);
+        }
 
-        //[Test]
-        //public async Task SingleAuthFlow_Returns_Null_AuthFlowResult()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-        //    };
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+        [Test]
+        public void Single_AuthFlow_Returns_Null_AuthFlowResult()
+        {
+            var errors1 = new[]
+            {
+                new NullTokenResultException(NullAuthFlowResultExceptionMessage),
+            };
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            var authFlowResult = new AuthFlowResult(null, errors1, "IAuthFlowProxy");
+            var attempts = new List<AuthFlowResult>() { authFlowResult };
 
-        //    var authFlowResult = new AuthFlowResult(null, errors1, "IAuthFlowProxy");
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult);
+            // We Don't expect this case to actually happen in practice, because we make sure
+            // all our authFlows return AuthFlowResults instead of null, for failure cases.
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
 
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object });
 
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
+            // Assert - here we do not use an expected EquivalentTo assertion because the AuthFlowExecutor
+            // creates a new AuthFlowResult when our mock auth flow gives back a null. That new value has a Duration set on it,
+            // that is not constant and we can't create and reliable test that includes that duration property. We instead assert these other things.
+            authFlow1.VerifyAll();
+            result.Success.Should().BeNull();
+            result.Attempts[0].Errors.Should().BeEquivalentTo(errors1);
+        }
 
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult, this.ExcludeDurationTimeSpan);
-        //}
+        [Test]
+        public void Two_AuthFlows_First_Returns_Null_TokenResult_Second_Succeeds()
+        {
+            var authFlowResult1 = new AuthFlowResult(null, null, "authFlow1");
+            var authFlowResult2 = new AuthFlowResult(this.tokenResult, null, "authFlow2");
 
-        //[Test]
-        //public async Task HasTwoAuthFlows_Returns_Null_TokenResult()
-        //{
-        //    var authFlowResult1 = new AuthFlowResult(null, null, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(this.tokenResult, null, "authFlow2");
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
 
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
 
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+            var attempts = new List<AuthFlowResult>() { authFlowResult1, authFlowResult2 };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
 
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
 
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            result.Should().BeEquivalentTo(expected, opts => opts.WithStrictOrdering());
+        }
 
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList);
+        [Test]
+        public void Two_AuthFlows_First_Returns_Null_TokenResult_With_Errors_Second_Succeeds()
+        {
+            var errors1 = new[]
+            {
+                new Exception("Exception 1."),
+            };
+            var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
+            var authFlowResult2 = new AuthFlowResult(this.tokenResult, null, "authFlow2");
 
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2);
-        //}
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
 
-        //[Test]
-        //public async Task HasTwoAuthFlows_Returns_Null_TokenResult_With_Errors()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new Exception("Exception 1."),
-        //    };
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
-        //    var authFlowResult2 = new AuthFlowResult(this.tokenResult, null, "authFlow2");
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
 
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
+            var attempts = new List<AuthFlowResult>() { authFlowResult1, authFlowResult2 };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
 
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
 
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            result.Should().BeEquivalentTo(expected, opts => opts.WithStrictOrdering());
+        }
 
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
+        [Test]
+        public void Two_AuthFlows_Both_Return_Null_TokenResult_With_Errors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("mfa required"),
+            };
 
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList);
+            var errors2 = new[]
+            {
+                new Exception("Exception 1"),
+                new Exception("Exception 2"),
+            };
 
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2);
-        //}
+            var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
+            var authFlowResult2 = new AuthFlowResult(null, errors2, "authFlow2");
 
-        //[Test]
-        //public async Task HasTwoAuthFlows_Returns_Null_AuthFlowResult()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-        //    };
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "IAuthFlowProxy");
-        //    var authFlowResult2 = new AuthFlowResult(null, null, "authFlow2");
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
 
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
 
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+            var attempts = new List<AuthFlowResult>() { authFlowResult1, authFlowResult2 };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
 
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
 
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            result.Should().BeEquivalentTo(expected, opts => opts.WithStrictOrdering());
+        }
 
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
+        [Test]
+        public void Two_AuthFlows_First_Fails_Second_Succeeds_Both_With_Errors()
+        {
+            var errors1 = new[]
+            {
+                new Exception("mfa required"),
+            };
 
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-        //}
+            var errors2 = new[]
+            {
+                new Exception("Exception 1"),
+                new Exception("Exception 2"),
+            };
 
-        //[Test]
-        //public async Task HasTwoAuthFlows_Returns_Null_AuthFlowResult_With_Errors()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-        //    };
+            var authFlowResult1 = new AuthFlowResult(null, errors1, "authFlow1");
+            var authFlowResult2 = new AuthFlowResult(this.tokenResult, errors2, "authFlow2");
 
-        //    var errors2 = new[]
-        //    {
-        //        new Exception("Exception 1"),
-        //        new Exception("Exception 2"),
-        //    };
+            var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult1);
 
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "IAuthFlowProxy");
-        //    var authFlowResult2 = new AuthFlowResult(null, errors2, "authFlow2");
+            var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
+            authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
 
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
+            var attempts = new List<AuthFlowResult>() { authFlowResult1, authFlowResult2 };
+            var expected = new AuthFlowExecutor.Result() { Attempts = attempts };
 
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
+            // Act
+            var result = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
 
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-        //}
+            // Assert
+            authFlow1.VerifyAll();
+            authFlow2.VerifyAll();
+            result.Should().BeEquivalentTo(expected, opts => opts.WithStrictOrdering());
+        }
 
         //[Test]
-        //public async Task HasTwoAuthFlows_Returns_Null_AuthFlowResult_With_TokenResultAndErrors()
-        //{
-        //    var errors1 = new[]
-        //    {
-        //        new NullTokenResultException(NullAuthFlowResultExceptionMessage),
-        //    };
-
-        //    var errors2 = new[]
-        //    {
-        //        new Exception("Exception 1"),
-        //        new Exception("Exception 2"),
-        //    };
-
-        //    var authFlowResult1 = new AuthFlowResult(null, errors1, "IAuthFlowProxy");
-        //    var authFlowResult2 = new AuthFlowResult(this.tokenResult, errors2, "authFlow2");
-
-        //    var authFlow1 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow1.Setup(p => p.GetTokenAsync()).ReturnsAsync((AuthFlowResult)null);
-
-        //    var authFlow2 = new Mock<IAuthFlow>(MockBehavior.Strict);
-        //    authFlow2.Setup(p => p.GetTokenAsync()).ReturnsAsync(authFlowResult2);
-
-        //    var authFlowResultList = new List<AuthFlowResult>();
-        //    authFlowResultList.Add(authFlowResult1);
-        //    authFlowResultList.Add(authFlowResult2);
-
-        //    // Act
-        //    var authFlowExecutor = this.Subject(new[] { authFlow1.Object, authFlow2.Object });
-        //    var result = await authFlowExecutor.GetTokenAsync();
-        //    var resultList = result.ToList();
-
-        //    // Assert
-        //    authFlow1.VerifyAll();
-        //    authFlow2.VerifyAll();
-        //    resultList.Should().NotBeNull();
-        //    resultList.Should().BeEquivalentTo(authFlowResultList, this.ExcludeDurationTimeSpan);
-
-        //    // Assert Order of results.
-        //    resultList[0].Should().BeEquivalentTo(authFlowResult1, this.ExcludeDurationTimeSpan);
-        //    resultList[1].Should().BeEquivalentTo(authFlowResult2, this.ExcludeDurationTimeSpan);
-        //}
-
-        //[Test]
-        //public async Task HasThreeAuthFlows_Returns_Null_TokenResult()
+        //public void HasThreeAuthFlows_Returns_Null_TokenResult()
         //{
         //    var authFlowResult1 = new AuthFlowResult(null, null, "authFlow1");
         //    var authFlowResult2 = new AuthFlowResult(null, null, "authFlow2");
@@ -447,7 +364,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         //}
 
         //[Test]
-        //public async Task HasThreeAuthFlows_Returns_Null_TokenResult_With_Errors()
+        //public void HasThreeAuthFlows_Returns_Null_TokenResult_With_Errors()
         //{
         //    var errors1 = new[]
         //    {
@@ -502,7 +419,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         //}
 
         //[Test]
-        //public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult()
+        //public void HasThreeAuthFlows_Returns_Null_AuthFlowResult()
         //{
         //    var expectedError = new[]
         //    {
@@ -546,7 +463,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         //}
 
         //[Test]
-        //public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_Errors()
+        //public void HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_Errors()
         //{
         //    var errors1 = new[]
         //    {
@@ -600,7 +517,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         //}
 
         //[Test]
-        //public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_Errors_InTheSecondAuthFlow()
+        //public void HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_Errors_InTheSecondAuthFlow()
         //{
         //    var errors1 = new[]
         //    {
@@ -654,7 +571,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         //}
 
         //[Test]
-        //public async Task HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_TokenResultAndErrors()
+        //public void HasThreeAuthFlows_Returns_Null_AuthFlowResult_With_TokenResultAndErrors()
         //{
         //    var errors1 = new[]
         //    {
@@ -709,7 +626,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         //}
 
         //[Test]
-        //public async Task HasThreeAuthFlows_Returns_Early_With_TokenResultAndErrors()
+        //public void HasThreeAuthFlows_Returns_Early_With_TokenResultAndErrors()
         //{
         //    var errors1 = new[]
         //    {
@@ -760,7 +677,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         //}
 
         //[Test]
-        //public async Task Timeout_Kills_Current_AuthFlow_Returns_TimeoutException()
+        //public void Timeout_Kills_Current_AuthFlow_Returns_TimeoutException()
         //{
         //    var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
         //    this.stopwatch = stopwatch.Object;
@@ -801,7 +718,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         //}
 
         //[Test]
-        //public async Task MultipleAuthFlows_Returns_Early_When_TimedOut()
+        //public void MultipleAuthFlows_Returns_Early_When_TimedOut()
         //{
         //    var stopwatch = new Mock<IStopwatch>(MockBehavior.Strict);
         //    this.stopwatch = stopwatch.Object;
@@ -856,6 +773,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private EquivalencyAssertionOptions<AuthFlowResult> ExcludeDurationTimeSpan(EquivalencyAssertionOptions<AuthFlowResult> options)
         {
             options.Excluding(result => result.Duration);
+            options.WithStrictOrdering();
             return options;
         }
 

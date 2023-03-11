@@ -395,7 +395,7 @@ Allowed values: [all, web, devicecode]";
                 this.eventData.Add("error_count", errors.Length);
                 this.eventData.Add("authflow_count", results.Attempts.Count);
 
-                // Send custom telemetry events for each authflow result.
+                // Send custom telemetry events for each authFlow result.
                 results.Attempts.SendTelemetry(this.telemetryService);
 
                 var success = results.Success;
