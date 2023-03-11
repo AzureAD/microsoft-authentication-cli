@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup Python
       uses: actions/setup-python@v3
       with:
@@ -52,7 +52,7 @@ jobs:
             os: windows-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -74,10 +74,17 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
 
+    - name: Upload CodeQL Analysis Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: azureauth-static-code-analysis-${{ matrix.runtime }}.sarif
+        path: results/csharp.sarif
+
     - name: Build artifacts
       run: dotnet publish src/AzureAuth/AzureAuth.csproj -p:Version=${{ github.event.inputs.version }} --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}
       env:
         ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
+        
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -93,7 +100,7 @@ jobs:
         runtime: [osx-x64, osx-arm64, win10-x64]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
