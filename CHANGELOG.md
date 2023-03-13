@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `azureauth ado pat` : Command for creating, and locally caching Azure Devops <abbr title="Personal Access Tokens">PAT</abbr>s.
   - `azureauth ado token` : Command for passing back a <abbr title="Personal Access Tokens">PAT</abbr> from an env var, or authenticating and returning an <abbr title="Azure Active Directory">AAD</abbr> access token.
 
+## [0.7.3] - 2023-03-14
+### Fixed
+- Fix unusable issues on Unix platforms due to mutexes.
+
 ## [0.7.2] - 2023-03-08
 ### Fixed
 - Upgrade to a new version of Lasso which patches a concurrency bug.
