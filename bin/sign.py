@@ -226,7 +226,7 @@ def json_tempfile(path: Path, data: JSON) -> Generator[None, None, None]:
     path.unlink()
 
 
-def parse_env_vars(runtime: str):
+def parse_env_vars(runtime: str) -> tuple[str, str, str, JSON]:
     """Parse and return environment variables"""
     try:
         aad_id = os.environ["SIGNING_AAD_ID"]
