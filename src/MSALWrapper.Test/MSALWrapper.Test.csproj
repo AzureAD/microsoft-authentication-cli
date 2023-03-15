@@ -2,19 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Stylecop required items -->
-    <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
-    <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
-    <Compile Include="..\stylecop\GlobalSuppressions.Test.cs" Link="GlobalSuppressions.Test.cs" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.52.0.60960" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,7 +19,9 @@
   </ItemGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <DefineConstants>PlatformWindows</DefineConstants>
+    <DefineConstants>
+      PlatformWindows
+    </DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
