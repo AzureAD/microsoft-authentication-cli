@@ -7,8 +7,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <PackageId>
-      Microsoft.Authentication.AzureAuth.Test</PackageId>
+    <PackageId>Microsoft.Authentication.AzureAuth.Test</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
