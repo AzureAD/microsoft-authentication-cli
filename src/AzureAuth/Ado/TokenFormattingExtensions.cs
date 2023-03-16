@@ -12,8 +12,6 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     public static class TokenFormattingExtensions
     {
         private const string AuthorizationHeader = "Authorization:";
-        private const string Basic = "Basic";
-        private const string Bearer = "Bearer";
 
         /// <summary>
         /// Base64 encode <paramref name="value"/> adding padding (=) characters as needed.
@@ -34,7 +32,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <returns>A full Authorization header using the Basic scheme.</returns>
         public static string AsHeader(this string value, Authorization scheme)
         {
-            return string.Join(' ', new[] { AuthorizationHeader, scheme.ToString(), scheme.FormatValue(value) });
+            return string.Join(' ', AuthorizationHeader, scheme.ToString(), scheme.FormatValue(value));
         }
 
         /// <summary>
@@ -46,7 +44,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <returns>The Authorization header value.</returns>
         public static string AsHeaderValue(this string value, Authorization scheme)
         {
-            return string.Join(' ', new[] { scheme.ToString(), scheme.FormatValue(value) });
+            return string.Join(' ', scheme.ToString(), scheme.FormatValue(value));
         }
 
         /// <summary>
