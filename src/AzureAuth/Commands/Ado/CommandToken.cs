@@ -38,11 +38,11 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             Token,
 
             /// <summary>
-            /// Authorization http header value.
+            /// Authorization http header.
             /// </summary>
             Header,
 
-            /// <summary> TODO </summary>
+            /// <summary> Authorization http header - Value Only </summary>
             HeaderValue,
         }
 
