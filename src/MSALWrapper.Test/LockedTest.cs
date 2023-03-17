@@ -82,7 +82,7 @@ namespace MSALWrapper.Test
             var tenSeconds = TimeSpan.FromMilliseconds(10_000);
 
             AutoResetEvent hasLock = new AutoResetEvent(false);
-            Mutex m = new Mutex(false, lockName);
+            Mutex m = new Mutex(false, "Local\\01227a9099bf1b9710459a351eac7e58dbd85f6e855ee421dde7d8b86f7c4879");
 
             // acquire the same mutex that our Subject will attempt to acquire.
             new Thread(() =>
