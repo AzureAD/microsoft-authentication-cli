@@ -14,6 +14,15 @@ namespace Microsoft.Authentication.MSALWrapper
     public static class Locked
     {
         /// <summary>
+        /// <see cref="Mutex"/> visibility levels between terminal server sessions.
+        /// </summary>
+        public enum Visibility
+        {
+            Local,
+            Global,
+        }
+
+        /// <summary>
         /// Execute the given <paramref name="subject"/> under the <paramref name="lockName"/> as a "Local\" inter-process lock.
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> you want to return in a locked blocked.</typeparam>
@@ -21,9 +30,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="lockName">A lock name. This will be treated like file on *nix systems and will be path sanitized.</param>
         /// <param name="maxLockWaitTime">The max amount of time to wait to acquire the lock.</param>
         /// <param name="subject">A <see cref="Func{TResult}"/> representing the action to take while holding the lock.</param>
+        /// <param name="visibility">The <see cref="Visibility"/> of the <see cref="Mutex"/>.</param>
         /// <returns>A <typeparamref name="T"/> result.</returns>
         /// <exception cref="TimeoutException">This lock will attempt to wait for the <paramref name="maxLockWaitTime"/>, and if not acquired throws a <see cref="TimeoutException"/>.</exception>
-        public static T Execute<T>(ILogger logger, string lockName, TimeSpan maxLockWaitTime, Func<Task<T>> subject)
+        public static T Execute<T>(ILogger logger, string lockName, TimeSpan maxLockWaitTime, Func<Task<T>> subject, Visibility visibility = Visibility.Local)
         {
             T result = default;
 

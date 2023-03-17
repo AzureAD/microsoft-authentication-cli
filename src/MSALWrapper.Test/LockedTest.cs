@@ -96,5 +96,28 @@ namespace MSALWrapper.Test
             int subject = Locked.Execute(this.mockLogger.Object, lockName, tenSeconds, () => Task.FromResult(13));
             subject.Should().Be(13);
         }
+
+        // https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
+        [TestCase("bad_on_mac/.default")]
+        [TestCase("c99d8886-3cf5-4d44-b04c-6789bec9e1c8\\.default")]
+        [TestCase("Local\\c99d8886-3cf5-4d44-b04c-6789bec9e1c8/.default")]
+        [TestCase("LPT1.txt")]
+        [TestCase("Local\\LPT1.txt")]
+        [TestCase("bad_windows_<")]
+        [TestCase("bad_windows_>")]
+        [TestCase("bad_windows_\"")]
+        [TestCase("bad_windows_|")]
+        [TestCase("bad_windows_?")]
+        [TestCase("bad_windows_*")]
+        [TestCase("bad_windows_ ")]
+        [TestCase("bad_mac_n_win_:")]
+        [TestCase("CON")]
+        [TestCase("CON.txt")]
+        public void LockNames_Are_Made_Safe(string lockName, Locked.Visibility visibility = Locked.Visibility.Local)
+        {
+            var timeout = TimeSpan.FromMilliseconds(10);
+            var subject = Locked.Execute(this.mockLogger.Object, lockName, timeout, () => Task.FromResult(0));
+            subject.Should().Be(0);
+        }
     }
 }
