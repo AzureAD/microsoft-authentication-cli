@@ -98,7 +98,6 @@ namespace MSALWrapper.Test
         }
 
         // https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
-        [TestCase("bad_on_mac/.default")]
         [TestCase("c99d8886-3cf5-4d44-b04c-6789bec9e1c8\\.default")]
         [TestCase("Local\\c99d8886-3cf5-4d44-b04c-6789bec9e1c8/.default")]
         [TestCase("LPT1.txt")]
@@ -111,6 +110,7 @@ namespace MSALWrapper.Test
         [TestCase("bad_windows_*")]
         [TestCase("bad_windows_ ")]
         [TestCase("bad_mac_n_win_:")]
+        [TestCase("bad_on_nix/.default")]
         [TestCase("CON")]
         [TestCase("CON.txt")]
         public void LockNames_Are_Made_Safe(string lockName, Locked.Visibility visibility = Locked.Visibility.Local)
@@ -118,6 +118,13 @@ namespace MSALWrapper.Test
             var timeout = TimeSpan.FromMilliseconds(10);
             var subject = Locked.Execute(this.mockLogger.Object, lockName, timeout, () => Task.FromResult(0));
             subject.Should().Be(0);
+        }
+
+        [TestCase("foobar", Locked.Visibility.Local, "Local\\c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2")]
+        [TestCase("foobar", Locked.Visibility.Global, "Global\\c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2")]
+        public void LockName_Contains_Visibility(string lockName, Locked.Visibility visibility, string expected)
+        {
+            Locked.LockName(lockName, visibility).Should().Be(expected);
         }
     }
 }

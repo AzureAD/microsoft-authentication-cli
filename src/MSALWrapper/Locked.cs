@@ -4,8 +4,14 @@
 namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Cryptography;
+    using System.Text;
+    using System.Text.Unicode;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
 
     /// <summary>
@@ -36,6 +42,8 @@ namespace Microsoft.Authentication.MSALWrapper
         public static T Execute<T>(ILogger logger, string lockName, TimeSpan maxLockWaitTime, Func<Task<T>> subject, Visibility visibility = Visibility.Local)
         {
             T result = default;
+
+            lockName = LockName(lockName, visibility);
 
             // The first parameter 'initiallyOwned' indicates whether this lock is owned by current thread.
             // It should be false otherwise a deadlock could occur.
@@ -73,6 +81,21 @@ namespace Microsoft.Authentication.MSALWrapper
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Create a safe lockname.
+        /// </summary>
+        /// <param name="lockName">The lock name.</param>
+        /// <param name="visibility">The Mutex <see cref="Visibility"/>.</param>
+        /// <returns>A safe lock name derived from <paramref name="visibility"/> and <paramref name="lockName"/>.</returns>
+        public static string LockName(string lockName, Visibility visibility)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(lockName));
+                return string.Concat(new[] { $"{visibility}\\" }.Concat(hash.Select(b => b.ToString("x2"))));
+            }
         }
     }
 }
