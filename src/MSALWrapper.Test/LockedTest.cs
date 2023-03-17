@@ -14,25 +14,40 @@ namespace MSALWrapper.Test
 
     using Moq;
 
+    using NLog;
+    using NLog.Targets;
+
     using NUnit.Framework;
 
     internal class LockedTest
     {
         private static readonly TimeSpan TenSec = TimeSpan.FromSeconds(10);
 
-        private Mock<ILogger> mockLogger;
+        private Microsoft.Extensions.Logging.ILogger logger;
+        private MemoryTarget logTarget;
 
         [SetUp]
         public void SetUp()
         {
-            this.mockLogger = new Mock<ILogger>();
+            var loggerFactory = new NLog.Extensions.Logging.NLogLoggerFactory();
+            this.logger = loggerFactory.CreateLogger<LockedTest>();
+
+            // Setup in memory logging target with NLog - allows making assertions against what has been logged.
+            var loggingConfig = new NLog.Config.LoggingConfiguration();
+            this.logTarget = new MemoryTarget("memory_target");
+            this.logTarget.Layout = "${message}";
+            loggingConfig.AddTarget(this.logTarget);
+            loggingConfig.AddRuleForAllLevels(this.logTarget);
+
+            // Set the Config
+            LogManager.Configuration = loggingConfig;
         }
 
         [Test]
         public void Get_Int()
         {
             var lockName = "get_an_int";
-            var subject = Locked.Execute(this.mockLogger.Object, lockName, TenSec, () => Task.FromResult(42));
+            var subject = Locked.Execute(this.logger, lockName, TenSec, () => Task.FromResult(42));
             subject.Should().Be(42);
         }
 
@@ -40,7 +55,7 @@ namespace MSALWrapper.Test
         public void Get_String()
         {
             var lockName = "get_a_string";
-            var subject = Locked.Execute(this.mockLogger.Object, lockName, TenSec, () => Task.FromResult("hi there"));
+            var subject = Locked.Execute(this.logger, lockName, TenSec, () => Task.FromResult("hi there"));
             subject.Should().Be("hi there");
         }
 
@@ -53,7 +68,7 @@ namespace MSALWrapper.Test
             AutoResetEvent hasLock = new AutoResetEvent(false);
             AutoResetEvent assertionMade = new AutoResetEvent(false);
 
-            Func<int> longFunc = () => Locked.Execute(this.mockLogger.Object, lockName, TenSec, () =>
+            Func<int> longFunc = () => Locked.Execute(this.logger, lockName, TenSec, () =>
             {
                 // Signal that we have the lock, and wait for the assertion to be made.
                 hasLock.Set();
@@ -61,7 +76,7 @@ namespace MSALWrapper.Test
                 return Task.FromResult(42);
             });
 
-            Action subject = () => Locked.Execute(this.mockLogger.Object, lockName, shortTimeOut, () => Task.FromResult(0));
+            Action subject = () => Locked.Execute(this.logger, lockName, shortTimeOut, () => Task.FromResult(0));
 
             // Start longFunc, and wait for the lock to be acquired
             Task<int> longTask = Task.Run(longFunc);
@@ -93,8 +108,11 @@ namespace MSALWrapper.Test
 
             // Once lock is acquired, we can start our second task which waits for the lock.
             hasLock.WaitOne();
-            int subject = Locked.Execute(this.mockLogger.Object, lockName, tenSeconds, () => Task.FromResult(13));
+            int subject = Locked.Execute(this.logger, lockName, tenSeconds, () => Task.FromResult(13));
             subject.Should().Be(13);
+
+            // Assert that we caught the abandoned mutex!
+            this.logTarget.Logs[0].Should().Be("Another thread or process may have exited unexpectedly, while holding AzureAuth resources.");
         }
 
         // https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
@@ -116,7 +134,7 @@ namespace MSALWrapper.Test
         public void LockNames_Are_Made_Safe(string lockName, Locked.Visibility visibility = Locked.Visibility.Local)
         {
             var timeout = TimeSpan.FromMilliseconds(10);
-            var subject = Locked.Execute(this.mockLogger.Object, lockName, timeout, () => Task.FromResult(0));
+            var subject = Locked.Execute(this.logger, lockName, timeout, () => Task.FromResult(0));
             subject.Should().Be(0);
         }
 
