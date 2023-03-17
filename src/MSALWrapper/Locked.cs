@@ -49,7 +49,7 @@ namespace Microsoft.Authentication.MSALWrapper
 
                 if (!lockAcquired)
                 {
-                    throw new TimeoutException("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
+                    throw new TimeoutException($"The application did not gain access to the lock named '{lockName}' in the expected time.");
                 }
 
                 try

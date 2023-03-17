@@ -66,7 +66,7 @@ namespace MSALWrapper.Test
             // Start longFunc, and wait for the lock to be acquired
             Task<int> longTask = Task.Run(longFunc);
             hasLock.WaitOne();
-            subject.Should().Throw<TimeoutException>();
+            subject.Should().Throw<TimeoutException>().WithMessage("The application did not gain access to the lock named 'short task times out while long task is running' in the expected time.");
 
             // Release the long Task by signaling we've made our assertion.
             // This prevents us from abandoning the longTask which has the lock and would not actually release
