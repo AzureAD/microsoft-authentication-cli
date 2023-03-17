@@ -48,41 +48,30 @@ namespace MSALWrapper.Test
         public void Execute_TimeOut()
         {
             var lockName = "short task times out while long task is running";
+            var shortTime = TimeSpan.FromMilliseconds(1);
 
-            // this int will be used to signal across threads
-            int lockAcquired = 0;
-            var oneMs = TimeSpan.FromMilliseconds(0.25);
+            // AutoResetEvent gives you a nice signaling primitive.
+            AutoResetEvent hasLock = new AutoResetEvent(false);
+            AutoResetEvent assertionMade = new AutoResetEvent(false);
 
-            Func<int> longFunc = () => Locked.Execute(this.mockLogger.Object, lockName, TenSec, async () =>
+            Func<int> longFunc = () => Locked.Execute(this.mockLogger.Object, lockName, TenSec, () =>
             {
-                // signal that we have acquired the lock
-                Interlocked.Increment(ref lockAcquired);
-
-                // wait for the signal that our test has made it's assertion
-                while (lockAcquired == 1)
-                {
-                    await Task.Delay(oneMs);
-                }
-
-                return 42;
+                hasLock.Set();
+                assertionMade.WaitOne();
+                return Task.FromResult(42);
             });
 
-            Action subject = () => Locked.Execute(this.mockLogger.Object, lockName, oneMs, () => Task.FromResult(0));
+            Action subject = () => Locked.Execute(this.mockLogger.Object, lockName, shortTime, () => Task.FromResult(0));
 
             Task<int> longTask = Task.Run(longFunc);
 
-            // wait for our signal
-            while (lockAcquired == 0)
-            {
-                Thread.Sleep(oneMs);
-            }
-
+            hasLock.WaitOne();
             subject.Should().Throw<TimeoutException>();
 
             // Release the long Task by signaling we've made our assertion.
             // This prevents us from abandoning the longTask which has the lock and would not actually release
             // the Mutex correctly. This could be a problem if another test accidentally re-used a lock name.
-            Interlocked.Increment(ref lockAcquired);
+            assertionMade.Set();
             longTask.Result.Should().Be(42);
         }
     }
