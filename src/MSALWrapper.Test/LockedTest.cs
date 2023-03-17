@@ -25,7 +25,7 @@ namespace MSALWrapper.Test
         [SetUp]
         public void SetUp()
         {
-            this.mockLogger = new Mock<ILogger>(MockBehavior.Strict);
+            this.mockLogger = new Mock<ILogger>();
         }
 
         [Test]
@@ -73,6 +73,28 @@ namespace MSALWrapper.Test
             // the Mutex correctly. This could be a problem if another test accidentally re-used a lock name.
             assertionMade.Set();
             longTask.Result.Should().Be(42);
+        }
+
+        [Test]
+        public void Abandon_The_Mutex()
+        {
+            var lockName = "this mutex is going to be poisoned (abandoned)";
+            var tenSeconds = TimeSpan.FromMilliseconds(10_000);
+
+            AutoResetEvent hasLock = new AutoResetEvent(false);
+            Mutex m = new Mutex(false, lockName);
+
+            // acquire the same mutex that our Subject will attempt to acquire.
+            new Thread(() =>
+            {
+                m.WaitOne();
+                hasLock.Set();
+            }).Start();
+
+            // Once lock is acquired, we can start our second task which waits for the lock.
+            hasLock.WaitOne();
+            int subject = Locked.Execute(this.mockLogger.Object, lockName, tenSeconds, () => Task.FromResult(13));
+            subject.Should().Be(13);
         }
     }
 }

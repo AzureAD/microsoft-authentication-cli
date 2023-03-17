@@ -44,7 +44,7 @@ namespace Microsoft.Authentication.MSALWrapper
                     lockAcquired = true;
 
                     // In this case, basically we can just leave a log warning, because the worst side effect is prompting more than once.
-                    logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
+                    logger.LogWarning("Another thread or process may have exited unexpectedly, while holding AzureAuth resources.");
                 }
 
                 if (!lockAcquired)
