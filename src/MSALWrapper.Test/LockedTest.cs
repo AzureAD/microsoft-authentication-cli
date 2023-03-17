@@ -82,7 +82,7 @@ namespace MSALWrapper.Test
             var tenSeconds = TimeSpan.FromMilliseconds(10_000);
 
             AutoResetEvent hasLock = new AutoResetEvent(false);
-            Mutex m = new Mutex(false, lockName);
+            Mutex m = new Mutex(false, "Local\\01227a9099bf1b9710459a351eac7e58dbd85f6e855ee421dde7d8b86f7c4879");
 
             // acquire the same mutex that our Subject will attempt to acquire.
             new Thread(() =>
@@ -95,6 +95,36 @@ namespace MSALWrapper.Test
             hasLock.WaitOne();
             int subject = Locked.Execute(this.mockLogger.Object, lockName, tenSeconds, () => Task.FromResult(13));
             subject.Should().Be(13);
+        }
+
+        // https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
+        [TestCase("c99d8886-3cf5-4d44-b04c-6789bec9e1c8\\.default")]
+        [TestCase("Local\\c99d8886-3cf5-4d44-b04c-6789bec9e1c8/.default")]
+        [TestCase("LPT1.txt")]
+        [TestCase("Local\\LPT1.txt")]
+        [TestCase("bad_windows_<")]
+        [TestCase("bad_windows_>")]
+        [TestCase("bad_windows_\"")]
+        [TestCase("bad_windows_|")]
+        [TestCase("bad_windows_?")]
+        [TestCase("bad_windows_*")]
+        [TestCase("bad_windows_ ")]
+        [TestCase("bad_mac_n_win_:")]
+        [TestCase("bad_on_nix/.default")]
+        [TestCase("CON")]
+        [TestCase("CON.txt")]
+        public void LockNames_Are_Made_Safe(string lockName, Locked.Visibility visibility = Locked.Visibility.Local)
+        {
+            var timeout = TimeSpan.FromMilliseconds(10);
+            var subject = Locked.Execute(this.mockLogger.Object, lockName, timeout, () => Task.FromResult(0));
+            subject.Should().Be(0);
+        }
+
+        [TestCase("foobar", Locked.Visibility.Local, "Local\\c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2")]
+        [TestCase("foobar", Locked.Visibility.Global, "Global\\c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2")]
+        public void LockName_Contains_Visibility(string lockName, Locked.Visibility visibility, string expected)
+        {
+            Locked.LockName(lockName, visibility).Should().Be(expected);
         }
     }
 }
