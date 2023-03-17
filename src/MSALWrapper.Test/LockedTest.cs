@@ -48,23 +48,23 @@ namespace MSALWrapper.Test
         public void Execute_TimeOut()
         {
             var lockName = "short task times out while long task is running";
-            var shortTime = TimeSpan.FromMilliseconds(1);
+            var shortTimeOut = TimeSpan.FromMilliseconds(1);
 
-            // AutoResetEvent gives you a nice signaling primitive.
             AutoResetEvent hasLock = new AutoResetEvent(false);
             AutoResetEvent assertionMade = new AutoResetEvent(false);
 
             Func<int> longFunc = () => Locked.Execute(this.mockLogger.Object, lockName, TenSec, () =>
             {
+                // Signal that we have the lock, and wait for the assertion to be made.
                 hasLock.Set();
                 assertionMade.WaitOne();
                 return Task.FromResult(42);
             });
 
-            Action subject = () => Locked.Execute(this.mockLogger.Object, lockName, shortTime, () => Task.FromResult(0));
+            Action subject = () => Locked.Execute(this.mockLogger.Object, lockName, shortTimeOut, () => Task.FromResult(0));
 
+            // Start longFunc, and wait for the lock to be acquired
             Task<int> longTask = Task.Run(longFunc);
-
             hasLock.WaitOne();
             subject.Should().Throw<TimeoutException>();
 
