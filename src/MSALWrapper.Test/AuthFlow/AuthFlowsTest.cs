@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using FluentAssertions;
 
@@ -28,6 +29,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var tenant = Guid.NewGuid();
             var subject = new AuthFlows(client, tenant, new List<IAuthFlow>());
             subject.Id.Should().Be($"{client}_{tenant}");
+        }
+
+        [Test]
+        public void Is_Iterable()
+        {
+            IEnumerable<IAuthFlow> flows = new List<IAuthFlow>();
+            var subject = new AuthFlows(Guid.NewGuid(), Guid.NewGuid(), flows);
+            // Use LINQ Count() to forces us to implement IEnumerable<IAuthFlow>
+            subject.Count().Should().Be(0);
         }
     }
 }
