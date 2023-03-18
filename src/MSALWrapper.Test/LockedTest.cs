@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace MSALWrapper.Test
+namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
     using System.Threading;
@@ -11,8 +11,6 @@ namespace MSALWrapper.Test
 
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.Logging;
-
-    using Moq;
 
     using NLog;
     using NLog.Targets;
@@ -81,7 +79,7 @@ namespace MSALWrapper.Test
             // Start longFunc, and wait for the lock to be acquired
             Task<int> longTask = Task.Run(longFunc);
             hasLock.WaitOne();
-            subject.Should().Throw<TimeoutException>().WithMessage("The application did not gain access to the lock named 'short task times out while long task is running' in the expected time.");
+            subject.Should().Throw<TimeoutException>().WithMessage("The application did not gain access to the lock named 'Local\\203b4357cac4279e7ed3492be002ca1bfbf3dbd87f87a88bdc7e1690a41266ee' in the expected time.");
 
             // Release the long Task by signaling we've made our assertion.
             // This prevents us from abandoning the longTask which has the lock and would not actually release
