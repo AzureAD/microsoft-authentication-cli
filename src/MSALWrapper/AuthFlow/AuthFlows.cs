@@ -27,7 +27,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         public AuthFlows(Guid client, Guid tenant, IEnumerable<IAuthFlow> authFlows)
         {
             this.Id = $"{client}_{tenant}";
-            this.authFlows = authFlows;
+            this.authFlows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
         }
     }
 }
