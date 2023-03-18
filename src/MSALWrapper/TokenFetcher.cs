@@ -59,14 +59,14 @@ namespace Microsoft.Authentication.MSALWrapper
             string prompt,
             TimeSpan timeout)
         {
-            var authFlows = AuthFlowFactory.Create(
+            var authFlows = new AuthFlows(client, tenant, AuthFlowFactory.Create(
                 logger: logger,
                 authMode: mode,
                 clientId: client,
                 tenantId: tenant,
                 scopes: scopes,
                 preferredDomain: domain,
-                promptHint: prompt);
+                promptHint: prompt));
 
             List<AuthFlowResult> results = new List<AuthFlowResult>();
             var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));

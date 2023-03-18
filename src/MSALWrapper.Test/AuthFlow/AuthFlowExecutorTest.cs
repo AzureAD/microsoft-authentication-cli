@@ -29,8 +29,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
         private TokenResult tokenResult;
-        private IEnumerable<IAuthFlow> authFlows;
+        private AuthFlows authFlows;
         private IStopwatch stopwatch;
+        private Guid client;
+        private Guid tenant;
 
         [SetUp]
         public void Setup()
@@ -40,7 +42,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.logTarget = new MemoryTarget("memory_target");
             loggingConfig.AddTarget(this.logTarget);
             loggingConfig.AddRuleForAllLevels(this.logTarget);
-            this.authFlows = new List<IAuthFlow>();
+            this.client = Guid.NewGuid();
+            this.tenant = Guid.NewGuid();
+            this.authFlows = new AuthFlows(this.client, this.tenant, new List<IAuthFlow>());
 
             // Setup Dependency Injection container to provide logger and out class under test (the "subject")
             this.serviceProvider = new ServiceCollection()
@@ -847,7 +851,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
             var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            return new AuthFlowExecutor(logger, authFlows, this.stopwatch);
+            return new AuthFlowExecutor(logger, new AuthFlows(this.client, this.tenant, authFlows), this.stopwatch);
         }
 
         // This auth flow is for delaying the return and testing timeout.

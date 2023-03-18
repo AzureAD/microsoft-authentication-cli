@@ -33,7 +33,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="logger">The logger.</param>
         /// <param name="authFlows">The list of auth flows.</param>
         /// <param name="stopwatch">The stopwatch to handle timeout.</param>
-        public AuthFlowExecutor(ILogger logger, IEnumerable<IAuthFlow> authFlows, IStopwatch stopwatch)
+        public AuthFlowExecutor(ILogger logger, AuthFlows authFlows, IStopwatch stopwatch)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.authflows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
