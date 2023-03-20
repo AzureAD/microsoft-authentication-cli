@@ -15,7 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// The Id of this group of auth flows.
         /// </summary>
-        public readonly string Id;
+        public readonly string LockName;
 
         private readonly IEnumerable<IAuthFlow> authFlows;
 
@@ -27,7 +27,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="authFlows">An <see cref="IEnumerable{IAuthFlow}"/> of auth flows.</param>
         public AuthFlows(Guid client, Guid tenant, IEnumerable<IAuthFlow> authFlows)
         {
-            this.Id = $"{client}_{tenant}";
+            this.LockName = $"{client}_{tenant}";
             this.authFlows = authFlows ?? throw new ArgumentNullException(nameof(authFlows));
         }
 

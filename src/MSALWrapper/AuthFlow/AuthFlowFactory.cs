@@ -8,7 +8,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// A static class for creating an enumeration of auth flows given settings.
+    /// A class for creating an enumeration of auth flows given settings.
     /// </summary>
     public class AuthFlowFactory
     {
@@ -24,8 +24,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="promptHint">A prompt hint to contextualize an auth prompt if given.</param>
         /// <param name="pcaWrapper">An optional injected <see cref="IPCAWrapper"/> to use.</param>
         /// <param name="platformUtils">An optional injected <see cref="IPlatformUtils"/> to use.</param>
-        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IAuthFlow"/> instances.</returns>
-        public static IEnumerable<IAuthFlow> Create(
+        /// <returns>An <see cref="AuthFlows"/>.</returns>
+        public static AuthFlows Create(
             ILogger logger,
             AuthMode authMode,
             Guid clientId,
@@ -68,7 +68,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
-            return flows;
+            return new AuthFlows(clientId, tenantId, flows);
         }
     }
 }

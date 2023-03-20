@@ -28,7 +28,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var client = Guid.NewGuid();
             var tenant = Guid.NewGuid();
             var subject = new AuthFlows(client, tenant, new List<IAuthFlow>());
-            subject.Id.Should().Be($"{client}_{tenant}");
+            subject.LockName.Should().Be($"{client}_{tenant}");
         }
 
         [Test]
