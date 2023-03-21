@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.1.0" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
     <PackageReference Include="nunit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
@@ -31,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TestHelper\TestHelper.csproj" />
+    <ProjectReference Include="..\TestHelper\TestHelper.csproj" />
     <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
   </ItemGroup>
 
