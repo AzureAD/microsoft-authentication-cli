@@ -4,32 +4,31 @@
     <!-- Package Naming, Building, & Versioning -->
     <PackageId>Microsoft.Authentication.MSALWrapper</PackageId>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Microsoft.Authentication.MSALWrapper</RootNamespace>
+    <RootNamespace>
+      Microsoft.Authentication.MSALWrapper</RootNamespace>
 
     <PackageOutputPath>../</PackageOutputPath>
 
     <!-- Human Metadata -->
-    <Title>Microsoft Authentication MSAL Wrapper</Title>
+    <Title>Microsoft
+      Authentication MSAL Wrapper</Title>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-authentication-cli</RepositoryUrl>
-    <Description>A library for quickly authenticating with various Azure resources</Description>
-    <PackageTags>MSAL;authentication</PackageTags>
+    <Description>A
+      library for quickly authenticating with various Azure resources</Description>
+    <PackageTags>
+      MSAL;authentication</PackageTags>
 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <DefineConstants>PlatformWindows</DefineConstants>
+    <DefineConstants>
+      PlatformWindows</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Stylecop required items -->
-    <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
-    <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.52.0.60960" />
   </ItemGroup>
 
   <ItemGroup>

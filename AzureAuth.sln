@@ -15,16 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{8ECA01
 	ProjectSection(SolutionItems) = preProject
 		CHANGELOG.md = CHANGELOG.md
 		CONTRIBUTING.md = CONTRIBUTING.md
-		src\stylecop\GlobalSuppressions.cs = src\stylecop\GlobalSuppressions.cs
-		src\stylecop\GlobalSuppressions.Test.cs = src\stylecop\GlobalSuppressions.Test.cs
-		src\stylecop\stylecop.json = src\stylecop\stylecop.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSALWrapper.Benchmark", "src\MSALWrapper.Benchmark\MSALWrapper.Benchmark.csproj", "{22778DA9-2246-42D8-A6C4-6DA8E0D7638E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdoPat", "src\AdoPat\AdoPat.csproj", "{4FDAE313-5BBD-4727-B67E-386A55C80C43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdoPat", "src\AdoPat\AdoPat.csproj", "{4FDAE313-5BBD-4727-B67E-386A55C80C43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdoPat.Test", "src\AdoPat.Test\AdoPat.Test.csproj", "{D49B2FCE-2112-4071-A2AD-8979499B1D4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdoPat.Test", "src\AdoPat.Test\AdoPat.Test.csproj", "{D49B2FCE-2112-4071-A2AD-8979499B1D4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
