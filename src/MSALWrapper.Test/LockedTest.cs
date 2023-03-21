@@ -10,9 +10,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using FluentAssertions;
 
     using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Extensions.Logging;
+    using Microsoft.Authentication.TestHelper;
 
-    using NLog;
     using NLog.Targets;
 
     using NUnit.Framework;
@@ -21,24 +20,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     {
         private static readonly TimeSpan TenSec = TimeSpan.FromSeconds(10);
 
-        private Microsoft.Extensions.Logging.ILogger logger;
+        private Extensions.Logging.ILogger logger;
         private MemoryTarget logTarget;
 
         [SetUp]
         public void SetUp()
         {
-            var loggerFactory = new NLog.Extensions.Logging.NLogLoggerFactory();
-            this.logger = loggerFactory.CreateLogger<LockedTest>();
-
-            // Setup in memory logging target with NLog - allows making assertions against what has been logged.
-            var loggingConfig = new NLog.Config.LoggingConfiguration();
-            this.logTarget = new MemoryTarget("memory_target");
-            this.logTarget.Layout = "${message}";
-            loggingConfig.AddTarget(this.logTarget);
-            loggingConfig.AddRuleForAllLevels(this.logTarget);
-
-            // Set the Config
-            LogManager.Configuration = loggingConfig;
+            (this.logger, this.logTarget) = MemoryLogger.Create();
         }
 
         [Test]
