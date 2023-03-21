@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdoPat", "src\AdoPat\AdoPat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdoPat.Test", "src\AdoPat.Test\AdoPat.Test.csproj", "{D49B2FCE-2112-4071-A2AD-8979499B1D4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHelper", "TestHelper\TestHelper.csproj", "{E39BA4B8-4124-45D9-9B2C-CB1A55032B2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHelper", "src\TestHelper\TestHelper.csproj", "{E39BA4B8-4124-45D9-9B2C-CB1A55032B2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
