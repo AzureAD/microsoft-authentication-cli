@@ -6,7 +6,6 @@ namespace Microsoft.Authentication.MSALWrapper
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
@@ -71,46 +70,10 @@ namespace Microsoft.Authentication.MSALWrapper
             List<AuthFlowResult> results = new List<AuthFlowResult>();
             var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));
 
-            // When running multiple AzureAuth processes with the same client, and tenant IDs,
-            // They may prompt many times, which is annoying and unexpected.
-            // Use Mutex to ensure that only one process can access the corresponding tenant at the same time.
+            // Prevent multiple calls to AzureAuth for the same client and tenant from prompting at the same time.
             string lockName = $"Local\\{tenant}_{client}";
 
-            // The first parameter 'initiallyOwned' indicates whether this lock is owned by current thread.
-            // It should be false otherwise a deadlock could occur.
-            using (Mutex mutex = new Mutex(initiallyOwned: false, name: lockName))
-            {
-                bool lockAcquired = false;
-                try
-                {
-                    // Wait for other sessions to exit.
-                    lockAcquired = mutex.WaitOne(MaxLockWaitTime);
-                }
-                catch (AbandonedMutexException)
-                {
-                    // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
-                    // If another process crashes or exits accidentally, we can still acquire the lock.
-                    lockAcquired = true;
-
-                    // In this case, basically we can just leave a log warning, because the worst side effect is prompting more than once.
-                    logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
-                }
-
-                if (!lockAcquired)
-                {
-                    throw new TimeoutException("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
-                }
-
-                try
-                {
-                    // GetTokenAsync returns an empty list instead of null so no null check required here.
-                    results.AddRange(executor.GetTokenAsync().Result);
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
-            }
+            results.AddRange(Locked.Execute(logger, lockName, MaxLockWaitTime, async () => await executor.GetTokenAsync()));
 
             return new Result { Attempts = results };
         }
