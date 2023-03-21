@@ -71,14 +71,9 @@ namespace Microsoft.Authentication.MSALWrapper
             List<AuthFlowResult> results = new List<AuthFlowResult>();
             var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));
 
-            // When running multiple AzureAuth processes with the same client, and tenant IDs,
-            // They may prompt many times, which is annoying and unexpected.
-            // Use Mutex to ensure that only one process can access the corresponding tenant at the same time.
-            string lockName = $"Local\\{tenant}_{client}";
-
             // The first parameter 'initiallyOwned' indicates whether this lock is owned by current thread.
             // It should be false otherwise a deadlock could occur.
-            using (Mutex mutex = new Mutex(initiallyOwned: false, name: lockName))
+            using (Mutex mutex = new Mutex(initiallyOwned: false, name: authFlows.LockName))
             {
                 bool lockAcquired = false;
                 try
