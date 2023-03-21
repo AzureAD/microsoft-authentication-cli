@@ -3,20 +3,26 @@
 
 namespace Microsoft.Authentication.TestHelper
 {
-    using Microsoft.Extensions.Logging;
-
     using NLog;
     using NLog.Config;
     using NLog.Targets;
 
+    using System.Diagnostics;
+
     public static class MemoryLogger
     {
-        public static (ILogger<T> logger, MemoryTarget logTarget) Create<T>()
+        public static (Extensions.Logging.ILogger logger, MemoryTarget logTarget) Create()
         {
-            var loggerFactory = new NLog.Extensions.Logging.NLogLoggerFactory();
-            var logger = loggerFactory.CreateLogger<T>();
+            // Use reflection to get the name of the class which declares our caller.
+            // Expected to be the name of a Test class.
+            StackFrame frame = new StackFrame(1);
+            var method = frame.GetMethod();
+            var type = method.DeclaringType;
 
-            // Setup in memory logging target with NLog - allows making assertions against what has been logged.
+            var loggerFactory = new NLog.Extensions.Logging.NLogLoggerFactory();
+            var logger = loggerFactory.CreateLogger(type.FullName);
+
+            // Setup in memory logging target with NLog
             var loggingConfig = new LoggingConfiguration();
             var logTarget = new MemoryTarget("memory_target");
             logTarget.Layout = "${message}";
@@ -25,6 +31,7 @@ namespace Microsoft.Authentication.TestHelper
 
             // Set the Config
             LogManager.Configuration = loggingConfig;
+
             return (logger, logTarget);
         }
     }

@@ -6,56 +6,35 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
+
     using FluentAssertions;
     using FluentAssertions.Equivalency;
+
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
-    using Microsoft.Authentication.MSALWrapper.Test;
-    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
+
     using Moq;
-    using NLog.Extensions.Logging;
-    using NLog.Targets;
+
     using NUnit.Framework;
 
     public class AuthFlowExecutorTest
     {
         private const string NullAuthFlowResultExceptionMessage = "Auth flow 'IAuthFlowProxy' returned a null AuthFlowResult.";
 
-        private IServiceProvider serviceProvider;
-        private MemoryTarget logTarget;
+        private ILogger logger;
         private TokenResult tokenResult;
-        private AuthFlows authFlows;
         private IStopwatch stopwatch;
-        private Guid client;
-        private Guid tenant;
+        private Guid client = Guid.NewGuid();
+        private Guid tenant = Guid.NewGuid();
 
         [SetUp]
         public void Setup()
         {
-            // Setup in memory logging target with NLog - allows making assertions against what has been logged.
-            var loggingConfig = new NLog.Config.LoggingConfiguration();
-            this.logTarget = new MemoryTarget("memory_target");
-            loggingConfig.AddTarget(this.logTarget);
-            loggingConfig.AddRuleForAllLevels(this.logTarget);
-            this.client = Guid.NewGuid();
-            this.tenant = Guid.NewGuid();
-            this.authFlows = new AuthFlows(this.client, this.tenant, new List<IAuthFlow>());
-
-            // Setup Dependency Injection container to provide logger and out class under test (the "subject")
-            this.serviceProvider = new ServiceCollection()
-             .AddLogging(loggingBuilder =>
-             {
-                 // configure Logging with NLog
-                 loggingBuilder.ClearProviders();
-                 loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-                 loggingBuilder.AddNLog(loggingConfig);
-             })
-             .BuildServiceProvider();
+            (this.logger, _) = MemoryLogger.Create();
 
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
@@ -74,17 +53,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWith_Null_Logger()
         {
-            Action authFlowExecutor = () => new AuthFlowExecutor(null, this.authFlows, this.stopwatch);
+            Action authFlowExecutor = () => new AuthFlowExecutor(null, null, this.stopwatch);
 
             // Assert
-            authFlowExecutor.Should().Throw<ArgumentNullException>();
+            authFlowExecutor.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'logger')");
         }
 
         [Test]
         public void ConstructorWith_Null_AuthFlows()
         {
-            var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, null, this.stopwatch);
+            Action authFlowExecutor = () => new AuthFlowExecutor(this.logger, null, this.stopwatch);
 
             // Assert
             authFlowExecutor.Should().Throw<ArgumentNullException>();
@@ -93,11 +71,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void ConstructorWith_Valid_Arguments()
         {
-            var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            Action authFlowExecutor = () => new AuthFlowExecutor(logger, this.authFlows, this.stopwatch);
+            Action authFlowExecutor = () => this.Subject(new List<IAuthFlow>());
 
             // Assert
-            authFlowExecutor.Should().NotThrow<ArgumentNullException>();
+            authFlowExecutor.Should().NotThrow();
         }
 
         [Test]
@@ -850,8 +827,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         private AuthFlowExecutor Subject(IEnumerable<IAuthFlow> authFlows)
         {
-            var logger = this.serviceProvider.GetService<ILogger<AuthFlowExecutor>>();
-            return new AuthFlowExecutor(logger, new AuthFlows(this.client, this.tenant, authFlows), this.stopwatch);
+            return new AuthFlowExecutor(this.logger, new AuthFlows(this.client, this.tenant, authFlows), this.stopwatch);
         }
 
         // This auth flow is for delaying the return and testing timeout.

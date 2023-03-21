@@ -11,6 +11,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
+    using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
@@ -27,11 +28,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private static readonly Guid ClientId = new Guid("5af6def2-05ec-4cab-b9aa-323d75b5df40");
         private static readonly Guid TenantId = new Guid("8254f6f7-a09f-4752-8bd6-391adc3b912e");
 
+        private MemoryTarget logTarget;
+        private ILogger logger;
         private Mock<IPCAWrapper> pcaWrapperMock;
         private Mock<IPlatformUtils> platformUtilsMock;
-        private MemoryTarget logTarget;
-        private ServiceProvider serviceProvider;
-        private ILogger logger;
         private IEnumerable<string> scopes;
         private string preferredDomain;
         private string promptHint;
@@ -39,21 +39,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [SetUp]
         public void Setup()
         {
-            // Setup in memory logging target with NLog - allows making assertions against what has been logged.
-            var loggingConfig = new NLog.Config.LoggingConfiguration();
-            this.logTarget = new MemoryTarget("memory_target");
-            loggingConfig.AddTarget(this.logTarget);
-            loggingConfig.AddRuleForAllLevels(this.logTarget);
-
-            this.serviceProvider = new ServiceCollection()
-             .AddLogging(loggingBuilder =>
-             {
-                 // configure Logging with NLog
-                 loggingBuilder.ClearProviders();
-                 loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-                 loggingBuilder.AddNLog(loggingConfig);
-             })
-             .BuildServiceProvider();
+            (this.logger, this.logTarget) = MemoryLogger.Create();
 
             // Always setup Mock with behavior strict - which fails tests on first use of non-mocked behavior.
             // Reminder: If adding a new Mock - also call VerifyAll() in the TearDown method below to assert that
@@ -61,7 +47,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
             this.platformUtilsMock = new Mock<IPlatformUtils>(MockBehavior.Strict);
 
-            this.logger = this.serviceProvider.GetService<ILogger<AuthFlowFactory>>();
             this.scopes = new[] { $"{ResourceId}/.default" };
             this.preferredDomain = "contoso.com";
             this.promptHint = "Log into Contoso!";
