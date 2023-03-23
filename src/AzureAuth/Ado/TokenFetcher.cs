@@ -32,7 +32,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
             string prompt,
             TimeSpan timeout)
         {
-            return AADTokenFetcher.AccessToken(
+            return new AADTokenFetcher().AccessToken(
                 logger: logger,
                 client: new Guid(Constants.Client.VisualStudio),
                 tenant: new Guid(Constants.Tenant.Microsoft),
