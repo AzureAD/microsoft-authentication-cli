@@ -16,7 +16,7 @@ namespace AzureAuth.Test
     using NLog.Targets;
     using NUnit.Framework;
 
-    internal class MelonTest
+    internal class AuthDriverTest
     {
         private ILogger logger;
         private MemoryTarget logTarget;
@@ -33,7 +33,7 @@ namespace AzureAuth.Test
             this.tokenFetcher = new Mock<ITokenFetcher>(MockBehavior.Strict);
         }
 
-        public Melon Subject() => new Melon(this.logger, this.env.Object, this.telemetryService.Object, this.tokenFetcher.Object);
+        public AuthDriver Subject() => new AuthDriver(this.logger, this.env.Object, this.telemetryService.Object, this.tokenFetcher.Object);
 
         [Test]
         public void Contructor_Works()
