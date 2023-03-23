@@ -9,7 +9,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// An interface for acquiring an AAT Access Token.
+    /// An interface for acquiring an AAD Access Token.
     /// </summary>
     public interface ITokenFetcher
     {
