@@ -18,7 +18,7 @@ namespace AzureAuth.Test
 
     using System;
 
-    internal class AuthDriverTest
+    internal class AuthOrchestratorTest
     {
         private ILogger logger;
         private MemoryTarget logTarget;
@@ -35,7 +35,7 @@ namespace AzureAuth.Test
             this.tokenFetcher = new Mock<ITokenFetcher>(MockBehavior.Strict);
         }
 
-        public AuthDriver Subject() => new AuthDriver(this.logger, this.env.Object, this.telemetryService.Object, this.tokenFetcher.Object);
+        public AuthOrchestrator Subject() => new AuthOrchestrator(this.logger, this.env.Object, this.telemetryService.Object, this.tokenFetcher.Object);
 
         [Test]
         public void Contructor_Works()
@@ -46,16 +46,16 @@ namespace AzureAuth.Test
         [Test]
         public void Constructor_No_Nulls_Allowed()
         {
-            Action nullLogger = () => new AuthDriver(null, null, null, null);
+            Action nullLogger = () => new AuthOrchestrator(null, null, null, null);
             nullLogger.Should().Throw<ArgumentNullException>().WithParameterName("logger");
 
-            Action nullEnv = () => new AuthDriver(this.logger, null, null, null);
+            Action nullEnv = () => new AuthOrchestrator(this.logger, null, null, null);
             nullEnv.Should().Throw<ArgumentNullException>().WithParameterName("env");
 
-            Action nullTelemetryService = () => new AuthDriver(this.logger, this.env.Object, null, null);
+            Action nullTelemetryService = () => new AuthOrchestrator(this.logger, this.env.Object, null, null);
             nullTelemetryService.Should().Throw<ArgumentNullException>().WithParameterName("telemetryService");
 
-            Action nullTokenFetcher = () => new AuthDriver(this.logger, this.env.Object, this.telemetryService.Object, null);
+            Action nullTokenFetcher = () => new AuthOrchestrator(this.logger, this.env.Object, this.telemetryService.Object, null);
             nullTokenFetcher.Should().Throw<ArgumentNullException>().WithParameterName("tokenFetcher");
         }
     }

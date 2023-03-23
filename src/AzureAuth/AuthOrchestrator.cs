@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.AzureAuth
     /// <summary>
     /// A class for handling AAD Token acuisition, results logging, and telemetry collection.
     /// </summary>
-    public class AuthDriver
+    public class AuthOrchestrator
     {
         private readonly ILogger logger;
         private readonly IEnv env;
@@ -20,14 +20,14 @@ namespace Microsoft.Authentication.AzureAuth
         private readonly ITokenFetcher tokenFetcher;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthDriver"/> class.
+        /// Initializes a new instance of the <see cref="AuthOrchestrator"/> class.
         /// </summary>
         /// <param name="logger">An <see cref="ILogger"/>.</param>
         /// <param name="env">An <see cref="IEnv"/>.</param>
         /// <param name="telemetryService">An <see cref="ITelemetryService"/>.</param>
         /// <param name="tokenFetcher">An <see cref="ITokenFetcher"/>.</param>
         /// <exception cref="ArgumentNullException">All parameters must not be null.</exception>
-        public AuthDriver(ILogger logger, IEnv env, ITelemetryService telemetryService, ITokenFetcher tokenFetcher)
+        public AuthOrchestrator(ILogger logger, IEnv env, ITelemetryService telemetryService, ITokenFetcher tokenFetcher)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.env = env ?? throw new ArgumentNullException(nameof(env));
