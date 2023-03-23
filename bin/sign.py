@@ -360,7 +360,7 @@ def main() -> None:
         stack.enter_context(json_tempfile(input_path, batches))
 
         # Run ESRPClient.exe.
-        subprocess.run(esrp_args)
+        subprocess.run(esrp_args, check=True)
 
 
 if __name__ == "__main__":

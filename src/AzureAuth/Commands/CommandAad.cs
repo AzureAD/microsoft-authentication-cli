@@ -7,7 +7,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using System.Collections.Generic;
     using System.IO.Abstractions;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
 
     using McMaster.Extensions.CommandLineUtils;
@@ -17,6 +16,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
+    using Microsoft.IdentityModel.Tokens;
     using Microsoft.Office.Lasso.Extensions;
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
@@ -24,51 +24,87 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     /// <summary>
     /// Command class for authenticating with AAD.
     /// </summary>
-    [Command("aad", Description = "todo")]
+    [Command("aad", Description = "Acquire an Azure Access Token")]
     public class CommandAad
     {
-        private const string ResourceOption = "--resource";
-        private const string ClientOption = "--client";
-        private const string TenantOption = "--tenant";
-        private const string PromptHintOption = "--prompt-hint";
-        private const string ScopeOption = "--scope";
-        private const string ClearOption = "--clear";
-        private const string DomainOption = "--domain";
-        private const string ModeOption = "--mode";
-        private const string OutputOption = "--output";
-        private const string AliasOption = "--alias";
-        private const string ConfigOption = "--config";
-        private const string PromptHintPrefix = "AzureAuth";
-        private const string TimeoutOption = "--timeout";
+        /// <summary>
+        /// The Domain option.
+        /// </summary>
+        public const string DomainOption = "--domain";
+
+        /// <summary>
+        /// The Tenant option.
+        /// </summary>
+        public const string TenantOption = "--tenant";
+
+        /// <summary>
+        /// The Timeout option.
+        /// </summary>
+        public const string TimeoutOption = "--timeout";
+
+        /// <summary>
+        /// The Mode option.
+        /// </summary>
+        public const string ModeOption = "--mode";
+
+        /// <summary>
+        /// The Prompt Hint option.
+        /// </summary>
+        public const string PromptHintOption = "--prompt-hint";
+
+        /// <summary>
+        /// The Prompt Hint help text.
+        /// </summary>
+        public const string PromptHintHelpText = "A prompt hint to contextualize prompts and identify uses in telemetry";
 
 #if PlatformWindows
-        private const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
+        /// <summary>
+        /// The help text for the <see cref="ModeOption"/> option.
+        /// </summary>
+        public const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
 You can use any combination of modes with multiple instances of the --mode flag.
 Allowed values: [all, iwa, broker, web, devicecode]";
 #else
-        private const string AuthModeHelperText = @"Authentication mode. Default: web.
+        /// <summary>
+        /// The help text for the <see cref="ModeOption"/> option.
+        /// </summary>
+        public const string AuthModeHelperText = @"Authentication mode. Default: web.
 You can use any combination with multiple instances of the --mode flag.
 Allowed values: [all, web, devicecode]";
 #endif
 
         /// <summary>
+        /// The help text for the <see cref="DomainOption"/> option.
+        /// </summary>
+        public const string DomainHelpText = "Preferred domain to filter cached accounts by. If a single account matching the preferred domain is in the cache it is used, otherwise an account picker will be launched.\n";
+
+        /// <summary>
+        /// The help text for the <see cref="TimeoutOption"/> option.
+        /// </summary>
+        public const string TimeoutHelpText = "The number of minutes before authentication times out.\nDefault: 15 minutes.";
+
+        /// <summary>
         /// The default number of minutes CLI is allowed to run.
         /// </summary>
-        private static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
+        public static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
+
+        private const string ResourceOption = "--resource";
+        private const string ClientOption = "--client";
+
+        private const string ScopeOption = "--scope";
+        private const string ClearOption = "--clear";
+
+        private const string OutputOption = "--output";
+        private const string AliasOption = "--alias";
+        private const string ConfigOption = "--config";
 
         private readonly EventData eventData;
         private readonly ILogger<CommandAzureAuth> logger;
         private readonly IFileSystem fileSystem;
         private readonly IEnv env;
         private Alias authSettings;
-        private IAuthFlow authFlow;
-        private AuthFlowExecutor authFlowExecutor;
         private ITelemetryService telemetryService;
-
-        /// <summary>
-        /// The maximum time we will wait to acquire a mutex around prompting the user.
-        /// </summary>
-        private TimeSpan promptMutexTimeout = TimeSpan.FromMinutes(15);
+        private IAuthFlow authFlow;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandAad"/> class.
@@ -123,7 +159,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the customized prompt hint text for WAM prompts and web mode.
         /// </summary>
-        [Option(PromptHintOption, "The prompt hint text for WAM prompts and web mode.", CommandOptionType.SingleValue)]
+        [Option(PromptHintOption, PromptHintHelpText, CommandOptionType.SingleValue)]
         public string PromptHint { get; set; }
 
         /// <summary>
@@ -141,7 +177,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets the preferred domain.
         /// </summary>
-        [Option(DomainOption, "Preferred domain to filter cached accounts by. If a single account matching the preferred domain is in the cache it is used, otherwise an account picker will be launched.\n", CommandOptionType.SingleValue)]
+        [Option(DomainOption, DomainHelpText, CommandOptionType.SingleValue)]
         public string PreferredDomain { get; set; }
 
         /// <summary>
@@ -172,7 +208,7 @@ Allowed values: [all, web, devicecode]";
         /// <summary>
         /// Gets or sets global Timeout.
         /// </summary>
-        [Option(TimeoutOption, "The number of minutes before authentication times out.\nDefault: 10 minutes.", CommandOptionType.SingleValue)]
+        [Option(TimeoutOption, TimeoutHelpText, CommandOptionType.SingleValue)]
         public double Timeout { get; set; } = GlobalTimeout.TotalMinutes;
 
         /// <summary>
@@ -181,74 +217,6 @@ Allowed values: [all, web, devicecode]";
         public Alias TokenFetcherOptions
         {
             get { return this.authSettings; }
-        }
-
-        /// <summary>
-        /// Gets the CombinedAuthMode depending on env variables to disable interactive auth modes.
-        /// </summary>
-        public AuthMode CombinedAuthMode
-        {
-            get
-            {
-                if (this.InteractiveAuthDisabled())
-                {
-#if PlatformWindows
-                    return AuthMode.IWA;
-#else
-                    return 0;
-#endif
-                }
-
-                return this.AuthModes.Aggregate((a1, a2) => a1 | a2);
-            }
-        }
-
-        /// <summary>
-        /// Combine the <see cref="PromptHintPrefix"/> with the caller provided prompt hint.
-        /// </summary>
-        /// <param name="promptHint">The provided prompt hint.</param>
-        /// <returns>The combined prefix and prompt hint or just the prefix if no prompt hint was given.</returns>
-        public static string PrefixedPromptHint(string promptHint)
-        {
-            if (string.IsNullOrEmpty(promptHint))
-            {
-                return PromptHintPrefix;
-            }
-
-            return $"{PromptHintPrefix}: {promptHint}";
-        }
-
-        /// <summary>
-        /// Generates event data from the AuthFlowResult.
-        /// </summary>
-        /// <param name="result">The AuthFlowResult.</param>
-        /// <returns>The event data.</returns>
-        public EventData AuthFlowEventData(AuthFlowResult result)
-        {
-            if (result == null)
-            {
-                return null;
-            }
-
-            var eventData = new EventData();
-            eventData.Add("authflow", result.AuthFlowName);
-            eventData.Add("success", result.Success);
-            eventData.Add("duration_milliseconds", (int)result.Duration.TotalMilliseconds);
-
-            if (result.Errors.Any())
-            {
-                var error_messages = ExceptionListToStringConverter.Execute(result.Errors);
-                eventData.Add("error_messages", error_messages);
-            }
-
-            if (result.Success)
-            {
-                eventData.Add("msal_correlation_id", result.TokenResult.CorrelationID.ToString());
-                eventData.Add("token_validity_minutes", result.TokenResult.ValidFor.TotalMinutes);
-                eventData.Add("silent", result.TokenResult.IsSilent);
-            }
-
-            return eventData;
         }
 
         /// <summary>
@@ -309,6 +277,13 @@ Allowed values: [all, web, devicecode]";
                 }
             }
 
+            // Handle Resource Shorthand for Default Scope
+            if (evaluatedOptions.Scopes.IsNullOrEmpty() && !string.IsNullOrEmpty(evaluatedOptions.Resource))
+            {
+                evaluatedOptions.Scopes = new List<string>() { $"{evaluatedOptions.Resource}/.default" };
+                evaluatedOptions.Resource = null;
+            }
+
             // Set the token fetcher options so they can be used later on.
             this.authSettings = evaluatedOptions;
 
@@ -339,27 +314,17 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            if (this.InteractiveAuthDisabled())
+            if (this.env.InteractiveAuthDisabled())
             {
                 this.eventData.Add(EnvVars.CorextNonInteractive, this.env.Get(EnvVars.CorextNonInteractive));
                 this.eventData.Add(EnvVars.NoUser, this.env.Get(EnvVars.NoUser));
                 this.logger.LogWarning($"Interactive authentication is disabled.");
 #if PlatformWindows
-                this.logger.LogWarning($"Supported auth mode is Integrated Windows Authentication");
+                this.logger.LogWarning($"Only Integrated Windows Authentication will be attempted.");
 #endif
             }
 
             return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
-        }
-
-        /// <summary>
-        /// Determines whether Public Client Authentication (PCA) is disabled or not.
-        /// </summary>
-        /// <returns>A boolean to indicate PCA is disabled.</returns>
-        public bool InteractiveAuthDisabled()
-        {
-            return !string.IsNullOrEmpty(this.env.Get(EnvVars.NoUser)) ||
-                string.Equals("1", this.env.Get(EnvVars.CorextNonInteractive));
         }
 
         private bool ValidateOptions()
@@ -416,69 +381,34 @@ Allowed values: [all, web, devicecode]";
         {
             try
             {
-                AuthFlowExecutor authFlowExecutor = this.AuthFlowExecutor();
-                AuthFlowResult successfulResult = null;
-                AuthFlowResult[] results = null;
+                var results = TokenFetcher.AccessToken(
+                    logger: this.logger,
+                    client: new Guid(this.authSettings.Client),
+                    tenant: new Guid(this.authSettings.Tenant),
+                    scopes: this.authSettings.Scopes,
+                    mode: this.AuthModes.Combine().PreventInteractionIfNeeded(this.env),
+                    domain: this.authSettings.Domain,
+                    prompt: AzureAuth.PromptHint.Prefixed(this.authSettings.PromptHint),
+                    timeout: TimeSpan.FromMinutes(this.Timeout));
 
-                // When running multiple AzureAuth processes with the same resource, client, and tenant IDs,
-                // They may prompt many times, which is annoying and unexpected.
-                // Use Mutex to ensure that only one process can access the corresponding resource at the same time.
-                string lockName = $"Local\\{this.Resource}_{this.Client}_{this.Tenant}";
-
-                // First parameter InitiallyOwned indicated whether this lock is owned by current thread.
-                // It should be false otherwise a dead lock could occur.
-                using (Mutex mutex = new Mutex(false, lockName))
-                {
-                    bool lockAcquired = false;
-                    try
-                    {
-                        // Wait for the other session to exit.
-                        lockAcquired = mutex.WaitOne(this.promptMutexTimeout);
-                    }
-
-                    // An AbandonedMutexException could be thrown if another process exits without releasing the mutex correctly.
-                    catch (AbandonedMutexException)
-                    {
-                        // If another process crashes or exits accidently, we can still acquire the lock.
-                        lockAcquired = true;
-
-                        // In this case, basicly we can just leave a log warning, because the worst side effect is propmting more than once.
-                        this.logger.LogWarning("The authentication attempt mutex was abandoned. Another thread or process may have exited unexpectedly.");
-                    }
-
-                    if (!lockAcquired)
-                    {
-                        throw new TimeoutException("Authentication failed. The application did not gain access in the expected time, possibly because the resource handler was occupied by another process for a long time.");
-                    }
-
-                    try
-                    {
-                        results = authFlowExecutor.GetTokenAsync().Result.ToArray();
-                        successfulResult = results.FirstOrDefault(result => result.Success);
-                    }
-                    finally
-                    {
-                        mutex.ReleaseMutex();
-                    }
-                }
-
-                var errors = results.SelectMany(result => result.Errors).ToArray();
+                var errors = results.Attempts.SelectMany(attempt => attempt.Errors).ToArray();
                 this.eventData.Add("error_count", errors.Length);
-                this.eventData.Add("authflow_count", results.Length);
+                this.eventData.Add("authflow_count", results.Attempts.Count);
 
                 // Send custom telemetry events for each authflow result.
-                this.SendAuthFlowTelemetryEvents(results);
+                results.Attempts.SendTelemetry(this.telemetryService);
 
-                if (successfulResult == null)
+                var success = results.Success;
+                if (success == null)
                 {
                     this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
                     return 1;
                 }
 
-                var tokenResult = successfulResult.TokenResult;
+                var tokenResult = success.TokenResult;
                 this.eventData.Add("silent", tokenResult.IsSilent);
                 this.eventData.Add("sid", tokenResult.SID);
-                this.eventData.Add("succeeded_mode", successfulResult.AuthFlowName);
+                this.eventData.Add("succeeded_mode", success.AuthFlowName);
 
                 switch (this.Output)
                 {
@@ -503,52 +433,6 @@ Allowed values: [all, web, devicecode]";
             }
 
             return 0;
-        }
-
-        private void SendAuthFlowTelemetryEvents(AuthFlowResult[] results)
-        {
-            Parallel.ForEach(results, result =>
-            {
-                var eventData = this.AuthFlowEventData(result);
-                if (eventData != null)
-                {
-                    this.telemetryService.SendEvent($"authflow_{result.AuthFlowName}", eventData);
-                }
-            });
-        }
-
-        private AuthFlowExecutor AuthFlowExecutor()
-        {
-            // TODO: Really we need to get rid of Resource
-            var scopes = this.Scopes ?? new string[] { $"{this.authSettings.Resource}/.default" };
-
-            IEnumerable<IAuthFlow> authFlows = null;
-            if (this.authFlow != null)
-            {
-                // if this.authFlow has been injected - use that.
-                authFlows = new[] { this.authFlow };
-            }
-            else
-            {
-                // Normal production flow
-                authFlows = AuthFlowFactory.Create(
-                this.logger,
-                this.CombinedAuthMode,
-                new Guid(this.authSettings.Client),
-                new Guid(this.authSettings.Tenant),
-                scopes,
-                this.PreferredDomain,
-                PrefixedPromptHint(this.authSettings.PromptHint));
-            }
-
-            this.authFlowExecutor = new AuthFlowExecutor(this.logger, authFlows, this.StopwatchTracker());
-
-            return this.authFlowExecutor;
-        }
-
-        private IStopwatch StopwatchTracker()
-        {
-            return new StopwatchTracker(TimeSpan.FromMinutes(this.Timeout));
         }
     }
 }

@@ -9,6 +9,17 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     internal static class Constants
     {
         /// <summary>
+        /// Azure tenant IDs.
+        /// </summary>
+        public static class Tenant
+        {
+            /// <summary>
+            /// Microsoft tenant ID.
+            /// </summary>
+            public static string Microsoft = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+        }
+
+        /// <summary>
         /// App Registration Client IDs.
         /// </summary>
         public static class Client
@@ -27,7 +38,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
             /// <summary>
             /// The default scope used for Azure DevOps.
             /// </summary>
-            public static string AzureDevopsDefault = "499b84ac-1321-427f-aa17-267ca6975798/.default";
+            public static string AzureDevOpsDefault = "499b84ac-1321-427f-aa17-267ca6975798/.default";
         }
     }
 }

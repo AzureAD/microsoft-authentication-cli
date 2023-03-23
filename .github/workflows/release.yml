@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup Python
       uses: actions/setup-python@v3
       with:
@@ -29,6 +29,12 @@ jobs:
       run: echo ${{ github.event.inputs.version }} | python ./bin/version.py
 
   build:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      statuses: write
+      
     runs-on: ${{ matrix.os }}
     needs: [validate]
     strategy:
@@ -46,7 +52,14 @@ jobs:
             os: windows-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: csharp
+
     - name: Setup .NET 6
       uses: actions/setup-dotnet@v1
       with:
@@ -57,10 +70,21 @@ jobs:
         ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
     - name: Test
       run: dotnet test --no-restore --configuration release
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
+    - name: Upload CodeQL Analysis Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: azureauth-static-code-analysis-${{ matrix.runtime }}.sarif
+        path: results/csharp.sarif
+
     - name: Build artifacts
       run: dotnet publish src/AzureAuth/AzureAuth.csproj -p:Version=${{ github.event.inputs.version }} --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}
       env:
         ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
+        
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -76,7 +100,7 @@ jobs:
         runtime: [osx-x64, osx-arm64, win10-x64]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
@@ -102,15 +126,13 @@ jobs:
           AZURE_SUBSCRIPTION: ${{ secrets.AZURE_SUBSCRIPTION }}
           AZURE_VAULT: ${{ secrets.AZURE_VAULT }}
           ESRP_AAD_CERT_NAME: ${{ secrets.AZURE_VAULT_ESRP_AAD_CERT_NAME }}
-          ESRP_AAD_CERT_VERSION: ${{ secrets.AZURE_VAULT_ESRP_AAD_CERT_VERSION }}
           ESRP_REQ_CERT_NAME: ${{ secrets.AZURE_VAULT_ESRP_REQ_CERT_NAME }}
-          ESRP_REQ_CERT_VERSION: ${{ secrets.AZURE_VAULT_ESRP_REQ_CERT_VERSION }}
         run: |
-          az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" --version "$env:ESRP_AAD_CERT_VERSION" -f cert.pfx
+          az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
           certutil -f -importpfx cert.pfx
           Remove-Item cert.pfx
 
-          az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" --version "$env:ESRP_REQ_CERT_VERSION" -f cert.pfx
+          az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
           certutil -f -importpfx cert.pfx
           Remove-Item cert.pfx
       # We download all artifacts and overwrite them with signed files, but only upload ones which we can properly sign.

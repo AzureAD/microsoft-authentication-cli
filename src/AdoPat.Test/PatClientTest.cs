@@ -21,9 +21,6 @@ namespace Microsoft.Authentication.AdoPat.Test
         // This is a test token. A real value would be a much longer string.
         private const string Token = "Test Token";
 
-        // The Unix Epoch is used as an obviously fake test time which occurs in the past and cannot accidentally be valid.
-        private readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
         // This list of accounts uses dummy data, not real accounts.
         private readonly List<Guid> targetAccounts = new List<Guid> { new Guid("b7b59161-cd70-46e9-aca5-883f24060eb1") };
 
@@ -34,20 +31,13 @@ namespace Microsoft.Authentication.AdoPat.Test
         public async Task CreatePatAsync()
         {
             // Arrange
-            var patTokenCreateRequest = new PatTokenCreateRequest
-            {
-                DisplayName = DisplayName,
-                Scope = Scope,
-                ValidTo = this.unixEpoch.AddDays(7),
-                AllOrgs = AllOrgs,
-            };
             var patToken = new PatToken
             {
                 DisplayName = DisplayName,
                 Scope = Scope,
                 TargetAccounts = this.targetAccounts,
-                ValidTo = this.unixEpoch.AddDays(7),
-                ValidFrom = this.unixEpoch,
+                ValidTo = DateTime.UnixEpoch.AddDays(7),
+                ValidFrom = DateTime.UnixEpoch,
                 AuthorizationId = this.authorizationId,
                 Token = Token,
             };
@@ -67,7 +57,10 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var renewedPatToken = await patClient.CreatePatAsync(patTokenCreateRequest);
+            var renewedPatToken = await patClient.CreateAsync(
+                DisplayName,
+                Scope,
+                validTo: DateTime.UnixEpoch.AddDays(7));
 
             // Assert
             renewedPatToken.Should().BeEquivalentTo(patToken);
@@ -94,7 +87,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var activePats = await patClient.GetActivePatsAsync();
+            var activePats = await patClient.ListActiveAsync();
 
             // Assert
             activePats.Should().BeEquivalentTo(expectedTokens);
@@ -125,7 +118,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var activePats = await patClient.GetActivePatsAsync();
+            var activePats = await patClient.ListActiveAsync();
 
             // Assert
             activePats.Should().BeEquivalentTo(expectedTokens);
@@ -135,9 +128,9 @@ namespace Microsoft.Authentication.AdoPat.Test
         public async Task RegeneratePatAsync_RevokesOldPatAndReturnsNewPat()
         {
             // Arrange
-            var issued = this.unixEpoch.AddDays(-7);
-            var validTo = this.unixEpoch;
-            var regeneratedValidTo = this.unixEpoch.AddDays(7);
+            var issued = DateTime.UnixEpoch.AddDays(-7);
+            var validTo = DateTime.UnixEpoch;
+            var regeneratedValidTo = DateTime.UnixEpoch.AddDays(7);
             var patToken = new PatToken
             {
                 DisplayName = DisplayName,
@@ -173,7 +166,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            var regeneratedPat = await patClient.RegeneratePatAsync(patToken, regeneratedValidTo);
+            var regeneratedPat = await patClient.RegenerateAsync(patToken, regeneratedValidTo);
 
             // Assert
             client.VerifyAll();
@@ -184,9 +177,9 @@ namespace Microsoft.Authentication.AdoPat.Test
         public async Task RegeneratePatAsync_CreationFailureNullPatToken()
         {
             // Arrange
-            var issued = this.unixEpoch.AddDays(-7);
-            var validTo = this.unixEpoch;
-            var regeneratedValidTo = this.unixEpoch.AddDays(7);
+            var issued = DateTime.UnixEpoch.AddDays(-7);
+            var validTo = DateTime.UnixEpoch;
+            var regeneratedValidTo = DateTime.UnixEpoch.AddDays(7);
             var patToken = new PatToken
             {
                 DisplayName = DisplayName,
@@ -213,7 +206,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             var patClient = new PatClient(client.Object);
 
             // Act
-            Func<Task> act = () => patClient.RegeneratePatAsync(patToken, regeneratedValidTo);
+            Func<Task> act = () => patClient.RegenerateAsync(patToken, regeneratedValidTo);
 
             // Assert
             await act.Should().ThrowAsync<PatClientException>()
