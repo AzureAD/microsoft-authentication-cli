@@ -3,6 +3,8 @@
 
 namespace Microsoft.Authentication.AzureAuth
 {
+    using System;
+
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
@@ -17,12 +19,20 @@ namespace Microsoft.Authentication.AzureAuth
         private readonly ITelemetryService telemetryService;
         private readonly ITokenFetcher tokenFetcher;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthDriver"/> class.
+        /// </summary>
+        /// <param name="logger">An <see cref="ILogger"/>.</param>
+        /// <param name="env">An <see cref="IEnv"/>.</param>
+        /// <param name="telemetryService">An <see cref="ITelemetryService"/>.</param>
+        /// <param name="tokenFetcher">An <see cref="ITokenFetcher"/>.</param>
+        /// <exception cref="ArgumentNullException">All parameters must not be null.</exception>
         public AuthDriver(ILogger logger, IEnv env, ITelemetryService telemetryService, ITokenFetcher tokenFetcher)
         {
-            this.logger = logger;
-            this.env = env;
-            this.telemetryService = telemetryService;
-            this.tokenFetcher = tokenFetcher;
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.env = env ?? throw new ArgumentNullException(nameof(env));
+            this.telemetryService = telemetryService ?? throw new ArgumentNullException(nameof(telemetryService));
+            this.tokenFetcher = tokenFetcher ?? throw new ArgumentNullException(nameof(tokenFetcher));
         }
     }
 }

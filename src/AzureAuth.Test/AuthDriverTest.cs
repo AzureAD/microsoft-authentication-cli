@@ -16,6 +16,8 @@ namespace AzureAuth.Test
     using NLog.Targets;
     using NUnit.Framework;
 
+    using System;
+
     internal class AuthDriverTest
     {
         private ILogger logger;
@@ -39,6 +41,22 @@ namespace AzureAuth.Test
         public void Contructor_Works()
         {
             this.Subject().Should().NotBeNull();
+        }
+
+        [Test]
+        public void Constructor_No_Nulls_Allowed()
+        {
+            Action nullLogger = () => new AuthDriver(null, null, null, null);
+            nullLogger.Should().Throw<ArgumentNullException>().WithParameterName("logger");
+
+            Action nullEnv = () => new AuthDriver(this.logger, null, null, null);
+            nullEnv.Should().Throw<ArgumentNullException>().WithParameterName("env");
+
+            Action nullTelemetryService = () => new AuthDriver(this.logger, this.env.Object, null, null);
+            nullTelemetryService.Should().Throw<ArgumentNullException>().WithParameterName("telemetryService");
+
+            Action nullTokenFetcher = () => new AuthDriver(this.logger, this.env.Object, this.telemetryService.Object, null);
+            nullTokenFetcher.Should().Throw<ArgumentNullException>().WithParameterName("tokenFetcher");
         }
     }
 }
