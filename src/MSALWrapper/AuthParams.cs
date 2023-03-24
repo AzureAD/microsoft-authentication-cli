@@ -32,5 +32,18 @@ namespace Microsoft.Authentication.MSALWrapper
             this.Tenant = new Guid(tenant);
             this.Scopes = scopes;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthParams"/> class.
+        /// </summary>
+        /// <param name="client">Client Id.</param>
+        /// <param name="tenant">Tenant Id.</param>
+        /// <param name="scopes">Scopes.</param>
+        public AuthParams(Guid client, Guid tenant, IEnumerable<string> scopes)
+        {
+            this.Client = client;
+            this.Tenant = tenant;
+            this.Scopes = scopes;
+        }
     }
 }

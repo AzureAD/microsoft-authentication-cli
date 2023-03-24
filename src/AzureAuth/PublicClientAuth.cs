@@ -22,7 +22,7 @@ namespace Microsoft.Authentication.AzureAuth
         private readonly ILogger logger;
         private readonly IEnv env;
         private readonly ITelemetryService telemetryService;
-        private readonly IMsalWrapper tokenFetcher;
+        private readonly IMsalWrapper msalWrapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PublicClientAuth"/> class.
@@ -30,24 +30,22 @@ namespace Microsoft.Authentication.AzureAuth
         /// <param name="logger">An <see cref="ILogger"/>.</param>
         /// <param name="env">An <see cref="IEnv"/>.</param>
         /// <param name="telemetryService">An <see cref="ITelemetryService"/>.</param>
-        /// <param name="tokenFetcher">An <see cref="IMsalWrapper"/>.</param>
+        /// <param name="msalWrapper">An <see cref="IMsalWrapper"/>.</param>
         /// <exception cref="ArgumentNullException">All parameters must not be null.</exception>
-        public PublicClientAuth(ILogger logger, IEnv env, ITelemetryService telemetryService, IMsalWrapper tokenFetcher)
+        public PublicClientAuth(ILogger logger, IEnv env, ITelemetryService telemetryService, IMsalWrapper msalWrapper)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.env = env ?? throw new ArgumentNullException(nameof(env));
             this.telemetryService = telemetryService ?? throw new ArgumentNullException(nameof(telemetryService));
-            this.tokenFetcher = tokenFetcher ?? throw new ArgumentNullException(nameof(tokenFetcher));
+            this.msalWrapper = msalWrapper ?? throw new ArgumentNullException(nameof(msalWrapper));
         }
 
         /// <inheritdoc/>
-        public TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, IEnumerable<AuthMode> authModes, string domain, string prompt, TimeSpan timeout, EventData eventData)
+        public TokenResult Token(AuthParams authParams, IEnumerable<AuthMode> authModes, string domain, string prompt, TimeSpan timeout, EventData eventData)
         {
-            var result = this.tokenFetcher.AccessToken(
+            var result = this.msalWrapper.AccessToken(
                 this.logger,
-                client,
-                tenant,
-                scopes,
+                authParams,
                 authModes.Combine().PreventInteractionIfNeeded(this.env, this.logger),
                 domain,
                 PromptHint.Prefixed(prompt),

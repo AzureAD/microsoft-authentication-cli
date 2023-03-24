@@ -24,9 +24,11 @@ namespace AzureAuth.Test
 
     internal class PublicClientAuthTest
     {
-        private readonly Guid client = Fake.Client;
-        private readonly Guid tenant = Fake.Tenant;
-        private readonly IEnumerable<string> scopes = Fake.Scopes;
+        private readonly AuthParams authParams = new AuthParams(
+            Fake.Client,
+            Fake.Tenant,
+            Fake.Scopes);
+
         private readonly string domain = Fake.Domain;
         private readonly string prompt = "AzuerAuth.Test";
         private readonly TimeSpan timeout = TimeSpan.FromSeconds(10);
@@ -66,8 +68,8 @@ namespace AzureAuth.Test
             Action nullTelemetryService = () => new PublicClientAuth(this.logger, this.env.Object, null, null);
             nullTelemetryService.Should().Throw<ArgumentNullException>().WithParameterName("telemetryService");
 
-            Action nullTokenFetcher = () => new PublicClientAuth(this.logger, this.env.Object, this.telemetryService.Object, null);
-            nullTokenFetcher.Should().Throw<ArgumentNullException>().WithParameterName("tokenFetcher");
+            Action nullMsalWrapper = () => new PublicClientAuth(this.logger, this.env.Object, this.telemetryService.Object, null);
+            nullMsalWrapper.Should().Throw<ArgumentNullException>().WithParameterName("msalWrapper");
         }
 
         [Test]
@@ -95,7 +97,7 @@ namespace AzureAuth.Test
 
             this.tokenFetcher.SetupSequence(
                 t => t.AccessToken(
-                    this.logger, this.client, this.tenant, this.scopes, expectedMode, this.domain, expectedPrompt, this.timeout))
+                    this.logger, this.authParams, expectedMode, this.domain, expectedPrompt, this.timeout))
                 .Returns(tokenFetcherResult);
 
             // The AuthMode should be Combined, and run through the extension to disable interacive auth if needed.
@@ -111,9 +113,7 @@ namespace AzureAuth.Test
 
             // Act
             TokenResult subject = this.Subject().Token(
-                this.client,
-                this.tenant,
-                this.scopes,
+                this.authParams,
                 new[] { AuthMode.Web, AuthMode.DeviceCode },
                 this.domain,
                 this.prompt,
