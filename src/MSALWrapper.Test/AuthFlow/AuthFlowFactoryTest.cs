@@ -3,7 +3,6 @@
 
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -12,27 +11,25 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.TestHelper;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
     using Moq;
 
-    using NLog.Extensions.Logging;
     using NLog.Targets;
 
     using NUnit.Framework;
 
     internal class AuthFlowFactoryTest
     {
-        private static readonly Guid ResourceId = new Guid("6e979987-a7c8-4604-9b37-e51f06f08f1a");
-        private static readonly Guid ClientId = new Guid("5af6def2-05ec-4cab-b9aa-323d75b5df40");
-        private static readonly Guid TenantId = new Guid("8254f6f7-a09f-4752-8bd6-391adc3b912e");
+        private readonly AuthParameters authParams = new AuthParameters(
+            "5af6def2-05ec-4cab-b9aa-323d75b5df40",
+            "8254f6f7-a09f-4752-8bd6-391adc3b912e",
+            new[] { "6e979987-a7c8-4604-9b37-e51f06f08f1a/.default" });
 
         private MemoryTarget logTarget;
         private ILogger logger;
         private Mock<IPCAWrapper> pcaWrapperMock;
         private Mock<IPlatformUtils> platformUtilsMock;
-        private IEnumerable<string> scopes;
         private string preferredDomain;
         private string promptHint;
 
@@ -47,7 +44,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
             this.platformUtilsMock = new Mock<IPlatformUtils>(MockBehavior.Strict);
 
-            this.scopes = new[] { $"{ResourceId}/.default" };
             this.preferredDomain = "contoso.com";
             this.promptHint = "Log into Contoso!";
         }
@@ -64,10 +60,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         public IEnumerable<IAuthFlow> Subject(AuthMode mode) => AuthFlowFactory.Create(
                 this.logger,
+                this.authParams,
                 mode,
-                ClientId,
-                TenantId,
-                this.scopes,
                 this.preferredDomain,
                 this.promptHint,
                 pcaWrapper: this.pcaWrapperMock.Object,

@@ -371,9 +371,7 @@ Allowed values: [all, web, devicecode]";
             try
             {
                 TokenResult tokenResult = publicClientAuth.Token(
-                    client: new Guid(this.authSettings.Client),
-                    tenant: new Guid(this.authSettings.Tenant),
-                    scopes: this.authSettings.Scopes,
+                    authParams: new AuthParameters(this.authSettings.Client, this.authSettings.Tenant, this.authSettings.Scopes),
                     authModes: this.AuthModes,
                     domain: this.authSettings.Domain,
                     prompt: this.authSettings.PromptHint,

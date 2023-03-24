@@ -98,9 +98,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
 
             // If no PAT then use AAD AT.
             TokenResult token = publicClientAuth.Token(
-                client: new Guid(AzureAuth.Ado.Constants.Client.VisualStudio),
-                tenant: new Guid(AzureAuth.Ado.Constants.Tenant.Microsoft),
-                scopes: new[] { AzureAuth.Ado.Constants.Scope.AzureDevOpsDefault },
+                authParams: AzureAuth.Ado.Constants.AdoParams,
                 authModes: this.AuthModes,
                 domain: this.Domain,
                 prompt: this.PromptHint,

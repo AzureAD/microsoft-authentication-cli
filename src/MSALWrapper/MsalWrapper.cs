@@ -44,9 +44,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <inheritdoc/>
         public Result AccessToken(
             ILogger logger,
-            Guid client,
-            Guid tenant,
-            IEnumerable<string> scopes,
+            AuthParameters authParams,
             AuthMode mode,
             string domain,
             string prompt,
@@ -55,9 +53,7 @@ namespace Microsoft.Authentication.MSALWrapper
             var authFlows = AuthFlowFactory.Create(
                 logger: logger,
                 authMode: mode,
-                clientId: client,
-                tenantId: tenant,
-                scopes: scopes,
+                authParams: authParams,
                 preferredDomain: domain,
                 promptHint: prompt);
 
@@ -65,7 +61,7 @@ namespace Microsoft.Authentication.MSALWrapper
             var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));
 
             // Prevent multiple calls to AzureAuth for the same client and tenant from prompting at the same time.
-            string lockName = $"Local\\{tenant}_{client}";
+            string lockName = $"Local\\{authParams.Tenant}_{authParams.Client}";
 
             results.AddRange(Locked.Execute(logger, lockName, MaxLockWaitTime, async () => await executor.GetTokenAsync()));
 
