@@ -52,7 +52,7 @@ namespace Microsoft.Authentication.AzureAuth
             var envVarsToCollect = new[]
             {
                 Ado.Constants.SystemDefinitionId,
-                "QBUILD_DISTRIBUTED",
+                EnvVars.CloudBuild,
                 EnvVars.NoUser,
                 EnvVars.CorextNonInteractive,
             };

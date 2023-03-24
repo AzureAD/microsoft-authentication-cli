@@ -8,6 +8,9 @@ namespace Microsoft.Authentication.AzureAuth
     /// </summary>
     public static class EnvVars
     {
+        /// <summary>Env var indicating we are in Cloud Build.</summary>
+        public const string CloudBuild = "QBUILD_DISTRIBUTED";
+
         /// <summary>
         /// Holds the name of the env var to get an application insights ingestion token.
         /// </summary>
