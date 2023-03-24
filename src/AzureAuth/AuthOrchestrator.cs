@@ -10,7 +10,7 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Office.Lasso.Interfaces;
 
     /// <summary>
-    /// A class for handling AAD Token acuisition, results logging, and telemetry collection.
+    /// A class for handling AAD Token acquisition, results logging, and telemetry collection.
     /// </summary>
     public class AuthOrchestrator
     {
