@@ -19,7 +19,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         /// <summary>
         /// The default auth params for AzureDevops.
         /// </summary>
-        public static readonly AuthParams AdoParams = new AuthParams(Client.VisualStudio, Tenant.Microsoft, new[] { Scope.AzureDevOpsDefault });
+        public static readonly AuthParameters AdoParams = new AuthParameters(Client.VisualStudio, Tenant.Microsoft, new[] { Scope.AzureDevOpsDefault });
 
         /// <summary>
         /// Azure tenant IDs.

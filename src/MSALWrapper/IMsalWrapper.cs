@@ -18,7 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// auth prompts for the same tokens.
         /// </summary>
         /// <param name="logger">A <see cref="ILogger"/> to use.</param>
-        /// <param name="authParams">The <see cref="AuthParams"/>.</param>
+        /// <param name="authParams">The <see cref="AuthParameters"/>.</param>
         /// <param name="mode">The <see cref="AuthMode"/>. Controls which <see cref="IAuthFlow"/>s should be used.</param>
         /// <param name="domain">The domain (account suffix) to filter cached accounts with.</param>
         /// <param name="prompt">A prompt hint to display to the user if needed.</param>
@@ -26,7 +26,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <returns>A <see cref="MsalWrapper.Result"/> representing the result of the asynchronous operation.</returns>
         MsalWrapper.Result AccessToken(
             ILogger logger,
-            AuthParams authParams,
+            AuthParameters authParams,
             AuthMode mode,
             string domain,
             string prompt,

@@ -9,7 +9,7 @@ namespace Microsoft.Authentication.MSALWrapper
     /// <summary>
     /// Core authentication parameters needed 
     /// </summary>
-    public record AuthParams
+    public record AuthParameters
     {
         /// <summary>Gets the Client Id.</summary>
         public Guid Client { get; init; }
@@ -21,12 +21,12 @@ namespace Microsoft.Authentication.MSALWrapper
         public IEnumerable<string> Scopes { get; init; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthParams"/> class.
+        /// Initializes a new instance of the <see cref="AuthParameters"/> class.
         /// </summary>
         /// <param name="client">Client Id.</param>
         /// <param name="tenant">Tenant Id.</param>
         /// <param name="scopes">Scopes.</param>
-        public AuthParams(string client, string tenant, IEnumerable<string> scopes)
+        public AuthParameters(string client, string tenant, IEnumerable<string> scopes)
         {
             this.Client = new Guid(client);
             this.Tenant = new Guid(tenant);
@@ -34,12 +34,12 @@ namespace Microsoft.Authentication.MSALWrapper
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthParams"/> class.
+        /// Initializes a new instance of the <see cref="AuthParameters"/> class.
         /// </summary>
         /// <param name="client">Client Id.</param>
         /// <param name="tenant">Tenant Id.</param>
         /// <param name="scopes">Scopes.</param>
-        public AuthParams(Guid client, Guid tenant, IEnumerable<string> scopes)
+        public AuthParameters(Guid client, Guid tenant, IEnumerable<string> scopes)
         {
             this.Client = client;
             this.Tenant = tenant;

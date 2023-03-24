@@ -41,7 +41,7 @@ namespace Microsoft.Authentication.AzureAuth
         }
 
         /// <inheritdoc/>
-        public TokenResult Token(AuthParams authParams, IEnumerable<AuthMode> authModes, string domain, string prompt, TimeSpan timeout, EventData eventData)
+        public TokenResult Token(MSALWrapper.AuthParameters authParams, IEnumerable<AuthMode> authModes, string domain, string prompt, TimeSpan timeout, EventData eventData)
         {
             var result = this.msalWrapper.AccessToken(
                 this.logger,

@@ -44,7 +44,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <inheritdoc/>
         public Result AccessToken(
             ILogger logger,
-            AuthParams authParams,
+            AuthParameters authParams,
             AuthMode mode,
             string domain,
             string prompt,

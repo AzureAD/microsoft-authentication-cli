@@ -21,7 +21,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
     internal class AuthFlowFactoryTest
     {
-        private readonly AuthParams authParams = new AuthParams(
+        private readonly AuthParameters authParams = new AuthParameters(
             "5af6def2-05ec-4cab-b9aa-323d75b5df40",
             "8254f6f7-a09f-4752-8bd6-391adc3b912e",
             new[] { "6e979987-a7c8-4604-9b37-e51f06f08f1a/.default" });

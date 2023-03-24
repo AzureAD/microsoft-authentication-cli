@@ -24,7 +24,7 @@ namespace AzureAuth.Test
 
     internal class PublicClientAuthTest
     {
-        private readonly AuthParams authParams = new AuthParams(
+        private readonly AuthParameters authParams = new AuthParameters(
             Fake.Client,
             Fake.Tenant,
             Fake.Scopes);

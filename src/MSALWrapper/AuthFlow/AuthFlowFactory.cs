@@ -16,7 +16,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Create a list of <see cref="IAuthFlow"/> instances based on the given settings.
         /// </summary>
         /// <param name="logger">An <see cref="ILogger"/>.</param>
-        /// <param name="authParams">The <see cref="AuthParams"/>.</param>
+        /// <param name="authParams">The <see cref="AuthParameters"/>.</param>
         /// <param name="authMode">The desired <see cref="AuthMode"/>.</param>
         /// <param name="preferredDomain">Preferred domain to use when filtering cached accounts.</param>
         /// <param name="promptHint">A prompt hint to contextualize an auth prompt if given.</param>
@@ -25,7 +25,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IAuthFlow"/> instances.</returns>
         public static IEnumerable<IAuthFlow> Create(
             ILogger logger,
-            AuthParams authParams,
+            AuthParameters authParams,
             AuthMode authMode,
             string preferredDomain,
             string promptHint,
