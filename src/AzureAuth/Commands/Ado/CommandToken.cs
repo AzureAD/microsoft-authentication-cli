@@ -5,7 +5,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using McMaster.Extensions.CommandLineUtils;
 

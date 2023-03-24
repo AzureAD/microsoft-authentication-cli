@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Microsoft.Authentication.AdoPat
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     /// <summary>
     /// A grouping of common options necessary to create or renew a PAT.
     /// Used as a key for the PAT cache.

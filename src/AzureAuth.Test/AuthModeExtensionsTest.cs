@@ -3,12 +3,9 @@
 
 namespace AzureAuth.Test
 {
-    using System.Collections.Generic;
-
     using FluentAssertions;
 
     using Microsoft.Authentication.AzureAuth;
-    using Microsoft.Authentication.AzureAuth.Commands;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
@@ -19,8 +16,6 @@ namespace AzureAuth.Test
     using NLog.Targets;
 
     using NUnit.Framework;
-
-    using ModeExtensions = Microsoft.Authentication.AzureAuth.AuthModeExtensions;
 
     public class AuthModeExtensionsTest
     {
