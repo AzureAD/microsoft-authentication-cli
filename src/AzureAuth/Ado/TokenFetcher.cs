@@ -9,10 +9,10 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
 
-    using AADTokenFetcher = Microsoft.Authentication.MSALWrapper.TokenFetcher;
+    using AADTokenFetcher = Microsoft.Authentication.MSALWrapper.MsalWrapper;
 
     /// <summary>
-    /// An abstraction around <see cref="MSALWrapper.TokenFetcher"/> specifically for Azure Devops.
+    /// An abstraction around <see cref="MSALWrapper.MsalWrapper"/> specifically for Azure Devops.
     /// </summary>
     internal static class TokenFetcher
     {

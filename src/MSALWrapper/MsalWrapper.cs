@@ -14,10 +14,10 @@ namespace Microsoft.Authentication.MSALWrapper
     /// A functional orchestrator of doing auth using the building blocks
     /// of <see cref="AuthFlowFactory"/> and <see cref="AuthFlowExecutor"/>.
     /// </summary>
-    public class TokenFetcher : ITokenFetcher
+    public class MsalWrapper : IMsalWrapper
     {
         /// <summary>
-        /// The result of running <see cref="TokenFetcher"/>.
+        /// The result of running <see cref="MsalWrapper"/>.
         /// </summary>
         public record Result
         {
@@ -35,9 +35,9 @@ namespace Microsoft.Authentication.MSALWrapper
         private static readonly TimeSpan MaxLockWaitTime = TimeSpan.FromMinutes(15);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TokenFetcher"/> class.
+        /// Initializes a new instance of the <see cref="MsalWrapper"/> class.
         /// </summary>
-        public TokenFetcher()
+        public MsalWrapper()
         {
         }
 

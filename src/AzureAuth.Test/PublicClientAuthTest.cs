@@ -22,7 +22,7 @@ namespace AzureAuth.Test
 
     using NUnit.Framework;
 
-    internal class AuthOrchestratorTest
+    internal class PublicClientAuthTest
     {
         private readonly Guid client = Fake.Client;
         private readonly Guid tenant = Fake.Tenant;
@@ -35,7 +35,7 @@ namespace AzureAuth.Test
         private MemoryTarget logTarget;
         private Mock<IEnv> env;
         private Mock<ITelemetryService> telemetryService;
-        private Mock<ITokenFetcher> tokenFetcher;
+        private Mock<IMsalWrapper> tokenFetcher;
 
         [SetUp]
         public void SetUp()
@@ -43,10 +43,10 @@ namespace AzureAuth.Test
             (this.logger, this.logTarget) = MemoryLogger.Create();
             this.env = new Mock<IEnv>(MockBehavior.Strict);
             this.telemetryService = new Mock<ITelemetryService>(MockBehavior.Strict);
-            this.tokenFetcher = new Mock<ITokenFetcher>(MockBehavior.Strict);
+            this.tokenFetcher = new Mock<IMsalWrapper>(MockBehavior.Strict);
         }
 
-        public AuthOrchestrator Subject() => new AuthOrchestrator(this.logger, this.env.Object, this.telemetryService.Object, this.tokenFetcher.Object);
+        public PublicClientAuth Subject() => new PublicClientAuth(this.logger, this.env.Object, this.telemetryService.Object, this.tokenFetcher.Object);
 
         [Test]
         public void Contructor_Works()
@@ -57,16 +57,16 @@ namespace AzureAuth.Test
         [Test]
         public void Constructor_No_Nulls_Allowed()
         {
-            Action nullLogger = () => new AuthOrchestrator(null, null, null, null);
+            Action nullLogger = () => new PublicClientAuth(null, null, null, null);
             nullLogger.Should().Throw<ArgumentNullException>().WithParameterName("logger");
 
-            Action nullEnv = () => new AuthOrchestrator(this.logger, null, null, null);
+            Action nullEnv = () => new PublicClientAuth(this.logger, null, null, null);
             nullEnv.Should().Throw<ArgumentNullException>().WithParameterName("env");
 
-            Action nullTelemetryService = () => new AuthOrchestrator(this.logger, this.env.Object, null, null);
+            Action nullTelemetryService = () => new PublicClientAuth(this.logger, this.env.Object, null, null);
             nullTelemetryService.Should().Throw<ArgumentNullException>().WithParameterName("telemetryService");
 
-            Action nullTokenFetcher = () => new AuthOrchestrator(this.logger, this.env.Object, this.telemetryService.Object, null);
+            Action nullTokenFetcher = () => new PublicClientAuth(this.logger, this.env.Object, this.telemetryService.Object, null);
             nullTokenFetcher.Should().Throw<ArgumentNullException>().WithParameterName("tokenFetcher");
         }
 
@@ -77,7 +77,7 @@ namespace AzureAuth.Test
             var correlationId = new Guid("6ed5394e-511d-4a45-b41d-f949bf7ec523");
             var authFlowName = "TestAuthFlow";
             var expected = new TokenResult(new JsonWebToken(Fake.Token), correlationId);
-            var tokenFetcherResult = new TokenFetcher.Result()
+            var tokenFetcherResult = new MsalWrapper.Result()
             {
                 Attempts = new List<AuthFlowResult>() { new AuthFlowResult(expected, Array.Empty<Exception>(), authFlowName) },
             };

@@ -11,7 +11,7 @@ namespace Microsoft.Authentication.AzureAuth
     /// <summary>
     /// An interface for getting a <see cref="TokenResult"/>.
     /// </summary>
-    public interface IAuthOrchestrator
+    public interface IPublicClientAuth
     {
         TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, AuthMode[] authModes, string domain, string prompt, TimeSpan timeout);
     }
