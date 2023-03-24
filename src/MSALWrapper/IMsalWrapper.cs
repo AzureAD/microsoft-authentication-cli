@@ -11,7 +11,7 @@ namespace Microsoft.Authentication.MSALWrapper
     /// <summary>
     /// An interface for acquiring an AAD Access Token.
     /// </summary>
-    public interface ITokenFetcher
+    public interface IMsalWrapper
     {
         /// <summary>
         /// Run the authentication process using a global lock around the client, tenant, scopes trio to prevent multiple
@@ -25,8 +25,8 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="domain">The domain (account suffix) to filter cached accounts with.</param>
         /// <param name="prompt">A prompt hint to display to the user if needed.</param>
         /// <param name="timeout">The max <see cref="TimeSpan"/> we should spend attempting token acquisition for.</param>
-        /// <returns>A <see cref="TokenFetcher.Result"/> representing the result of the asynchronous operation.</returns>
-        TokenFetcher.Result AccessToken(
+        /// <returns>A <see cref="MsalWrapper.Result"/> representing the result of the asynchronous operation.</returns>
+        MsalWrapper.Result AccessToken(
             ILogger logger,
             Guid client,
             Guid tenant,

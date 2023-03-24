@@ -381,7 +381,7 @@ Allowed values: [all, web, devicecode]";
         {
             try
             {
-                var results = new TokenFetcher().AccessToken(
+                var results = new MsalWrapper().AccessToken(
                     logger: this.logger,
                     client: new Guid(this.authSettings.Client),
                     tenant: new Guid(this.authSettings.Tenant),
