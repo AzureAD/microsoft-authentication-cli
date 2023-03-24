@@ -110,7 +110,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
 
             if (token != null)
             {
-                logger.LogInformation(FormatToken(token.Token, this.Output, Authorization.Bearer));
+                Console.Write(FormatToken(token.Token, this.Output, Authorization.Bearer));
                 return 0;
             }
 
