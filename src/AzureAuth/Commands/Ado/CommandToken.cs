@@ -107,14 +107,15 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
                 timeout: TimeSpan.FromMinutes(this.Timeout),
                 eventData);
 
-            if (token != null)
+            if (token == null)
             {
-                Console.Write(FormatToken(token.Token, this.Output, Authorization.Bearer));
-                return 0;
+                logger.LogError($"Failed to find a PAT and authenticate to ADO.");
+                return 1;
             }
 
-            logger.LogError($"Failed to find a PAT and authenticate to ADO.");
-            return 1;
+            // Do not use logger to avoid printing tokens into log files.
+            Console.Write(FormatToken(token.Token, this.Output, Authorization.Bearer));
+            return 0;
         }
     }
 }
