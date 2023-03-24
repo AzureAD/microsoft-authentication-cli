@@ -73,6 +73,11 @@ namespace AzureAuth.Test
         [Test]
         public void Good_Auth_Returns_TokenResult()
         {
+            /*
+             * This is an Integration test. The components that it uses are all almost entirely unit tested already.
+             * The goal of this test is to assert that how they come together and we use them.
+             */
+
             // Arrange
             var correlationId = new Guid("6ed5394e-511d-4a45-b41d-f949bf7ec523");
             var authFlowName = "TestAuthFlow";

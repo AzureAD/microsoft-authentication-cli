@@ -51,12 +51,12 @@ namespace Microsoft.Authentication.AzureAuth
 
             result.Attempts.SendTelemetry(this.telemetryService);
 
-            if (result.Success != null)
+            if (result.Success == null)
             {
-                return result.Success.TokenResult;
+                return null;
             }
 
-            return null;
+            return result.Success.TokenResult;
         }
     }
 }
