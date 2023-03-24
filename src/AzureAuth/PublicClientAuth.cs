@@ -75,7 +75,7 @@ namespace Microsoft.Authentication.AzureAuth
                 return null;
             }
 
-            this.logger.LogDebug($"Acquired AAD AT via {authflow.AuthFlowName} in {authflow.Duration.TotalSeconds:0.00} sec");
+            this.logger.LogDebug($"Acquired an AAD access token via {authflow.AuthFlowName} in {authflow.Duration.TotalSeconds:0.00} sec");
             eventData.Add("silent", authflow.TokenResult.IsSilent);
             eventData.Add("sid", authflow.TokenResult.SID);
             eventData.Add("succeeded_mode", authflow.AuthFlowName);
