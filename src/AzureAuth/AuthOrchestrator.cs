@@ -4,6 +4,7 @@
 namespace Microsoft.Authentication.AzureAuth
 {
     using System;
+    using System.Collections.Generic;
 
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.Logging;
@@ -12,7 +13,7 @@ namespace Microsoft.Authentication.AzureAuth
     /// <summary>
     /// A class for handling AAD Token acquisition, results logging, and telemetry collection.
     /// </summary>
-    public class AuthOrchestrator
+    public class AuthOrchestrator : IAuthOrchestrator
     {
         private readonly ILogger logger;
         private readonly IEnv env;
@@ -33,6 +34,29 @@ namespace Microsoft.Authentication.AzureAuth
             this.env = env ?? throw new ArgumentNullException(nameof(env));
             this.telemetryService = telemetryService ?? throw new ArgumentNullException(nameof(telemetryService));
             this.tokenFetcher = tokenFetcher ?? throw new ArgumentNullException(nameof(tokenFetcher));
+        }
+
+        /// <inheritdoc/>
+        public TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, AuthMode[] authModes, string domain, string prompt, TimeSpan timeout)
+        {
+            var result = this.tokenFetcher.AccessToken(
+                this.logger,
+                client,
+                tenant,
+                scopes,
+                authModes.Combine().PreventInteractionIfNeeded(this.env),
+                domain,
+                PromptHint.Prefixed(prompt),
+                timeout);
+
+            result.Attempts.SendTelemetry(this.telemetryService);
+
+            if (result.Success != null)
+            {
+                return result.Success.TokenResult;
+            }
+
+            return null;
         }
     }
 }
