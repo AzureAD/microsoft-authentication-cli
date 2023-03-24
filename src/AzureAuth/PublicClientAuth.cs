@@ -5,10 +5,14 @@ namespace Microsoft.Authentication.AzureAuth
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Identity.Client.NativeInterop;
     using Microsoft.Office.Lasso.Interfaces;
+    using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
     /// A class for handling AAD Token acquisition, results logging, and telemetry collection.
@@ -37,26 +41,46 @@ namespace Microsoft.Authentication.AzureAuth
         }
 
         /// <inheritdoc/>
-        public TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, AuthMode[] authModes, string domain, string prompt, TimeSpan timeout)
+        public TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, IEnumerable<AuthMode> authModes, string domain, string prompt, TimeSpan timeout, EventData eventData)
         {
             var result = this.tokenFetcher.AccessToken(
                 this.logger,
                 client,
                 tenant,
                 scopes,
-                authModes.Combine().PreventInteractionIfNeeded(this.env),
+                authModes.Combine().PreventInteractionIfNeeded(this.env, this.logger),
                 domain,
                 PromptHint.Prefixed(prompt),
                 timeout);
 
+            // Report individual auth flow telemetry
             result.Attempts.SendTelemetry(this.telemetryService);
 
-            if (result.Success == null)
+            var totalErrorCount = result.Attempts.SelectMany(attempt => attempt.Errors).Count();
+            eventData.Add("error_count", totalErrorCount);
+            eventData.Add("authflow_count", result.Attempts.Count);
+
+            var authflow = result.Success;
+            if (authflow == null)
             {
+                foreach (var attempt in result.Attempts)
+                {
+                    this.logger.LogDebug($"{attempt.AuthFlowName} failed after {attempt.Duration.TotalSeconds:0.00} sec. Error count: {attempt.Errors.Count}");
+                    foreach (var e in attempt.Errors)
+                    {
+                        this.logger.LogDebug($"  {e.Message}");
+                    }
+                }
+
                 return null;
             }
 
-            return result.Success.TokenResult;
+            this.logger.LogDebug($"Acquired an AAD access token via {authflow.AuthFlowName} in {authflow.Duration.TotalSeconds:0.00} sec");
+            eventData.Add("silent", authflow.TokenResult.IsSilent);
+            eventData.Add("sid", authflow.TokenResult.SID);
+            eventData.Add("succeeded_mode", authflow.AuthFlowName);
+
+            return authflow.TokenResult;
         }
     }
 }

@@ -59,7 +59,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
 
                 if (exists)
                 {
-                    return new ()
+                    return new()
                     {
                         Exists = exists,
                         Value = pat,
@@ -68,7 +68,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
                 }
             }
 
-            return new ()
+            return new()
             {
                 Exists = false,
             };

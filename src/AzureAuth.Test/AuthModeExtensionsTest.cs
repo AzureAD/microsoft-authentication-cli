@@ -3,29 +3,31 @@
 
 namespace AzureAuth.Test
 {
-    using System.Collections.Generic;
-
     using FluentAssertions;
 
     using Microsoft.Authentication.AzureAuth;
-    using Microsoft.Authentication.AzureAuth.Commands;
     using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Authentication.TestHelper;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
 
     using Moq;
 
-    using NUnit.Framework;
+    using NLog.Targets;
 
-    using ModeExtensions = Microsoft.Authentication.AzureAuth.AuthModeExtensions;
+    using NUnit.Framework;
 
     public class AuthModeExtensionsTest
     {
         private Mock<IEnv> envMock;
+        private ILogger logger;
+        private MemoryTarget logTarget;
 
         [SetUp]
         public void SetUp()
         {
             this.envMock = new Mock<IEnv>();
+            (this.logger, this.logTarget) = MemoryLogger.Create();
         }
 
 #if PlatformWindows
@@ -39,7 +41,8 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.IWA, AuthMode.Web, AuthMode.Broker };
 
             // Act + Assert
-            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.Default);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.Default);
+            this.logTarget.Logs.Should().BeEmpty();
         }
 
         [TestCase("AZUREAUTH_NO_USER")]
@@ -51,7 +54,8 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.IWA, AuthMode.Web, AuthMode.Broker, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.IWA);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.IWA);
+            this.logTarget.Logs.Should().ContainInOrder("Interactive authentication is disabled.", "Only Integrated Windows Authentication will be attempted.");
         }
 #else
         public void CombinedAuthMode_Allowed()
@@ -63,7 +67,8 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.Default);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.Default);
+            this.logTarget.Logs.Should().BeEmpty();
         }
 
         [TestCase("AZUREAUTH_NO_USER")]
@@ -75,7 +80,8 @@ namespace AzureAuth.Test
             var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
 
             // Act + Assert
-            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object).Should().Be(AuthMode.None);
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.None);
+            this.logTarget.Logs.Should().ContainInOrder("Interactive authentication is disabled.");
         }
 #endif
     }

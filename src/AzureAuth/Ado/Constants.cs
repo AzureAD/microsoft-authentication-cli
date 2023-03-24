@@ -9,6 +9,12 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     internal static class Constants
     {
         /// <summary>
+        /// ADO pipeline id.
+        /// This is defined by ADO pipelines. See https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables.
+        /// </summary>
+        public const string SystemDefinitionId = "SYSTEM_DEFINITIONID";
+
+        /// <summary>
         /// Azure tenant IDs.
         /// </summary>
         public static class Tenant
@@ -16,7 +22,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
             /// <summary>
             /// Microsoft tenant ID.
             /// </summary>
-            public static string Microsoft = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+            public const string Microsoft = "72f988bf-86f1-41af-91ab-2d7cd011db47";
         }
 
         /// <summary>
@@ -27,7 +33,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
             /// <summary>
             /// Visual Studio 2019 and earlier client ID.
             /// </summary>
-            public static string VisualStudio = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
+            public const string VisualStudio = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
         }
 
         /// <summary>
@@ -38,7 +44,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
             /// <summary>
             /// The default scope used for Azure DevOps.
             /// </summary>
-            public static string AzureDevOpsDefault = "499b84ac-1321-427f-aa17-267ca6975798/.default";
+            public const string AzureDevOpsDefault = "499b84ac-1321-427f-aa17-267ca6975798/.default";
         }
     }
 }

@@ -7,7 +7,11 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Text;
 
     using McMaster.Extensions.CommandLineUtils;
+
     using Microsoft.Authentication.AzureAuth.Commands;
+    using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso;
     using Microsoft.Office.Lasso.Telemetry;
 
@@ -45,12 +49,20 @@ namespace Microsoft.Authentication.AzureAuth
                 backend = TelemetryOutput.ApplicationInsights;
             }
 
+            var envVarsToCollect = new[]
+            {
+                Ado.Constants.SystemDefinitionId,
+                EnvVars.CloudBuild,
+                EnvVars.NoUser,
+                EnvVars.CorextNonInteractive,
+            };
+
             TelemetryConfig telemetryConfig = new TelemetryConfig(
                 eventNamespace: "azureauth",
                 backend: backend,
                 ingestionToken: ingestionToken,
                 useAsync: true,
-                envVarsToCollect: new[] { "SYSTEM_DEFINITIONID", "QBUILD_DISTRIBUTED" },
+                envVarsToCollect: envVarsToCollect,
                 hideAlias: true,
                 hideMachineName: true);
 
@@ -64,7 +76,15 @@ namespace Microsoft.Authentication.AzureAuth
                 sendCommandEvents: true,
                 minStderrLoglevel: stdErrLogLevel);
 
-            new Lasso(app, options).Execute(args);
+            var loggerFactory = new NLog.Extensions.Logging.NLogLoggerFactory();
+            var logger = loggerFactory.CreateLogger("AzureAuth");
+
+            IServiceCollection services = new ServiceCollection();
+            services.AddSingleton<IMsalWrapper, MsalWrapper>();
+            services.AddSingleton<IPublicClientAuth, PublicClientAuth>();
+            services.AddSingleton<ILogger>(logger);
+
+            new Lasso(app, options, services).Execute(args);
         }
     }
 }
