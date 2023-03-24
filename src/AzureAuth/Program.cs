@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Text;
 
     using McMaster.Extensions.CommandLineUtils;
+
     using Microsoft.Authentication.AzureAuth.Commands;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.DependencyInjection;
@@ -47,12 +48,20 @@ namespace Microsoft.Authentication.AzureAuth
                 backend = TelemetryOutput.ApplicationInsights;
             }
 
+            var envVarsToCollect = new[]
+            {
+                Ado.Constants.SystemDefinitionId,
+                "QBUILD_DISTRIBUTED",
+                EnvVars.NoUser,
+                EnvVars.CorextNonInteractive,
+            };
+
             TelemetryConfig telemetryConfig = new TelemetryConfig(
                 eventNamespace: "azureauth",
                 backend: backend,
                 ingestionToken: ingestionToken,
                 useAsync: true,
-                envVarsToCollect: new[] { "SYSTEM_DEFINITIONID", "QBUILD_DISTRIBUTED" },
+                envVarsToCollect: envVarsToCollect,
                 hideAlias: true,
                 hideMachineName: true);
 

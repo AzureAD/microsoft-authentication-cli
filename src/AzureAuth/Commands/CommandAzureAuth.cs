@@ -19,7 +19,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         "\n\n\u001b[31m-- azureauth [options]\u001b[0m" +
         "\n\u001b[32m++ azureauth aad [options]\u001b[0m\n")]
     [Subcommand(typeof(CommandAad))]
-    //[Subcommand(typeof(CommandAdo))] // TODO: Add ado command once sub-commands are ready
+    [Subcommand(typeof(CommandAdo))]
     [Subcommand(typeof(CommandInfo))]
     public class CommandAzureAuth : CommandAad
     {

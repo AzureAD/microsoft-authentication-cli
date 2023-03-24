@@ -105,7 +105,8 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
                 authModes: this.AuthModes,
                 domain: this.Domain,
                 prompt: this.PromptHint,
-                timeout: TimeSpan.FromMinutes(this.Timeout));
+                timeout: TimeSpan.FromMinutes(this.Timeout),
+                eventData);
 
             if (token != null)
             {
