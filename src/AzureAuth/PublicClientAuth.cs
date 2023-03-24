@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System.Collections.Generic;
 
     using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
 
@@ -37,7 +38,7 @@ namespace Microsoft.Authentication.AzureAuth
         }
 
         /// <inheritdoc/>
-        public TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, AuthMode[] authModes, string domain, string prompt, TimeSpan timeout)
+        public TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, IEnumerable<AuthMode> authModes, string domain, string prompt, TimeSpan timeout)
         {
             var result = this.tokenFetcher.AccessToken(
                 this.logger,

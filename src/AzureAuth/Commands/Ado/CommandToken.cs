@@ -15,8 +15,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
 
-    using NLog;
-
     /// <summary>
     /// ADO Command for using either an ADO PAT or acquiring an AAD Access Token.
     /// </summary>
@@ -84,9 +82,11 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         /// </summary>
         /// <param name="logger">The <see cref="ILogger{T}"/> instance that is used for logging.</param>
         /// <param name="env">An <see cref="IEnv"/> to use.</param>
+        /// <param name="telemetryService">An <see cref="ITelemetryService"/>.</param>
+        /// <param name="pca">An <see cref="IPublicClientAuth"/>.</param>
         /// <param name="eventData">Lasso injected command event data.</param>
         /// <returns>An integer status code. 0 for success and non-zero for failure.</returns>
-        public int OnExecute(ILogger<CommandToken> logger, IEnv env, CommandExecuteEventData eventData)
+        public int OnExecute(ILogger<CommandToken> logger, IEnv env, ITelemetryService telemetryService, IPublicClientAuth pca, CommandExecuteEventData eventData)
         {
             // First attempt using a PAT.
             var pat = PatFromEnv.Get(env);
@@ -98,31 +98,22 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             }
 
             // If no PAT then use AAD AT.
-            var authResult = AzureAuth.Ado.TokenFetcher.AccessToken(
-                logger: logger,
-                mode: this.AuthModes.Combine().PreventInteractionIfNeeded(env),
+            TokenResult token = pca.Token(
+                client: new Guid(AzureAuth.Ado.Constants.Client.VisualStudio),
+                tenant: new Guid(AzureAuth.Ado.Constants.Tenant.Microsoft),
+                scopes: new[] { AzureAuth.Ado.Constants.Scope.AzureDevOpsDefault },
+                authModes: this.AuthModes,
                 domain: this.Domain,
-                prompt: AzureAuth.PromptHint.Prefixed(this.PromptHint),
+                prompt: this.PromptHint,
                 timeout: TimeSpan.FromMinutes(this.Timeout));
 
-            var authflow = authResult.Success;
-            if (authflow != null)
+            if (token != null)
             {
-                logger.LogDebug($"Acquired AAD AT via {authflow.AuthFlowName} in {authflow.Duration.TotalSeconds:0.00} sec");
-                logger.LogInformation(FormatToken(authflow.TokenResult.Token, this.Output, Authorization.Bearer));
+                logger.LogInformation(FormatToken(token.Token, this.Output, Authorization.Bearer));
                 return 0;
             }
 
             logger.LogError($"Failed to find a PAT and authenticate to ADO.");
-            foreach (var attempt in authResult.Attempts)
-            {
-                logger.LogError($"{attempt.AuthFlowName} failed after {attempt.Duration.TotalSeconds:0.00} sec. Error count: {attempt.Errors.Count}");
-                foreach (var e in attempt.Errors)
-                {
-                    logger.LogError($"  {e.Message}");
-                }
-            }
-
             return 1;
         }
     }

@@ -13,6 +13,6 @@ namespace Microsoft.Authentication.AzureAuth
     /// </summary>
     public interface IPublicClientAuth
     {
-        TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, AuthMode[] authModes, string domain, string prompt, TimeSpan timeout);
+        TokenResult Token(Guid client, Guid tenant, IEnumerable<string> scopes, IEnumerable<AuthMode> authModes, string domain, string prompt, TimeSpan timeout);
     }
 }

@@ -8,6 +8,8 @@ namespace Microsoft.Authentication.AzureAuth
 
     using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Authentication.AzureAuth.Commands;
+    using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Office.Lasso;
     using Microsoft.Office.Lasso.Telemetry;
 
@@ -64,7 +66,11 @@ namespace Microsoft.Authentication.AzureAuth
                 sendCommandEvents: true,
                 minStderrLoglevel: stdErrLogLevel);
 
-            new Lasso(app, options).Execute(args);
+            IServiceCollection services = new ServiceCollection();
+            services.AddSingleton<IMsalWrapper, MsalWrapper>();
+            services.AddSingleton<IPublicClientAuth, PublicClientAuth>();
+
+            new Lasso(app, options, services).Execute(args);
         }
     }
 }
