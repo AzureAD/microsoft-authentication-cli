@@ -10,6 +10,7 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     {
         /// <summary>
         /// ADO pipeline id.
+        /// This is defined by ADO pipelines. See https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables.
         /// </summary>
         public const string SystemDefinitionId = "SYSTEM_DEFINITIONID";
 
