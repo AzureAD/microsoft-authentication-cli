@@ -11,6 +11,7 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Authentication.AzureAuth.Commands;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso;
     using Microsoft.Office.Lasso.Telemetry;
 
@@ -75,9 +76,13 @@ namespace Microsoft.Authentication.AzureAuth
                 sendCommandEvents: true,
                 minStderrLoglevel: stdErrLogLevel);
 
+            var loggerFactory = new NLog.Extensions.Logging.NLogLoggerFactory();
+            var logger = loggerFactory.CreateLogger("AzureAuth");
+
             IServiceCollection services = new ServiceCollection();
             services.AddSingleton<IMsalWrapper, MsalWrapper>();
             services.AddSingleton<IPublicClientAuth, PublicClientAuth>();
+            services.AddSingleton<ILogger>(logger);
 
             new Lasso(app, options, services).Execute(args);
         }
