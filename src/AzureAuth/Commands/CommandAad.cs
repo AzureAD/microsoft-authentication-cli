@@ -296,7 +296,7 @@ Allowed values: [all, web, devicecode]";
         /// <returns>
         /// The error code: 0 is normal execution, and the rest means errors during execution.
         /// </returns>
-        public int OnExecute(IPublicClientAuth pca)
+        public int OnExecute(IPublicClientAuth publicClientAuth)
         {
             if (!this.EvaluateOptions())
             {
@@ -313,7 +313,7 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            return this.ClearCache ? this.ClearLocalCache() : this.GetToken(pca);
+            return this.ClearCache ? this.ClearLocalCache() : this.GetToken(publicClientAuth);
         }
 
         private bool ValidateOptions()
@@ -366,11 +366,11 @@ Allowed values: [all, web, devicecode]";
             return 0;
         }
 
-        private int GetToken(IPublicClientAuth pca)
+        private int GetToken(IPublicClientAuth publicClientAuth)
         {
             try
             {
-                TokenResult tokenResult = pca.Token(
+                TokenResult tokenResult = publicClientAuth.Token(
                     client: new Guid(this.authSettings.Client),
                     tenant: new Guid(this.authSettings.Tenant),
                     scopes: this.authSettings.Scopes,

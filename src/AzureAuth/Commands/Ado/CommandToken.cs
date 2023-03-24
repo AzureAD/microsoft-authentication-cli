@@ -82,10 +82,10 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         /// <param name="logger">The <see cref="ILogger{T}"/> instance that is used for logging.</param>
         /// <param name="env">An <see cref="IEnv"/> to use.</param>
         /// <param name="telemetryService">An <see cref="ITelemetryService"/>.</param>
-        /// <param name="pca">An <see cref="IPublicClientAuth"/>.</param>
+        /// <param name="publicClientAuth">An <see cref="IPublicClientAuth"/>.</param>
         /// <param name="eventData">Lasso injected command event data.</param>
         /// <returns>An integer status code. 0 for success and non-zero for failure.</returns>
-        public int OnExecute(ILogger<CommandToken> logger, IEnv env, ITelemetryService telemetryService, IPublicClientAuth pca, CommandExecuteEventData eventData)
+        public int OnExecute(ILogger<CommandToken> logger, IEnv env, ITelemetryService telemetryService, IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
         {
             // First attempt using a PAT.
             var pat = PatFromEnv.Get(env);
@@ -97,7 +97,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             }
 
             // If no PAT then use AAD AT.
-            TokenResult token = pca.Token(
+            TokenResult token = publicClientAuth.Token(
                 client: new Guid(AzureAuth.Ado.Constants.Client.VisualStudio),
                 tenant: new Guid(AzureAuth.Ado.Constants.Tenant.Microsoft),
                 scopes: new[] { AzureAuth.Ado.Constants.Scope.AzureDevOpsDefault },
