@@ -3,10 +3,15 @@
 
 namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 {
+    using System;
     using System.Collections.Generic;
+
     using McMaster.Extensions.CommandLineUtils;
+
+    using Microsoft.Authentication.AzureAuth.Ado;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
 
     /// <summary>
@@ -16,45 +21,98 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
     public class CommandToken
     {
+        private const string OutputOption = "--output";
+        private const string OutputOptionDescription = "How to print the token. One of [token, header, headervalue].\nDefault: token";
+
         /// <summary>
-        /// Gets or sets the Azure Tenant ID to use for authentication.
+        /// The available Token Formats.
         /// </summary>
+        public enum OutputMode
+        {
+            /// <summary>
+            /// Raw Token
+            /// </summary>
+            Token,
+
+            /// <summary>
+            /// Authorization http header.
+            /// </summary>
+            Header,
+
+            /// <summary> Authorization http header - Value Only </summary>
+            HeaderValue,
+        }
+
+        [Option(OutputOption, OutputOptionDescription, CommandOptionType.SingleValue)]
+        private OutputMode Output { get; set; } = OutputMode.Token;
+
         [Option(CommandAad.TenantOption, Description = "The Azure Tenant ID to use for authentication. Defaults to Microsoft.")]
-        public string Tenant { get; set; } = AzureAuth.Ado.Constants.Tenant.Msft;
+        private string Tenant { get; set; } = AzureAuth.Ado.Constants.Tenant.Microsoft;
 
-        /// <summary>
-        /// Gets or sets the auth modes.
-        /// </summary>
         [Option(CommandAad.ModeOption, CommandAad.AuthModeHelperText, CommandOptionType.MultipleValue)]
-        public IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
+        private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
-        /// <summary>
-        /// Gets or sets domain suffix to filter on.
-        /// </summary>
         [Option(CommandAad.DomainOption, Description = CommandAad.DomainHelpText)]
-        public string Domain { get; set; }
+        private string Domain { get; set; }
 
-        /// <summary>
-        /// Gets or sets the global timeout option.
-        /// </summary>
         [Option(CommandAad.TimeoutOption, CommandAad.TimeoutHelpText, CommandOptionType.SingleValue)]
-        public double Timeout { get; set; } = CommandAad.GlobalTimeout.TotalMinutes;
+        private double Timeout { get; set; } = CommandAad.GlobalTimeout.TotalMinutes;
+
+        [Option(CommandAad.PromptHintOption, CommandAad.PromptHintHelpText, CommandOptionType.SingleValue)]
+        private string PromptHint { get; set; }
 
         /// <summary>
-        /// Gets or sets the prompt hint.
+        /// Format a PAT based on <paramref name="output"/>.
         /// </summary>
-        [Option(CommandAad.PromptHintOption, CommandAad.PromptHintHelpText, CommandOptionType.SingleValue)]
-        public string PromptHint { get; set; }
+        /// <param name="value">The PAT value.</param>
+        /// <param name="output">The output mode.</param>
+        /// <param name="scheme">The <see cref="Authorization"/> scheme to use.</param>
+        /// <returns>The formatted PAT value ready for printing.</returns>
+        public static string FormatToken(string value, OutputMode output, Authorization scheme) => output switch
+        {
+            OutputMode.Token => value,
+            OutputMode.Header => value.AsHeader(scheme),
+            OutputMode.HeaderValue => value.AsHeaderValue(scheme),
+            _ => throw new ArgumentOutOfRangeException(nameof(scheme)),
+        };
 
         /// <summary>
         /// Executes the command and returns a status code indicating the success or failure of the execution.
         /// </summary>
         /// <param name="logger">The <see cref="ILogger{T}"/> instance that is used for logging.</param>
+        /// <param name="env">An <see cref="IEnv"/> to use.</param>
+        /// <param name="telemetryService">An <see cref="ITelemetryService"/>.</param>
+        /// <param name="publicClientAuth">An <see cref="IPublicClientAuth"/>.</param>
         /// <param name="eventData">Lasso injected command event data.</param>
         /// <returns>An integer status code. 0 for success and non-zero for failure.</returns>
-        public int OnExecute(ILogger<CommandToken> logger, CommandExecuteEventData eventData)
+        public int OnExecute(ILogger<CommandToken> logger, IEnv env, ITelemetryService telemetryService, IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
         {
-            logger.LogInformation("coming soon");
+            // First attempt using a PAT.
+            var pat = PatFromEnv.Get(env);
+            if (pat.Exists)
+            {
+                logger.LogDebug($"Using PAT from env var {pat.EnvVarSource}");
+                logger.LogInformation(FormatToken(pat.Value, this.Output, Authorization.Basic));
+                return 0;
+            }
+
+            // If no PAT then use AAD AT.
+            TokenResult token = publicClientAuth.Token(
+                authParams: AzureAuth.Ado.Constants.AdoParams,
+                authModes: this.AuthModes,
+                domain: this.Domain,
+                prompt: this.PromptHint,
+                timeout: TimeSpan.FromMinutes(this.Timeout),
+                eventData);
+
+            if (token == null)
+            {
+                logger.LogError($"Failed to find a PAT and authenticate to ADO.");
+                return 1;
+            }
+
+            // Do not use logger to avoid printing tokens into log files.
+            Console.Write(FormatToken(token.Token, this.Output, Authorization.Bearer));
             return 0;
         }
     }

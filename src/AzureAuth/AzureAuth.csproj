@@ -23,8 +23,6 @@
     <NuspecFile>AzureAuth.nuspec</NuspecFile>
     <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration);Version=$(Version)$(VersionSuffix)</NuspecProperties>
 
-    <!-- Stylecop warnings as errors flag for build to fail -->
-    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -39,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Office.Lasso" Version="2023.2.21.1" />
+    <PackageReference Include="Microsoft.Office.Lasso" Version="2023.3.8.1" />
     <PackageReference Include="Tomlyn" Version="0.11.0" />
   </ItemGroup>
 

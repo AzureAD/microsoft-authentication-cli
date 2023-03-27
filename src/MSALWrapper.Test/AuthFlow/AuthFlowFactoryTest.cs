@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace MSALWrapper.Test
+namespace Microsoft.Authentication.MSALWrapper.Test
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -11,49 +10,33 @@ namespace MSALWrapper.Test
 
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
-    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
 
     using Moq;
 
-    using NLog.Extensions.Logging;
     using NLog.Targets;
 
     using NUnit.Framework;
 
     internal class AuthFlowFactoryTest
     {
-        private static readonly Guid ResourceId = new Guid("6e979987-a7c8-4604-9b37-e51f06f08f1a");
-        private static readonly Guid ClientId = new Guid("5af6def2-05ec-4cab-b9aa-323d75b5df40");
-        private static readonly Guid TenantId = new Guid("8254f6f7-a09f-4752-8bd6-391adc3b912e");
+        private readonly AuthParameters authParams = new AuthParameters(
+            "5af6def2-05ec-4cab-b9aa-323d75b5df40",
+            "8254f6f7-a09f-4752-8bd6-391adc3b912e",
+            new[] { "6e979987-a7c8-4604-9b37-e51f06f08f1a/.default" });
 
+        private MemoryTarget logTarget;
+        private ILogger logger;
         private Mock<IPCAWrapper> pcaWrapperMock;
         private Mock<IPlatformUtils> platformUtilsMock;
-        private MemoryTarget logTarget;
-        private ServiceProvider serviceProvider;
-        private ILogger logger;
-        private IEnumerable<string> scopes;
         private string preferredDomain;
         private string promptHint;
 
         [SetUp]
         public void Setup()
         {
-            // Setup in memory logging target with NLog - allows making assertions against what has been logged.
-            var loggingConfig = new NLog.Config.LoggingConfiguration();
-            this.logTarget = new MemoryTarget("memory_target");
-            loggingConfig.AddTarget(this.logTarget);
-            loggingConfig.AddRuleForAllLevels(this.logTarget);
-
-            this.serviceProvider = new ServiceCollection()
-             .AddLogging(loggingBuilder =>
-             {
-                 // configure Logging with NLog
-                 loggingBuilder.ClearProviders();
-                 loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-                 loggingBuilder.AddNLog(loggingConfig);
-             })
-             .BuildServiceProvider();
+            (this.logger, this.logTarget) = MemoryLogger.Create();
 
             // Always setup Mock with behavior strict - which fails tests on first use of non-mocked behavior.
             // Reminder: If adding a new Mock - also call VerifyAll() in the TearDown method below to assert that
@@ -61,8 +44,6 @@ namespace MSALWrapper.Test
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
             this.platformUtilsMock = new Mock<IPlatformUtils>(MockBehavior.Strict);
 
-            this.logger = this.serviceProvider.GetService<ILogger<AuthFlowFactory>>();
-            this.scopes = new[] { $"{ResourceId}/.default" };
             this.preferredDomain = "contoso.com";
             this.promptHint = "Log into Contoso!";
         }
@@ -79,10 +60,8 @@ namespace MSALWrapper.Test
 
         public IEnumerable<IAuthFlow> Subject(AuthMode mode) => AuthFlowFactory.Create(
                 this.logger,
+                this.authParams,
                 mode,
-                ClientId,
-                TenantId,
-                this.scopes,
                 this.preferredDomain,
                 this.promptHint,
                 pcaWrapper: this.pcaWrapperMock.Object,

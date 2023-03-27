@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace MSALWrapper.Test
+namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
     using FluentAssertions;

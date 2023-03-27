@@ -10,6 +10,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using FluentAssertions;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
+    using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
@@ -33,8 +34,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         private string promptHint = "test prompt hint";
 
-        private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
+        private ILogger logger;
 
         // MSAL Specific Mocks
         private Mock<IPCAWrapper> pcaWrapperMock;
@@ -45,38 +46,18 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [SetUp]
         public void Setup()
         {
-            // Setup in memory logging target with NLog - allows making assertions against what has been logged.
-            var loggingConfig = new NLog.Config.LoggingConfiguration();
-            this.logTarget = new MemoryTarget("memory_target");
-            loggingConfig.AddTarget(this.logTarget);
-            loggingConfig.AddRuleForAllLevels(this.logTarget);
+            (this.logger, this.logTarget) = MemoryLogger.Create();
 
             // MSAL Mocks
             this.testAccount = new Mock<IAccount>(MockBehavior.Strict);
             this.testAccount.Setup(a => a.Username).Returns(TestUser);
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
 
-            // Setup Dependency Injection container to provide logger and out class under test (the "subject")
-            this.serviceProvider = new ServiceCollection()
-             .AddLogging(loggingBuilder =>
-             {
-                 // configure Logging with NLog
-                 loggingBuilder.ClearProviders();
-                 loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-                 loggingBuilder.AddNLog(loggingConfig);
-             })
-             .AddTransient<AuthFlow.Web>((provider) =>
-             {
-                 var logger = provider.GetService<ILogger<AuthFlow.Web>>();
-                 return new AuthFlow.Web(logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
-             })
-             .BuildServiceProvider();
-
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
-        public AuthFlow.Web Subject() => this.serviceProvider.GetService<AuthFlow.Web>();
+        public AuthFlow.Web Subject() => new AuthFlow.Web(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
 
         [Test]
         public async Task WebAuthFlow_CachedToken()

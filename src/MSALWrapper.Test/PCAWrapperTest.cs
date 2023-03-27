@@ -6,15 +6,19 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using FluentAssertions;
+
     using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
+
     using Moq;
-    using NLog.Extensions.Logging;
+
     using NLog.Targets;
+
     using NUnit.Framework;
 
     public class PCAWrapperTest
@@ -25,8 +29,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private readonly IAccount userMicrosoft1 = new MockAccount("second@microsoft.com");
         private readonly IAccount userMicrosoft2 = new MockAccount("third@microsoft.com");
 
-        private IServiceProvider serviceProvider;
         private MemoryTarget logTarget;
+        private ILogger logger;
 
         // MSAL Specific Mocks
         private Mock<IPublicClientApplication> pcaClientMock;
@@ -36,33 +40,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [SetUp]
         public void Setup()
         {
-            // Setup in memory logging target with NLog - allows making assertions against what has been logged.
-            var loggingConfig = new NLog.Config.LoggingConfiguration();
-            this.logTarget = new MemoryTarget("memory_target");
-            loggingConfig.AddTarget(this.logTarget);
-            loggingConfig.AddRuleForAllLevels(this.logTarget);
+            (this.logger, this.logTarget) = MemoryLogger.Create();
 
             // MSAL Mocks
             this.testAccount = new Mock<IAccount>(MockBehavior.Strict);
             this.testAccount.Setup(a => a.Username).Returns(TestUser);
 
             this.pcaClientMock = new Mock<IPublicClientApplication>(MockBehavior.Strict);
-
-            // Setup Dependency Injection container to provide logger and out class under test (the "subject")
-            this.serviceProvider = new ServiceCollection()
-             .AddLogging(loggingBuilder =>
-             {
-                 // configure Logging with NLog
-                 loggingBuilder.ClearProviders();
-                 loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-                 loggingBuilder.AddNLog(loggingConfig);
-             })
-             .AddTransient<IPCAWrapper>((provider) =>
-             {
-                 var logger = provider.GetService<ILogger<PCAWrapper>>();
-                 return new PCAWrapper(logger, this.pcaClientMock.Object);
-             })
-             .BuildServiceProvider();
 
             // Mock successful token result
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
@@ -161,6 +145,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ReturnsAsync(accounts);
         }
 
-        private IPCAWrapper Subject() => this.serviceProvider.GetService<IPCAWrapper>();
+        private IPCAWrapper Subject() => new PCAWrapper(this.logger, this.pcaClientMock.Object);
     }
 }

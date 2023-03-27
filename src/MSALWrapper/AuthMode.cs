@@ -4,6 +4,8 @@
 namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Auth modes.
@@ -11,6 +13,11 @@ namespace Microsoft.Authentication.MSALWrapper
     [Flags]
     public enum AuthMode : short
     {
+        /// <summary>
+        /// No auth modes are enabled.
+        /// </summary>
+        None = 0,
+
         /// <summary>
         /// Web auth mode (Embedded Web View for Windows and System Web Browser for OSX).
         /// </summary>
@@ -105,6 +112,17 @@ namespace Microsoft.Authentication.MSALWrapper
 #else
             return false;
 #endif
+        }
+
+        /// <summary>
+        /// Combine multiple AuthModes into a single AuthMode.
+        /// This does not lose any information because <see cref="AuthMode"/> is a bit flag.
+        /// </summary>
+        /// <param name="authModes">AuthModes to combine.</param>
+        /// <returns>A single <see cref="AuthMode"/> computed by applying bit-wise OR to the auth modes given.</returns>
+        public static AuthMode Combine(this IEnumerable<AuthMode> authModes)
+        {
+            return authModes.Aggregate((a1, a2) => a1 | a2);
         }
     }
 }
