@@ -12,7 +12,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// <summary>
     /// The broker auth flow.
     /// </summary>
-    public class IntegratedWindowsAuthentication : IAuthFlow
+    public class IntegratedWindowsAuthentication : AuthFlowBase
     {
         private const string NameValue = "iwa";
         private readonly ILogger logger;
@@ -48,13 +48,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        public string Name() => NameValue;
+        protected override string Name() => NameValue;
 
-        /// <summary>
-        /// Get a jwt token for a resource.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
-        public async Task<AuthFlowResult> GetTokenAsync()
+        /// <inheritdoc/>
+        protected override async Task<(TokenResult, IList<Exception>)> GetTokenInnerAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
             this.logger.LogDebug($"Using cached account '{account?.Username}'");
@@ -123,7 +120,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
             }
 
-            return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+            return (tokenResult, this.errors);
         }
 
         private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
