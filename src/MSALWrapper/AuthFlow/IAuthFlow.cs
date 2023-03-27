@@ -11,12 +11,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     public interface IAuthFlow
     {
         /// <summary>
-        /// Get the name of the auth flow.
-        /// </summary>
-        /// <returns>The name of the auth flow.</returns>
-        string Name();
-
-        /// <summary>
         /// Get a token for a resource.
         /// </summary>
         /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
