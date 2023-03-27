@@ -7,13 +7,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    internal abstract class AuthFlowBase : IAuthFlow
+    public abstract class AuthFlowBase : IAuthFlow
     {
         /// <inheritdoc/>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            IList<Exception> errors = new List<Exception>();
-            var result = await this.GetTokenInnerAsync(errors);
+            (var result, var errors) = await this.GetTokenInnerAsync();
             return new AuthFlowResult(result, errors, this.Name());
         }
 
@@ -22,7 +21,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Performs token acquisition.
         /// </summary>
         /// <returns>a tuple of <see cref="TokenResult"/> and <see cref="IList{Exception}"/>.</returns>
-        protected abstract Task<TokenResult> GetTokenInnerAsync(IList<Exception> errors);
+        protected abstract Task<(TokenResult result, IList<Exception> errors)> GetTokenInnerAsync();
 
         /// <summary>
         /// The name of this AuthFlow.
