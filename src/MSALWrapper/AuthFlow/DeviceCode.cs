@@ -14,9 +14,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// <summary>
     /// The device code auth flow.
     /// </summary>
-    public class DeviceCode : IAuthFlow
+    public class DeviceCode : AuthFlowBase
     {
-        private const string NameValue = "device_code";
+        private const string NameValue = "devicecode";
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
@@ -59,13 +59,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        public string Name() => NameValue;
+        protected override string Name() => NameValue;
 
-        /// <summary>
-        /// Get a token for a resource.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
-        public async Task<AuthFlowResult> GetTokenAsync()
+        /// <inheritdoc/>
+        protected override async Task<(TokenResult, IList<Exception>)> GetTokenInnerAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
 
@@ -90,7 +87,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         .ConfigureAwait(false);
                     tokenResult.SetSilent();
 
-                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                    return (tokenResult, this.errors);
                 }
                 catch (MsalUiRequiredException ex)
                 {
@@ -107,7 +104,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.errors)
                         .ConfigureAwait(false);
 
-                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                    return (tokenResult, this.errors);
                 }
             }
             catch (MsalException ex)
@@ -116,7 +113,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogError(ex.Message);
             }
 
-            return new AuthFlowResult(null, this.errors, this.GetType().Name);
+            return (null, this.errors);
         }
 
         private static HttpClient CreateHttpClient()
