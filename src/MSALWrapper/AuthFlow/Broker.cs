@@ -104,7 +104,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetSilent();
 
-                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                        return this.Result(tokenResult, this.errors);
                     }
                     catch (MsalUiRequiredException ex)
                     {
@@ -120,7 +120,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             this.errors)
                             .ConfigureAwait(false);
 
-                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                        return this.Result(tokenResult, this.errors);
                     }
                 }
                 catch (MsalUiRequiredException ex)
@@ -137,7 +137,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.errors)
                         .ConfigureAwait(false);
 
-                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                    return this.Result(tokenResult, this.errors);
                 }
             }
             catch (MsalServiceException ex)
@@ -156,7 +156,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
             }
 
-            return new AuthFlowResult(null, this.errors, this.GetType().Name);
+            return this.Result(null, this.errors);
+        }
+
+        private AuthFlowResult Result(TokenResult tokenResult, IList<Exception> errors)
+        {
+            return new AuthFlowResult(tokenResult, errors, this.Name());
         }
 
         [DllImport("kernel32.dll")]
