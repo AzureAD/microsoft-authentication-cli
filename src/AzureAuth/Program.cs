@@ -4,6 +4,7 @@
 namespace Microsoft.Authentication.AzureAuth
 {
     using System;
+    using System.Runtime.InteropServices;
     using System.Text;
 
     using McMaster.Extensions.CommandLineUtils;
@@ -35,7 +36,7 @@ namespace Microsoft.Authentication.AzureAuth
             TelemetryOutput backend = TelemetryOutput.StandardOut;
 
             // We will only send telemetry if we are given an ingestion token via
-            // environment variable. We *have* to do this here, rather than in
+            // environment variable or registry. We *have* to do this here, rather than in
             // `CommandMain.OnExecute`, because Lasso doesn't have a way of allowing a
             // `CommandLineApplication` to dynamically set telemetry configuration. Even if
             // it did, we can't guarantee that a failure in command line parsing wouldn't
@@ -43,6 +44,18 @@ namespace Microsoft.Authentication.AzureAuth
             //
             // To disable telemetry a user need only leave this environment variable unset. It's off by default.
             string applicationInsightsIngestionToken = Environment.GetEnvironmentVariable(EnvVars.ApplicationInsightsIngestionTokenEnvVar);
+
+            if (string.IsNullOrEmpty(applicationInsightsIngestionToken))
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    applicationInsightsIngestionToken = Win32.Registry.GetValue(
+                        EnvVars.ApplicationInsightsIngestionTokenRegKeyPath,
+                        EnvVars.ApplicationInsightsIngestionTokenRegKeyName,
+                        null) as string;
+                }
+            }
+
             if (!string.IsNullOrEmpty(applicationInsightsIngestionToken))
             {
                 ingestionToken = applicationInsightsIngestionToken;

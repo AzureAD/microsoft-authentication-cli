@@ -17,6 +17,16 @@ namespace Microsoft.Authentication.AzureAuth
         public static readonly string ApplicationInsightsIngestionTokenEnvVar = $"{EnvVarPrefix}_APPLICATION_INSIGHTS_INGESTION_TOKEN";
 
         /// <summary>
+        /// Holds the path of the registry key to get an application insights ingestion token.
+        /// </summary>
+        public static readonly string ApplicationInsightsIngestionTokenRegKeyPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\AzureAuth";
+
+        /// <summary>
+        /// Holds the name of the registry key to get an application insights ingestion token.
+        /// </summary>
+        public static readonly string ApplicationInsightsIngestionTokenRegKeyName = "ApplicationInsightsKey";
+
+        /// <summary>
         /// Holds the name of the env var to get a config file from.
         /// </summary>
         public static readonly string Config = $"{EnvVarPrefix}_CONFIG";
