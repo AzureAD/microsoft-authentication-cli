@@ -79,6 +79,7 @@ Instructions on using AzureAuth CLI in your applications are available [here](do
 
 # Data Collection Is Off By Default
 No telemetry will be collected unless you set the `AZUREAUTH_APPLICATION_INSIGHTS_INGESTION_TOKEN` environment variable
+or the registry key `ApplicationInsightsIngestionToken` under `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\AzureAuth`
 to a valid [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
 ingestion token.
 
