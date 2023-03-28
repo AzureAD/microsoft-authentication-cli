@@ -24,7 +24,7 @@ namespace Microsoft.Authentication.AzureAuth
         /// <summary>
         /// Holds the name of the registry key to get an application insights ingestion token.
         /// </summary>
-        public static readonly string ApplicationInsightsIngestionTokenRegKeyName = "ApplicationInsightsKey";
+        public static readonly string ApplicationInsightsIngestionTokenRegKeyName = "ApplicationInsightsIngestionToken";
 
         /// <summary>
         /// Holds the name of the env var to get a config file from.
