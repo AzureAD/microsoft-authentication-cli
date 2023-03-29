@@ -18,7 +18,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private const string OrganizationHelp = "The name of the Azure DevOps organization.";
 
         private const string DisplayNameOption = "--display-name";
-        private const string DisplayNameHelp = "The Personal Access Token name.";
+        private const string DisplayNameHelp = "The PAT name.";
 
         private const string ScopeOption = "--scope";
         private const string ScopeHelp = "A token scope for accessing Azure DevOps resources. Repeated invocations allowed.";
