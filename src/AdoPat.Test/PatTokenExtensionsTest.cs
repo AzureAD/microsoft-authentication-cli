@@ -36,17 +36,19 @@ namespace AdoPat.Test
                 Token = "dip55dwf4vpitomw63jzvomefmi2jluguprzwwqwuc6xq4fhocwq",
             };
 
-            var expected = @"{
-  ""displayName"": ""new_token"",
-  ""validTo"": ""2020-12-01T23:46:23.32Z"",
-  ""scope"": ""app_token"",
-  ""targetAccounts"": [
-    ""38aaa865-2c70-4bf7-a308-0c6539c38c1a""
-  ],
-  ""validFrom"": ""2020-11-02T22:56:52.1033333Z"",
-  ""authorizationId"": ""4ab5764f-4193-4f1d-b995-64144880b7d7"",
-  ""token"": ""dip55dwf4vpitomw63jzvomefmi2jluguprzwwqwuc6xq4fhocwq""
-}";
+            var expected = string.Join(
+                Environment.NewLine,
+                "{",
+                "  \"displayName\": \"new_token\",",
+                "  \"validTo\": \"2020-12-01T23:46:23.32Z\",",
+                "  \"scope\": \"app_token\",",
+                "  \"targetAccounts\": [",
+                "    \"38aaa865-2c70-4bf7-a308-0c6539c38c1a\"",
+                "  ],",
+                "  \"validFrom\": \"2020-11-02T22:56:52.1033333Z\",",
+                "  \"authorizationId\": \"4ab5764f-4193-4f1d-b995-64144880b7d7\",",
+                "  \"token\": \"dip55dwf4vpitomw63jzvomefmi2jluguprzwwqwuc6xq4fhocwq\"",
+                "}");
 
             // Act
             var subject = token.AsJson();
