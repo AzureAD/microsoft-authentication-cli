@@ -3,8 +3,9 @@
 
 namespace Microsoft.Authentication.AzureAuth.Ado
 {
-    using Microsoft.Authentication.MSALWrapper;
     using System.Collections.Generic;
+
+    using Microsoft.Authentication.MSALWrapper;
 
     /// <summary>
     /// Azure DevOps constant values.
