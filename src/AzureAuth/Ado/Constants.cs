@@ -12,6 +12,12 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     /// </summary>
     internal static class Constants
     {
+        /// <summary>The base URL for Azure DevOps.</summary>
+        public const string BaseUrl = "https://dev.azure.com";
+
+        /// <summary>The PAT lockfile name. The containing directory is platform specific, thus configured at runtime.</summary>
+        public const string PatLockfileName = "azureauth-ado-pat.lock";
+
         /// <summary>
         /// ADO pipeline id.
         /// This is defined by ADO pipelines. See https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables.
