@@ -4,6 +4,7 @@
 namespace Microsoft.Authentication.AzureAuth.Ado
 {
     using Microsoft.Authentication.MSALWrapper;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Azure DevOps constant values.
@@ -52,6 +53,34 @@ namespace Microsoft.Authentication.AzureAuth.Ado
             /// The default scope used for Azure DevOps.
             /// </summary>
             public const string AzureDevOpsDefault = "499b84ac-1321-427f-aa17-267ca6975798/.default";
+        }
+
+        /// <summary>Parameters used to configure persistent, encrypted storage for Azure DevOps PATs.</summary>
+        public static class PatStorageParameters
+        {
+            /// <summary>The PAT cache file. The containing directory is platform and user specific, thus configured at runtime.</summary>
+            public const string CacheFileName = "azureauth-pat.cache";
+
+            /// <summary>The Mac keychain account name.</summary>
+            public const string MacOSAccountName = "com.microsoft.identify.azureauth.ado.pat";
+
+            /// <summary>The Mac keychain service name.</summary>
+            public const string MacOSServiceName = "AzureAuth ADO PAT Cache";
+
+            /// <summary>The Linux keyring schema name.</summary>
+            public const string LinuxKeyRingSchemaName = "com.microsoft.identity.azureauth.ado.pat";
+
+            /// <summary>The user-readable label for the Linux keyring secret.</summary>
+            public const string LinuxKeyRingLabel = "AzureAuth ADO PAT Cache";
+
+            /// <summary>The Linux keyring collection. "default" is persisted, "session" is destroyed on logout.</summary>
+            public const string LinuxKeyRingCollection = "default";
+
+            /// <summary>An additional attribute used to decorate the Linux keyring secret.</summary>
+            public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new KeyValuePair<string, string>("Version", "1");
+
+            /// <summary>Another additional attribute used to decorate the Linux keyring secret.</summary>
+            public static readonly KeyValuePair<string, string> LinuxKeyRingAttr2 = new KeyValuePair<string, string>("ProductGroup", "Microsoft Developer Tools");
         }
     }
 }
