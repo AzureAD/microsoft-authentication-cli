@@ -167,7 +167,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
         private IPatClient Client(string accessToken)
         {
-            var baseUrl = new Uri($"{AzureAuth.Ado.Constants.BaseUrl}/{this.Organization}");
+            var baseUrl = new Uri(string.Join('/', AzureAuth.Ado.Constants.BaseUrl, this.Organization));
             var credentials = new VssOAuthAccessTokenCredential(accessToken);
             var connection = new VssConnection(baseUrl, credentials);
             var tokensHttpClientWrapper = new TokensHttpClientWrapper(connection);
