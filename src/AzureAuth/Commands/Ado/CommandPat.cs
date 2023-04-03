@@ -117,20 +117,13 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
                 return 1;
             }
 
-            var patOptions = new PatOptions
-            {
-                Organization = this.Organization,
-                DisplayName = this.DisplayName,
-                Scopes = this.Scopes,
-            };
-
             var cache = this.Cache();
             var client = this.Client(accessToken.Token);
             var manager = new PatManager(cache, client);
 
             using (new CrossPlatLock(LockfilePath))
             {
-                var pat = manager.GetPatAsync(patOptions).Result;
+                var pat = manager.GetPatAsync(this.PatOptions()).Result;
 
                 // Do not use logger to avoid printing PATs into log files.
                 Console.WriteLine(FormatPat(pat, this.Output));
@@ -160,6 +153,16 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
                 AccessTokenPrompt,
                 AccessTokenTimeout,
                 eventData);
+        }
+
+        private PatOptions PatOptions()
+        {
+            return new PatOptions
+            {
+                Organization = this.Organization,
+                DisplayName = this.DisplayName,
+                Scopes = this.Scopes,
+            };
         }
 
         private IPatClient Client(string accessToken)
