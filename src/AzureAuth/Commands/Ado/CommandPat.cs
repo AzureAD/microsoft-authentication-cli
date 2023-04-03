@@ -99,7 +99,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private OutputMode Output { get; set; } = OutputMode.Token;
 
         [Option(DomainOption, DomainHelp, CommandOptionType.SingleValue)]
-        private string Domain { get; set; } = "microsoft.com";
+        private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
 
         /// <summary>
         /// Executes the command and returns a status code indicating the success or failure of the execution.

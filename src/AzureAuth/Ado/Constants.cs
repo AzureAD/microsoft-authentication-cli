@@ -12,6 +12,9 @@ namespace Microsoft.Authentication.AzureAuth.Ado
     /// </summary>
     internal static class Constants
     {
+        /// <summary>The default preferred domain used when retrieving cached accounts.</summary>
+        public const string PreferredDomain = "microsoft.com";
+
         /// <summary>The base URL for Azure DevOps.</summary>
         public const string BaseUrl = "https://dev.azure.com";
 
