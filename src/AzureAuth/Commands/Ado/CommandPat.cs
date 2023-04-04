@@ -35,13 +35,15 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private const string ScopeOption = "--scope";
         private const string ScopeHelp = "A token scope for accessing Azure DevOps resources. Repeated invocations allowed.";
 
+        private const string PromptHintOption = "--prompt-hint";
+        private const string PromptHintHelp = "A prompt hint to contextualize prompts and identify uses in telemetry, when captured.";
+
         private const string OutputOption = "--output";
         private const string OutputHelp = "How PAT information is displayed. [default: token]\n[possible values: none, status, token, base64, header, headervalue, json]";
 
         private const string DomainOption = "--domain";
         private const string DomainHelp = "The preferred domain used when acquiring Azure Active Directory access tokens. [default: microsoft.com]";
 
-        private const string AccessTokenPrompt = "AzureAuth ADO PAT";
         private static readonly IEnumerable<AuthMode> AccessTokenAuthModes = new[] { AuthMode.Default };
         private static readonly TimeSpan AccessTokenTimeout = TimeSpan.FromMinutes(15);
 
@@ -94,6 +96,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
         [Option(ScopeOption, ScopeHelp, CommandOptionType.MultipleValue)]
         private string[] Scopes { get; set; } = null;
+
+        [Option(PromptHintOption, PromptHintHelp, CommandOptionType.SingleValue)]
+        private string PromptHint { get; set; } = null;
 
         [Option(OutputOption, OutputHelp, CommandOptionType.SingleValue)]
         private OutputMode Output { get; set; } = OutputMode.Token;
@@ -150,7 +155,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
                 AzureAuth.Ado.Constants.AdoParams,
                 AccessTokenAuthModes,
                 this.Domain,
-                AccessTokenPrompt,
+                this.PromptHint,
                 AccessTokenTimeout,
                 eventData);
         }
