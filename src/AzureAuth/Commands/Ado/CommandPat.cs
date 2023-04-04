@@ -50,8 +50,8 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private static readonly string LockfilePath = Path.Combine(Path.GetTempPath(), AzureAuth.Ado.Constants.PatLockfileName);
 
         // On all platforms the PAT cache should be in the same directory as a typical AzureAuth installation.
-        //   - On Windows this is usually `%LOCALAPPDATA%\Programs\AzureAuth`.
-        //   - On Unix-like platforms this is usually `~/.azureauth`.
+        //   - On Windows this is `%LOCALAPPDATA%\Programs\AzureAuth`.
+        //   - On Unix-like platforms this is `~/.azureauth`.
 #if PlatformWindows
         private static readonly string CacheDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
