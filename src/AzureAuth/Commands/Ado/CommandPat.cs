@@ -115,6 +115,11 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         /// <returns>An integer status code. 0 for success and non-zero for failure.</returns>
         public int OnExecute(ILogger<CommandPat> logger, IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
         {
+            if (!this.ValidOptions(logger))
+            {
+                return 1;
+            }
+
             var accessToken = this.AccessToken(publicClientAuth, eventData);
             if (accessToken == null)
             {
@@ -148,6 +153,40 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
             OutputMode.Json => pat.AsJson(),
             _ => throw new ArgumentOutOfRangeException(nameof(output)),
         };
+
+        // This option validation could also be handled by using a [Required] attribute,
+        // but for the best user experience we'd like to report multiple issues at once.
+        private bool ValidOptions(ILogger logger)
+        {
+            bool validOptions = true;
+            int scopesCount = this.Scopes?.Length ?? 0;
+
+            if (scopesCount == 0)
+            {
+                logger.LogError($"The {ScopeOption} field is required.");
+                validOptions = false;
+            }
+
+            if (string.IsNullOrEmpty(this.Organization))
+            {
+                logger.LogError($"The {OrganizationOption} field is required.");
+                validOptions = false;
+            }
+
+            if (string.IsNullOrEmpty(this.DisplayName))
+            {
+                logger.LogError($"The {DisplayNameOption} field is required.");
+                validOptions = false;
+            }
+
+            if (string.IsNullOrEmpty(this.PromptHint))
+            {
+                logger.LogError($"The {PromptHintOption} field is required.");
+                validOptions = false;
+            }
+
+            return validOptions;
+        }
 
         private TokenResult AccessToken(IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
         {
