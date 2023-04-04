@@ -6,7 +6,6 @@ namespace Microsoft.Authentication.MSALWrapper
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
 
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Extensions.Logging;
@@ -15,12 +14,10 @@ namespace Microsoft.Authentication.MSALWrapper
     /// A functional orchestrator of doing auth using the building blocks
     /// of <see cref="AuthFlowFactory"/> and <see cref="AuthFlowExecutor"/>.
     /// </summary>
-    public static class TokenFetcher
+    public class MsalWrapper : IMsalWrapper
     {
-        private static readonly TimeSpan MaxLockWaitTime = TimeSpan.FromMinutes(15);
-
         /// <summary>
-        /// The result of running <see cref="TokenFetcher"/>.
+        /// The result of running <see cref="MsalWrapper"/>.
         /// </summary>
         public record Result
         {
@@ -35,24 +32,19 @@ namespace Microsoft.Authentication.MSALWrapper
             public List<AuthFlowResult> Attempts { get; init; }
         }
 
+        private static readonly TimeSpan MaxLockWaitTime = TimeSpan.FromMinutes(15);
+
         /// <summary>
-        /// Run the authentication process using a global lock around the client, tenant, scopes trio to prevent multiple
-        /// auth prompts for the same tokens.
+        /// Initializes a new instance of the <see cref="MsalWrapper"/> class.
         /// </summary>
-        /// <param name="logger">A <see cref="ILogger"/> to use.</param>
-        /// <param name="client">The client ID to authenticate as.</param>
-        /// <param name="tenant">The Azure tenant containing the client.</param>
-        /// <param name="scopes">The list of scopes to request access for.</param>
-        /// <param name="mode">The <see cref="AuthMode"/>. Controls which <see cref="IAuthFlow"/>s should be used.</param>
-        /// <param name="domain">The domain (account suffix) to filter cached accounts with.</param>
-        /// <param name="prompt">A prompt hint to display to the user if needed.</param>
-        /// <param name="timeout">The max <see cref="TimeSpan"/> we should spend attempting token acquisition for.</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        public static Result AccessToken(
+        public MsalWrapper()
+        {
+        }
+
+        /// <inheritdoc/>
+        public Result AccessToken(
             ILogger logger,
-            Guid client,
-            Guid tenant,
-            IEnumerable<string> scopes,
+            AuthParameters authParams,
             AuthMode mode,
             string domain,
             string prompt,
@@ -61,9 +53,7 @@ namespace Microsoft.Authentication.MSALWrapper
             var authFlows = AuthFlowFactory.Create(
                 logger: logger,
                 authMode: mode,
-                clientId: client,
-                tenantId: tenant,
-                scopes: scopes,
+                authParams: authParams,
                 preferredDomain: domain,
                 promptHint: prompt);
 
@@ -71,7 +61,7 @@ namespace Microsoft.Authentication.MSALWrapper
             var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));
 
             // Prevent multiple calls to AzureAuth for the same client and tenant from prompting at the same time.
-            string lockName = $"Local\\{tenant}_{client}";
+            string lockName = $"Local\\{authParams.Tenant}_{authParams.Client}";
 
             results.AddRange(Locked.Execute(logger, lockName, MaxLockWaitTime, async () => await executor.GetTokenAsync()));
 

@@ -32,7 +32,7 @@ namespace Microsoft.Authentication.AdoPat.Test
         private Mock<IPatClient> client;
 
         // PAT options which are common to all tests.
-        private static PatOptions PatOptions => new ()
+        private static PatOptions PatOptions => new()
         {
             DisplayName = DisplayName,
             Organization = Organization,

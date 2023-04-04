@@ -444,40 +444,6 @@ invalid_key = ""this is not a valid alias key""
             subject.TokenFetcherOptions.Should().BeEquivalentTo(expected);
         }
 
-        [Ignore(reason: "No way to inject authflow yet")]
-        public void TestSendEvent_From_AuthFlowResult_With_Errors_And_Null_TokenResult()
-        {
-            var errors = new[]
-            {
-                new Exception("Exception 1."),
-            };
-
-            AuthFlowResult authFlowResult = new AuthFlowResult(null, errors, "Sample");
-
-            this.authFlowMock.Setup((a) => a.GetTokenAsync()).ReturnsAsync(authFlowResult);
-
-            // It would be nice to increase the assertion level here to include specific attributes on the eventData sent.
-            // The mock setup matching with strict behavior is difficult to get right, and we have other tests already validating the contents
-            // of events generated have what we expect. This validates we are in fact sending them.
-            this.telemetryServiceMock.Setup(s => s.SendEvent("authflow_Sample", It.IsAny<EventData>()));
-
-            var subject = this.serviceProvider.GetService<CommandAad>();
-            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-
-            // mock valid args
-            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
-            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
-            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
-            subject.EvaluateOptions().Should().BeTrue();
-
-            // Act
-            // Note: If the mock telem service matching fails, the OnExecute's global try-catch will hide that failure.
-            subject.OnExecute().Should().Be(1);
-
-            // Assert
-            this.telemetryServiceMock.VerifyAll();
-        }
-
         /// <summary>
         /// The root path.
         /// </summary>

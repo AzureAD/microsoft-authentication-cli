@@ -8,10 +8,23 @@ namespace Microsoft.Authentication.AzureAuth
     /// </summary>
     public static class EnvVars
     {
+        /// <summary>Env var indicating we are in Cloud Build.</summary>
+        public const string CloudBuild = "QBUILD_DISTRIBUTED";
+
         /// <summary>
         /// Holds the name of the env var to get an application insights ingestion token.
         /// </summary>
         public static readonly string ApplicationInsightsIngestionTokenEnvVar = $"{EnvVarPrefix}_APPLICATION_INSIGHTS_INGESTION_TOKEN";
+
+        /// <summary>
+        /// Holds the path of the registry key to get an application insights ingestion token.
+        /// </summary>
+        public static readonly string ApplicationInsightsIngestionTokenRegKeyPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\AzureAuth";
+
+        /// <summary>
+        /// Holds the name of the registry key to get an application insights ingestion token.
+        /// </summary>
+        public static readonly string ApplicationInsightsIngestionTokenRegKeyName = "ApplicationInsightsIngestionToken";
 
         /// <summary>
         /// Holds the name of the env var to get a config file from.
