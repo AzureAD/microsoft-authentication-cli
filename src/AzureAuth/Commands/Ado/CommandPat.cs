@@ -41,10 +41,26 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private const string OutputOption = "--output";
         private const string OutputHelp = "How PAT information is displayed. [default: token]\n[possible values: none, status, token, base64, header, headervalue, json]";
 
+        private const string ModeOption = "--mode";
+#if PlatformWindows
+        /// <summary>
+        /// The help text for the <see cref="ModeOption"/> option.
+        /// </summary>
+        private const string ModeHelp = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
+You can use any combination of modes with multiple instances of the --mode flag.
+[possible values: all, iwa, broker, web, devicecode]";
+#else
+        /// <summary>
+        /// The help text for the <see cref="ModeOption"/> option.
+        /// </summary>
+        private const string ModeHelp = @"Authentication mode. Default: web.
+You can use any combination with multiple instances of the --mode flag.
+[possible values: all, web, devicecode]";
+#endif
+
         private const string DomainOption = "--domain";
         private const string DomainHelp = "The preferred domain used when acquiring Azure Active Directory access tokens. [default: microsoft.com]";
 
-        private static readonly IEnumerable<AuthMode> AccessTokenAuthModes = new[] { AuthMode.Default };
         private static readonly TimeSpan AccessTokenTimeout = TimeSpan.FromMinutes(15);
 
         private static readonly string LockfilePath = Path.Combine(Path.GetTempPath(), AzureAuth.Ado.Constants.PatLockfileName);
@@ -102,6 +118,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
         [Option(OutputOption, OutputHelp, CommandOptionType.SingleValue)]
         private OutputMode Output { get; set; } = OutputMode.Token;
+
+        [Option(ModeOption, ModeHelp, CommandOptionType.MultipleValue)]
+        private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
         [Option(DomainOption, DomainHelp, CommandOptionType.SingleValue)]
         private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
@@ -192,7 +211,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         {
             return publicClientAuth.Token(
                 AzureAuth.Ado.Constants.AdoParams,
-                AccessTokenAuthModes,
+                this.AuthModes,
                 this.Domain,
                 this.PromptHint,
                 AccessTokenTimeout,
