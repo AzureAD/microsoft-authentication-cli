@@ -37,7 +37,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private TimeSpan deviceCodeFlowTimeout = TimeSpan.FromMinutes(15);
         #endregion
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceCode"/> class.
         /// </summary>

@@ -7,6 +7,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// An abstract class that implements the <see cref="IAuthFlow"/> interface
+    /// and enforces consistent behavior for naming AuthFlows.
+    /// </summary>
     public abstract class AuthFlowBase : IAuthFlow
     {
         /// <inheritdoc/>
