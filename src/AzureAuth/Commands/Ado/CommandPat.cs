@@ -155,7 +155,7 @@ You can use any combination with multiple instances of the --mode flag.
                 var pat = manager.GetPatAsync(this.PatOptions()).Result;
 
                 // Do not use logger to avoid printing PATs into log files.
-                Console.WriteLine(FormatPat(pat, this.Output));
+                Console.Write(FormatPat(pat, this.Output));
             }
 
             return 0;
@@ -164,12 +164,12 @@ You can use any combination with multiple instances of the --mode flag.
         private static string FormatPat(PatToken pat, OutputMode output) => output switch
         {
             OutputMode.None => string.Empty,
-            OutputMode.Status => $"\"{pat.DisplayName}\" valid until {pat.ValidTo:O}",
-            OutputMode.Token => pat.Token,
-            OutputMode.Base64 => pat.Token.Base64(),
-            OutputMode.Header => pat.Token.AsHeader(AzureAuth.Ado.Authorization.Basic),
-            OutputMode.HeaderValue => pat.Token.AsHeaderValue(AzureAuth.Ado.Authorization.Basic),
-            OutputMode.Json => pat.AsJson(),
+            OutputMode.Status => $"\"{pat.DisplayName}\" valid until {pat.ValidTo:O}\n",
+            OutputMode.Token => $"{pat.Token}\n",
+            OutputMode.Base64 => $"{pat.Token.Base64()}\n",
+            OutputMode.Header => $"{pat.Token.AsHeader(AzureAuth.Ado.Authorization.Basic)}\n",
+            OutputMode.HeaderValue => $"{pat.Token.AsHeaderValue(AzureAuth.Ado.Authorization.Basic)}\n",
+            OutputMode.Json => $"{pat.AsJson()}\n",
             _ => throw new ArgumentOutOfRangeException(nameof(output)),
         };
 
