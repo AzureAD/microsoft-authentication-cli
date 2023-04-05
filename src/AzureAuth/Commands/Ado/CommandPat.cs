@@ -46,15 +46,13 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         /// <summary>
         /// The help text for the <see cref="ModeOption"/> option.
         /// </summary>
-        private const string ModeHelp = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
-You can use any combination of modes with multiple instances of the --mode flag.
+        private const string ModeHelp = @"Authentication mode. Repeated invocations allowed. [default: iwa (Integrated Windows Auth), then broker, then web]
 [possible values: all, iwa, broker, web, devicecode]";
 #else
         /// <summary>
         /// The help text for the <see cref="ModeOption"/> option.
         /// </summary>
-        private const string ModeHelp = @"Authentication mode. Default: web.
-You can use any combination with multiple instances of the --mode flag.
+        private const string ModeHelp = @"Authentication mode. Repeated invocations allowed. [default: web]
 [possible values: all, web, devicecode]";
 #endif
 
@@ -146,7 +144,17 @@ You can use any combination with multiple instances of the --mode flag.
                 return 1;
             }
 
-            var cache = this.Cache();
+            IPatCache cache = null;
+            try
+            {
+                cache = this.Cache();
+            }
+            catch (MsalCachePersistenceException e)
+            {
+                logger.LogError($"Failed to validate cache persistence: {e.Message}");
+                return 1;
+            }
+
             var client = this.Client(accessToken.Token);
             var manager = new PatManager(cache, client);
 
@@ -253,10 +261,9 @@ You can use any combination with multiple instances of the --mode flag.
                 PatStorageParameters.LinuxKeyRingAttr2)
             .Build();
 
-            // TODO: We probably need to do a `storage.VerifyPersistence` check
-            // before using this. On Linux this won't work in a headless
-            // environment, so we'll need to find a fallback or fail early.
             var storage = Storage.Create(storageProperties);
+            storage.VerifyPersistence();
+
             var storageWrapper = new StorageWrapper(storage);
             return new PatCache(storageWrapper);
         }
