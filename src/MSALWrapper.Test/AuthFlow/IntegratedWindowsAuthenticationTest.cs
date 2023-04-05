@@ -73,7 +73,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -148,7 +148,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
             authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
             authFlowResult.Errors[1].Should().BeOfType(typeof(NullTokenResultException));
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(NullReferenceException));
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -203,7 +203,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().HaveCount(1);
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -242,7 +242,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Message.Should().Be("AADSTS50076 MSAL UI Required Exception!");
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -262,7 +262,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Message.Should().Be("MSAL UI Required Exception!");
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -283,7 +283,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalServiceException));
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         [Test]
@@ -303,7 +303,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalClientException));
-            authFlowResult.AuthFlowName.Should().Be("IntegratedWindowsAuthentication");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 
         private void CachedAuthResult()

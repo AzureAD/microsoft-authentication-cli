@@ -75,7 +75,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(1);
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().BeEmpty();
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -194,7 +194,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -214,7 +214,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
             authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -233,7 +233,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -252,7 +252,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(NullReferenceException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -274,7 +274,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -295,7 +295,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -318,7 +318,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[2].Should().BeOfType(typeof(MsalServiceException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -339,7 +339,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalServiceException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -361,7 +361,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
             authFlowResult.Errors[1].Message.Should().Be("Interactive Auth timed out after 00:15:00");
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -385,7 +385,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[2].Should().BeOfType(typeof(AuthenticationTimeoutException));
             authFlowResult.Errors[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 00:15:00");
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         private void SilentAuthResult()

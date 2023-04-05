@@ -840,6 +840,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 this.delay = delay;
             }
 
+            public string Name() => "delayed_test_auth_flow";
+
             public async Task<AuthFlowResult> GetTokenAsync()
             {
                 var errors = new[]
