@@ -15,8 +15,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// <summary>
     /// The broker auth flow.
     /// </summary>
-    public class Broker : IAuthFlow
+    public class Broker : AuthFlowBase
     {
+        private const string NameValue = "broker";
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
@@ -75,11 +76,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             GetRootOwner = 3,
         }
 
-        /// <summary>
-        /// Get a jwt token for a resource.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> of <see cref="TokenResult"/>.</returns>
-        public async Task<AuthFlowResult> GetTokenAsync()
+        /// <inheritdoc/>
+        protected override string Name() => NameValue;
+
+        /// <inheritdoc/>
+        protected override async Task<(TokenResult, IList<Exception>)> GetTokenInnerAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                  ?? PublicClientApplication.OperatingSystemAccount;
@@ -100,7 +101,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .ConfigureAwait(false);
                         tokenResult.SetSilent();
 
-                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                        return (tokenResult, this.errors);
                     }
                     catch (MsalUiRequiredException ex)
                     {
@@ -116,7 +117,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             this.errors)
                             .ConfigureAwait(false);
 
-                        return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                        return (tokenResult, this.errors);
                     }
                 }
                 catch (MsalUiRequiredException ex)
@@ -133,7 +134,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.errors)
                         .ConfigureAwait(false);
 
-                    return new AuthFlowResult(tokenResult, this.errors, this.GetType().Name);
+                    return (tokenResult, this.errors);
                 }
             }
             catch (MsalServiceException ex)
@@ -152,7 +153,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
             }
 
-            return new AuthFlowResult(null, this.errors, this.GetType().Name);
+            return (null, this.errors);
         }
 
         [DllImport("kernel32.dll")]

@@ -12,14 +12,6 @@ namespace Microsoft.Authentication.MSALWrapper
     public class AuthFlowResult
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthFlowResult"/> class with a null TokenResult and empty error list.
-        /// </summary>
-        public AuthFlowResult()
-            : this(null, null, string.Empty)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AuthFlowResult"/> class.
         /// </summary>
         /// <param name="tokenResult">A <see cref="MSALWrapper.TokenResult"/>.</param>
@@ -30,6 +22,10 @@ namespace Microsoft.Authentication.MSALWrapper
             this.TokenResult = tokenResult;
             this.Errors = errors ?? new List<Exception>();
             this.AuthFlowName = authFlowName ?? throw new ArgumentNullException(nameof(authFlowName));
+            if (string.IsNullOrEmpty(authFlowName))
+            {
+                throw new ArgumentException($"Param '{nameof(authFlowName)}' cannot be empty");
+            }
         }
 
         /// <summary>
