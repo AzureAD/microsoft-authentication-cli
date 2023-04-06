@@ -36,15 +36,6 @@ To install the application, run
 ```powershell
 # 0.7.4 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
 $env:AZUREAUTH_VERSION = '0.7.4'
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-iex "& { $(irm https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1) } -Verbose"
-```
-
-Or, if you want a method more resilient to failure than `Invoke-Expression`, run
-
-```powershell
-# 0.7.4 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = '0.7.4'
 $script = "${env:TEMP}\install.ps1"
 $url = "https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
