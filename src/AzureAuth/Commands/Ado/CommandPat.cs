@@ -109,17 +109,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
                 return 1;
             }
 
-            IPatCache cache = null;
-            try
-            {
-                cache = this.Cache();
-            }
-            catch (MsalCachePersistenceException e)
-            {
-                logger.LogError($"Failed to validate cache persistence: {e.Message}");
-                return 1;
-            }
-
+            var cache = this.Cache();
             var client = this.Client(accessToken.Token);
             var manager = new PatManager(cache, client);
 
@@ -227,8 +217,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
             .Build();
 
             var storage = Storage.Create(storageProperties);
-            storage.VerifyPersistence();
-
             var storageWrapper = new StorageWrapper(storage);
             return new PatCache(storageWrapper);
         }
