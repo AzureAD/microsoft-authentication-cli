@@ -35,29 +35,8 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private const string ScopeOption = "--scope";
         private const string ScopeHelp = "A token scope for accessing Azure DevOps resources. Repeated invocations allowed.";
 
-        private const string PromptHintOption = "--prompt-hint";
-        private const string PromptHintHelp = "A prompt hint to contextualize prompts and identify uses in telemetry, when captured.";
-
         private const string OutputOption = "--output";
         private const string OutputHelp = "How PAT information is displayed. [default: token]\n[possible values: none, status, token, base64, header, headervalue, json]";
-
-        private const string ModeOption = "--mode";
-#if PlatformWindows
-        /// <summary>
-        /// The help text for the <see cref="ModeOption"/> option.
-        /// </summary>
-        private const string ModeHelp = @"Authentication mode. Repeated invocations allowed. [default: iwa (Integrated Windows Auth), then broker, then web]
-[possible values: all, iwa, broker, web, devicecode]";
-#else
-        /// <summary>
-        /// The help text for the <see cref="ModeOption"/> option.
-        /// </summary>
-        private const string ModeHelp = @"Authentication mode. Repeated invocations allowed. [default: web]
-[possible values: all, web, devicecode]";
-#endif
-
-        private const string DomainOption = "--domain";
-        private const string DomainHelp = "The preferred domain used when acquiring Azure Active Directory access tokens. [default: microsoft.com]";
 
         private static readonly TimeSpan AccessTokenTimeout = TimeSpan.FromMinutes(15);
 
@@ -97,16 +76,16 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         [Option(ScopeOption, ScopeHelp, CommandOptionType.MultipleValue)]
         private string[] Scopes { get; set; } = null;
 
-        [Option(PromptHintOption, PromptHintHelp, CommandOptionType.SingleValue)]
-        private string PromptHint { get; set; } = null;
-
         [Option(OutputOption, OutputHelp, CommandOptionType.SingleValue)]
         private OutputMode Output { get; set; } = OutputMode.Token;
 
-        [Option(ModeOption, ModeHelp, CommandOptionType.MultipleValue)]
+        [Option(CommandAad.PromptHintOption, CommandAad.PromptHintHelpText, CommandOptionType.SingleValue)]
+        private string PromptHint { get; set; } = null;
+
+        [Option(CommandAad.ModeOption, CommandAad.AuthModeHelperText, CommandOptionType.MultipleValue)]
         private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
-        [Option(DomainOption, DomainHelp, CommandOptionType.SingleValue)]
+        [Option(CommandAad.DomainOption, CommandAad.DomainHelpText, CommandOptionType.SingleValue)]
         private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
 
         /// <summary>
@@ -194,7 +173,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
             if (string.IsNullOrEmpty(this.PromptHint))
             {
-                logger.LogError($"The {PromptHintOption} field is required.");
+                logger.LogError($"The {CommandAad.PromptHintOption} field is required.");
                 validOptions = false;
             }
 
