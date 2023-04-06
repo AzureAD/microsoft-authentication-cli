@@ -159,11 +159,11 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         {
             OutputMode.None => string.Empty,
             OutputMode.Status => $"\"{pat.DisplayName}\" valid until {pat.ValidTo:O}\n",
-            OutputMode.Token => $"{pat.Token}\n",
-            OutputMode.Base64 => $"{pat.Token.Base64()}\n",
-            OutputMode.Header => $"{pat.Token.AsHeader(AzureAuth.Ado.Authorization.Basic)}\n",
-            OutputMode.HeaderValue => $"{pat.Token.AsHeaderValue(AzureAuth.Ado.Authorization.Basic)}\n",
-            OutputMode.Json => $"{pat.AsJson()}\n",
+            OutputMode.Token => pat.Token,
+            OutputMode.Base64 => pat.Token.Base64(),
+            OutputMode.Header => pat.Token.AsHeader(AzureAuth.Ado.Authorization.Basic),
+            OutputMode.HeaderValue => pat.Token.AsHeaderValue(AzureAuth.Ado.Authorization.Basic),
+            OutputMode.Json => pat.AsJson(),
             _ => throw new ArgumentOutOfRangeException(nameof(output)),
         };
 
