@@ -38,8 +38,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private const string OutputOption = "--output";
         private const string OutputHelp = "How PAT information is displayed. [default: token]\n[possible values: none, status, token, base64, header, headervalue, json]";
 
-        private static readonly TimeSpan AccessTokenTimeout = TimeSpan.FromMinutes(15);
-
         private static readonly string LockfilePath = Path.Combine(Path.GetTempPath(), AzureAuth.Ado.Constants.PatLockfileName);
 
         // The possible PAT output modes.
@@ -87,6 +85,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
         [Option(CommandAad.DomainOption, $"{CommandAad.DomainHelpText}\n[default: {AzureAuth.Ado.Constants.PreferredDomain}]", CommandOptionType.SingleValue)]
         private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
+
+        [Option(CommandAad.TimeoutOption, CommandAad.TimeoutHelpText, CommandOptionType.SingleValue)]
+        private double Timeout { get; set; } = CommandAad.GlobalTimeout.TotalMinutes;
 
         /// <summary>
         /// Executes the command and returns a status code indicating the success or failure of the execution.
@@ -177,7 +178,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
                 this.AuthModes,
                 this.Domain,
                 this.PromptHint,
-                AccessTokenTimeout,
+                TimeSpan.FromMinutes(this.Timeout),
                 eventData);
         }
 

@@ -76,7 +76,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// <summary>
         /// The help text for the <see cref="TimeoutOption"/> option.
         /// </summary>
-        public const string TimeoutHelpText = "The number of minutes before authentication times out.\nDefault: 15 minutes.";
+        public const string TimeoutHelpText = "The number of minutes before authentication times out.\n[default: 15 minutes]";
 
         /// <summary>
         /// The default number of minutes CLI is allowed to run.
