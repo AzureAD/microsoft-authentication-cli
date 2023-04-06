@@ -9,8 +9,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     /// Parent command for Azure Devops specific commands.
     /// </summary>
     [Command("ado", Description = "A collection of Azure Devops (ADO) specific authentication commands.")]
-
-    // [Subcommand(typeof(Ado.CommandPat))] // TODO: Enable Pat command
+    [Subcommand(typeof(Ado.CommandPat))]
     [Subcommand(typeof(Ado.CommandToken))]
     public class CommandAdo
     {
