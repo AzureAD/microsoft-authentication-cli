@@ -63,20 +63,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
         private static readonly string LockfilePath = Path.Combine(Path.GetTempPath(), AzureAuth.Ado.Constants.PatLockfileName);
 
-        // On all platforms the PAT cache should be in the same directory as a typical AzureAuth installation.
-        //   - On Windows this is `%LOCALAPPDATA%\Programs\AzureAuth`.
-        //   - On Unix-like platforms this is `~/.azureauth`.
-#if PlatformWindows
-        private static readonly string CacheDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Programs",
-            "AzureAuth");
-#else
-        private static readonly string CacheDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".azureauth");
-#endif
-
         // The possible PAT output modes.
         private enum OutputMode
         {
@@ -249,7 +235,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         {
             var storageProperties = new StorageCreationPropertiesBuilder(
                 PatStorageParameters.CacheFileName,
-                CacheDirectory)
+                AzureAuth.Constants.AppDirectory)
             .WithMacKeyChain(
                 PatStorageParameters.MacOSServiceName,
                 PatStorageParameters.MacOSAccountName)
