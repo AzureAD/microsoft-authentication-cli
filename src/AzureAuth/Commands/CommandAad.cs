@@ -54,28 +54,24 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// <summary>
         /// The Prompt Hint help text.
         /// </summary>
-        public const string PromptHintHelpText = "A prompt hint to contextualize prompts and identify uses in telemetry";
+        public const string PromptHintHelpText = "A prompt hint to contextualize prompts and identify uses in telemetry, when captured.";
 
+        /// <summary>
+        /// The help text for the <see cref="ModeOption"/> option.
+        /// </summary>
 #if PlatformWindows
-        /// <summary>
-        /// The help text for the <see cref="ModeOption"/> option.
-        /// </summary>
-        public const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
-You can use any combination of modes with multiple instances of the --mode flag.
-Allowed values: [all, iwa, broker, web, devicecode]";
+        public const string AuthModeHelperText = @"Authentication mode. Repeated invocations allowed.
+[default: iwa (Integrated Windows Auth), then broker, then web]
+[possible values: all, iwa, broker, web, devicecode]";
 #else
-        /// <summary>
-        /// The help text for the <see cref="ModeOption"/> option.
-        /// </summary>
-        public const string AuthModeHelperText = @"Authentication mode. Default: web.
-You can use any combination with multiple instances of the --mode flag.
-Allowed values: [all, web, devicecode]";
+        public const string AuthModeHelperText = @"Authentication mode. Repeated invocations allowed. [default: web]
+[possible values: all, web, devicecode]";
 #endif
 
         /// <summary>
         /// The help text for the <see cref="DomainOption"/> option.
         /// </summary>
-        public const string DomainHelpText = "Preferred domain to filter cached accounts by. If a single account matching the preferred domain is in the cache it is used, otherwise an account picker will be launched.\n";
+        public const string DomainHelpText = "Preferred domain for filtering cached accounts.\nSkips launching an account picker if only one cached account matches the preferred domain.";
 
         /// <summary>
         /// The help text for the <see cref="TimeoutOption"/> option.
