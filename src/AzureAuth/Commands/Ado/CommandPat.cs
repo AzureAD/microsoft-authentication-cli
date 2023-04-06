@@ -85,7 +85,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         [Option(CommandAad.ModeOption, CommandAad.AuthModeHelperText, CommandOptionType.MultipleValue)]
         private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
-        [Option(CommandAad.DomainOption, $"{CommandAad.DomainHelpText}\n[default: microsoft.com]", CommandOptionType.SingleValue)]
+        [Option(CommandAad.DomainOption, $"{CommandAad.DomainHelpText}\n[default: {AzureAuth.Ado.Constants.PreferredDomain}]", CommandOptionType.SingleValue)]
         private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
 
         /// <summary>
