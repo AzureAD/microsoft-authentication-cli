@@ -4,6 +4,7 @@
 namespace Microsoft.Authentication.AdoPat
 {
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Linq;
 
     /// <summary>
@@ -34,7 +35,7 @@ namespace Microsoft.Authentication.AdoPat
         public string CacheKey()
         {
             var strings = new List<string> { this.Organization, this.DisplayName };
-            strings.AddRange(this.Scopes);
+            strings.AddRange(this.Scopes.ToImmutableSortedSet());
             return string.Join(" ", strings);
         }
     }
