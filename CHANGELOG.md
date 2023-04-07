@@ -4,12 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [Unreleased]
+
+## [0.8.0] - 2023-04-07
 ### Added
-- New `ado` commands 
+- New `ado` sub-commands
   - `azureauth ado` : Prints the help for Azure Devops commands.
   - `azureauth ado pat` : Command for creating, and locally caching Azure Devops <abbr title="Personal Access Tokens">PAT</abbr>s.
   - `azureauth ado token` : Command for passing back a <abbr title="Personal Access Tokens">PAT</abbr> from an env var, or authenticating and returning an <abbr title="Azure Active Directory">AAD</abbr> access token.
+
+### Removed
+- The root command `azureauth` no longer acquires AAD tokens. It prints the global help text. Use `azureauth aad` instead.
 
 ## [0.7.4] - 2023-04-05
 ### Added
@@ -139,7 +144,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.4...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.4...0.8.0
 [0.7.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.2...0.7.3
 [0.7.2]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.1...0.7.2
