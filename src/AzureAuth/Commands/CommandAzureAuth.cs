@@ -1,16 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
-
-using McMaster.Extensions.CommandLineUtils;
-
-using Microsoft.Extensions.Logging;
-using Microsoft.Office.Lasso.Interfaces;
-using Microsoft.Office.Lasso.Telemetry;
-
 namespace Microsoft.Authentication.AzureAuth.Commands
 {
+    using System.IO.Abstractions;
+    using McMaster.Extensions.CommandLineUtils;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Office.Lasso.Interfaces;
+    using Microsoft.Office.Lasso.Telemetry;
+
     /// <summary>
     /// The command main class parses commands and dispatches to the corresponding methods.
     /// </summary>
