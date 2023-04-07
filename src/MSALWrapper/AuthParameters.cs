@@ -7,7 +7,7 @@ namespace Microsoft.Authentication.MSALWrapper
     using System.Collections.Generic;
 
     /// <summary>
-    /// Core authentication parameters needed 
+    /// Core authentication parameters needed
     /// </summary>
     public record AuthParameters
     {
