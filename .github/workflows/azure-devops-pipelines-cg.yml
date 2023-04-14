@@ -16,9 +16,6 @@ jobs:
   pool:
     name: Azure Pipelines
   steps:
-  - checkout: self
-    clean: true
-    fetchTags: false
   - task: NuGetToolInstaller@1
     displayName: Use Latest NuGet
     inputs:
