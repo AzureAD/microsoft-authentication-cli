@@ -1,0 +1,42 @@
+# This pipeline is intended to use inside Azure DevOps for Component Governance,
+# which is may not useful for users outside Microsoft.
+
+variables:
+- name: BuildParameters.solution
+  value: '**\*.sln'
+trigger:
+  branches:
+    include:
+    - main
+  batch: True
+schedules:
+- cron: 0 2 * * 1,2,3,4,5
+  branches:
+    include:
+    - main
+name: $(date:yyyyMMdd)$(rev:.r)
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: refs/heads/main
+jobs:
+- job: ComponentGovernance
+  displayName: Component Governance
+  pool:
+    name: Azure Pipelines
+  steps:
+  - checkout: self
+    clean: true
+    fetchTags: false
+  - task: NuGetToolInstaller@1
+    displayName: Use Latest NuGet
+    inputs:
+      checkLatest: true
+  - task: NuGetCommand@2
+    displayName: NuGet restore
+    inputs:
+      solution: $(BuildParameters.solution)
+      selectOrConfig: config
+      nugetConfigPath: nuget.config
+...
