@@ -31,4 +31,6 @@ jobs:
     inputs:
       command: restore
       projects: AzureAuth.sln
+      feedsToUse: 'config'
+      nugetConfigPath: 'nuget.config'
 
