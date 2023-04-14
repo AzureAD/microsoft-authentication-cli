@@ -17,6 +17,7 @@ jobs:
     name: Azure Pipelines
   steps:
   - task: DotNetCoreCLI@2
+    displayName: donet restore
     inputs:
       command: 'restore'
       projects: '**/*.sln'
