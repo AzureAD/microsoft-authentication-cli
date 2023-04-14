@@ -24,9 +24,9 @@ jobs:
   # To enable Component Governance, only NuGet restore is needed.
   # NuGet feed access will be automatically assigned by AzureDevOps, we don't have to set ADO_TOKEN.
   - task: NuGetCommand@2
-    displayName: NuGet restore
+    displayName: 'NuGet restore'
     inputs:
-      solution: '**\*.sln'
-      selectOrConfig: config
+      restoreSolution: '**\*.sln'
+      feedsToUse: config
       nugetConfigPath: nuget.config
 
