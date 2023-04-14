@@ -26,7 +26,8 @@ jobs:
   - task: NuGetCommand@2
     displayName: NuGet restore
     inputs:
-      solution: '**\*.sln'
-      selectOrConfig: config
-      nugetConfigPath: nuget.config
+      command: 'restore'
+      restoreSolution: '**\*.sln'
+      feedsToUse: 'config'
+      nugetConfigPath: 'nuget.config'
 
