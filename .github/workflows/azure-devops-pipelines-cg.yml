@@ -16,17 +16,19 @@ jobs:
   pool:
     name: Azure Pipelines
   steps:
-  - task: NuGetToolInstaller@1
-    displayName: Use Latest NuGet
+  - task: DotNetCoreInstaller@2
+    displayName: Use .NET Core sdk 6.x
     inputs:
-      checkLatest: true
-      
-  # To enable Component Governance, only NuGet restore is needed.
-  # NuGet feed access will be automatically assigned by AzureDevOps, we don't have to set ADO_TOKEN.
-  - task: NuGetCommand@2
-    displayName: 'NuGet restore'
+      version: 6.x
+
+  - task: NuGetToolInstaller@0
+    displayName: Use NuGet 6.x
     inputs:
-      restoreSolution: '**\*.sln'
-      feedsToUse: config
-      nugetConfigPath: nuget.config
+      versionSpec: 6.x
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: restore
+      projects: **\*.sln
 
