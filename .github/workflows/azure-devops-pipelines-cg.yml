@@ -20,11 +20,6 @@ jobs:
     inputs:
       version: 6.x
 
-  - task: NuGetToolInstaller@0
-    displayName: Use NuGet 6.x
-    inputs:
-      versionSpec: 6.x
-
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
     inputs:
