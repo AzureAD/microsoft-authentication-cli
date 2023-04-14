@@ -12,7 +12,6 @@ schedules:
 
 jobs:
 - job: ComponentGovernance
-  displayName: Component Governance
   pool:
     name: Azure Pipelines
   steps:
