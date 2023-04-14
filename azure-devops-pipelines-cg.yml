@@ -4,6 +4,8 @@
 variables:
 - name: BuildParameters.solution
   value: '**\*.sln'
+  
+# This pipeline will be triggered when either main branch is pushed or 2AM on workdays.
 trigger:
   branches:
     include:
@@ -14,12 +16,14 @@ schedules:
   branches:
     include:
     - main
+ 
 name: $(date:yyyyMMdd)$(rev:.r)
 resources:
   repositories:
   - repository: self
     type: git
     ref: refs/heads/main
+
 jobs:
 - job: ComponentGovernance
   displayName: Component Governance
@@ -33,6 +37,9 @@ jobs:
     displayName: Use Latest NuGet
     inputs:
       checkLatest: true
+      
+  # To enable Component Governance, only NuGet restore is needed.
+  # NuGet feed access will be automatically assigned by AzureDevOps, we don't have to set ADO_TOKEN.
   - task: NuGetCommand@2
     displayName: NuGet restore
     inputs:
