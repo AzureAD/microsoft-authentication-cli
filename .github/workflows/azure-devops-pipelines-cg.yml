@@ -1,10 +1,3 @@
-# This pipeline is intended to use inside Azure DevOps for Component Governance,
-# which is may not useful for users outside Microsoft.
-
-variables:
-- name: BuildParameters.solution
-  value: '**\*.sln'
-  
 # This pipeline will be triggered when either main branch is pushed or 2AM on workdays.
 trigger:
   branches:
@@ -12,17 +5,10 @@ trigger:
     - main
   batch: True
 schedules:
-- cron: 0 2 * * 1,2,3,4,5
+- cron: 0 2 * * 1-5
   branches:
     include:
     - main
- 
-name: $(date:yyyyMMdd)$(rev:.r)
-resources:
-  repositories:
-  - repository: self
-    type: git
-    ref: refs/heads/main
 
 jobs:
 - job: ComponentGovernance
@@ -43,7 +29,7 @@ jobs:
   - task: NuGetCommand@2
     displayName: NuGet restore
     inputs:
-      solution: $(BuildParameters.solution)
+      solution: '**\*.sln'
       selectOrConfig: config
       nugetConfigPath: nuget.config
-...
+
