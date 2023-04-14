@@ -1,0 +1,32 @@
+# This pipeline will be triggered when either main branch is pushed or 2AM on workdays.
+trigger:
+  branches:
+    include:
+    - main
+  batch: True
+schedules:
+- cron: 0 2 * * 1-5
+  branches:
+    include:
+    - main
+
+jobs:
+- job: ComponentGovernance
+  displayName: Component Governance
+  pool:
+    name: Azure Pipelines
+  steps:
+  - task: NuGetToolInstaller@1
+    displayName: Use Latest NuGet
+    inputs:
+      checkLatest: true
+      
+  # To enable Component Governance, only NuGet restore is needed.
+  # NuGet feed access will be automatically assigned by AzureDevOps, we don't have to set ADO_TOKEN.
+  - task: NuGetCommand@2
+    displayName: NuGet restore
+    inputs:
+      solution: '**\*.sln'
+      selectOrConfig: config
+      nugetConfigPath: nuget.config
+
