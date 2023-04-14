@@ -30,7 +30,7 @@ jobs:
     displayName: dotnet restore
     inputs:
       command: restore
-      projects: AzureAuth.sln
+      projects: '**/*.csproj'
       feedsToUse: 'config'
       nugetConfigPath: 'nuget.config'
 
