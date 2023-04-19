@@ -70,5 +70,33 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             errors.Should().HaveCount(1);
             errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
+
+        [Test]
+        public void SuccessfulCachedAuth_IsSilent()
+        {
+            // Setup
+            Mock<IPCAWrapper> pcaWrapper = new Mock<IPCAWrapper>(MockBehavior.Strict);
+            Mock<IAccount> account = new Mock<IAccount>(MockBehavior.Strict);
+            IList<Exception> errors = new List<Exception>();
+            var scopes = new[] { "scope" };
+            var tokenResult = new TokenResult(new IdentityModel.JsonWebTokens.JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
+
+            account.Setup(account => account.Username).Returns("user@contoso.com");
+            pcaWrapper.Setup(pca => pca.GetTokenSilentAsync(scopes, account.Object, It.IsAny<System.Threading.CancellationToken>()))
+                .ReturnsAsync(tokenResult);
+
+            // Act
+            var subject = CachedAuth.TryCachedAuthAsync(
+                this.logger,
+                TimeSpan.FromSeconds(1),
+                scopes,
+                account.Object,
+                pcaWrapper.Object,
+                errors).Result;
+
+            // Assert
+            subject.Should().Be(tokenResult);
+            subject.IsSilent.Should().BeTrue();
+        }
     }
 }
