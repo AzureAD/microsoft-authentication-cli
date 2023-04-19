@@ -3,29 +3,28 @@
 
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
+    using System;
+    using System.Collections.Generic;
+
     using FluentAssertions;
 
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Identity.Client;
 
     using Moq;
 
     using NUnit.Framework;
 
-    using System;
-    using System.Collections.Generic;
-
     internal class CachedAuthTest
     {
         private ILogger logger;
-        private Mock<IPCAWrapper> pcaWrapper;
 
         [SetUp]
         public void Setup()
         {
             (this.logger, _) = MemoryLogger.Create();
-            this.pcaWrapper = new Mock<IPCAWrapper>(MockBehavior.Strict);
         }
 
         [Test]
@@ -37,11 +36,39 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 TimeSpan.FromSeconds(1),
                 new[] { "scope" },
                 null,
-                this.pcaWrapper.Object,
+                new Mock<IPCAWrapper>(MockBehavior.Strict).Object,
                 errors).Result;
 
             subject.Should().BeNull();
             errors.Should().BeEmpty();
+        }
+
+        [Test]
+        public void MsalUiRequiredException_Results_In_Null_With_Error()
+        {
+            // Setup
+            Mock<IPCAWrapper> pcaWrapper = new Mock<IPCAWrapper>(MockBehavior.Strict);
+            Mock<IAccount> account = new Mock<IAccount>(MockBehavior.Strict);
+            IList<Exception> errors = new List<Exception>();
+            var scopes = new[] { "scope" };
+
+            account.Setup(account => account.Username).Returns("user@contoso.com");
+            pcaWrapper.Setup(pca => pca.GetTokenSilentAsync(scopes, account.Object, It.IsAny<System.Threading.CancellationToken>()))
+                .ThrowsAsync(new MsalUiRequiredException("1", "2fa is required", new Exception("inner 2fa exception"), UiRequiredExceptionClassification.AcquireTokenSilentFailed));
+
+            // Act
+            var subject = CachedAuth.TryCachedAuthAsync(
+                this.logger,
+                TimeSpan.FromSeconds(1),
+                scopes,
+                account.Object,
+                pcaWrapper.Object,
+                errors).Result;
+
+            // Assert
+            subject.Should().BeNull();
+            errors.Should().HaveCount(1);
+            errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
     }
 }

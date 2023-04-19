@@ -28,17 +28,29 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             if (account == null)
             {
+                logger.LogDebug("No cached account");
                 return null;
             }
 
-            var tokenResult = await TaskExecutor.CompleteWithin(
-                            logger,
-                            cachedAuthTimeout,
-                            "Get Token Silent",
-                            (cancellationToken) => pcaWrapper.GetTokenSilentAsync(scopes, account, cancellationToken),
-                            errors)
-                            .ConfigureAwait(false);
-            tokenResult.SetSilent();
+            logger.LogDebug($"Using cached account '{account.Username}'");
+
+            TokenResult tokenResult = null;
+            try
+            {
+                tokenResult = await TaskExecutor.CompleteWithin(
+                                logger,
+                                cachedAuthTimeout,
+                                "Get Token Silent",
+                                (cancellationToken) => pcaWrapper.GetTokenSilentAsync(scopes, account, cancellationToken),
+                                errors)
+                                .ConfigureAwait(false);
+                tokenResult.SetSilent();
+            }
+            catch (MsalUiRequiredException ex)
+            {
+                errors.Add(ex);
+            }
+
             return tokenResult;
         }
     }
