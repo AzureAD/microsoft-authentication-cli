@@ -5,7 +5,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
@@ -57,12 +56,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            this.pcaWrapperMock.VerifyAll();
-        }
-
         public AuthFlow.IntegratedWindowsAuthentication Subject() => new AuthFlow.IntegratedWindowsAuthentication(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object);
 
         [Test]
@@ -84,11 +77,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task GetCachedToken_ReturnsNull_And_IWA_Returns_Null()
+        public async Task GetCachedToken_ReturnsNull()
         {
             this.MockAccount();
             this.CachedAuthReturnsNull();
-            this.IWAReturnsNull();
 
             // Act
             AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
@@ -97,7 +89,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
-            authFlowResult.Errors.Should().BeEmpty();
+            authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.AuthFlowName.Should().Be("iwa");
         }
 

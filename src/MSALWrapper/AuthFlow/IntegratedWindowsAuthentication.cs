@@ -6,7 +6,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
 
@@ -60,23 +59,34 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             try
             {
-                tokenResult = await CachedAuth.TryCachedAuthAsync(
-                    this.logger,
-                    this.integratedWindowsAuthTimeout,
-                    this.scopes,
-                    account,
-                    this.pcaWrapper,
-                    this.errors).ConfigureAwait(false);
-
-                if (tokenResult == null)
+                try
                 {
                     tokenResult = await TaskExecutor.CompleteWithin(
-                                    this.logger,
-                                    this.integratedWindowsAuthTimeout,
-                                    "Get Token Integrated Windows Authentication",
-                                    (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
-                                    this.errors)
-                                    .ConfigureAwait(false);
+                        this.logger,
+                        this.integratedWindowsAuthTimeout,
+                        "Get Token Silent",
+                        (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
+                        this.errors)
+                        .ConfigureAwait(false);
+                    tokenResult.SetSilent();
+                    if (tokenResult == null)
+                    {
+                        this.errors.Add(new NullTokenResultException("IWA Get Token Silent returned null.(Not expected)"));
+                    }
+                }
+                catch (MsalUiRequiredException ex)
+                {
+                    this.errors.Add(ex);
+                    this.logger.LogDebug("Cached auth failed.");
+                    this.logger.LogDebug(ex.Message);
+                    tokenResult = await TaskExecutor.CompleteWithin(
+                                  this.logger,
+                                  this.integratedWindowsAuthTimeout,
+                                  "Get Token Integrated Windows Authentication",
+                                  (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
+                                  this.errors)
+                                  .ConfigureAwait(false);
+                    tokenResult.SetSilent();
                 }
             }
             catch (MsalUiRequiredException ex)
