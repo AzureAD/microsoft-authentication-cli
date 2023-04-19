@@ -84,30 +84,23 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
                  ?? PublicClientApplication.OperatingSystemAccount;
-            this.logger.LogDebug($"Using cached account '{account?.Username}'");
 
+            TokenResult tokenResult = null;
             try
             {
-                try
+                tokenResult = await CachedAuth.TryCachedAuthAsync(
+                    this.logger,
+                    this.silentAuthTimeout,
+                    this.scopes,
+                    account,
+                    this.pcaWrapper,
+                    this.errors);
+
+                if (tokenResult == null)
                 {
                     try
                     {
-                        var tokenResult = await TaskExecutor.CompleteWithin(
-                            this.logger,
-                            this.silentAuthTimeout,
-                            "Get Token Silent",
-                            (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
-                            this.errors)
-                            .ConfigureAwait(false);
-                        tokenResult.SetSilent();
-
-                        return (tokenResult, this.errors);
-                    }
-                    catch (MsalUiRequiredException ex)
-                    {
-                        this.errors.Add(ex);
-                        this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
-                        var tokenResult = await TaskExecutor.CompleteWithin(
+                        tokenResult = await TaskExecutor.CompleteWithin(
                             this.logger,
                             this.interactiveAuthTimeout,
                             "Interactive Auth",
@@ -116,25 +109,21 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                             .GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
                             this.errors)
                             .ConfigureAwait(false);
-
-                        return (tokenResult, this.errors);
                     }
-                }
-                catch (MsalUiRequiredException ex)
-                {
-                    this.errors.Add(ex);
-                    this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
-                    var tokenResult = await TaskExecutor.CompleteWithin(
-                        this.logger,
-                        this.interactiveAuthTimeout,
-                        "Interactive Auth (with extra claims)",
-                        (cancellationToken) => this.pcaWrapper
-                        .WithPromptHint(this.promptHint)
-                        .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
-                        this.errors)
-                        .ConfigureAwait(false);
-
-                    return (tokenResult, this.errors);
+                    catch (MsalUiRequiredException ex)
+                    {
+                        this.errors.Add(ex);
+                        this.logger.LogDebug($"initial {this.Name()} auth failed. Trying again with claims from exception.\n{ex.Message}");
+                        tokenResult = await TaskExecutor.CompleteWithin(
+                            this.logger,
+                            this.interactiveAuthTimeout,
+                            "Interactive Auth (with extra claims)",
+                            (cancellationToken) => this.pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
+                            this.errors)
+                            .ConfigureAwait(false);
+                    }
                 }
             }
             catch (MsalServiceException ex)
@@ -153,7 +142,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
             }
 
-            return (null, this.errors);
+            return (tokenResult, this.errors);
         }
 
         [DllImport("kernel32.dll")]
