@@ -53,7 +53,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
         [Option(CommandAad.DomainOption, Description = CommandAad.DomainHelpText)]
-        private string Domain { get; set; }
+        private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
 
         [Option(CommandAad.TimeoutOption, CommandAad.TimeoutHelpText, CommandOptionType.SingleValue)]
         private double Timeout { get; set; } = CommandAad.GlobalTimeout.TotalMinutes;
