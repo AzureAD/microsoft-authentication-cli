@@ -53,32 +53,21 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <inheritdoc/>
         protected override async Task<(TokenResult, IList<Exception>)> GetTokenInnerAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
-            this.logger.LogDebug($"Using cached account '{account?.Username}'");
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
             TokenResult tokenResult = null;
 
             try
             {
-                try
+                tokenResult = await CachedAuth.TryCachedAuthAsync(
+                    this.logger,
+                    this.integratedWindowsAuthTimeout,
+                    this.scopes,
+                    account,
+                    this.pcaWrapper,
+                    this.errors);
+
+                if (tokenResult == null)
                 {
-                    tokenResult = await TaskExecutor.CompleteWithin(
-                        this.logger,
-                        this.integratedWindowsAuthTimeout,
-                        "Get Token Silent",
-                        (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
-                        this.errors)
-                        .ConfigureAwait(false);
-                    tokenResult.SetSilent();
-                    if (tokenResult == null)
-                    {
-                        this.errors.Add(new NullTokenResultException("IWA Get Token Silent returned null.(Not expected)"));
-                    }
-                }
-                catch (MsalUiRequiredException ex)
-                {
-                    this.errors.Add(ex);
-                    this.logger.LogDebug("Cached auth failed.");
-                    this.logger.LogDebug(ex.Message);
                     tokenResult = await TaskExecutor.CompleteWithin(
                                   this.logger,
                                   this.integratedWindowsAuthTimeout,
