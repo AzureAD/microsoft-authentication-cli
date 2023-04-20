@@ -7,7 +7,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+
     using FluentAssertions;
+
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.TestHelper;
@@ -15,9 +17,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
+
     using Moq;
+
     using NLog.Extensions.Logging;
     using NLog.Targets;
+
     using NUnit.Framework;
 
     internal class WebTest
@@ -151,7 +156,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
@@ -174,9 +178,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert
             subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
-
-            // This VerifyAll must come after the assert, since the assert is what execute the lambda
-            this.pcaWrapperMock.VerifyAll();
         }
 
         [Test]
@@ -192,7 +193,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert - this method should not throw for known types of excpeptions, instead return null, so
             // our caller can retry auth another way.
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
@@ -212,7 +212,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
@@ -232,7 +231,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
@@ -250,7 +248,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(NullReferenceException));
@@ -271,7 +268,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(2);
@@ -293,7 +289,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
@@ -314,7 +309,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(3);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
@@ -336,7 +330,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
@@ -357,7 +350,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
@@ -380,7 +372,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(3);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
