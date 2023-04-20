@@ -71,9 +71,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_HappyPath()
         {
-            this.SilentAuthResult();
-
             this.MockAccount();
+            this.SilentAuthResult();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -91,7 +90,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockAccount();
             this.SilentAuthReturnsNull();
-            this.SetupInteractiveAuthWithPromptHint();
+            this.SetupWithPromptHint();
             this.InteractiveAuthResult();
 
             // Act
@@ -107,10 +106,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_MsalUIException()
         {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthResult();
-
             this.MockAccount();
+            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthResult();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -127,10 +126,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_MsalUIException_InteractiveAuthResultReturnsNullWithoutClaims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
             this.InteractiveAuthResultReturnsNullWithoutClaims();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -147,11 +145,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void BrokerAuthFlow_General_Exceptions_Are_ReThrown()
         {
             var message = "Something somwhere has gone terribly wrong!";
+            this.MockAccount();
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new Exception(message));
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -159,23 +156,19 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert
             subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
-
-            // This VerifyAll must come after the assert, since the assert is what execute the lambda
         }
 
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_MsalServiceException()
         {
-            this.SilentAuthServiceException();
-
             this.MockAccount();
+            this.SilentAuthServiceException();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
             var authFlowResult = await broker.GetTokenAsync();
 
-            // Assert - this method should not throw for known types of excpeptions, instead return null, so
-            // our caller can retry auth another way.
+            // Assert
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
@@ -185,9 +178,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_OperationCanceledException_ThenSucceeds()
         {
-            this.SilentAuthTimeout();
             this.MockAccount();
-            this.SetupInteractiveAuthWithPromptHint();
+            this.SilentAuthTimeout();
+            this.SetupWithPromptHint();
             this.InteractiveAuthResult();
 
             // Act
@@ -198,16 +191,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:20");
+            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:30");
             authFlowResult.AuthFlowName.Should().Be("broker");
         }
 
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_MsalClientException()
         {
-            this.SilentAuthClientException();
-
             this.MockAccount();
+            this.SilentAuthClientException();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -223,9 +215,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_GetTokenSilent_NullReferenceException()
         {
-            this.SilentAuthNullReferenceException();
-
             this.MockAccount();
+            this.SilentAuthNullReferenceException();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -241,11 +232,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_MsalUIException_For_Claims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthWithClaimsResult();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -262,11 +253,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_MsalUIException_InteractiveAuthResultReturnsNullWithClaims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthResultReturnsNullWithClaims();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -282,11 +272,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_MsalServiceException_After_Using_Claims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthWithClaimsServiceException();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -304,10 +294,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_MsalServiceException()
         {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthServiceException();
-
             this.MockAccount();
+            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthServiceException();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -324,10 +314,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_OperationCanceledException()
         {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthTimeout();
-
             this.MockAccount();
+            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthTimeout();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -345,11 +335,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task BrokerAuthFlow_GetTokenInteractive_OperationCanceledException_For_Claims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthWithClaimsTimeout();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -366,19 +356,19 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task BrokerAuthFlow_GetTokenInteractiveAsync_WithPromptHint()
+        public async Task BrokerAuthFlow_GetTokenInteractiveAsync_Calls_WithPromptHint()
         {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthResult();
-
             this.MockAccount();
+            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthResult();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
-            var result = await broker.GetTokenAsync();
+            await broker.GetTokenAsync();
 
             // Verify
-            this.pcaWrapperMock.Verify((pca) => pca.WithPromptHint(this.promptHint), Times.Once());
+            this.pcaWrapperMock.VerifyAll();
         }
 
         private void SilentAuthResult()
@@ -400,7 +390,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, this.testAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "UI is required"));
-            this.SetupInteractiveAuthWithPromptHint();
         }
 
         private void SilentAuthServiceException()
@@ -501,7 +490,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ReturnsAsync(this.testAccount.Object);
         }
 
-        private void SetupInteractiveAuthWithPromptHint()
+        private void SetupWithPromptHint()
         {
             this.pcaWrapperMock
                 .Setup(pca => pca.WithPromptHint(It.IsAny<string>()))

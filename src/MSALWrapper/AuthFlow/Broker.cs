@@ -23,20 +23,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly string preferredDomain;
         private readonly string promptHint;
         private readonly IList<Exception> errors;
-        private IPCAWrapper pcaWrapper;
-
-        #region Public configurable properties
-
-        /// <summary>
-        /// The silent auth timeout.
-        /// </summary>
-        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(20);
+        private readonly IPCAWrapper pcaWrapper;
 
         /// <summary>
         /// The interactive auth timeout.
         /// </summary>
         private TimeSpan interactiveAuthTimeout = TimeSpan.FromMinutes(15);
-        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Broker"/> class.
@@ -88,9 +80,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             TokenResult tokenResult = null;
             try
             {
-                tokenResult = await CachedAuth.TryCachedAuthAsync(
+                tokenResult = await CachedAuth.GetTokenAsync(
                     this.logger,
-                    this.silentAuthTimeout,
                     this.scopes,
                     account,
                     this.pcaWrapper,
