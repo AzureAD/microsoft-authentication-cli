@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- The `azureauth ado token` command now defaults to `microsoft.com` domain.
+- The `azureauth ado token` command uses `microsoft.com` as the default `--domain` option value.
 
 ## [0.8.0] - 2023-04-07
 ### Added
