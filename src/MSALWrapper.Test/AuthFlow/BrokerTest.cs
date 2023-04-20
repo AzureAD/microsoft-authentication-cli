@@ -330,7 +330,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[1].Message.Should().Be("Interactive Auth timed out after 00:15:00");
+            authFlowResult.Errors[1].Message.Should().Be("broker interactive auth timed out after 00:15:00");
             authFlowResult.AuthFlowName.Should().Be("broker");
         }
 
@@ -353,7 +353,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[2].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 00:15:00");
+            authFlowResult.Errors[2].Message.Should().Be("broker interactive auth (with extra claims) timed out after 00:15:00");
             authFlowResult.AuthFlowName.Should().Be("broker");
         }
 
