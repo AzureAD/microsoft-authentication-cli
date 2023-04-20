@@ -10,8 +10,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
 
-    using static Microsoft.Authentication.MSALWrapper.MsalWrapper;
-
+    /// <summary>
+    /// This class provides an abstraction over how to use the MSAL Cached Auth (known as GetTokenSilent).
+    /// </summary>
     public static class CachedAuth
     {
         /// <summary>
