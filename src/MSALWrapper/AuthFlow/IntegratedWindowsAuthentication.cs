@@ -6,6 +6,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
 
@@ -75,18 +76,27 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                                   (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
                                   this.errors)
                                   .ConfigureAwait(false);
+
+                    // If IWA worked, it was 100% silent.
                     tokenResult.SetSilent();
+                }
+
+                if (tokenResult == null)
+                {
+                    // We expect a result or an exception at this point.
+                    this.errors.Add(new NullTokenResultException($"${this.Name()} TokenResult was null."));
                 }
             }
             catch (MsalUiRequiredException ex)
             {
                 this.errors.Add(ex);
+                this.logger.LogDebug(ex.Message);
+
                 if (ex.Classification == UiRequiredExceptionClassification.BasicAction
                       && ex.Message.StartsWith("AADSTS50076", StringComparison.OrdinalIgnoreCase))
                 {
                     this.logger.LogWarning("IWA failed, 2FA is required.");
                     this.logger.LogWarning("IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.");
-                    this.logger.LogWarning(ex.Message);
                 }
             }
             catch (MsalServiceException ex)
