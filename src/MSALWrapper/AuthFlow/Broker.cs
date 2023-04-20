@@ -105,8 +105,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.interactiveAuthTimeout,
                         $"{this.Name()} interactive auth",
                         getTokenInteractive,
-                        this.errors)
-                        .ConfigureAwait(false);
+                        this.errors).ConfigureAwait(false);
                 }
                 catch (MsalUiRequiredException ex)
                 {
