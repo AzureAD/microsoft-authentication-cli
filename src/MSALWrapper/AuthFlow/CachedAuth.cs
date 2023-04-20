@@ -49,6 +49,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             catch (MsalUiRequiredException ex)
             {
                 errors.Add(ex);
+                logger.LogDebug($"Cached Auth failed:\n{ex.Message}");
             }
 
             return tokenResult;
