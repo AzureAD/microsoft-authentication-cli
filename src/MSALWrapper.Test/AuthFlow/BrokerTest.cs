@@ -5,19 +5,21 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
+
     using FluentAssertions;
+
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.TestHelper;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
+
     using Moq;
-    using NLog.Extensions.Logging;
+
     using NLog.Targets;
+
     using NUnit.Framework;
 
     public class BrokerTest
