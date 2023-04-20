@@ -24,7 +24,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         private const string OutputOption = "--output";
         private const string OutputOptionDescription = "How to print the token. One of [token, header, headervalue].\nDefault: token";
 
-        private const string DomainOptionDescription = CommandAad.DomainHelpText + "\nDefault:" + AzureAuth.Ado.Constants.PreferredDomain;
+        private const string DomainOptionDescription = CommandAad.DomainHelpText + "\n[default: " + AzureAuth.Ado.Constants.PreferredDomain + "]";
 
         /// <summary>
         /// The available Token Formats.
