@@ -15,6 +15,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public static class CachedAuth
     {
+        private static readonly TimeSpan CachedAuthTimeout = TimeSpan.FromSeconds(30);
+
         /// <summary>
         /// Try to get a token silently.
         /// </summary>
@@ -25,7 +27,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="pcaWrapper">An <see cref="IPCAWrapper"/>.</param>
         /// <param name="errors">List of errors to report any Exceptions into.</param>
         /// <returns>A <see cref="Task{TResult}"/> or null if no cached token was acquired.</returns>
-        public static async Task<TokenResult> TryCachedAuthAsync(ILogger logger, TimeSpan cachedAuthTimeout, IEnumerable<string> scopes, IAccount account, IPCAWrapper pcaWrapper, IList<Exception> errors)
+        public static async Task<TokenResult> GetTokenAsync(ILogger logger, IEnumerable<string> scopes, IAccount account, IPCAWrapper pcaWrapper, IList<Exception> errors)
         {
             if (account == null)
             {
@@ -40,7 +42,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 tokenResult = await TaskExecutor.CompleteWithin(
                                 logger,
-                                cachedAuthTimeout,
+                                CachedAuthTimeout,
                                 "Get Token Silent",
                                 (cancellationToken) => pcaWrapper.GetTokenSilentAsync(scopes, account, cancellationToken),
                                 errors)

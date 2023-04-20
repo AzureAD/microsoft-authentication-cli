@@ -31,9 +31,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void Null_Account_Returns_Null_Without_Errors()
         {
             IList<Exception> errors = new List<Exception>();
-            var subject = CachedAuth.TryCachedAuthAsync(
+            var subject = CachedAuth.GetTokenAsync(
                 this.logger,
-                TimeSpan.FromSeconds(1),
                 new[] { "scope" },
                 null,
                 new Mock<IPCAWrapper>(MockBehavior.Strict).Object,
@@ -57,9 +56,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ThrowsAsync(new MsalUiRequiredException("1", "2fa is required", new Exception("inner 2fa exception"), UiRequiredExceptionClassification.AcquireTokenSilentFailed));
 
             // Act
-            var subject = CachedAuth.TryCachedAuthAsync(
+            var subject = CachedAuth.GetTokenAsync(
                 this.logger,
-                TimeSpan.FromSeconds(1),
                 scopes,
                 account.Object,
                 pcaWrapper.Object,
@@ -86,9 +84,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ReturnsAsync(tokenResult);
 
             // Act
-            var subject = CachedAuth.TryCachedAuthAsync(
+            var subject = CachedAuth.GetTokenAsync(
                 this.logger,
-                TimeSpan.FromSeconds(1),
                 scopes,
                 account.Object,
                 pcaWrapper.Object,
