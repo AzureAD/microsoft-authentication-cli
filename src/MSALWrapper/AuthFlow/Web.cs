@@ -5,9 +5,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
 
@@ -22,20 +21,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly string preferredDomain;
         private readonly string promptHint;
         private readonly IList<Exception> errors;
-        private IPCAWrapper pcaWrapper;
-
-        #region Public configurable properties
-
-        /// <summary>
-        /// The silent auth timeout.
-        /// </summary>
-        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(15);
+        private readonly IPCAWrapper pcaWrapper;
 
         /// <summary>
         /// The interactive auth timeout.
         /// </summary>
         private TimeSpan interactiveAuthTimeout = TimeSpan.FromMinutes(15);
-        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Web"/> class.
@@ -70,26 +61,30 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 try
                 {
-                    tokenResult = await CachedAuth.TryCachedAuthAsync(
+                    tokenResult = await CachedAuth.GetTokenAsync(
                         this.logger,
-                        this.silentAuthTimeout,
                         this.scopes,
                         account,
                         this.pcaWrapper,
                         this.errors);
 
-                    if (tokenResult == null)
+                    if (tokenResult != null)
                     {
-                        tokenResult = await TaskExecutor.CompleteWithin(
-                            this.logger,
-                            this.interactiveAuthTimeout,
-                            "Interactive Auth",
-                            (cancellationToken) => this.pcaWrapper
-                            .WithPromptHint(this.promptHint)
-                            .GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
-                            this.errors)
-                            .ConfigureAwait(false);
+                        return (tokenResult, this.errors);
                     }
+
+                    Func<System.Threading.CancellationToken, Task<TokenResult>> interactiveAuth = (cancellationToken) =>
+                        this.pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+
+                    tokenResult = await TaskExecutor.CompleteWithin(
+                        this.logger,
+                        this.interactiveAuthTimeout,
+                        $"{this.Name()} interactive auth",
+                        interactiveAuth,
+                        this.errors)
+                        .ConfigureAwait(false);
                 }
                 catch (MsalUiRequiredException ex)
                 {

@@ -215,7 +215,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
+            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:30");
             authFlowResult.AuthFlowName.Should().Be("web");
         }
 
@@ -354,7 +354,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[1].Message.Should().Be("Interactive Auth timed out after 00:15:00");
+            authFlowResult.Errors[1].Message.Should().Be("web interactive auth timed out after 00:15:00");
             authFlowResult.AuthFlowName.Should().Be("web");
         }
 
