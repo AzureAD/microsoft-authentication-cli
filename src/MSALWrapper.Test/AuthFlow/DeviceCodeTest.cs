@@ -11,15 +11,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using FluentAssertions;
 
     using Microsoft.Authentication.MSALWrapper;
+    using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.TestHelper;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
 
     using Moq;
 
-    using NLog.Extensions.Logging;
     using NLog.Targets;
 
     using NUnit.Framework;
@@ -27,6 +26,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     internal class DeviceCodeTest
     {
         private const string TestUser = "user@microsoft.com";
+        private const string PromptHint = "test prompt hint";
 
         // These Guids were randomly generated and do not refer to a real resource or client
         // as we don't need either for our testing.
@@ -34,9 +34,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private static readonly Guid ClientId = new Guid("5af6def2-05ec-4cab-b9aa-323d75b5df40");
         private static readonly Guid TenantId = new Guid("8254f6f7-a09f-4752-8bd6-391adc3b912e");
 
-        private string promptHint = "test prompt hint";
-
-        private MemoryTarget logTarget;
         private ILogger logger;
 
         // MSAL Specific Mocks
@@ -48,7 +45,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [SetUp]
         public void Setup()
         {
-            (this.logger, this.logTarget) = MemoryLogger.Create();
+            (this.logger, _) = MemoryLogger.Create();
 
             // MSAL Mocks
             this.testAccount = new Mock<IAccount>(MockBehavior.Strict);
@@ -59,21 +56,25 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
-        public AuthFlow.DeviceCode Subject() => new AuthFlow.DeviceCode(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
+        [TearDown]
+        public void TearDown()
+        {
+            this.pcaWrapperMock.VerifyAll();
+        }
+
+        public AuthFlow.DeviceCode Subject() => new AuthFlow.DeviceCode(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: PromptHint);
 
         [Test]
         public async Task DeviceCodeAuthFlow_CachedToken()
         {
-            this.SilentAuthResult();
-
             this.MockAccount();
+            this.SilentAuthResult();
 
             // Act
             AuthFlow.DeviceCode deviceCode = this.Subject();
             var authFlowResult = await deviceCode.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
@@ -83,8 +84,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task DeviceCodeAuthFlow_NoAccount()
         {
-            this.pcaWrapperMock.Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>())).ReturnsAsync((IAccount)null);
-            this.SilentAuthUIRequired();
+            this.MockAccountNull();
             this.DeviceCodeAuthResult();
 
             // Act
@@ -92,45 +92,42 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await deviceCode.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
-            authFlowResult.Errors.Should().HaveCount(1);
-            authFlowResult.AuthFlowName.Should().Be("devicecode");
-        }
-
-        [Test]
-        public async Task DeviceCodeAuthFlow_GetTokenSilent_ReturnsNull()
-        {
-            this.SilentAuthReturnsNull();
-
-            this.MockAccount();
-
-            // Act
-            AuthFlow.DeviceCode deviceCode = this.Subject();
-            var authFlowResult = await deviceCode.GetTokenAsync();
-
-            // Assert
-            this.pcaWrapperMock.VerifyAll();
-            authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("devicecode");
         }
 
         [Test]
-        public async Task DeviceCodeAuthFlow_GetTokenSilent_OperationCanceledException()
+        public async Task DeviceCodeAuthFlow_GetTokenSilent_ReturnsNull_ThenSuccess()
         {
-            this.SilentAuthTimeout();
-
             this.MockAccount();
+            this.SilentAuthReturnsNull();
+            this.DeviceCodeAuthResult();
 
             // Act
             AuthFlow.DeviceCode deviceCode = this.Subject();
             var authFlowResult = await deviceCode.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
-            authFlowResult.TokenResult.Should().Be(null);
+            authFlowResult.TokenResult.Should().Be(this.tokenResult);
+            authFlowResult.Errors.Should().BeEmpty();
+            authFlowResult.AuthFlowName.Should().Be("devicecode");
+        }
+
+        [Test]
+        public async Task DeviceCodeAuthFlow_GetTokenSilent_OperationCanceledException_ThenSuccess()
+        {
+            this.MockAccount();
+            this.SilentAuthTimeout();
+            this.DeviceCodeAuthResult();
+
+            // Act
+            AuthFlow.DeviceCode deviceCode = this.Subject();
+            var authFlowResult = await deviceCode.GetTokenAsync();
+
+            // Assert
+            authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
             authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
@@ -138,12 +135,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task DeviceCodeAuthFlow_MsalUIException()
+        public async Task DeviceCodeAuthFlow_SilentMsalUIException_ThenSuccess()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
             this.DeviceCodeAuthResult();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.DeviceCode deviceCode = this.Subject();
@@ -160,30 +156,28 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task DeviceCodeAuthFlow_MsalUIException_Returns_Null()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
             this.DeviceCodeAuthReturnsNull();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.DeviceCode deviceCode = this.Subject();
             var authFlowResult = await deviceCode.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
-            authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            authFlowResult.Errors[1].Should().BeOfType(typeof(NullTokenResultException));
             authFlowResult.AuthFlowName.Should().Be("devicecode");
         }
 
         [Test]
         public async Task DeviceCodeAuthFlow_MsalException()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
             this.DeviceCodeAuthMsalException();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.DeviceCode deviceCode = this.Subject();
@@ -252,6 +246,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock
                 .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
                 .ReturnsAsync(this.testAccount.Object);
+        }
+
+        private void MockAccountNull()
+        {
+            this.pcaWrapperMock
+                .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
+                .ReturnsAsync((IAccount)null);
         }
     }
 }
