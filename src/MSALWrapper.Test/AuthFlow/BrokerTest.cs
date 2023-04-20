@@ -69,7 +69,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public AuthFlow.Broker Subject() => new AuthFlow.Broker(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
 
         [Test]
-        public async Task BrokerAuthFlow_HappyPath()
+        public async Task BrokerAuthFlow_CachedAuth()
         {
             this.MockAccount();
             this.SilentAuthResult();
@@ -128,6 +128,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthResultReturnsNullWithoutClaims();
 
             // Act
@@ -180,8 +181,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockAccount();
             this.SilentAuthTimeout();
-            this.SetupWithPromptHint();
             this.InteractiveAuthResult();
+            this.SetupWithPromptHint();
 
             // Act
             AuthFlow.Broker broker = this.Subject();
@@ -255,6 +256,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthResultReturnsNullWithClaims();
 
