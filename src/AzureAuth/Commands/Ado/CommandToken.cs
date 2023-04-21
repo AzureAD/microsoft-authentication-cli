@@ -24,6 +24,8 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         private const string OutputOption = "--output";
         private const string OutputOptionDescription = "How to print the token. One of [token, header, headervalue].\nDefault: token";
 
+        private const string DomainOptionDescription = CommandAad.DomainHelpText + "\n[default: " + AzureAuth.Ado.Constants.PreferredDomain + "]";
+
         /// <summary>
         /// The available Token Formats.
         /// </summary>
@@ -52,8 +54,8 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         [Option(CommandAad.ModeOption, CommandAad.AuthModeHelperText, CommandOptionType.MultipleValue)]
         private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
-        [Option(CommandAad.DomainOption, Description = CommandAad.DomainHelpText)]
-        private string Domain { get; set; }
+        [Option(CommandAad.DomainOption, Description = DomainOptionDescription)]
+        private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
 
         [Option(CommandAad.TimeoutOption, CommandAad.TimeoutHelpText, CommandOptionType.SingleValue)]
         private double Timeout { get; set; } = CommandAad.GlobalTimeout.TotalMinutes;
