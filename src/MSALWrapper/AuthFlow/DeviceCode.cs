@@ -69,9 +69,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             try
             {
-                tokenResult = await CachedAuth.TryCachedAuthAsync(
+                tokenResult = await CachedAuth.GetTokenAsync(
                     this.logger,
-                    this.silentAuthTimeout,
                     this.scopes,
                     account,
                     this.pcaWrapper,
