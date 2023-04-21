@@ -17,24 +17,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     public class DeviceCode : AuthFlowBase
     {
         private const string NameValue = "devicecode";
-        private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly string promptHint;
         private readonly IPCAWrapper pcaWrapper;
 
-        #region Public configurable properties
-
-        /// <summary>
-        /// The silent auth timeout.
-        /// </summary>
-        private TimeSpan silentAuthTimeout = TimeSpan.FromSeconds(15);
-
         /// <summary>
         /// The device code flow timeout.
         /// </summary>
         private TimeSpan deviceCodeFlowTimeout = TimeSpan.FromMinutes(15);
-        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceCode"/> class.
@@ -62,36 +53,27 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         protected override async Task<TokenResult> GetTokenInnerAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
-            TokenResult tokenResult = null;
+            TokenResult tokenResult = await CachedAuth.GetTokenAsync(
+                this.logger,
+                this.scopes,
+                account,
+                this.pcaWrapper,
+                this.errors);
 
-            try
+            if (tokenResult != null)
             {
-                tokenResult = await CachedAuth.GetTokenAsync(
-                    this.logger,
-                    this.scopes,
-                    account,
-                    this.pcaWrapper,
-                    this.errors);
-
-                if (tokenResult != null)
-                {
-                    return tokenResult;
-                }
-
-                this.logger.LogWarning($"Device Code Authentication for: {this.promptHint}");
-
-                tokenResult = await TaskExecutor.CompleteWithin(
-                    this.logger,
-                    this.deviceCodeFlowTimeout,
-                    $"{this.Name()} interactive auth",
-                    this.DeviceCodeAuth,
-                    this.errors).ConfigureAwait(false);
+                return tokenResult;
             }
-            catch (MsalException ex)
-            {
-                this.errors.Add(ex);
-                this.logger.LogError(ex.Message);
-            }
+
+            this.logger.LogWarning($"Device Code Authentication for: {this.promptHint}");
+
+
+            tokenResult = await TaskExecutor.CompleteWithin(
+                this.logger,
+                this.deviceCodeFlowTimeout,
+                $"{this.Name()} interactive auth",
+                this.DeviceCodeAuth,
+                this.errors).ConfigureAwait(false);
 
             return tokenResult;
         }

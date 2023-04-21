@@ -27,6 +27,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             typeof(MsalUiRequiredException),
             typeof(MsalClientException),
             typeof(MsalServiceException),
+            typeof(MsalException),
             typeof(NullReferenceException),
         };
 
