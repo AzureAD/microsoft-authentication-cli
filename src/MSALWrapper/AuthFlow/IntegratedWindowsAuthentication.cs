@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Logging;
@@ -69,13 +70,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
                 if (tokenResult == null)
                 {
+                    Func<CancellationToken, Task<TokenResult>> iwaAuth = (cancellationToken) =>
+                        this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken);
+
                     tokenResult = await TaskExecutor.CompleteWithin(
-                                  this.logger,
-                                  this.integratedWindowsAuthTimeout,
-                                  "Get Token Integrated Windows Authentication",
-                                  (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
-                                  this.errors)
-                                  .ConfigureAwait(false);
+                        this.logger,
+                        this.integratedWindowsAuthTimeout,
+                        "Integrated Windows Authentication",
+                        iwaAuth,
+                        this.errors).ConfigureAwait(false);
 
                     // If IWA worked, it was 100% silent.
                     tokenResult.SetSilent();

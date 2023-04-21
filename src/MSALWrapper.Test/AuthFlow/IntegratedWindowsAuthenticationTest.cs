@@ -48,7 +48,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // MSAL Mocks
             this.testAccount = new Mock<IAccount>(MockBehavior.Strict);
-            this.testAccount.Setup(a => a.Username).Returns(TestUser);
 
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
 
@@ -60,6 +59,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void Teardown()
         {
             this.pcaWrapperMock.VerifyAll();
+            this.testAccount.VerifyAll();
         }
 
         public AuthFlow.IntegratedWindowsAuthentication Subject() => new AuthFlow.IntegratedWindowsAuthentication(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object);
@@ -375,6 +375,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         private void MockAccount()
         {
+            this.testAccount.Setup(a => a.Username).Returns(TestUser);
             this.pcaWrapperMock
                 .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
                 .ReturnsAsync(this.testAccount.Object);
