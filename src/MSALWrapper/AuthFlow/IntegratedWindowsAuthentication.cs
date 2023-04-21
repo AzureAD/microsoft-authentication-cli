@@ -23,13 +23,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IList<Exception> errors;
         private IPCAWrapper pcaWrapper;
 
-        #region Public configurable properties
-
         /// <summary>
         /// The integrated windows auth flow timeout.
         /// </summary>
-        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(15);
-        #endregion
+        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(30);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegratedWindowsAuthentication"/> class.
@@ -60,35 +57,30 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             try
             {
-                tokenResult = await CachedAuth.TryCachedAuthAsync(
+                tokenResult = await CachedAuth.GetTokenAsync(
                     this.logger,
-                    this.integratedWindowsAuthTimeout,
                     this.scopes,
                     account,
                     this.pcaWrapper,
                     this.errors);
 
-                if (tokenResult == null)
+                if (tokenResult != null)
                 {
-                    Func<CancellationToken, Task<TokenResult>> iwaAuth = (cancellationToken) =>
-                        this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken);
-
-                    tokenResult = await TaskExecutor.CompleteWithin(
-                        this.logger,
-                        this.integratedWindowsAuthTimeout,
-                        "Integrated Windows Authentication",
-                        iwaAuth,
-                        this.errors).ConfigureAwait(false);
-
-                    // If IWA worked, it was 100% silent.
-                    tokenResult.SetSilent();
+                    return (tokenResult, this.errors);
                 }
 
-                if (tokenResult == null)
-                {
-                    // We expect a result or an exception at this point.
-                    this.errors.Add(new NullTokenResultException($"${this.Name()} TokenResult was null."));
-                }
+                Func<CancellationToken, Task<TokenResult>> iwaAuth = (cancellationToken) =>
+                    this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken);
+
+                tokenResult = await TaskExecutor.CompleteWithin(
+                    this.logger,
+                    this.integratedWindowsAuthTimeout,
+                    "Integrated Windows Authentication",
+                    iwaAuth,
+                    this.errors).ConfigureAwait(false);
+
+                // If IWA worked, it was 100% silent.
+                tokenResult.SetSilent();
             }
             catch (MsalUiRequiredException ex)
             {
