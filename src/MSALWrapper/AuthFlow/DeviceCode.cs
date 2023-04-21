@@ -21,7 +21,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly string promptHint;
-        private readonly IList<Exception> errors;
         private readonly IPCAWrapper pcaWrapper;
 
         #region Public configurable properties
@@ -49,7 +48,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
         public DeviceCode(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
         {
-            this.errors = new List<Exception>();
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
@@ -61,7 +59,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         protected override string Name() => NameValue;
 
         /// <inheritdoc/>
-        protected override async Task<(TokenResult, IList<Exception>)> GetTokenInnerAsync()
+        protected override async Task<TokenResult> GetTokenInnerAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
             TokenResult tokenResult = null;
@@ -77,7 +75,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
                 if (tokenResult != null)
                 {
-                    return (tokenResult, this.errors);
+                    return tokenResult;
                 }
 
                 this.logger.LogWarning($"Device Code Authentication for: {this.promptHint}");
@@ -95,7 +93,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogError(ex.Message);
             }
 
-            return (tokenResult, this.errors);
+            return tokenResult;
         }
 
         private Task<TokenResult> DeviceCodeAuth(CancellationToken cancellationToken)

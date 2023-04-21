@@ -13,11 +13,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public abstract class AuthFlowBase : IAuthFlow
     {
+        /// <summary>
+        /// The list of errors encountered during token acquisition.
+        /// </summary>
+        protected IList<Exception> errors = new List<Exception>();
+
         /// <inheritdoc/>
         public async Task<AuthFlowResult> GetTokenAsync()
         {
-            (var result, var errors) = await this.GetTokenInnerAsync();
-            return new AuthFlowResult(result, errors, this.Name());
+            this.errors = new List<Exception>();
+            var result = await this.GetTokenInnerAsync();
+            return new AuthFlowResult(result, this.errors, this.Name());
         }
 
         /// <summary>
@@ -25,7 +31,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Performs token acquisition.
         /// </summary>
         /// <returns>a tuple of <see cref="TokenResult"/> and <see cref="IList{Exception}"/>.</returns>
-        protected abstract Task<(TokenResult result, IList<Exception> errors)> GetTokenInnerAsync();
+        protected abstract Task<TokenResult> GetTokenInnerAsync();
 
         /// <summary>
         /// The name of this AuthFlow.

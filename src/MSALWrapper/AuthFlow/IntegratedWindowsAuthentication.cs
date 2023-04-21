@@ -20,7 +20,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly ILogger logger;
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
-        private readonly IList<Exception> errors;
         private readonly IPCAWrapper pcaWrapper;
 
         /// <summary>
@@ -50,7 +49,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         protected override string Name() => NameValue;
 
         /// <inheritdoc/>
-        protected override async Task<(TokenResult, IList<Exception>)> GetTokenInnerAsync()
+        protected override async Task<TokenResult> GetTokenInnerAsync()
         {
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
             TokenResult tokenResult = null;
@@ -66,7 +65,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
                 if (tokenResult != null)
                 {
-                    return (tokenResult, this.errors);
+                    return tokenResult;
                 }
 
                 tokenResult = await TaskExecutor.CompleteWithin(
@@ -111,7 +110,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
             }
 
-            return (tokenResult, this.errors);
+            return tokenResult;
         }
 
         private async Task<TokenResult> Iwa(CancellationToken cancellationToken)
