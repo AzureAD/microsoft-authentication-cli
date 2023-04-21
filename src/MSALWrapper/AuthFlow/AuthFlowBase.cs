@@ -3,12 +3,11 @@
 
 namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Identity.Client;
-
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Identity.Client;
 
     /// <summary>
     /// An abstract class that implements the <see cref="IAuthFlow"/> interface

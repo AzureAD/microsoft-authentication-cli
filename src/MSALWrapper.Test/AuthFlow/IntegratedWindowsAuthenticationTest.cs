@@ -11,9 +11,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using FluentAssertions;
 
     using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Authentication.MSALWrapper.AuthFlow;
-    using Microsoft.Authentication.TestHelper;
-    using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
 
@@ -56,7 +53,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var message = "Something somwhere has gone terribly wrong!";
             this.mockPca
-                .Setup(pca => pca.GetTokenIntegratedWindowsAuthenticationAsync(scopes, It.IsAny<CancellationToken>()))
+                .Setup(pca => pca.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, It.IsAny<CancellationToken>()))
                 .Throws(new Exception(message));
 
             // Act
@@ -66,7 +63,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
         }
-
 
         [Test]
         public async Task IWA_ReturnsNull()
@@ -131,7 +127,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
             authFlowResult.AuthFlowName.Should().Be("iwa");
         }
-
 
         private void SetupIWAReturnsResult()
         {
