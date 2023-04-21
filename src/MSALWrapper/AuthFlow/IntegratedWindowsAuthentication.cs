@@ -49,18 +49,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
-            TokenResult tokenResult = await CachedAuth.GetTokenAsync(
-                this.logger,
-                this.scopes,
-                account,
-                this.pcaWrapper,
-                this.errors);
-
-            if (tokenResult != null)
-            {
-                return tokenResult;
-            }
+            TokenResult tokenResult = null;
 
             try
             {
