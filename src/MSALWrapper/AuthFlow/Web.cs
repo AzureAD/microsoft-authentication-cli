@@ -83,22 +83,23 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         this.interactiveAuthTimeout,
                         $"{this.Name()} interactive auth",
                         interactiveAuth,
-                        this.errors)
-                        .ConfigureAwait(false);
+                        this.errors).ConfigureAwait(false);
                 }
                 catch (MsalUiRequiredException ex)
                 {
                     this.errors.Add(ex);
                     this.logger.LogDebug($"Initial ${this.Name()} auth failed. Trying again with claims.\n{ex.Message}");
+
+                    Func<System.Threading.CancellationToken, Task<TokenResult>> interactiveAuthWithClaims = (cancellationToken) => this.pcaWrapper
+                        .WithPromptHint(this.promptHint)
+                        .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken);
+
                     tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
                         this.interactiveAuthTimeout,
                         "Interactive Auth (with extra claims)",
-                        (cancellationToken) => this.pcaWrapper
-                        .WithPromptHint(this.promptHint)
-                        .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken),
-                        this.errors)
-                        .ConfigureAwait(false);
+                        interactiveAuthWithClaims,
+                        this.errors).ConfigureAwait(false);
                 }
             }
             catch (MsalServiceException ex)

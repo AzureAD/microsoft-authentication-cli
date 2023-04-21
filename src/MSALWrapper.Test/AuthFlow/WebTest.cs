@@ -222,9 +222,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_MsalClientException()
         {
-            this.SilentAuthClientException();
-
             this.MockAccount();
+            this.SilentAuthClientException();
 
             // Act
             AuthFlow.Web web = this.Subject();
