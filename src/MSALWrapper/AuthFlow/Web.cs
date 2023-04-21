@@ -80,7 +80,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.errors.Add(ex);
                 this.logger.LogDebug($"Initial ${this.Name()} auth failed. Trying again with claims.\n{ex.Message}");
 
-
                 tokenResult = await TaskExecutor.CompleteWithin(
                     this.logger,
                     this.interactiveAuthTimeout,
