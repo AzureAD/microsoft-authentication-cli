@@ -20,9 +20,9 @@ namespace Microsoft.Authentication.AdoPat.Test
                 DisplayName = DisplayName,
                 Scopes = new[] { "test.scope.a", "test.scope.b", "test.scope.c" },
             };
-            var expected = $"{Organization} {DisplayName} test.scope.a test.scope.b test.scope.c";
+            var expected = "11f0b04eda61baebd5646fde72b0058e9713c30e950d2f3457bbbc1c3c68b31a-c27c517aad4237d8e221d8f52a438cb24f7f8078582d6cb025c238a25b2460f7-eb52c21ad04b684f72bb1cef51e7f4ca58ce5a753744123a5df8f4e1781f831d";
 
-            patOptions.CacheKey().Should().BeEquivalentTo(expected);
+            patOptions.CacheKey().Should().Be(expected);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace Microsoft.Authentication.AdoPat.Test
                 Scopes = new[] { "test.scope.b", "test.scope.a", "test.scope.c" },
             };
 
-            patOptions1.CacheKey().Should().BeEquivalentTo(patOptions2.CacheKey());
+            patOptions1.CacheKey().Should().Be(patOptions2.CacheKey());
         }
     }
 }
