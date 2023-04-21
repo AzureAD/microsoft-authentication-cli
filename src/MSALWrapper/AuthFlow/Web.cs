@@ -52,19 +52,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
-
-            TokenResult tokenResult = await CachedAuth.GetTokenAsync(
-                this.logger,
-                this.scopes,
-                account,
-                this.pcaWrapper,
-                this.errors);
-
-            if (tokenResult != null)
-            {
-                return tokenResult;
-            }
+            var account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
+            TokenResult tokenResult = null;
 
             try
             {
@@ -77,6 +66,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
             catch (MsalUiRequiredException ex)
             {
+                // It would be nice to use 'when (!string.IsNullOrEmpty(ex.Claims))' as a catch clause above
+                // but we can't actually create an MsalUiRequiredException with a non-null Claims property.
+                // It's a read only field and so we would not be able to orchestrate this usage under test :(.
                 this.errors.Add(ex);
                 this.logger.LogDebug($"Initial ${this.Name()} auth failed. Trying again with claims.\n{ex.Message}");
 
