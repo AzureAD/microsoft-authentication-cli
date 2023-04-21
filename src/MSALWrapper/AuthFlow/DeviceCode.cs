@@ -67,7 +67,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             this.logger.LogWarning($"Device Code Authentication for: {this.promptHint}");
 
-
             tokenResult = await TaskExecutor.CompleteWithin(
                 this.logger,
                 this.deviceCodeFlowTimeout,
