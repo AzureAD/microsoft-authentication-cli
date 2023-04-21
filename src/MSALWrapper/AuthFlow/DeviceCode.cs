@@ -77,26 +77,25 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.pcaWrapper,
                     this.errors);
 
-                if (tokenResult == null)
+                if (tokenResult != null)
                 {
-                    this.logger.LogWarning($"DeviceCode auth for: {this.promptHint}");
+                    return (tokenResult, this.errors);
+                }
 
-                    tokenResult = await TaskExecutor.CompleteWithin(
-                        this.logger,
-                        this.deviceCodeFlowTimeout,
-                        "Get Token using Device Code",
-                        (cancellationToken) => this.pcaWrapper.GetTokenDeviceCodeAsync(
+                this.logger.LogWarning($"Device Code Authentication for: {this.promptHint}");
+
+                Func<System.Threading.CancellationToken, Task<TokenResult>> deviceCodeAuth = (cancellationToken) =>
+                    this.pcaWrapper.GetTokenDeviceCodeAsync(
                         this.scopes,
                         this.ShowDeviceCodeInTty,
-                        cancellationToken),
-                        this.errors)
-                        .ConfigureAwait(false);
-                }
+                        cancellationToken);
 
-                if (tokenResult == null)
-                {
-                    this.errors.Add(new NullTokenResultException(this.Name()));
-                }
+                tokenResult = await TaskExecutor.CompleteWithin(
+                    this.logger,
+                    this.deviceCodeFlowTimeout,
+                    $"{this.Name()} interactive auth",
+                    deviceCodeAuth,
+                    this.errors).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {

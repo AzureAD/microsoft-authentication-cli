@@ -49,7 +49,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // MSAL Mocks
             this.testAccount = new Mock<IAccount>(MockBehavior.Strict);
-            this.testAccount.Setup(a => a.Username).Returns(TestUser);
             this.pcaWrapperMock = new Mock<IPCAWrapper>(MockBehavior.Strict);
 
             // Mock successful token result
@@ -60,6 +59,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void TearDown()
         {
             this.pcaWrapperMock.VerifyAll();
+            this.testAccount.VerifyAll();
         }
 
         public AuthFlow.DeviceCode Subject() => new AuthFlow.DeviceCode(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: PromptHint);
@@ -166,9 +166,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert
             authFlowResult.TokenResult.Should().Be(null);
-            authFlowResult.Errors.Should().HaveCount(2);
+            authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.Errors[1].Should().BeOfType(typeof(NullTokenResultException));
             authFlowResult.AuthFlowName.Should().Be("devicecode");
         }
 
@@ -243,6 +242,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         private void MockAccount()
         {
+            this.testAccount.Setup(a => a.Username).Returns(TestUser);
             this.pcaWrapperMock
                 .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
                 .ReturnsAsync(this.testAccount.Object);
