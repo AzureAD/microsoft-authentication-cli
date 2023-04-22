@@ -21,7 +21,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly IList<Exception> errors;
-        private IPCAWrapper pcaWrapper;
+        private readonly IPCAWrapper pcaWrapper;
 
         /// <summary>
         /// The integrated windows auth flow timeout.
@@ -43,7 +43,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(clientId, tenantId);
         }
 
         /// <inheritdoc/>
@@ -69,14 +69,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     return (tokenResult, this.errors);
                 }
 
-                Func<CancellationToken, Task<TokenResult>> iwaAuth = (cancellationToken) =>
-                    this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken);
-
                 tokenResult = await TaskExecutor.CompleteWithin(
                     this.logger,
                     this.integratedWindowsAuthTimeout,
                     "Integrated Windows Authentication",
-                    iwaAuth,
+                    this.Iwa,
                     this.errors).ConfigureAwait(false);
 
                 // If IWA worked, it was 100% silent.
@@ -117,7 +114,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return (tokenResult, this.errors);
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
+        private async Task<TokenResult> Iwa(CancellationToken cancellationToken)
+        {
+            return await this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken);
+        }
+
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder

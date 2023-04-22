@@ -94,6 +94,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
+            authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
             authFlowResult.AuthFlowName.Should().Be("iwa");
         }
