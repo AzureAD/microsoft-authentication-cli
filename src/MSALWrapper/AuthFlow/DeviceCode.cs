@@ -5,8 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Logging;
@@ -23,7 +22,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly string preferredDomain;
         private readonly string promptHint;
         private readonly IList<Exception> errors;
-        private IPCAWrapper pcaWrapper;
+        private readonly IPCAWrapper pcaWrapper;
 
         #region Public configurable properties
 
@@ -55,7 +54,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(clientId, tenantId);
         }
 
         /// <inheritdoc/>
@@ -83,17 +82,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
                 this.logger.LogWarning($"Device Code Authentication for: {this.promptHint}");
 
-                Func<System.Threading.CancellationToken, Task<TokenResult>> deviceCodeAuth = (cancellationToken) =>
-                    this.pcaWrapper.GetTokenDeviceCodeAsync(
-                        this.scopes,
-                        this.ShowDeviceCodeInTty,
-                        cancellationToken);
-
                 tokenResult = await TaskExecutor.CompleteWithin(
                     this.logger,
                     this.deviceCodeFlowTimeout,
                     $"{this.Name()} interactive auth",
-                    deviceCodeAuth,
+                    this.DeviceCodeAuth,
                     this.errors).ConfigureAwait(false);
             }
             catch (MsalException ex)
@@ -105,22 +98,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return (tokenResult, this.errors);
         }
 
-        private static HttpClient CreateHttpClient()
+        private Task<TokenResult> DeviceCodeAuth(CancellationToken cancellationToken)
         {
-            HttpClientHandler handler = new HttpClientHandler();
-
-            var client = new HttpClient(handler);
-
-            // Add default headers
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
-            {
-                NoCache = true,
-            };
-
-            return client;
+            return this.pcaWrapper.GetTokenDeviceCodeAsync(
+                this.scopes,
+                this.ShowDeviceCodeInTty,
+                cancellationToken);
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
         {
             var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =
