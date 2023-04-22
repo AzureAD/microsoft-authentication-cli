@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Logging;
@@ -45,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(clientId, tenantId);
         }
 
         /// <inheritdoc/>
@@ -73,16 +74,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         return (tokenResult, this.errors);
                     }
 
-                    Func<System.Threading.CancellationToken, Task<TokenResult>> interactiveAuth = (cancellationToken) =>
-                        this.pcaWrapper
-                            .WithPromptHint(this.promptHint)
-                            .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
-
                     tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
                         this.interactiveAuthTimeout,
                         $"{this.Name()} interactive auth",
-                        interactiveAuth,
+                        this.GetTokenInteractive(account),
                         this.errors).ConfigureAwait(false);
                 }
                 catch (MsalUiRequiredException ex)
@@ -90,15 +86,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.errors.Add(ex);
                     this.logger.LogDebug($"Initial ${this.Name()} auth failed. Trying again with claims.\n{ex.Message}");
 
-                    Func<System.Threading.CancellationToken, Task<TokenResult>> interactiveAuthWithClaims = (cancellationToken) => this.pcaWrapper
-                        .WithPromptHint(this.promptHint)
-                        .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken);
-
                     tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
                         this.interactiveAuthTimeout,
                         "Interactive Auth (with extra claims)",
-                        interactiveAuthWithClaims,
+                        this.GetTokenInteractiveWithClaims(ex.Claims),
                         this.errors).ConfigureAwait(false);
                 }
             }
@@ -121,7 +113,21 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return (tokenResult, this.errors);
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
+        private Func<CancellationToken, Task<TokenResult>> GetTokenInteractive(IAccount account)
+        {
+            return (CancellationToken cancellationToken) => this.pcaWrapper
+                .WithPromptHint(this.promptHint)
+                .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+        }
+
+        private Func<CancellationToken, Task<TokenResult>> GetTokenInteractiveWithClaims(string claims)
+        {
+            return (CancellationToken cancellationToken) => this.pcaWrapper
+                .WithPromptHint(this.promptHint)
+                .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
+        }
+
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
         {
             var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =
