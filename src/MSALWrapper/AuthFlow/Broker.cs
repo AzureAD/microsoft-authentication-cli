@@ -93,35 +93,25 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     return (tokenResult, this.errors);
                 }
 
-                Func<CancellationToken, Task<TokenResult>> getTokenInteractive = (cancellationToken) =>
-                    this.pcaWrapper
-                        .WithPromptHint(this.promptHint)
-                        .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
-
                 try
                 {
                     tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
                         this.interactiveAuthTimeout,
                         $"{this.Name()} interactive auth",
-                        getTokenInteractive,
+                        this.GetTokenInteractive(account),
                         this.errors).ConfigureAwait(false);
                 }
                 catch (MsalUiRequiredException ex)
                 {
                     this.errors.Add(ex);
-                    this.logger.LogDebug($"initial {this.Name()} auth failed. Trying again with claims from exception.\n{ex.Message}");
-
-                    Func<CancellationToken, Task<TokenResult>> getTokenInteractiveWithClaims = (cancellationToken) =>
-                        this.pcaWrapper
-                            .WithPromptHint(this.promptHint)
-                            .GetTokenInteractiveAsync(this.scopes, ex.Claims, cancellationToken);
+                    this.logger.LogDebug($"Initial {this.Name()} auth failed. Trying again with claims from exception.\n{ex.Message}");
 
                     tokenResult = await TaskExecutor.CompleteWithin(
                         this.logger,
                         this.interactiveAuthTimeout,
                         $"{this.Name()} interactive auth (with extra claims)",
-                        getTokenInteractiveWithClaims,
+                        this.GetTokenInteractiveWithClaims(ex.Claims),
                         this.errors).ConfigureAwait(false);
                 }
             }
@@ -142,6 +132,20 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
 
             return (tokenResult, this.errors);
+        }
+
+        private Func<CancellationToken, Task<TokenResult>> GetTokenInteractive(IAccount account)
+        {
+            return (CancellationToken cancellationToken) => this.pcaWrapper
+                .WithPromptHint(this.promptHint)
+                .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+        }
+
+        private Func<CancellationToken, Task<TokenResult>> GetTokenInteractiveWithClaims(string claims)
+        {
+            return (CancellationToken cancellationToken) => this.pcaWrapper
+                .WithPromptHint(this.promptHint)
+                .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
         }
 
         [DllImport("kernel32.dll")]
