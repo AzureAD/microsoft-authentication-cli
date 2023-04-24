@@ -74,12 +74,6 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
 
-    - name: Upload CodeQL Analysis Results
-      uses: actions/upload-artifact@v3
-      with:
-        name: azureauth-static-code-analysis-${{ matrix.runtime }}.sarif
-        path: results/csharp.sarif
-
     - name: Build artifacts
       run: dotnet publish src/AzureAuth/AzureAuth.csproj -p:Version=${{ github.event.inputs.version }} --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}
       env:
