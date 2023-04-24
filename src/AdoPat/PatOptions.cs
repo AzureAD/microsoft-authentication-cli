@@ -4,7 +4,10 @@
 namespace Microsoft.Authentication.AdoPat
 {
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Linq;
+    using System.Security.Cryptography;
+    using System.Text;
 
     /// <summary>
     /// A grouping of common options necessary to create or renew a PAT.
@@ -33,9 +36,23 @@ namespace Microsoft.Authentication.AdoPat
         /// <returns>The cache key.</returns>
         public string CacheKey()
         {
-            var strings = new List<string> { this.Organization, this.DisplayName };
-            strings.AddRange(this.Scopes);
-            return string.Join(" ", strings);
+            // We concatenate scopes with the empty string after sorting and
+            // deduplicating them to ensure the cache key is always the same.
+            var sortedScopes = string.Concat(this.Scopes.ToImmutableSortedSet());
+
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                var organization = sha256.ComputeHash(Encoding.UTF8.GetBytes(this.Organization));
+                var displayName = sha256.ComputeHash(Encoding.UTF8.GetBytes(this.DisplayName));
+                var scopes = sha256.ComputeHash(Encoding.UTF8.GetBytes(sortedScopes));
+
+                var hashBytes = new[] { organization, displayName, scopes };
+                var hashes = hashBytes
+                    .Select(bytes => bytes.Select(b => b.ToString("x2")))
+                    .Select(bytes => string.Concat(bytes));
+
+                return string.Join('-', hashes);
+            }
         }
     }
 }

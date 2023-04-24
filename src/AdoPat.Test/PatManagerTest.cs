@@ -15,8 +15,11 @@ namespace Microsoft.Authentication.AdoPat.Test
     public class PatManagerTest
     {
         private const string Organization = "contoso";
+        private const string OrganizationHash = "11f0b04eda61baebd5646fde72b0058e9713c30e950d2f3457bbbc1c3c68b31a";
         private const string DisplayName = "Test PAT";
+        private const string DisplayNameHash = "c27c517aad4237d8e221d8f52a438cb24f7f8078582d6cb025c238a25b2460f7";
         private const string Scope = "test.scope";
+        private const string ScopeHash = "c403db29c2175b51cfe6fd672b336e5171ff4e7a326a916edca508fd3be018f9";
 
         // This is a test token. A real value would be a much longer string.
         private const string Token = "Test Token";
@@ -108,7 +111,7 @@ namespace Microsoft.Authentication.AdoPat.Test
         public async Task GetPatAsync_CreatesNewPatWhenCacheIsMissingPat()
         {
             // Arrange
-            var expectedKey = $"{Organization} {DisplayName} {Scope}";
+            var expectedKey = $"{OrganizationHash}-{DisplayNameHash}-{ScopeHash}";
             var expectedPat = this.PatToken();
 
             // The cache is empty and therefore returns `null` for any key.
@@ -139,7 +142,7 @@ namespace Microsoft.Authentication.AdoPat.Test
         public async Task GetPatAsync_RegeneratesPatWhenPatHasExpired()
         {
             // Arrange
-            var expectedKey = $"{Organization} {DisplayName} {Scope}";
+            var expectedKey = $"{OrganizationHash}-{DisplayNameHash}-{ScopeHash}";
             var expiringPat = this.PatToken(
                 validTo: DateTime.UnixEpoch,
                 validFrom: DateTime.UnixEpoch.AddDays(-7));
@@ -179,7 +182,7 @@ namespace Microsoft.Authentication.AdoPat.Test
         public async Task GetPatAsync_CreatesNewPatWhenPatIsInactive()
         {
             // Arrange
-            var expectedKey = $"{Organization} {DisplayName} {Scope}";
+            var expectedKey = $"{OrganizationHash}-{DisplayNameHash}-{ScopeHash}";
             var inactivePat = this.PatToken();
             var expectedPat = this.PatToken(
                 authorizationId: new Guid("5045619c-e1b1-46e3-a1e4-ba5f38ddf49b"),
