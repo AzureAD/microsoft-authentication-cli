@@ -106,7 +106,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
             var accessToken = this.AccessToken(publicClientAuth, eventData);
             if (accessToken == null)
             {
-                logger.LogError("Failed to acquire an Azure DevOps access token. Re-run with '--verbosity debug' for more info.");
+                logger.LogError("Failed to acquire an Azure DevOps access token. Re-run with --verbosity=debug for more info.");
                 return 1;
             }
 
