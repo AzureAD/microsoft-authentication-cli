@@ -5,9 +5,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
+    using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
 
@@ -22,7 +22,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly string preferredDomain;
         private readonly string promptHint;
         private readonly IList<Exception> errors;
-        private IPCAWrapper pcaWrapper;
+        private readonly IPCAWrapper pcaWrapper;
 
         #region Public configurable properties
 
@@ -54,7 +54,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(clientId, tenantId);
         }
 
         /// <inheritdoc/>
@@ -63,48 +63,31 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <inheritdoc/>
         protected override async Task<(TokenResult, IList<Exception>)> GetTokenInnerAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
-
-            if (account != null)
-            {
-                this.logger.LogDebug($"Using cached account '{account.Username}'");
-            }
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
+            TokenResult tokenResult = null;
 
             try
             {
-                try
-                {
-                    var tokenResult = await TaskExecutor.CompleteWithin(
-                        this.logger,
-                        this.silentAuthTimeout,
-                        "Get Token Silent",
-                        (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(
-                            this.scopes,
-                            account,
-                            cancellationToken),
-                        this.errors)
-                        .ConfigureAwait(false);
-                    tokenResult.SetSilent();
+                tokenResult = await CachedAuth.GetTokenAsync(
+                    this.logger,
+                    this.scopes,
+                    account,
+                    this.pcaWrapper,
+                    this.errors);
 
+                if (tokenResult != null)
+                {
                     return (tokenResult, this.errors);
                 }
-                catch (MsalUiRequiredException ex)
-                {
-                    this.errors.Add(ex);
-                    this.logger.LogDebug($"Silent auth failed, re-auth is required.\n{ex.Message}");
-                    var tokenResult = await TaskExecutor.CompleteWithin(
-                        this.logger,
-                        this.deviceCodeFlowTimeout,
-                        "Get Token using Device Code",
-                        (cancellationToken) => this.pcaWrapper.GetTokenDeviceCodeAsync(
-                        this.scopes,
-                        this.ShowDeviceCodeInTty,
-                        cancellationToken),
-                        this.errors)
-                        .ConfigureAwait(false);
 
-                    return (tokenResult, this.errors);
-                }
+                this.logger.LogWarning($"Device Code Authentication for: {this.promptHint}");
+
+                tokenResult = await TaskExecutor.CompleteWithin(
+                    this.logger,
+                    this.deviceCodeFlowTimeout,
+                    $"{this.Name()} interactive auth",
+                    this.DeviceCodeAuth,
+                    this.errors).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
@@ -112,25 +95,18 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 this.logger.LogError(ex.Message);
             }
 
-            return (null, this.errors);
+            return (tokenResult, this.errors);
         }
 
-        private static HttpClient CreateHttpClient()
+        private Task<TokenResult> DeviceCodeAuth(CancellationToken cancellationToken)
         {
-            HttpClientHandler handler = new HttpClientHandler();
-
-            var client = new HttpClient(handler);
-
-            // Add default headers
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
-            {
-                NoCache = true,
-            };
-
-            return client;
+            return this.pcaWrapper.GetTokenDeviceCodeAsync(
+                this.scopes,
+                this.ShowDeviceCodeInTty,
+                cancellationToken);
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
         {
             var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =
