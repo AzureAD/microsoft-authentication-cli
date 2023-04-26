@@ -1,0 +1,29 @@
+# This pipeline will be triggered when either main branch is pushed or 2AM on workdays.
+trigger:
+  branches:
+    include:
+    - main
+  batch: True
+schedules:
+- cron: 0 2 * * 1-5
+  branches:
+    include:
+    - main
+
+jobs:
+- job: ComponentGovernance
+  displayName: Component Governance
+  pool:
+    name: Azure Pipelines
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '6.x'
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'config'
+      nugetConfigPath: 'nuget.config'

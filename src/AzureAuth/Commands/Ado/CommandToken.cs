@@ -5,7 +5,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using McMaster.Extensions.CommandLineUtils;
 
@@ -14,8 +13,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
-
-    using NLog;
 
     /// <summary>
     /// ADO Command for using either an ADO PAT or acquiring an AAD Access Token.
@@ -26,6 +23,8 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
     {
         private const string OutputOption = "--output";
         private const string OutputOptionDescription = "How to print the token. One of [token, header, headervalue].\nDefault: token";
+
+        private const string DomainOptionDescription = CommandAad.DomainHelpText + "\n[default: " + AzureAuth.Ado.Constants.PreferredDomain + "]";
 
         /// <summary>
         /// The available Token Formats.
@@ -55,8 +54,8 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         [Option(CommandAad.ModeOption, CommandAad.AuthModeHelperText, CommandOptionType.MultipleValue)]
         private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
-        [Option(CommandAad.DomainOption, Description = CommandAad.DomainHelpText)]
-        private string Domain { get; set; }
+        [Option(CommandAad.DomainOption, Description = DomainOptionDescription)]
+        private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
 
         [Option(CommandAad.TimeoutOption, CommandAad.TimeoutHelpText, CommandOptionType.SingleValue)]
         private double Timeout { get; set; } = CommandAad.GlobalTimeout.TotalMinutes;
@@ -84,9 +83,11 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         /// </summary>
         /// <param name="logger">The <see cref="ILogger{T}"/> instance that is used for logging.</param>
         /// <param name="env">An <see cref="IEnv"/> to use.</param>
+        /// <param name="telemetryService">An <see cref="ITelemetryService"/>.</param>
+        /// <param name="publicClientAuth">An <see cref="IPublicClientAuth"/>.</param>
         /// <param name="eventData">Lasso injected command event data.</param>
         /// <returns>An integer status code. 0 for success and non-zero for failure.</returns>
-        public int OnExecute(ILogger<CommandToken> logger, IEnv env, CommandExecuteEventData eventData)
+        public int OnExecute(ILogger<CommandToken> logger, IEnv env, ITelemetryService telemetryService, IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
         {
             // First attempt using a PAT.
             var pat = PatFromEnv.Get(env);
@@ -98,32 +99,23 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             }
 
             // If no PAT then use AAD AT.
-            var authResult = AzureAuth.Ado.TokenFetcher.AccessToken(
-                logger: logger,
-                mode: this.AuthModes.Combine().PreventInteractionIfNeeded(env),
+            TokenResult token = publicClientAuth.Token(
+                authParams: AzureAuth.Ado.Constants.AdoParams,
+                authModes: this.AuthModes,
                 domain: this.Domain,
-                prompt: AzureAuth.PromptHint.Prefixed(this.PromptHint),
-                timeout: TimeSpan.FromMinutes(this.Timeout));
+                prompt: this.PromptHint,
+                timeout: TimeSpan.FromMinutes(this.Timeout),
+                eventData);
 
-            var authflow = authResult.Success;
-            if (authflow != null)
+            if (token == null)
             {
-                logger.LogDebug($"Acquired AAD AT via {authflow.AuthFlowName} in {authflow.Duration.TotalSeconds:0.00} sec");
-                logger.LogInformation(FormatToken(authflow.TokenResult.Token, this.Output, Authorization.Bearer));
-                return 0;
+                logger.LogError($"Failed to find a PAT and authenticate to ADO.");
+                return 1;
             }
 
-            logger.LogError($"Failed to find a PAT and authenticate to ADO.");
-            foreach (var attempt in authResult.Attempts)
-            {
-                logger.LogError($"{attempt.AuthFlowName} failed after {attempt.Duration.TotalSeconds:0.00} sec. Error count: {attempt.Errors.Count}");
-                foreach (var e in attempt.Errors)
-                {
-                    logger.LogError($"  {e.Message}");
-                }
-            }
-
-            return 1;
+            // Do not use logger to avoid printing tokens into log files.
+            Console.Write(FormatToken(token.Token, this.Output, Authorization.Bearer));
+            return 0;
         }
     }
 }

@@ -37,12 +37,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Office.Lasso" Version="2023.3.8.1" />
+    <PackageReference Include="Microsoft.Office.Lasso" Version="2023.4.21.1" />
     <PackageReference Include="Tomlyn" Version="0.11.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
+    <ProjectReference Include="..\AdoPat\AdoPat.csproj" />
   </ItemGroup>
 
   <!-- Assemblies we need to manually mark as roots so they are not trimmed. -->

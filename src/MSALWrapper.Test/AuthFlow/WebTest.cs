@@ -7,7 +7,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+
     using FluentAssertions;
+
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.TestHelper;
@@ -15,9 +17,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.JsonWebTokens;
+
     using Moq;
+
     using NLog.Extensions.Logging;
     using NLog.Targets;
+
     using NUnit.Framework;
 
     internal class WebTest
@@ -57,32 +62,36 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.tokenResult = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            this.pcaWrapperMock.VerifyAll();
+        }
+
         public AuthFlow.Web Subject() => new AuthFlow.Web(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
 
         [Test]
         public async Task WebAuthFlow_CachedToken()
         {
-            this.SilentAuthResult();
-
             this.MockAccount();
+            this.SilentAuthResult();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeTrue();
             authFlowResult.Errors.Should().BeEmpty();
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_NoAccount()
         {
             this.pcaWrapperMock.Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>())).ReturnsAsync((IAccount)null);
-            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthResult();
 
             // Act
@@ -90,70 +99,67 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var authFlowResult = await deviceCode.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
-            authFlowResult.Errors.Should().HaveCount(1);
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.Errors.Should().BeEmpty();
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_ReturnsNull()
         {
-            this.SilentAuthReturnsNull();
-
             this.MockAccount();
+            this.SilentAuthReturnsNull();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthResult();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
-            authFlowResult.TokenResult.Should().Be(null);
+            authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.Errors.Should().BeEmpty();
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_MsalUIException()
         {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthResult();
-
             this.MockAccount();
+            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthResult();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_MsalUIException_InteractiveAuthResultReturnsNullWithoutClaims()
         {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthResultReturnsNullWithoutClaims();
-
             this.MockAccount();
+            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthResultReturnsNullWithoutClaims();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
@@ -172,9 +178,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert
             subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
-
-            // This VerifyAll must come after the assert, since the assert is what execute the lambda
-            this.pcaWrapperMock.VerifyAll();
         }
 
         [Test]
@@ -190,202 +193,191 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             // Assert - this method should not throw for known types of excpeptions, instead return null, so
             // our caller can retry auth another way.
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_OperationCanceledException()
         {
-            this.SilentAuthTimeout();
-
             this.MockAccount();
+            this.SilentAuthTimeout();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthResult();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
-            authFlowResult.TokenResult.Should().Be(null);
+            authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:15");
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.Errors[0].Message.Should().Be("Get Token Silent timed out after 00:00:30");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_MsalClientException()
         {
-            this.SilentAuthClientException();
-
             this.MockAccount();
+            this.SilentAuthClientException();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenSilent_NullReferenceException()
         {
-            this.SilentAuthNullReferenceException();
-
             this.MockAccount();
+            this.SilentAuthNullReferenceException();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(NullReferenceException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_MsalUIException_For_Claims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthWithClaimsResult();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(this.tokenResult);
             authFlowResult.TokenResult.IsSilent.Should().BeFalse();
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_MsalUIException_InteractiveAuthResultReturnsNullWithClaims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthResultReturnsNullWithClaims();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors.Should().AllBeOfType(typeof(MsalUiRequiredException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_MsalServiceException_After_Using_Claims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthWithClaimsServiceException();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(3);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[2].Should().BeOfType(typeof(MsalServiceException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_MsalServiceException()
         {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthServiceException();
-
             this.MockAccount();
+            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthServiceException();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalServiceException));
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_OperationCanceledException()
         {
-            this.SilentAuthUIRequired();
-            this.InteractiveAuthTimeout();
-
             this.MockAccount();
+            this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
+            this.InteractiveAuthTimeout();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(2);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
-            authFlowResult.Errors[1].Message.Should().Be("Interactive Auth timed out after 00:15:00");
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.Errors[1].Message.Should().Be("web interactive auth timed out after 00:15:00");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         [Test]
         public async Task WebAuthFlow_GetTokenInteractive_OperationCanceledException_For_Claims()
         {
+            this.MockAccount();
             this.SilentAuthUIRequired();
+            this.SetupWithPromptHint();
             this.InteractiveAuthExtraClaimsRequired();
             this.InteractiveAuthWithClaimsTimeout();
-
-            this.MockAccount();
 
             // Act
             AuthFlow.Web web = this.Subject();
             var authFlowResult = await web.GetTokenAsync();
 
             // Assert
-            this.pcaWrapperMock.VerifyAll();
             authFlowResult.TokenResult.Should().Be(null);
             authFlowResult.Errors.Should().HaveCount(3);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.Errors[2].Should().BeOfType(typeof(AuthenticationTimeoutException));
             authFlowResult.Errors[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 00:15:00");
-            authFlowResult.AuthFlowName.Should().Be("Web");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
         private void SilentAuthResult()
@@ -407,7 +399,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock
                 .Setup((pca) => pca.GetTokenSilentAsync(this.scopes, It.IsAny<IAccount>(), It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "UI is required"));
-            this.SetupInteractiveAuthWithPromptHint();
         }
 
         private void SilentAuthServiceException()
@@ -508,7 +499,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ReturnsAsync(this.testAccount.Object);
         }
 
-        private void SetupInteractiveAuthWithPromptHint()
+        private void SetupWithPromptHint()
         {
             this.pcaWrapperMock
                 .Setup(pca => pca.WithPromptHint(It.IsAny<string>()))

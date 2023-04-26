@@ -16,10 +16,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Create a list of <see cref="IAuthFlow"/> instances based on the given settings.
         /// </summary>
         /// <param name="logger">An <see cref="ILogger"/>.</param>
+        /// <param name="authParams">The <see cref="AuthParameters"/>.</param>
         /// <param name="authMode">The desired <see cref="AuthMode"/>.</param>
-        /// <param name="clientId">The client id.</param>
-        /// <param name="tenantId">The tenant id.</param>
-        /// <param name="scopes">The scopes.</param>
         /// <param name="preferredDomain">Preferred domain to use when filtering cached accounts.</param>
         /// <param name="promptHint">A prompt hint to contextualize an auth prompt if given.</param>
         /// <param name="pcaWrapper">An optional injected <see cref="IPCAWrapper"/> to use.</param>
@@ -27,10 +25,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IAuthFlow"/> instances.</returns>
         public static IEnumerable<IAuthFlow> Create(
             ILogger logger,
+            AuthParameters authParams,
             AuthMode authMode,
-            Guid clientId,
-            Guid tenantId,
-            IEnumerable<string> scopes,
             string preferredDomain,
             string promptHint,
             IPCAWrapper pcaWrapper = null,
@@ -47,7 +43,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // and tries to auth silently.
             if (authMode.IsIWA() && platformUtils.IsWindows())
             {
-                flows.Add(new IntegratedWindowsAuthentication(logger, clientId, tenantId, scopes, preferredDomain, pcaWrapper));
+                flows.Add(new IntegratedWindowsAuthentication(logger, authParams.Client, authParams.Tenant, authParams.Scopes, preferredDomain, pcaWrapper));
             }
 
             // This check silently fails on winserver if broker has been requested.
@@ -55,17 +51,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
             if (authMode.IsBroker() && platformUtils.IsWindows10Or11())
             {
-                flows.Add(new Broker(logger, clientId, tenantId, scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new Broker(logger, authParams.Client, authParams.Tenant, authParams.Scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             if (authMode.IsWeb())
             {
-                flows.Add(new Web(logger, clientId, tenantId, scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new Web(logger, authParams.Client, authParams.Tenant, authParams.Scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             if (authMode.IsDeviceCode())
             {
-                flows.Add(new DeviceCode(logger, clientId, tenantId, scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new DeviceCode(logger, authParams.Client, authParams.Tenant, authParams.Scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             return flows;

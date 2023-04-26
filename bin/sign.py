@@ -38,18 +38,21 @@ def sign_operation(key_code: str, operation: str) -> JSON:
         "ToolVersion": "1.0",
     }
 
+
 def sign_operation_linux(key_code: str, operation: str) -> JSON:
     return {
-        "KeyCode" : key_code,
-        "OperationCode" : operation,
-        "Parameters" : {},
-        "ToolName" : "sign",
-        "ToolVersion" : "1.0"
+        "KeyCode": key_code,
+        "OperationCode": operation,
+        "Parameters": {},
+        "ToolName": "sign",
+        "ToolVersion": "1.0",
     }
+
 
 def linux_sign(key_code: str) -> JSON:
     """Return the JSON for a `LinuxSign` operation."""
     return sign_operation_linux(key_code, operation="LinuxSign")
+
 
 def mac_app_developer_sign(key_code: str) -> JSON:
     """Return the JSON for a `MacAppDeveloperSign` operation."""
@@ -198,7 +201,7 @@ def auth(tenant_id: str, client_id: str) -> JSON:
             "SubjectName": f"CN={client_id}.microsoft.com",
             "StoreLocation": "LocalMachine",
             "StoreName": "My",
-            "SendX5c" :  "true"
+            "SendX5c": "true",
         },
         "RequestSigningCert": {
             "SubjectName": f"CN={client_id}",
@@ -224,6 +227,36 @@ def json_tempfile(path: Path, data: JSON) -> Generator[None, None, None]:
         json.dump(obj=data, fp=file, indent=2)
     yield
     path.unlink()
+
+
+def parse_env_vars(runtime: str) -> tuple[str, str, str, JSON]:
+    """Parse and return environment variables"""
+    try:
+        aad_id = os.environ["SIGNING_AAD_ID"]
+        tenant_id = os.environ["SIGNING_TENANT_ID"]
+        customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
+        match runtime:
+            case "win10-x64":
+                # This key code is used for signing .exes and .dlls on both Windows and Mac.
+                key_codes = {
+                    "authenticode": os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
+                }
+            case "osx-x64" | "osx-arm64":
+                # SIGNING_KEY_CODE_AUTHENTICODE is used for signing .exes and .dlls on both Windows and Mac.
+                # SIGNING_KEY_CODE_MAC is used for signing .dylibs on Macs.
+                key_codes = {
+                    "authenticode": os.environ["SIGNING_KEY_CODE_AUTHENTICODE"],
+                    "mac": os.environ["SIGNING_KEY_CODE_MAC"],
+                }
+            case "linux-x64":
+                # This key code is used for signing .deb on Linux.
+                key_codes = {"linux": os.environ["SIGNING_KEY_CODE_LINUX"]}
+
+        return aad_id, tenant_id, customer_correlation_id, key_codes
+    except KeyError as exc:
+        # See https://stackoverflow.com/a/24999035/3288364.
+        name = str(exc).replace("'", "")
+        raise KeyError(f"Error: missing env var: {name}")
 
 
 def parse_args() -> Namespace:
@@ -260,24 +293,11 @@ def main() -> None:
     """Determine target runtime, generate inputs, and run ESRPClient.exe."""
     # 1. Parse command line arguments.
     args = parse_args()
+    runtime = args.runtime.lower()
 
     # 2. Read env vars.
-    try:
-        aad_id = os.environ["SIGNING_AAD_ID"]
-        tenant_id = os.environ["SIGNING_TENANT_ID"]
-        # This key code is used for signing .exes and .dlls on both Windows and Mac.
-        key_code_authenticode = os.environ["SIGNING_KEY_CODE_AUTHENTICODE"]
-        # This key code is used for signing .dylibs on Macs.
-        key_code_mac = os.environ["SIGNING_KEY_CODE_MAC"]
-        # This key code is used for signing .deb on Linux.
-        key_code_linux = os.environ["SIGNING_KEY_CODE_LINUX"]
-        customer_correlation_id = os.environ["SIGNING_CUSTOMER_CORRELATION_ID"]
-    except KeyError as exc:
-        # See https://stackoverflow.com/a/24999035/3288364.
-        name = str(exc).replace("'", "")
-        sys.exit(f"Error: missing env var: {name}")
+    aad_id, tenant_id, customer_correlation_id, key_codes = parse_env_vars(runtime)
 
-    key_codes = {"authenticode": key_code_authenticode, "mac": key_code_mac, "linux": key_code_linux}
     esrp_path = args.esrp_client.resolve()
     source_path = args.source.resolve()
     auth_path = Path("auth.json").resolve()
@@ -286,7 +306,7 @@ def main() -> None:
     output_path = Path("output.json").resolve()
 
     # 3. Determine runtime & create a batchmaker.
-    match args.runtime.lower():
+    match runtime:
         case "win10-x64":
             batchmaker = windows_batches(
                 source=source_path,

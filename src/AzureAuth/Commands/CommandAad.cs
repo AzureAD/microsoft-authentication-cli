@@ -7,7 +7,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands
     using System.Collections.Generic;
     using System.IO.Abstractions;
     using System.Linq;
-    using System.Threading.Tasks;
 
     using McMaster.Extensions.CommandLineUtils;
 
@@ -55,33 +54,29 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// <summary>
         /// The Prompt Hint help text.
         /// </summary>
-        public const string PromptHintHelpText = "A prompt hint to contextualize prompts and identify uses in telemetry";
+        public const string PromptHintHelpText = "A prompt hint to contextualize prompts and identify uses in telemetry, when captured.";
 
+        /// <summary>
+        /// The help text for the <see cref="ModeOption"/> option.
+        /// </summary>
 #if PlatformWindows
-        /// <summary>
-        /// The help text for the <see cref="ModeOption"/> option.
-        /// </summary>
-        public const string AuthModeHelperText = @"Authentication mode. Default: iwa (Integrated Windows Auth), then broker, then web.
-You can use any combination of modes with multiple instances of the --mode flag.
-Allowed values: [all, iwa, broker, web, devicecode]";
+        public const string AuthModeHelperText = @"Authentication mode. Repeated invocations allowed.
+[default: iwa (Integrated Windows Auth), then broker, then web]
+[possible values: all, iwa, broker, web, devicecode]";
 #else
-        /// <summary>
-        /// The help text for the <see cref="ModeOption"/> option.
-        /// </summary>
-        public const string AuthModeHelperText = @"Authentication mode. Default: web.
-You can use any combination with multiple instances of the --mode flag.
-Allowed values: [all, web, devicecode]";
+        public const string AuthModeHelperText = @"Authentication mode. Repeated invocations allowed. [default: web]
+[possible values: all, web, devicecode]";
 #endif
 
         /// <summary>
         /// The help text for the <see cref="DomainOption"/> option.
         /// </summary>
-        public const string DomainHelpText = "Preferred domain to filter cached accounts by. If a single account matching the preferred domain is in the cache it is used, otherwise an account picker will be launched.\n";
+        public const string DomainHelpText = "Preferred domain for filtering cached accounts.\nSkips launching an account picker if only one cached account matches the preferred domain.";
 
         /// <summary>
         /// The help text for the <see cref="TimeoutOption"/> option.
         /// </summary>
-        public const string TimeoutHelpText = "The number of minutes before authentication times out.\nDefault: 15 minutes.";
+        public const string TimeoutHelpText = "The number of minutes before authentication times out.\n[default: 15 minutes]";
 
         /// <summary>
         /// The default number of minutes CLI is allowed to run.
@@ -297,7 +292,7 @@ Allowed values: [all, web, devicecode]";
         /// <returns>
         /// The error code: 0 is normal execution, and the rest means errors during execution.
         /// </returns>
-        public int OnExecute()
+        public int OnExecute(IPublicClientAuth publicClientAuth)
         {
             if (!this.EvaluateOptions())
             {
@@ -314,17 +309,7 @@ Allowed values: [all, web, devicecode]";
             // Small bug in Lasso - Add does not accept a null IEnumerable here.
             this.eventData.Add("settings_scopes", this.authSettings.Scopes ?? new List<string>());
 
-            if (this.env.InteractiveAuthDisabled())
-            {
-                this.eventData.Add(EnvVars.CorextNonInteractive, this.env.Get(EnvVars.CorextNonInteractive));
-                this.eventData.Add(EnvVars.NoUser, this.env.Get(EnvVars.NoUser));
-                this.logger.LogWarning($"Interactive authentication is disabled.");
-#if PlatformWindows
-                this.logger.LogWarning($"Only Integrated Windows Authentication will be attempted.");
-#endif
-            }
-
-            return this.ClearCache ? this.ClearLocalCache() : this.GetToken();
+            return this.ClearCache ? this.ClearLocalCache() : this.GetToken(publicClientAuth);
         }
 
         private bool ValidateOptions()
@@ -377,38 +362,23 @@ Allowed values: [all, web, devicecode]";
             return 0;
         }
 
-        private int GetToken()
+        private int GetToken(IPublicClientAuth publicClientAuth)
         {
             try
             {
-                var results = TokenFetcher.AccessToken(
-                    logger: this.logger,
-                    client: new Guid(this.authSettings.Client),
-                    tenant: new Guid(this.authSettings.Tenant),
-                    scopes: this.authSettings.Scopes,
-                    mode: this.AuthModes.Combine().PreventInteractionIfNeeded(this.env),
+                TokenResult tokenResult = publicClientAuth.Token(
+                    authParams: new AuthParameters(this.authSettings.Client, this.authSettings.Tenant, this.authSettings.Scopes),
+                    authModes: this.AuthModes,
                     domain: this.authSettings.Domain,
-                    prompt: AzureAuth.PromptHint.Prefixed(this.authSettings.PromptHint),
-                    timeout: TimeSpan.FromMinutes(this.Timeout));
+                    prompt: this.authSettings.PromptHint,
+                    timeout: TimeSpan.FromMinutes(this.Timeout),
+                    this.eventData);
 
-                var errors = results.Attempts.SelectMany(attempt => attempt.Errors).ToArray();
-                this.eventData.Add("error_count", errors.Length);
-                this.eventData.Add("authflow_count", results.Attempts.Count);
-
-                // Send custom telemetry events for each authflow result.
-                results.Attempts.SendTelemetry(this.telemetryService);
-
-                var success = results.Success;
-                if (success == null)
+                if (tokenResult == null)
                 {
                     this.logger.LogError("Authentication failed. Re-run with '--verbosity debug' to get see more info.");
                     return 1;
                 }
-
-                var tokenResult = success.TokenResult;
-                this.eventData.Add("silent", tokenResult.IsSilent);
-                this.eventData.Add("sid", tokenResult.SID);
-                this.eventData.Add("succeeded_mode", success.AuthFlowName);
 
                 switch (this.Output)
                 {
