@@ -5,7 +5,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
 
@@ -19,15 +21,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly IList<Exception> errors;
-        private IPCAWrapper pcaWrapper;
-
-        #region Public configurable properties
+        private readonly IPCAWrapper pcaWrapper;
 
         /// <summary>
         /// The integrated windows auth flow timeout.
         /// </summary>
-        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(15);
-        #endregion
+        private TimeSpan integratedWindowsAuthTimeout = TimeSpan.FromSeconds(30);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegratedWindowsAuthentication"/> class.
@@ -44,7 +43,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.logger = logger;
             this.scopes = scopes;
             this.preferredDomain = preferredDomain;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, clientId, tenantId);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(clientId, tenantId);
         }
 
         /// <inheritdoc/>
@@ -53,51 +52,43 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <inheritdoc/>
         protected override async Task<(TokenResult, IList<Exception>)> GetTokenInnerAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain) ?? null;
-            this.logger.LogDebug($"Using cached account '{account?.Username}'");
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
             TokenResult tokenResult = null;
 
             try
             {
-                try
+                tokenResult = await CachedAuth.GetTokenAsync(
+                    this.logger,
+                    this.scopes,
+                    account,
+                    this.pcaWrapper,
+                    this.errors);
+
+                if (tokenResult != null)
                 {
-                    tokenResult = await TaskExecutor.CompleteWithin(
-                        this.logger,
-                        this.integratedWindowsAuthTimeout,
-                        "Get Token Silent",
-                        (cancellationToken) => this.pcaWrapper.GetTokenSilentAsync(this.scopes, account, cancellationToken),
-                        this.errors)
-                        .ConfigureAwait(false);
-                    tokenResult.SetSilent();
-                    if (tokenResult == null)
-                    {
-                        this.errors.Add(new NullTokenResultException("IWA Get Token Silent returned null.(Not expected)"));
-                    }
+                    return (tokenResult, this.errors);
                 }
-                catch (MsalUiRequiredException ex)
-                {
-                    this.errors.Add(ex);
-                    this.logger.LogDebug("Cached auth failed.");
-                    this.logger.LogDebug(ex.Message);
-                    tokenResult = await TaskExecutor.CompleteWithin(
-                                  this.logger,
-                                  this.integratedWindowsAuthTimeout,
-                                  "Get Token Integrated Windows Authentication",
-                                  (cancellationToken) => this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken),
-                                  this.errors)
-                                  .ConfigureAwait(false);
-                    tokenResult.SetSilent();
-                }
+
+                tokenResult = await TaskExecutor.CompleteWithin(
+                    this.logger,
+                    this.integratedWindowsAuthTimeout,
+                    "Integrated Windows Authentication",
+                    this.Iwa,
+                    this.errors).ConfigureAwait(false);
+
+                // If IWA worked, it was 100% silent.
+                tokenResult.SetSilent();
             }
             catch (MsalUiRequiredException ex)
             {
                 this.errors.Add(ex);
+                this.logger.LogDebug(ex.Message);
+
                 if (ex.Classification == UiRequiredExceptionClassification.BasicAction
                       && ex.Message.StartsWith("AADSTS50076", StringComparison.OrdinalIgnoreCase))
                 {
                     this.logger.LogWarning("IWA failed, 2FA is required.");
                     this.logger.LogWarning("IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.");
-                    this.logger.LogWarning(ex.Message);
                 }
             }
             catch (MsalServiceException ex)
@@ -123,7 +114,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return (tokenResult, this.errors);
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
+        private async Task<TokenResult> Iwa(CancellationToken cancellationToken)
+        {
+            return await this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken);
+        }
+
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
