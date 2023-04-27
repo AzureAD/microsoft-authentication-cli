@@ -54,5 +54,13 @@ namespace Microsoft.Authentication.AdoPat
                 return string.Join('-', hashes);
             }
         }
+
+        /// <summary>Create a human-readable string representation of PAT options.</summary>
+        /// <returns>The string.</returns>
+        public override string ToString()
+        {
+            var scopes = string.Join(' ', this.Scopes);
+            return $"organization='{this.Organization}', displayName='{this.DisplayName}', scopes='{scopes}'";
+        }
     }
 }

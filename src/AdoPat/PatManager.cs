@@ -6,6 +6,7 @@ namespace Microsoft.Authentication.AdoPat
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
     using Microsoft.VisualStudio.Services.DelegatedAuthorization;
 
     /// <summary>
@@ -19,6 +20,9 @@ namespace Microsoft.Authentication.AdoPat
         private const int ValidToExtensionDays = 7;
         private const int NearingExpirationDays = 2;
 
+        // Note: Logging in this class intentionally avoids referencing any PAT details lest those leak into log files.
+        private ILogger logger;
+
         private IPatCache cache;
         private IPatClient client;
         private Func<DateTime> now;
@@ -26,12 +30,14 @@ namespace Microsoft.Authentication.AdoPat
         /// <summary>
         /// Initializes a new instance of the <see cref="PatManager"/> class.
         /// </summary>
+        /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
         /// <param name="cache">Any class that implements the <see cref="IPatCache"/> interface.</param>
         /// <param name="client">Any class that implements the <see cref="IPatClient"/> interface.</param>
         /// <param name="now">A function for computing the current moment. Defaults to null, which
         /// uses <see cref="DateTime.UtcNow"/>. Overriding this should only be necessary in testing.</param>
-        public PatManager(IPatCache cache, IPatClient client, Func<DateTime> now = null)
+        public PatManager(ILogger logger, IPatCache cache, IPatClient client, Func<DateTime> now = null)
         {
+            this.logger = logger;
             this.cache = cache;
             this.client = client;
             this.now = now ?? new Func<DateTime>(() => DateTime.UtcNow);
@@ -48,14 +54,17 @@ namespace Microsoft.Authentication.AdoPat
             PatOptions options,
             CancellationToken cancellationToken = default)
         {
-            var pat = this.cache.Get(options.CacheKey());
+            var cacheKey = options.CacheKey();
+            this.logger.LogDebug($"Checking for PAT in cache with key '{cacheKey}'");
+            var pat = this.cache.Get(cacheKey);
 
             // If the PAT is null it means it wasn't present in the cache, so we must create one.
             // If the PAT was present in the cache, but is inactive we must also create a new one.
             // If the PAT was present in the cache, but will expire soon we must regenerate it.
             // Otherwise we can simply return the PAT as is.
-            if (pat == null || await this.Inactive(pat, cancellationToken).ConfigureAwait(false))
+            if (this.NullPat(pat) || await this.Inactive(pat, cancellationToken).ConfigureAwait(false))
             {
+                this.logger.LogDebug($"Creating new PAT with {options}");
                 pat = await this.client.CreateAsync(
                     displayName: options.DisplayName,
                     scope: string.Join(" ", options.Scopes),
@@ -66,6 +75,7 @@ namespace Microsoft.Authentication.AdoPat
             }
             else if (this.ExpiringSoon(pat))
             {
+                this.logger.LogDebug($"Regenerating PAT with {options}");
                 pat = await this.client.RegenerateAsync(
                     pat,
                     this.now().AddDays(ValidToExtensionDays),
@@ -77,17 +87,33 @@ namespace Microsoft.Authentication.AdoPat
             return pat;
         }
 
+        private bool NullPat(PatToken pat)
+        {
+            if (pat == null)
+            {
+                this.logger.LogDebug("No matching PAT found in cache");
+                return true;
+            }
+
+            this.logger.LogDebug("Found PAT in cache");
+            return false;
+        }
+
         // Whether the given PAT is still considered active by Azure DevOps.
         private async Task<bool> Inactive(PatToken pat, CancellationToken cancellationToken = default)
         {
             var activePats = await this.client.ListActiveAsync(cancellationToken).ConfigureAwait(false);
-            return !activePats.ContainsKey(pat.AuthorizationId);
+            var active = activePats.ContainsKey(pat.AuthorizationId);
+            this.logger.LogDebug($"PAT active: {active}");
+            return !active;
         }
 
         // Whether the given PAT will expire before `NearingExpirationDays`.
         private bool ExpiringSoon(PatToken pat)
         {
-            return pat.ValidTo < this.now().AddDays(NearingExpirationDays);
+            var expiringSoon = pat.ValidTo < this.now().AddDays(NearingExpirationDays);
+            this.logger.LogDebug($"PAT expiring soon: {expiringSoon}");
+            return expiringSoon;
         }
     }
 }
