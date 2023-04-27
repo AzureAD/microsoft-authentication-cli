@@ -8,8 +8,11 @@ namespace Microsoft.Authentication.AdoPat.Test
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
+    using Microsoft.Authentication.TestHelper;
+    using Microsoft.Extensions.Logging;
     using Microsoft.VisualStudio.Services.DelegatedAuthorization;
     using Moq;
+    using NLog.Targets;
     using NUnit.Framework;
 
     public class PatManagerTest
@@ -30,6 +33,11 @@ namespace Microsoft.Authentication.AdoPat.Test
         // This is a dummy authorization ID, not valid in any real contexts.
         private readonly Guid authorizationId = new Guid("ee0c5586-a96f-4a44-b1d9-8613028b1078");
 
+        private readonly string cacheKey = string.Join('-', OrganizationHash, DisplayNameHash, ScopeHash);
+
+        private ILogger logger;
+        private MemoryTarget logTarget;
+
         // Common mocks which are configured via the Setup and Teardown methods.
         private Mock<IPatCache> cache;
         private Mock<IPatClient> client;
@@ -47,6 +55,7 @@ namespace Microsoft.Authentication.AdoPat.Test
         {
             this.cache = new Mock<IPatCache>(MockBehavior.Strict);
             this.client = new Mock<IPatClient>(MockBehavior.Strict);
+            (this.logger, this.logTarget) = MemoryLogger.Create();
         }
 
         [TearDown]
@@ -96,6 +105,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             this.client.Setup(c => c.ListActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(activePats);
 
             var manager = new PatManager(
+                this.logger,
                 this.cache.Object,
                 this.client.Object,
                 now: () => DateTime.UnixEpoch);
@@ -105,6 +115,12 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // Assert
             pat.Should().BeEquivalentTo(expectedPat);
+
+            this.logTarget.Logs.Count.Should().Be(4);
+            this.logTarget.Logs[0].Should().Be($"Checking for PAT in cache with key '{this.cacheKey}'");
+            this.logTarget.Logs[1].Should().Be("Found PAT in cache");
+            this.logTarget.Logs[2].Should().Be($"PAT active: True");
+            this.logTarget.Logs[3].Should().Be($"PAT expiring soon: False");
         }
 
         [Test]
@@ -127,6 +143,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             .ReturnsAsync(expectedPat);
 
             var manager = new PatManager(
+                this.logger,
                 this.cache.Object,
                 this.client.Object,
                 now: () => DateTime.UnixEpoch);
@@ -136,6 +153,11 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // Assert
             pat.Should().BeEquivalentTo(expectedPat);
+
+            this.logTarget.Logs.Count.Should().Be(3);
+            this.logTarget.Logs[0].Should().Be($"Checking for PAT in cache with key '{this.cacheKey}'");
+            this.logTarget.Logs[1].Should().Be("No matching PAT found in cache");
+            this.logTarget.Logs[2].Should().Be($"Creating new PAT with organization='{Organization}', displayName='{DisplayName}', scopes='{Scope}'");
         }
 
         [Test]
@@ -167,6 +189,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             .ReturnsAsync(expectedPat);
 
             var manager = new PatManager(
+                this.logger,
                 this.cache.Object,
                 this.client.Object,
                 now: () => DateTime.UnixEpoch);
@@ -176,6 +199,13 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // Assert
             pat.Should().BeEquivalentTo(expectedPat);
+
+            this.logTarget.Logs.Count.Should().Be(5);
+            this.logTarget.Logs[0].Should().Be($"Checking for PAT in cache with key '{this.cacheKey}'");
+            this.logTarget.Logs[1].Should().Be("Found PAT in cache");
+            this.logTarget.Logs[2].Should().Be("PAT active: True");
+            this.logTarget.Logs[3].Should().Be("PAT expiring soon: True");
+            this.logTarget.Logs[4].Should().Be($"Regenerating PAT with organization='{Organization}', displayName='{DisplayName}', scopes='{Scope}'");
         }
 
         [Test]
@@ -205,6 +235,7 @@ namespace Microsoft.Authentication.AdoPat.Test
             .ReturnsAsync(expectedPat);
 
             var manager = new PatManager(
+                this.logger,
                 this.cache.Object,
                 this.client.Object,
                 now: () => DateTime.UnixEpoch);
@@ -214,6 +245,12 @@ namespace Microsoft.Authentication.AdoPat.Test
 
             // Assert
             pat.Should().BeEquivalentTo(expectedPat);
+
+            this.logTarget.Logs.Count.Should().Be(4);
+            this.logTarget.Logs[0].Should().Be($"Checking for PAT in cache with key '{this.cacheKey}'");
+            this.logTarget.Logs[1].Should().Be("Found PAT in cache");
+            this.logTarget.Logs[2].Should().Be("PAT active: False");
+            this.logTarget.Logs[3].Should().Be($"Creating new PAT with organization='{Organization}', displayName='{DisplayName}', scopes='{Scope}'");
         }
     }
 }

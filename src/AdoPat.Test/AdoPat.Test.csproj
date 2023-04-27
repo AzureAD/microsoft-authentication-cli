@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TestHelper\TestHelper.csproj" />
     <ProjectReference Include="..\AdoPat\AdoPat.csproj" />
   </ItemGroup>
 

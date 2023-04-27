@@ -112,7 +112,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
             var cache = this.Cache();
             var client = this.Client(accessToken.Token);
-            var manager = new PatManager(cache, client);
+            var manager = new PatManager(logger, cache, client);
 
             using (new CrossPlatLock(LockfilePath))
             {
