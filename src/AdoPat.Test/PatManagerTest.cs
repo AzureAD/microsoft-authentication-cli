@@ -9,6 +9,7 @@ namespace Microsoft.Authentication.AdoPat.Test
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.Authentication.TestHelper;
+    using Microsoft.Extensions.Logging;
     using Microsoft.VisualStudio.Services.DelegatedAuthorization;
     using Moq;
     using NLog.Targets;
@@ -34,7 +35,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 
         private readonly string cacheKey = string.Join('-', OrganizationHash, DisplayNameHash, ScopeHash);
 
-        private Extensions.Logging.ILogger logger;
+        private ILogger logger;
         private MemoryTarget logTarget;
 
         // Common mocks which are configured via the Setup and Teardown methods.

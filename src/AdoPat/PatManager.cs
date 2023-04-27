@@ -20,7 +20,7 @@ namespace Microsoft.Authentication.AdoPat
         private const int ValidToExtensionDays = 7;
         private const int NearingExpirationDays = 2;
 
-        // Note: Logging in this class intentionally avoids referencing any PAT details lest those leak into log files.
+        // Note: Do NOT use this logger instance to log any fields on a PAT, ESPECIALLY the token.
         private ILogger logger;
 
         private IPatCache cache;
