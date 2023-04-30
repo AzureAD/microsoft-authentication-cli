@@ -1,2 +1,2 @@
 # Do not do any text (line ending) normalization
-* -text
+*.txt encoding=utf-8
