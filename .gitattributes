@@ -1,2 +1,4 @@
 # Do not do any text (line ending) normalization
 * -text
+# Generate diff of .txt files as text file instead of binary file
+*.txt diff
