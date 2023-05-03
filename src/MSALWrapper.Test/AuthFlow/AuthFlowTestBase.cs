@@ -4,11 +4,14 @@
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
     using System;
+
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
+
     using Moq;
+
     using NUnit.Framework;
 
     internal class AuthFlowTestBase
