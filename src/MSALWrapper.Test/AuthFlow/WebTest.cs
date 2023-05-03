@@ -23,7 +23,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             ClientId,
             TenantId,
             Scopes,
-            pcaWrapper: this.pca.Object,
+            pcaWrapper: this.mockPca.Object,
             promptHint: PromptHint);
 
         [Test]
@@ -296,58 +296,58 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         private void SetupInteractiveAuthWithClaimsSuccess()
         {
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, Claims, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(this.testToken);
         }
 
         private void SetupInteractiveAuthWithClaimsReturnsNull()
         {
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, Claims, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((TokenResult)null);
         }
 
         private void InteractiveAuthTimeout()
         {
-            this.pca
-                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, this.account.Object, It.IsAny<CancellationToken>()))
+            this.mockPca
+                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new OperationCanceledException());
         }
 
         private void InteractiveAuthExtraClaimsRequired()
         {
-            this.pca
-                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, this.account.Object, It.IsAny<CancellationToken>()))
+            this.mockPca
+                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "Extra Claims are required."));
         }
 
         private void InteractiveAuthServiceException()
         {
-            this.pca
-                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, this.account.Object, It.IsAny<CancellationToken>()))
+            this.mockPca
+                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
                 .Throws(new MsalServiceException(MsalExceptionErrorCode, MsalExceptionMessage));
         }
 
         private void InteractiveAuthWithClaimsServiceException()
         {
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Throws(new MsalServiceException(MsalExceptionErrorCode, MsalExceptionMessage));
         }
 
         private void InteractiveAuthWithClaimsTimeout()
         {
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Throws(new OperationCanceledException());
         }
 
         private void MockAccount()
         {
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
-                .ReturnsAsync(this.account.Object);
+                .ReturnsAsync(this.mockAccount.Object);
         }
     }
 }
