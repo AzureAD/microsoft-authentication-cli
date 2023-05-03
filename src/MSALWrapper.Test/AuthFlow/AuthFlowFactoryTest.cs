@@ -72,8 +72,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Web);
 
-            subject.Should().HaveCount(1);
-            subject.First().GetType().Name.Should().Be(typeof(Web).Name);
+            subject.Should().HaveCount(2);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(typeof(CachedAuth), typeof(Web));
         }
 
 #if PlatformWindows
@@ -84,8 +87,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.IWA);
 
-            subject.Should().HaveCount(1);
-            subject.First().GetType().Name.Should().Be(typeof(IntegratedWindowsAuthentication).Name);
+            subject.Should().HaveCount(2);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(typeof(CachedAuth), typeof(IntegratedWindowsAuthentication));
         }
 
         [Test]
@@ -95,8 +101,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
 
-            subject.Should().HaveCount(1);
-            subject.First().GetType().Name.Should().Be(typeof(Broker).Name);
+            subject.Should().HaveCount(2);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(typeof(CachedAuth), typeof(Broker));
         }
 
         [Test]
@@ -107,14 +116,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
-            subject.Should().HaveCount(3);
-
-            // BeEquivalentTo doesn't assert order for a list :(
-            // so explicitly assert the first and second item names.
-            var names = subject.Select(a => a.GetType().Name).ToList();
-            names[0].Should().Be(typeof(IntegratedWindowsAuthentication).Name);
-            names[1].Should().Be(typeof(Broker).Name);
-            names[2].Should().Be(typeof(Web).Name);
+            subject.Should().HaveCount(4);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
+                    typeof(IntegratedWindowsAuthentication),
+                    typeof(Broker),
+                    typeof(Web));
         }
 
         [Test]
@@ -125,10 +135,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
-            subject.Should().HaveCount(2);
-            var names = subject.Select(a => a.GetType().Name).ToList();
-            names[0].Should().Be(typeof(IntegratedWindowsAuthentication).Name);
-            names[1].Should().Be(typeof(Web).Name);
+            subject.Should().HaveCount(3);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
+                    typeof(IntegratedWindowsAuthentication),
+                    typeof(Web));
         }
 
         [Test]
@@ -139,15 +153,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
-            subject.Should().HaveCount(4);
-
-            // BeEquivalentTo doesn't assert order for a list :(
-            // so explicitly assert the first and second item names.
-            var names = subject.Select(a => a.GetType().Name).ToList();
-            names[0].Should().Be(typeof(IntegratedWindowsAuthentication).Name);
-            names[1].Should().Be(typeof(Broker).Name);
-            names[2].Should().Be(typeof(Web).Name);
-            names[3].Should().Be(typeof(DeviceCode).Name);
+            subject.Should().HaveCount(5);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
+                    typeof(IntegratedWindowsAuthentication),
+                    typeof(Broker),
+                    typeof(Web),
+                    typeof(DeviceCode));
         }
 
         [Test]
@@ -158,14 +173,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
-            subject.Should().HaveCount(3);
-
-            // BeEquivalentTo doesn't assert order for a list :(
-            // so explicitly assert the first and second item names.
-            var names = subject.Select(a => a.GetType().Name).ToList();
-            names[0].Should().Be(typeof(IntegratedWindowsAuthentication).Name);
-            names[1].Should().Be(typeof(Web).Name);
-            names[2].Should().Be(typeof(DeviceCode).Name);
+            subject.Should().HaveCount(4);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
+                    typeof(IntegratedWindowsAuthentication),
+                    typeof(Web),
+                    typeof(DeviceCode));
         }
 #endif
 
@@ -175,8 +191,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.DeviceCode);
 
             this.pcaWrapperMock.VerifyAll();
-            subject.Should().HaveCount(1);
-            subject.First().GetType().Name.Should().Be(typeof(DeviceCode).Name);
+            subject.Should().HaveCount(2);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
+                    typeof(DeviceCode));
         }
 
         [Test]
@@ -189,15 +210,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
             this.pcaWrapperMock.VerifyAll();
-            subject.Should().HaveCount(3);
+            subject.Should().HaveCount(4);
             subject
-                .Select(flow => flow.GetType().Name)
+                .Select(flow => flow.GetType())
                 .Should()
                 .BeEquivalentTo(new[]
                 {
-                    typeof(IntegratedWindowsAuthentication).Name,
-                    typeof(Web).Name,
-                    typeof(DeviceCode).Name,
+                    typeof(CachedAuth),
+                    typeof(IntegratedWindowsAuthentication),
+                    typeof(Web),
+                    typeof(DeviceCode),
                 });
         }
 
@@ -211,16 +233,17 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
             this.pcaWrapperMock.VerifyAll();
-            subject.Should().HaveCount(4);
+            subject.Should().HaveCount(5);
             subject
-                .Select(flow => flow.GetType().Name)
+                .Select(flow => flow.GetType())
                 .Should()
                 .BeEquivalentTo(new[]
                 {
-                    typeof(IntegratedWindowsAuthentication).Name,
-                    typeof(Broker).Name,
-                    typeof(Web).Name,
-                    typeof(DeviceCode).Name,
+                    typeof(CachedAuth),
+                    typeof(IntegratedWindowsAuthentication),
+                    typeof(Broker),
+                    typeof(Web),
+                    typeof(DeviceCode),
                 });
         }
 
@@ -231,14 +254,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
             this.pcaWrapperMock.VerifyAll();
-            subject.Should().HaveCount(2);
+            subject.Should().HaveCount(3);
             subject
-                .Select(flow => flow.GetType().Name)
+                .Select(flow => flow.GetType())
                 .Should()
                 .BeEquivalentTo(new[]
                 {
-                    typeof(Web).Name,
-                    typeof(DeviceCode).Name,
+                    typeof(CachedAuth),
+                    typeof(Web),
+                    typeof(DeviceCode),
                 });
         }
 
@@ -251,10 +275,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var subject = this.Subject(AuthMode.Default);
 
             this.platformUtilsMock.VerifyAll();
-            subject.Select(async => async.GetType().Name).Should().BeEquivalentTo(new[]
-            {
-                typeof(Web).Name,
-            });
+            subject.Should().HaveCount(2);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
+                    typeof(Web));
         }
 
         private void MockIsWindows10Or11(bool value)
