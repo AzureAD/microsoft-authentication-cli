@@ -26,12 +26,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             pcaWrapper: this.mockPca.Object,
             promptHint: PromptHint);
 
-        [Test]
-        public async Task WebAuthFlow_NoAccount_Success()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task Success(bool withAccount)
         {
-            this.SetupNoCachedAccount();
+            this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-            this.SetupGetTokenInteractiveSuccess(withAccount: false);
+            this.SetupGetTokenInteractiveSuccess(withAccount: withAccount);
 
             // Act
             AuthFlow.Web deviceCode = this.Subject();
@@ -43,29 +44,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject.TokenResult.IsSilent.Should().BeFalse();
         }
 
-        [Test]
-        public async Task WebAuthFlow_WithAccount_Success()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task Returns_Null(bool withAccount)
         {
-            this.SetupCachedAccount();
+            this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-            this.SetupGetTokenInteractiveSuccess(withAccount: true);
-
-            // Act
-            AuthFlow.Web web = this.Subject();
-            var subject = await web.GetTokenAsync();
-
-            // Assert
-            var expected = new AuthFlowResult(this.testToken, Array.Empty<Exception>(), "web");
-            subject.Should().BeEquivalentTo(expected);
-            subject.TokenResult.IsSilent.Should().BeFalse();
-        }
-
-        [Test]
-        public async Task WebAuthFlow_NoAccount_Null()
-        {
-            this.SetupNoCachedAccount();
-            this.SetupWithPromptHint();
-            this.SetupGetTokenInteractiveReturnsNull(withAccount: false);
+            this.SetupGetTokenInteractiveReturnsNull(withAccount: withAccount);
 
             // Act
             AuthFlow.Web web = this.Subject();
@@ -77,22 +62,24 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.AuthFlowName.Should().Be("web");
         }
 
-        //[Test]
-        //public void WebAuthFlow_General_Exceptions_Are_ReThrown()
-        //{
-        //    var message = "Something somwhere has gone terribly wrong!";
-        //    this.MockAccount();
-        //    this.mockPca
-        //        .Setup((pca) => pca.GetTokenSilentAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
-        //        .Throws(new Exception(message));
+        [Test]
+        public async Task General_Exceptions_Are_Thrown()
+        {
+            var message = "Something somwhere has gone terribly wrong!";
+            this.SetupCachedAccount(true);
+            this.SetupWithPromptHint();
 
-        //    // Act
-        //    AuthFlow.Web web = this.Subject();
-        //    Func<Task> subject = async () => await web.GetTokenAsync();
+            this.mockPca
+                .Setup((pca) => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
+                .Throws(new ArgumentException(message));
 
-        //    // Assert
-        //    subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
-        //}
+            // Act
+            AuthFlow.Web web = this.Subject();
+            Func<Task> subject = async () => await web.GetTokenAsync();
+
+            // Assert
+            await subject.Should().ThrowExactlyAsync<Exception>().WithMessage("foobar");
+        }
 
         //[Test]
         //public async Task WebAuthFlow_GetTokenSilent_MsalServiceException()
