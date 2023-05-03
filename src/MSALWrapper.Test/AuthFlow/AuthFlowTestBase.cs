@@ -64,7 +64,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ReturnsAsync(this.mockAccount.Object);
         }
 
-        protected virtual void SetupAccountusername()
+        protected virtual void SetupAccountUsername()
         {
             this.mockAccount.Setup(a => a.Username).Returns(TestUsername);
         }

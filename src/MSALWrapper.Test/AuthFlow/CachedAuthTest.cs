@@ -108,7 +108,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             // Setup
             this.SetupCachedAccount();
-            this.SetupAccountusername();
+            this.SetupAccountUsername();
             var scopes = new[] { "scope" };
 
             this.mockPca.Setup(pca => pca.GetTokenSilentAsync(scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
@@ -132,7 +132,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var tokenResult = new TokenResult(new IdentityModel.JsonWebTokens.JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
 
             this.SetupCachedAccount();
-            this.SetupAccountusername();
+            this.SetupAccountUsername();
             this.mockPca.Setup(pca => pca.GetTokenSilentAsync(scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
                 .ReturnsAsync(tokenResult);
 
