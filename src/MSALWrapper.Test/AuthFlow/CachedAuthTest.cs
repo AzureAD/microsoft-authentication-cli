@@ -17,16 +17,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
     using NUnit.Framework;
 
-    internal class CachedAuthTest
+    internal class CachedAuthTest : AuthFlowTestBase
     {
-        private ILogger logger;
-
-        [SetUp]
-        public void Setup()
-        {
-            (this.logger, _) = MemoryLogger.Create();
-        }
-
         [Test]
         public void Null_Account_Returns_Null_Without_Errors()
         {
@@ -94,6 +86,63 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             subject.Should().Be(tokenResult);
             subject.IsSilent.Should().BeTrue();
+        }
+
+        [Test]
+        public void CachedAuthFlow_No_Account_Results_In_Null_Without_Errors()
+        {
+            // Setup
+            this.SetupNoCachedAccount();
+
+            // Act
+            IAuthFlow subject = new CachedAuth(this.logger, ClientId, TenantId, new[] { "scope" }, pcaWrapper: this.mockPca.Object);
+            AuthFlowResult result = subject.GetTokenAsync().Result;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.TokenResult.Should().BeNull();
+        }
+
+        [Test]
+        public void CachedAuthFlow_MsalUiRequiredException_Results_In_Null_With_Error()
+        {
+            // Setup
+            this.SetupCachedAccount();
+            var scopes = new[] { "scope" };
+
+            this.mockPca.Setup(pca => pca.GetTokenSilentAsync(scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
+                .ThrowsAsync(new MsalUiRequiredException("1", "2fa is required", new Exception("inner 2fa exception"), UiRequiredExceptionClassification.AcquireTokenSilentFailed));
+
+            // Act
+            IAuthFlow subject = new CachedAuth(this.logger, ClientId, TenantId, scopes, pcaWrapper: this.mockPca.Object);
+            AuthFlowResult result = subject.GetTokenAsync().Result;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Errors.Should().HaveCount(1);
+            result.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
+        }
+
+        [Test]
+        public void CachedAuthFlow_SuccessfulCachedAuth_IsSilent()
+        {
+            // Setup
+            var scopes = new[] { "scope" };
+            var tokenResult = new TokenResult(new IdentityModel.JsonWebTokens.JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
+
+            this.SetupCachedAccount();
+            this.mockPca.Setup(pca => pca.GetTokenSilentAsync(scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
+                .ReturnsAsync(tokenResult);
+
+            // Act
+            IAuthFlow subject = new CachedAuth(this.logger, ClientId, TenantId, scopes, pcaWrapper: this.mockPca.Object);
+            AuthFlowResult result = subject.GetTokenAsync().Result;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Errors.Should().BeEmpty();
+            result.TokenResult.Should().BeEquivalentTo(tokenResult);
+            result.TokenResult.IsSilent.Should().BeTrue();
         }
     }
 }

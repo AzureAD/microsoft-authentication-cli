@@ -39,6 +39,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // as it sets the order in which auth flows will be attempted.
             List<IAuthFlow> flows = new List<IAuthFlow>();
 
+            // We always try cached auth first.
+            flows.Add(new CachedAuth(logger, authParams.Client, authParams.Tenant, authParams.Scopes, preferredDomain, pcaWrapper));
+
             // We try IWA as the first auth flow as it works for any Windows version
             // and tries to auth silently.
             if (authMode.IsIWA() && platformUtils.IsWindows())
