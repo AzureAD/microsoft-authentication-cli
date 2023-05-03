@@ -71,14 +71,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             this.mockPca
                 .Setup((pca) => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
-                .Throws(new ArgumentException(message));
+                .Throws(new Exception(message));
 
             // Act
             AuthFlow.Web web = this.Subject();
             Func<Task> subject = async () => await web.GetTokenAsync();
 
             // Assert
-            await subject.Should().ThrowExactlyAsync<Exception>().WithMessage("foobar");
+            await subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
         }
 
         //[Test]
