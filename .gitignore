@@ -465,4 +465,4 @@ dist/
 __pycache__/
 
 # Do not ignore top level bin folder which has valid scripts
-!bin/*
+!bin/
