@@ -75,18 +75,46 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Returns((string s) => this.mockPca.Object);
         }
 
-        protected virtual void SetupGetTokenInteractiveSuccess(bool withAccount = false)
+        protected virtual void SetupGetTokenInteractiveSuccess(bool withAccount)
         {
             this.mockPca
                .Setup((pca) => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.mockAccount.Object : null, It.IsAny<CancellationToken>()))
                .ReturnsAsync(this.testToken);
         }
 
-        protected virtual void SetupGetTokenInteractiveReturnsNull(bool withAccount = false)
+        protected virtual void SetupGetTokenInteractiveReturnsNull(bool withAccount)
         {
             this.mockPca
                 .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.mockAccount.Object : null, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((TokenResult)null);
+        }
+
+        protected virtual void SetupGetTokenInteractiveMsalUiRequiredException(bool withAccount)
+        {
+            this.mockPca
+                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.mockAccount.Object : null, It.IsAny<CancellationToken>()))
+                .Throws(new MsalUiRequiredException("1", "UI Required Exception"));
+        }
+
+        protected virtual void SetupGetTokenInteractiveWithClaimsSuccess()
+        {
+            this.mockPca
+                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(this.testToken);
+        }
+
+        protected virtual void SetupGetTokenInteractiveWithClaimsReturnsNull()
+        {
+            this.mockPca
+                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((TokenResult)null);
+        }
+
+        protected virtual void SetupGetTokenInteractiveWithClaimsThrowsServiceException()
+        {
+            this.mockPca
+                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new MsalServiceException(MsalExceptionErrorCode, MsalExceptionMessage));
         }
     }
 }
