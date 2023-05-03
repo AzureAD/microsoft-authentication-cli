@@ -35,8 +35,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         protected static readonly Guid TenantId = new Guid("8254f6f7-a09f-4752-8bd6-391adc3b912e");
         protected static readonly Guid CorrelationId = new Guid("8254f6f7-a09f-4752-8bd6-391adc3b912f");
 
-        protected Mock<IPCAWrapper> pca;
-        protected Mock<IAccount> account;
+        protected Mock<IPCAWrapper> mockPca;
+        protected Mock<IAccount> mockAccount;
         protected ILogger logger;
         protected MemoryTarget logTarget;
         protected TokenResult testToken;
@@ -45,55 +45,55 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void Setup()
         {
             (this.logger, this.logTarget) = MemoryLogger.Create();
-            this.pca = new Mock<IPCAWrapper>(MockBehavior.Strict);
-            this.account = new Mock<IAccount>(MockBehavior.Strict);
+            this.mockPca = new Mock<IPCAWrapper>(MockBehavior.Strict);
+            this.mockAccount = new Mock<IAccount>(MockBehavior.Strict);
             this.testToken = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), CorrelationId);
         }
 
         [TearDown]
         public void TearDown()
         {
-            this.pca.VerifyAll();
-            this.account.VerifyAll();
+            this.mockPca.VerifyAll();
+            this.mockAccount.VerifyAll();
         }
 
         protected virtual void SetupCachedAccount()
         {
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
-                .ReturnsAsync(this.account.Object);
+                .ReturnsAsync(this.mockAccount.Object);
         }
 
         protected virtual void SetupAccountusername()
         {
-            this.account.Setup(a => a.Username).Returns(TestUsername);
+            this.mockAccount.Setup(a => a.Username).Returns(TestUsername);
         }
 
         protected virtual void SetupNoCachedAccount()
         {
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
                 .ReturnsAsync((IAccount)null);
         }
 
         protected virtual void SetupWithPromptHint()
         {
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.WithPromptHint(PromptHint))
-                .Returns((string s) => this.pca.Object);
+                .Returns((string s) => this.mockPca.Object);
         }
 
         protected virtual void SetupGetTokenInteractiveSuccess(bool withAccount = false)
         {
-            this.pca
-               .Setup((pca) => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.account.Object : null, It.IsAny<CancellationToken>()))
+            this.mockPca
+               .Setup((pca) => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.mockAccount.Object : null, It.IsAny<CancellationToken>()))
                .ReturnsAsync(this.testToken);
         }
 
         protected virtual void SetupGetTokenInteractiveReturnsNull(bool withAccount = false)
         {
-            this.pca
-                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.account.Object : null, It.IsAny<CancellationToken>()))
+            this.mockPca
+                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.mockAccount.Object : null, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((TokenResult)null);
         }
     }

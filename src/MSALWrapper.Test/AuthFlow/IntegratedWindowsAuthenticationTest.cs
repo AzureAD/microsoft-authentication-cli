@@ -18,7 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
     internal class IntegratedWindowsAuthenticationTest : AuthFlowTestBase
     {
-        public AuthFlow.IntegratedWindowsAuthentication Subject() => new AuthFlow.IntegratedWindowsAuthentication(this.logger, ClientId, TenantId, Scopes, pcaWrapper: this.pca.Object);
+        public AuthFlow.IntegratedWindowsAuthentication Subject() => new AuthFlow.IntegratedWindowsAuthentication(this.logger, ClientId, TenantId, Scopes, pcaWrapper: this.mockPca.Object);
 
         [Test]
         public async Task IWA_Success()
@@ -39,7 +39,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void General_Exceptions_Are_ReThrown()
         {
             var message = "Something somwhere has gone terribly wrong!";
-            this.pca
+            this.mockPca
                 .Setup(pca => pca.GetTokenIntegratedWindowsAuthenticationAsync(Scopes, It.IsAny<CancellationToken>()))
                 .Throws(new Exception(message));
 
@@ -117,35 +117,35 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         private void SetupIWAReturnsResult()
         {
-            this.pca
+            this.mockPca
                .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(Scopes, It.IsAny<CancellationToken>()))
                .ReturnsAsync(this.testToken);
         }
 
         private void SetupIWAReturnsNull()
         {
-            this.pca
+            this.mockPca
                .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(Scopes, It.IsAny<CancellationToken>()))
                .ReturnsAsync((TokenResult)null);
         }
 
         private void SetupIWAUIRequiredFor2FA()
         {
-            this.pca
+            this.mockPca
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(Scopes, It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "AADSTS50076 MSAL UI Required Exception!"));
         }
 
         private void IWAServiceException()
         {
-            this.pca
+            this.mockPca
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(Scopes, It.IsAny<CancellationToken>()))
                 .Throws(new MsalServiceException(MsalExceptionErrorCode, MsalExceptionMessage));
         }
 
         private void IWAClientException()
         {
-            this.pca
+            this.mockPca
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(Scopes, It.IsAny<CancellationToken>()))
                 .Throws(new MsalClientException("1", "Could not find a WAM account for the silent request."));
         }
