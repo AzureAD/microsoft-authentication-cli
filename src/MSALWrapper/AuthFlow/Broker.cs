@@ -112,6 +112,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return tokenResult;
         }
 
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetConsoleWindow();
+
         private Func<CancellationToken, Task<TokenResult>> GetTokenInteractive(IAccount account)
         {
             return (CancellationToken cancellationToken) => this.pcaWrapper
@@ -125,9 +128,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 .WithPromptHint(this.promptHint)
                 .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
         }
-
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetConsoleWindow();
 
         /// <summary>
         /// Retrieves the handle to the ancestor of the specified window.
