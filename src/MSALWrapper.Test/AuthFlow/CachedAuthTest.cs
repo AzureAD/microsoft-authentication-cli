@@ -92,7 +92,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void CachedAuthFlow_No_Account_Results_In_Null_Without_Errors()
         {
             // Setup
-            this.SetupNoCachedAccount();
+            this.SetupCachedAccount(false);
 
             // Act
             IAuthFlow subject = new CachedAuth(this.logger, ClientId, TenantId, new[] { "scope" }, pcaWrapper: this.mockPca.Object);

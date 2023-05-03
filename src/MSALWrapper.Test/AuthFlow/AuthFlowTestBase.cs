@@ -18,7 +18,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using NLog.Targets;
 
     using NUnit.Framework;
-    using System;
 
     internal class AuthFlowTestBase
     {
@@ -57,23 +56,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.mockAccount.VerifyAll();
         }
 
-        protected virtual void SetupCachedAccount()
+        protected virtual void SetupCachedAccount(bool exists = true)
         {
             this.mockPca
                 .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
-                .ReturnsAsync(this.mockAccount.Object);
+                .ReturnsAsync(exists ? this.mockAccount.Object : (IAccount)null);
         }
 
         protected virtual void SetupAccountUsername()
         {
             this.mockAccount.Setup(a => a.Username).Returns(TestUsername);
-        }
-
-        protected virtual void SetupNoCachedAccount()
-        {
-            this.mockPca
-                .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
-                .ReturnsAsync((IAccount)null);
         }
 
         protected virtual void SetupWithPromptHint()
