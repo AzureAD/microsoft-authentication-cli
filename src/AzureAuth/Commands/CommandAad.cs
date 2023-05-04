@@ -289,6 +289,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// <summary>
         /// This method executes the auth process.
         /// </summary>
+        /// <param name="publicClientAuth">An <see cref="IPublicClientAuth"/> to handle authentication.</param>
         /// <returns>
         /// The error code: 0 is normal execution, and the rest means errors during execution.
         /// </returns>

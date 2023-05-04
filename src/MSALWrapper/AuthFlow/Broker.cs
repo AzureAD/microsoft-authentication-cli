@@ -45,7 +45,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, authParameters.Client, authParameters.Tenant);
         }
 
-        private enum GetAncestorFlags
+        private enum GetAncestorType
         {
             /// <summary>
             /// Retrieves the parent window. This does not include the owner, as it does with the GetParent function.
@@ -109,6 +109,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return tokenResult;
         }
 
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetConsoleWindow();
+
         private Func<CancellationToken, Task<TokenResult>> GetTokenInteractive(IAccount account)
         {
             return (CancellationToken cancellationToken) => this.pcaWrapper
@@ -123,9 +126,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
         }
 
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetConsoleWindow();
-
         /// <summary>
         /// Retrieves the handle to the ancestor of the specified window.
         /// </summary>
@@ -134,13 +134,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="flags">The ancestor to be retrieved.</param>
         /// <returns>The return value is the handle to the ancestor window.</returns>[DllImport("user32.dll", ExactSpelling = true)]
         [DllImport("user32.dll", ExactSpelling = true)]
-        private static extern IntPtr GetAncestor(IntPtr windowsHandle, GetAncestorFlags flags);
+#pragma warning disable SA1204 // Static elements should appear before instance elements
+        private static extern IntPtr GetAncestor(IntPtr windowsHandle, GetAncestorType flags);
+#pragma warning restore SA1204 // Static elements should appear before instance elements
 
         // MSAL will be providing a similar helper in the future that we can use to simplify this(AzureAD/microsoft-authentication-library-for-dotnet#3590).
         private IntPtr GetParentWindowHandle()
         {
             IntPtr consoleHandle = GetConsoleWindow();
-            IntPtr ancestorHandle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
+            IntPtr ancestorHandle = GetAncestor(consoleHandle, GetAncestorType.GetRootOwner);
             return ancestorHandle;
         }
 
