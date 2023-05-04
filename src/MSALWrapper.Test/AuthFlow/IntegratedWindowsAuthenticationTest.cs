@@ -36,7 +36,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public void General_Exceptions_Are_ReThrown()
+        public async Task General_Exceptions_Are_ReThrown()
         {
             var message = "Something somwhere has gone terribly wrong!";
             this.mockPca
@@ -48,7 +48,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             Func<Task> subject = async () => await iwa.GetTokenAsync();
 
             // Assert
-            subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
+            await subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
         }
 
         [Test]
