@@ -15,7 +15,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class CachedAuth : AuthFlowBase
     {
-        private const string NameValue = "pca_cache";
         private static readonly TimeSpan CachedAuthTimeout = TimeSpan.FromSeconds(30);
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
@@ -37,6 +36,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.preferredDomain = preferredDomain;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(clientId, tenantId);
         }
+
+        /// <inheritdoc/>
+        protected override string Name { get; } = "pca_cache";
 
         /// <summary>
         /// Try to get a token silently.
@@ -77,9 +79,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             return tokenResult;
         }
-
-        /// <inheritdoc/>
-        protected override string Name() => NameValue;
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()

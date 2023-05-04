@@ -16,7 +16,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class Web : AuthFlowBase
     {
-        private const string NameValue = "web";
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly string promptHint;
@@ -47,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name() => NameValue;
+        protected override string Name { get; } = "web";
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()
@@ -60,7 +59,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 tokenResult = await TaskExecutor.CompleteWithin(
                     this.logger,
                     this.interactiveAuthTimeout,
-                    $"{this.Name()} interactive auth",
+                    $"{this.Name} interactive auth",
                     this.GetTokenInteractive(account),
                     this.errors).ConfigureAwait(false);
             }
@@ -70,7 +69,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 // but we can't actually create an MsalUiRequiredException with a non-null Claims property.
                 // It's a read only field and so we would not be able to orchestrate this usage under test :(.
                 this.errors.Add(ex);
-                this.logger.LogDebug($"Initial ${this.Name()} auth failed. Trying again with claims.\n{ex.Message}");
+                this.logger.LogDebug($"Initial ${this.Name} auth failed. Trying again with claims.\n{ex.Message}");
 
                 tokenResult = await TaskExecutor.CompleteWithin(
                     this.logger,

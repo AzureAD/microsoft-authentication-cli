@@ -16,7 +16,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class DeviceCode : AuthFlowBase
     {
-        private const string NameValue = "devicecode";
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly string promptHint;
@@ -47,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name() => NameValue;
+        protected override string Name { get; } = "devicecode";
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()
@@ -58,7 +57,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             tokenResult = await TaskExecutor.CompleteWithin(
                 this.logger,
                 this.deviceCodeFlowTimeout,
-                $"{this.Name()} interactive auth",
+                $"{this.Name} interactive auth",
                 this.DeviceCodeAuth,
                 this.errors).ConfigureAwait(false);
 
