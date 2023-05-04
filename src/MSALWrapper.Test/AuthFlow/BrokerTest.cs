@@ -143,7 +143,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public void BrokerAuthFlow_General_Exceptions_Are_ReThrown()
+        public async Task BrokerAuthFlow_General_Exceptions_Are_ReThrown()
         {
             var message = "Something somwhere has gone terribly wrong!";
             this.MockAccount();
@@ -156,7 +156,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             Func<Task> subject = async () => await broker.GetTokenAsync();
 
             // Assert
-            subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
+            await subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
         }
 
         [Test]
