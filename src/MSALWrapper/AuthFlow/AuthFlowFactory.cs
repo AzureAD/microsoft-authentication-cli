@@ -65,7 +65,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             if (authMode.IsDeviceCode())
             {
-                flows.Add(new DeviceCode(logger, authParams.Client, authParams.Tenant, authParams.Scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new DeviceCode(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             return flows;
