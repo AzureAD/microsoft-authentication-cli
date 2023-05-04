@@ -64,13 +64,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public async Task General_Exceptions_Are_Thrown()
         {
-            var message = "Something somwhere has gone terribly wrong!";
             this.SetupCachedAccount(true);
             this.SetupWithPromptHint();
-
-            this.mockPca
-                .Setup((pca) => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
-                .Throws(new Exception(message));
+            this.SetupGetTokenInteractiveGeneralException();
 
             // Act
             AuthFlow.Web web = this.Subject();

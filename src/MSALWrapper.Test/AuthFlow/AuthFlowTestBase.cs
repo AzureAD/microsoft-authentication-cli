@@ -77,6 +77,27 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Returns((string s) => this.mockPca.Object);
         }
 
+        protected virtual void SetupGetTokenSilentSuccess()
+        {
+            this.mockPca
+                .Setup(pca => pca.GetTokenSilentAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(this.testToken);
+        }
+
+        protected virtual void SetupGetTokenSilentReturnsNull()
+        {
+            this.mockPca
+               .Setup((pca) => pca.GetTokenSilentAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
+               .ReturnsAsync((TokenResult)null);
+        }
+
+        protected virtual void SetupGetTokenSilentThrowsMsalUiRequiredException()
+        {
+            this.mockPca
+                .Setup(pca => pca.GetTokenSilentAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new MsalUiRequiredException("1", "2fa is required", new Exception("inner 2fa exception"), UiRequiredExceptionClassification.AcquireTokenSilentFailed));
+        }
+
         protected virtual void SetupGetTokenInteractiveSuccess(bool withAccount)
         {
             this.mockPca
@@ -110,6 +131,14 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.mockPca
                 .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.mockAccount.Object : null, It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new OperationCanceledException());
+        }
+
+        protected virtual void SetupGetTokenInteractiveGeneralException()
+        {
+            var message = "very bad";
+            this.mockPca
+                .Setup((pca) => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
+                .Throws(new Exception(message));
         }
 
         protected virtual void SetupGetTokenInteractiveWithClaimsSuccess()
