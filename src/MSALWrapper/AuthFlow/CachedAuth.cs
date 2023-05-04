@@ -24,7 +24,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Initializes a new instance of the <see cref="CachedAuth"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="authParameters">The authenticaation paramaters.</param>
+        /// <param name="authParameters">The authentication paramaters.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         public CachedAuth(ILogger logger, AuthParameters authParameters, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
