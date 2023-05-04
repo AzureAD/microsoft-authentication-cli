@@ -88,11 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-
-            // There will be a ui required exception for the first call to GetTokenInteractiveAsync
             this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount);
-
-            // The second call to GetTokenInteractiveAsync will succeed
             this.SetupGetTokenInteractiveWithClaimsSuccess();
 
             // Act
@@ -113,11 +109,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-
-            // There will be a ui required exception for the first call to GetTokenInteractiveAsync
             this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount);
-
-            // The second call to GetTokenInteractiveAsync will return null
             this.SetupGetTokenInteractiveWithClaimsReturnsNull();
 
             // Act
@@ -137,11 +129,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-
-            // There will be a ui required exception for the first call to GetTokenInteractiveAsync
             this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount);
-
-            // The second call to GetTokenInteractiveAsync will return null
             this.SetupGetTokenInteractiveWithClaimsThrowsServiceException();
 
             // Act
@@ -156,89 +144,64 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.AuthFlowName.Should().Be("web");
         }
 
-        //[Test]
-        //public async Task GetTokenInteractive_ThrowsMsalServiceException()
-        //{
-        //    this.MockAccount();
-        //    this.SilentAuthUIRequired();
-        //    this.SetupWithPromptHint();
-        //    this.InteractiveAuthServiceException();
-
-        //    // Act
-        //    AuthFlow.Web web = this.Subject();
-        //    var authFlowResult = await web.GetTokenAsync();
-
-        //    // Assert
-        //    authFlowResult.TokenResult.Should().Be(null);
-        //    authFlowResult.Errors.Should().HaveCount(2);
-        //    authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-        //    authFlowResult.Errors[1].Should().BeOfType(typeof(MsalServiceException));
-        //    authFlowResult.AuthFlowName.Should().Be("web");
-        //}
-
-        //[Test]
-        //public async Task WebAuthFlow_GetTokenInteractive_OperationCanceledException()
-        //{
-        //    this.MockAccount();
-        //    this.SilentAuthUIRequired();
-        //    this.SetupWithPromptHint();
-        //    this.InteractiveAuthTimeout();
-
-        //    // Act
-        //    AuthFlow.Web web = this.Subject();
-        //    var authFlowResult = await web.GetTokenAsync();
-
-        //    // Assert
-        //    authFlowResult.TokenResult.Should().Be(null);
-        //    authFlowResult.Errors.Should().HaveCount(2);
-        //    authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-        //    authFlowResult.Errors[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
-        //    authFlowResult.Errors[1].Message.Should().Be("web interactive auth timed out after 00:15:00");
-        //    authFlowResult.AuthFlowName.Should().Be("web");
-        //}
-
-        //[Test]
-        //public async Task WebAuthFlow_GetTokenInteractive_OperationCanceledException_For_Claims()
-        //{
-        //    this.MockAccount();
-        //    this.SilentAuthUIRequired();
-        //    this.SetupWithPromptHint();
-        //    this.InteractiveAuthExtraClaimsRequired();
-        //    this.InteractiveAuthWithClaimsTimeout();
-
-        //    // Act
-        //    AuthFlow.Web web = this.Subject();
-        //    var authFlowResult = await web.GetTokenAsync();
-
-        //    // Assert
-        //    authFlowResult.TokenResult.Should().Be(null);
-        //    authFlowResult.Errors.Should().HaveCount(3);
-        //    authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-        //    authFlowResult.Errors[1].Should().BeOfType(typeof(MsalUiRequiredException));
-        //    authFlowResult.Errors[2].Should().BeOfType(typeof(AuthenticationTimeoutException));
-        //    authFlowResult.Errors[2].Message.Should().Be("Interactive Auth (with extra claims) timed out after 00:15:00");
-        //    authFlowResult.AuthFlowName.Should().Be("web");
-        //}
-
-        private void InteractiveAuthTimeout()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task GetTokenInteractive_ThrowsMsalServiceException(bool withAccount)
         {
-            this.mockPca
-                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
-                .Throws(new OperationCanceledException());
+            this.SetupCachedAccount(withAccount);
+            this.SetupWithPromptHint();
+            this.SetupGetTokenInteractiveMsalServiceException(withAccount);
+
+            // Act
+            AuthFlow.Web web = this.Subject();
+            var authFlowResult = await web.GetTokenAsync();
+
+            // Assert
+            authFlowResult.TokenResult.Should().Be(null);
+            authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.Errors[0].Should().BeOfType(typeof(MsalServiceException));
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
-        private void InteractiveAuthServiceException()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task GetTokenInteractive_Timeout(bool withAccount)
         {
-            this.mockPca
-                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
-                .Throws(new MsalServiceException(MsalExceptionErrorCode, MsalExceptionMessage));
+            this.SetupCachedAccount(withAccount);
+            this.SetupWithPromptHint();
+            this.SetupGetTokenInteractiveTimeout(withAccount);
+
+            // Act
+            AuthFlow.Web web = this.Subject();
+            var authFlowResult = await web.GetTokenAsync();
+
+            // Assert
+            authFlowResult.TokenResult.Should().Be(null);
+            authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.Errors[0].Should().BeOfType(typeof(AuthenticationTimeoutException));
+            authFlowResult.Errors[0].Message.Should().Be("web interactive auth timed out after 00:15:00");
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
 
-        private void InteractiveAuthWithClaimsTimeout()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task GetTokenInteractiveWithClaims_Timeout(bool withAccount)
         {
-            this.mockPca
-                .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Throws(new OperationCanceledException());
+            this.SetupCachedAccount(withAccount);
+            this.SetupWithPromptHint();
+            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount);
+            this.SetupGetTokenInteractiveWithClaimsTimeout();
+
+            // Act
+            AuthFlow.Web web = this.Subject();
+            var authFlowResult = await web.GetTokenAsync();
+
+            // Assert
+            authFlowResult.TokenResult.Should().Be(null);
+            authFlowResult.Errors.Should().HaveCount(2);
+            authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
+            authFlowResult.Errors[1].Should().BeOfType(typeof(AuthenticationTimeoutException));
+            authFlowResult.AuthFlowName.Should().Be("web");
         }
     }
 }
