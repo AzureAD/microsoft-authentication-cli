@@ -54,7 +54,8 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         public void NativeBrokerBenchmark()
         {
             var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, true);
-            Broker broker = new Broker(this.logger, this.clientID, this.tenantID, this.scopes, pcaWrapper: pcaWrapper);
+            AuthParameters authParameters = new AuthParameters(this.clientID, this.tenantID, this.scopes);
+            Broker broker = new Broker(this.logger, authParameters, pcaWrapper: pcaWrapper);
 
             broker.GetTokenAsync().Wait();
         }
@@ -66,7 +67,8 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         public void ManagedBrokerBenchmark()
         {
             var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, false);
-            Broker broker = new Broker(this.logger, this.clientID, this.tenantID, this.scopes, pcaWrapper: pcaWrapper);
+            AuthParameters authParameters = new AuthParameters(this.clientID, this.tenantID, this.scopes);
+            Broker broker = new Broker(this.logger, authParameters, pcaWrapper: pcaWrapper);
 
             broker.GetTokenAsync().Wait();
         }

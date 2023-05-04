@@ -66,7 +66,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.pcaWrapperMock.VerifyAll();
         }
 
-        public AuthFlow.Broker Subject() => new AuthFlow.Broker(this.logger, ClientId, TenantId, this.scopes, pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
+        public AuthFlow.Broker Subject() => new AuthFlow.Broker(this.logger, new AuthParameters(ClientId, TenantId, this.scopes), pcaWrapper: this.pcaWrapperMock.Object, promptHint: this.promptHint);
 
         [Test]
         public async Task BrokerAuthFlow_CachedAuth()

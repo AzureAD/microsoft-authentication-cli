@@ -54,7 +54,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
             if (authMode.IsBroker() && platformUtils.IsWindows10Or11())
             {
-                flows.Add(new Broker(logger, authParams.Client, authParams.Tenant, authParams.Scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new Broker(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             if (authMode.IsWeb())
