@@ -30,19 +30,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Initializes a new instance of the <see cref="Web"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="clientId">The client id.</param>
-        /// <param name="tenantId">The tenant id.</param>
-        /// <param name="scopes">The scopes.</param>
+        /// /// <param name="authParameters">The authentication paramaters.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
-        public Web(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
+        public Web(ILogger logger, AuthParameters authParameters, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
         {
             this.logger = logger;
-            this.scopes = scopes;
+            this.scopes = authParameters.Scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(clientId, tenantId);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(authParameters.Client, authParameters.Tenant);
         }
 
         /// <inheritdoc/>

@@ -60,7 +60,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             if (authMode.IsWeb())
             {
-                flows.Add(new Web(logger, authParams.Client, authParams.Tenant, authParams.Scopes, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new Web(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
             }
 
             if (authMode.IsDeviceCode())
