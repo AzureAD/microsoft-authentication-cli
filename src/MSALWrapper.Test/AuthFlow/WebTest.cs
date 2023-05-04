@@ -73,7 +73,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             Func<Task> subject = async () => await web.GetTokenAsync();
 
             // Assert
-            await subject.Should().ThrowExactlyAsync<Exception>().WithMessage(message);
+            await subject.Should().ThrowExactlyAsync<Exception>().WithMessage(GeneralExceptionMessage);
         }
 
         [TestCase(true)]

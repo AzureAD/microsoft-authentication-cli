@@ -40,7 +40,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void MsalUiRequiredException_Results_In_Null_With_Error()
         {
             // Setup
-            this.SetupCachedAccount();
             this.SetupAccountUsername();
             this.SetupGetTokenSilentThrowsMsalUiRequiredException();
 

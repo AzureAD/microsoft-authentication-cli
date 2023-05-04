@@ -25,6 +25,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         protected const string PromptHint = "test prompt hint";
         protected const string MsalExceptionErrorCode = "1";
         protected const string MsalExceptionMessage = "MSAL Exception";
+        protected const string GeneralExceptionMessage = "General Exception";
         protected const string Claims = "claims";
 
         // These Guids were randomly generated and do not refer to a real resources
@@ -95,7 +96,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.mockPca
                 .Setup(pca => pca.GetTokenSilentAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new MsalUiRequiredException("1", "2fa is required", new Exception("inner 2fa exception"), UiRequiredExceptionClassification.AcquireTokenSilentFailed));
+                .ThrowsAsync(new MsalUiRequiredException(MsalExceptionErrorCode, "2fa is required", new Exception("inner 2fa exception"), UiRequiredExceptionClassification.AcquireTokenSilentFailed));
         }
 
         protected virtual void SetupGetTokenInteractiveSuccess(bool withAccount)
@@ -116,7 +117,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.mockPca
                 .Setup(pca => pca.GetTokenInteractiveAsync(Scopes, withAccount ? this.mockAccount.Object : null, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new MsalUiRequiredException("1", "UI Required Exception"));
+                .ThrowsAsync(new MsalUiRequiredException(MsalExceptionErrorCode, "UI Required Exception"));
         }
 
         protected virtual void SetupGetTokenInteractiveMsalServiceException(bool withAccount)
@@ -135,10 +136,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         protected virtual void SetupGetTokenInteractiveGeneralException()
         {
-            var message = "very bad";
             this.mockPca
                 .Setup((pca) => pca.GetTokenInteractiveAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
-                .Throws(new Exception(message));
+                .Throws(new Exception(GeneralExceptionMessage));
         }
 
         protected virtual void SetupGetTokenInteractiveWithClaimsSuccess()
