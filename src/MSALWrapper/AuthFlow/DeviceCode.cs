@@ -46,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name { get; } = "devicecode";
+        protected override string Name { get; } = Constants.AuthFlow.DeviceCode;
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()

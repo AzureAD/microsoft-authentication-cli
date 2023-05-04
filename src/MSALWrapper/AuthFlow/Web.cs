@@ -44,7 +44,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name { get; } = "web";
+        protected override string Name { get; } = Constants.AuthFlow.Web;
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()

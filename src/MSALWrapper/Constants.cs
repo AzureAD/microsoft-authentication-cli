@@ -26,5 +26,14 @@ namespace Microsoft.Authentication.MSALWrapper
         /// The name of an environment variable used to disable file cache configuration.
         /// </summary>
         internal const string OEAUTH_MSAL_DISABLE_CACHE = "OEAUTH_MSAL_DISABLE_CACHE";
+
+        internal static class AuthFlow
+        {
+            public const string CachedAuth = "cache";
+            public const string Iwa = "iwa";
+            public const string Broker = "broker";
+            public const string Web = "web";
+            public const string DeviceCode = "devicecode";
+        }
     }
 }

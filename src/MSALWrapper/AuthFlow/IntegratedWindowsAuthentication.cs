@@ -43,7 +43,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name { get; } = "iwa";
+        protected override string Name { get; } = Constants.AuthFlow.Iwa;
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()

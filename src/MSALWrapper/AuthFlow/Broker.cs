@@ -42,7 +42,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.scopes = authParameters.Scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(logger, authParameters.Client, authParameters.Tenant);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(authParameters.Client, authParameters.Tenant);
         }
 
         private enum GetAncestorType
@@ -64,7 +64,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name { get; } = "broker";
+        protected override string Name { get; } = Constants.AuthFlow.Broker;
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()
@@ -146,7 +146,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return ancestorHandle;
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
