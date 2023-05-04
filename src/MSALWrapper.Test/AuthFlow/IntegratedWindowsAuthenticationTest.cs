@@ -18,7 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
     internal class IntegratedWindowsAuthenticationTest : AuthFlowTestBase
     {
-        public AuthFlow.IntegratedWindowsAuthentication Subject() => new AuthFlow.IntegratedWindowsAuthentication(this.logger, ClientId, TenantId, Scopes, pcaWrapper: this.mockPca.Object);
+        public AuthFlow.IntegratedWindowsAuthentication Subject() => new AuthFlow.IntegratedWindowsAuthentication(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object);
 
         [Test]
         public async Task IWA_Success()

@@ -17,6 +17,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     public class IntegratedWindowsAuthentication : AuthFlowBase
     {
         private readonly IEnumerable<string> scopes;
+
+        // TODO: We don't currently warn if the account returned from IWA oesn't match the preferred domain.
         private readonly string preferredDomain;
         private readonly IPCAWrapper pcaWrapper;
 
@@ -29,17 +31,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// Initializes a new instance of the <see cref="IntegratedWindowsAuthentication"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="clientId">The client id.</param>
-        /// <param name="tenantId">The tenant id.</param>
-        /// <param name="scopes">The scopes.</param>
+        /// /// <param name="authParameters">The authentication paramaters.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
-        public IntegratedWindowsAuthentication(ILogger logger, Guid clientId, Guid tenantId, IEnumerable<string> scopes, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
+        public IntegratedWindowsAuthentication(ILogger logger, AuthParameters authParameters, string preferredDomain = null, IPCAWrapper pcaWrapper = null)
         {
             this.logger = logger;
-            this.scopes = scopes;
+            this.scopes = authParameters.Scopes;
             this.preferredDomain = preferredDomain;
-            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(clientId, tenantId);
+            this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(authParameters.Client, authParameters.Tenant);
         }
 
         /// <inheritdoc/>
