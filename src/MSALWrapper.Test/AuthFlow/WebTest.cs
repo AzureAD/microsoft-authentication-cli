@@ -66,7 +66,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.SetupCachedAccount(true);
             this.SetupWithPromptHint();
-            this.SetupGetTokenInteractiveGeneralException();
+            this.SetupGetTokenInteractiveGeneralException(withAccount: true);
 
             // Act
             AuthFlow.Web web = this.Subject();
@@ -82,7 +82,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount);
+            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount ? this.mockAccount.Object : null);
             this.SetupGetTokenInteractiveWithClaimsSuccess();
 
             // Act
@@ -103,7 +103,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount);
+            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount ? this.mockAccount.Object : null);
             this.SetupGetTokenInteractiveWithClaimsReturnsNull();
 
             // Act
@@ -123,7 +123,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount);
+            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount ? this.mockAccount.Object : null);
             this.SetupGetTokenInteractiveWithClaimsThrowsServiceException();
 
             // Act
@@ -183,7 +183,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.SetupCachedAccount(withAccount);
             this.SetupWithPromptHint();
-            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount);
+            this.SetupGetTokenInteractiveMsalUiRequiredException(withAccount ? this.mockAccount.Object : null);
             this.SetupGetTokenInteractiveWithClaimsTimeout();
 
             // Act
