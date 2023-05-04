@@ -39,6 +39,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         protected ILogger logger;
         protected MemoryTarget logTarget;
         protected TokenResult testToken;
+        protected AuthParameters authParameters;
 
         [SetUp]
         public void Setup()
@@ -47,6 +48,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.mockPca = new Mock<IPCAWrapper>(MockBehavior.Strict);
             this.mockAccount = new Mock<IAccount>(MockBehavior.Strict);
             this.testToken = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), CorrelationId);
+            this.authParameters = new AuthParameters(ClientId, TenantId, Scopes);
         }
 
         [TearDown]

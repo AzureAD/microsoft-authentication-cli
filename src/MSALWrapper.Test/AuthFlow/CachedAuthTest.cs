@@ -95,7 +95,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.SetupCachedAccount(false);
 
             // Act
-            IAuthFlow subject = new CachedAuth(this.logger, ClientId, TenantId, new[] { "scope" }, pcaWrapper: this.mockPca.Object);
+            IAuthFlow subject = new CachedAuth(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object);
             AuthFlowResult result = subject.GetTokenAsync().Result;
 
             // Assert
@@ -109,13 +109,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Setup
             this.SetupCachedAccount();
             this.SetupAccountUsername();
-            var scopes = new[] { "scope" };
 
-            this.mockPca.Setup(pca => pca.GetTokenSilentAsync(scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
+            this.mockPca.Setup(pca => pca.GetTokenSilentAsync(Scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
                 .ThrowsAsync(new MsalUiRequiredException("1", "2fa is required", new Exception("inner 2fa exception"), UiRequiredExceptionClassification.AcquireTokenSilentFailed));
 
             // Act
-            IAuthFlow subject = new CachedAuth(this.logger, ClientId, TenantId, scopes, pcaWrapper: this.mockPca.Object);
+            IAuthFlow subject = new CachedAuth(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object);
             AuthFlowResult result = subject.GetTokenAsync().Result;
 
             // Assert
@@ -128,16 +127,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void CachedAuthFlow_SuccessfulCachedAuth_IsSilent()
         {
             // Setup
-            var scopes = new[] { "scope" };
             var tokenResult = new TokenResult(new IdentityModel.JsonWebTokens.JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
 
             this.SetupCachedAccount();
             this.SetupAccountUsername();
-            this.mockPca.Setup(pca => pca.GetTokenSilentAsync(scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
+            this.mockPca.Setup(pca => pca.GetTokenSilentAsync(Scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
                 .ReturnsAsync(tokenResult);
 
             // Act
-            IAuthFlow subject = new CachedAuth(this.logger, ClientId, TenantId, scopes, pcaWrapper: this.mockPca.Object);
+            IAuthFlow subject = new CachedAuth(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object);
             AuthFlowResult result = subject.GetTokenAsync().Result;
 
             // Assert
