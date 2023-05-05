@@ -22,7 +22,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         public enum Visibility
         {
+            /// <summary>Local visibility.</summary>
             Local,
+
+            /// <summary>Global visibility.</summary>
             Global,
         }
 

@@ -33,9 +33,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="authParameters">The authentication paramaters.</param>
-        /// <param name="clientId">The client id.</param>
-        /// <param name="tenantId">The tenant id.</param>
-        /// <param name="scopes">The scopes.</param>
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
@@ -49,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name { get; } = "devicecode";
+        protected override string Name { get; } = Constants.AuthFlow.DeviceCode;
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()

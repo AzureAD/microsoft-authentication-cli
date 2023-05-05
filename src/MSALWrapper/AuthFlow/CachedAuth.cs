@@ -36,7 +36,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name { get; } = "pca_cache";
+        protected override string Name { get; } = Constants.AuthFlow.CachedAuth;
 
         /// <summary>
         /// Try to get a token silently.

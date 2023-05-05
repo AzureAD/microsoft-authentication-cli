@@ -15,10 +15,6 @@
     <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
       <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
       <Compile Include="..\stylecop\GlobalSuppressions.Test.cs" Link="GlobalSuppressions.Test.cs" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
