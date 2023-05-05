@@ -18,7 +18,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class Broker : AuthFlowBase
     {
-        private const string NameValue = "broker";
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly string promptHint;
@@ -67,7 +66,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name() => NameValue;
+        protected override string Name { get; } = "broker";
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()
@@ -92,19 +91,19 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 tokenResult = await TaskExecutor.CompleteWithin(
                     this.logger,
                     this.interactiveAuthTimeout,
-                    $"{this.Name()} interactive auth",
+                    $"{this.Name} interactive auth",
                     this.GetTokenInteractive(account),
                     this.errors).ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
             {
                 this.errors.Add(ex);
-                this.logger.LogDebug($"initial {this.Name()} auth failed. Trying again with claims from exception.\n{ex.Message}");
+                this.logger.LogDebug($"initial {this.Name} auth failed. Trying again with claims from exception.\n{ex.Message}");
 
                 tokenResult = await TaskExecutor.CompleteWithin(
                     this.logger,
                     this.interactiveAuthTimeout,
-                    $"{this.Name()} interactive auth (with extra claims)",
+                    $"{this.Name} interactive auth (with extra claims)",
                     this.GetTokenInteractiveWithClaims(ex.Claims),
                     this.errors).ConfigureAwait(false);
             }

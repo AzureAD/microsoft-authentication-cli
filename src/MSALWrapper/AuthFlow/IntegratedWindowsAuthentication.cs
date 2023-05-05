@@ -16,7 +16,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     /// </summary>
     public class IntegratedWindowsAuthentication : AuthFlowBase
     {
-        private const string NameValue = "iwa";
         private readonly IEnumerable<string> scopes;
         private readonly string preferredDomain;
         private readonly IPCAWrapper pcaWrapper;
@@ -44,7 +43,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         }
 
         /// <inheritdoc/>
-        protected override string Name() => NameValue;
+        protected override string Name { get; } = "iwa";
 
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()
