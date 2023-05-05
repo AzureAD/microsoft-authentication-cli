@@ -18,7 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     {
         private readonly IEnumerable<string> scopes;
 
-        // TODO: We don't currently warn if the account returned from IWA oesn't match the preferred domain.
+        // TODO: We don't currently warn if the account returned from IWA doesn't match the preferred domain.
         private readonly string preferredDomain;
         private readonly IPCAWrapper pcaWrapper;
 
