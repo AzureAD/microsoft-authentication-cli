@@ -41,7 +41,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             // Setup
             this.SetupAccountUsername();
-            this.SetupGetTokenSilentThrowsMsalUiRequiredException();
+            this.SetupGetTokenSilentMsalUiRequiredException();
 
             IList<Exception> errors = new List<Exception>();
 
@@ -97,7 +97,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Setup
             this.SetupCachedAccount();
             this.SetupAccountUsername();
-            this.SetupGetTokenSilentThrowsMsalUiRequiredException();
+            this.SetupGetTokenSilentMsalUiRequiredException();
 
             // Act
             AuthFlowResult result = this.Subject().GetTokenAsync().Result;
