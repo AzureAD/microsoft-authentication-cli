@@ -54,6 +54,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// The inner method required to be implemented by an AuthFlow.
         /// Performs token acquisition.
         /// </summary>
+        /// <param name="account">The <see cref="IAccount"/> to attempt to use.</param>
         /// <returns>a tuple of <see cref="TokenResult"/> and <see cref="IList{Exception}"/>.</returns>
         protected abstract Task<TokenResult> GetTokenInnerAsync();
 

@@ -92,7 +92,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void CachedAuthFlow_No_Account_Results_In_Null_Without_Errors()
         {
             // Setup
-            this.SetupNoCachedAccount();
+            this.SetupCachedAccount(false);
 
             // Act
             IAuthFlow subject = new CachedAuth(this.logger, ClientId, TenantId, new[] { "scope" }, pcaWrapper: this.mockPca.Object);
@@ -108,6 +108,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             // Setup
             this.SetupCachedAccount();
+            this.SetupAccountUsername();
             var scopes = new[] { "scope" };
 
             this.mockPca.Setup(pca => pca.GetTokenSilentAsync(scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
@@ -131,6 +132,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var tokenResult = new TokenResult(new IdentityModel.JsonWebTokens.JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
 
             this.SetupCachedAccount();
+            this.SetupAccountUsername();
             this.mockPca.Setup(pca => pca.GetTokenSilentAsync(scopes, this.mockAccount.Object, It.IsAny<System.Threading.CancellationToken>()))
                 .ReturnsAsync(tokenResult);
 
