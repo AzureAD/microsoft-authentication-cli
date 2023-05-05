@@ -21,9 +21,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     {
         public AuthFlow.Web Subject() => new AuthFlow.Web(
             this.logger,
-            ClientId,
-            TenantId,
-            Scopes,
+            this.authParameters,
             pcaWrapper: this.mockPca.Object,
             promptHint: PromptHint);
 

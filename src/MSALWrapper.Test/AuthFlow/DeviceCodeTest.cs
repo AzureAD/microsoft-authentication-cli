@@ -18,7 +18,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
     internal class DeviceCodeTest : AuthFlowTestBase
     {
-        public AuthFlow.DeviceCode Subject() => new AuthFlow.DeviceCode(this.logger, ClientId, TenantId, Scopes, pcaWrapper: this.mockPca.Object, promptHint: PromptHint);
+        public AuthFlow.DeviceCode Subject() => new AuthFlow.DeviceCode(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object, promptHint: PromptHint);
 
         [Test]
         public async Task Success()
