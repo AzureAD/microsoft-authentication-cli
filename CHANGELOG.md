@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - The `azureauth ado token` command uses `microsoft.com` as the default `--domain` option value.
+- MSAL Cache usage is now isolated to it's own "auth flow" always injected as the first type of auth to attempt, regardless of mode. This creates a separate telemetry event for `pca_cache` as a new authflow type, which is always silent. The remaining authflows no longer attempt to use the cache first.
+
+### Fixed
+- In several auth flows, it was possible that errors in using the cache could result in never attempting to do interactive auth when the tool should have. 
 
 ## [0.8.0] - 2023-04-07
 ### Added
