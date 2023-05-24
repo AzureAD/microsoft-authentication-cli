@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.8.1] - 2023-05-23
 ### Changed
 - The `azureauth ado token` command uses `microsoft.com` as the default `--domain` option value.
 - MSAL Cache usage is now isolated to it's own "auth flow" always injected as the first type of auth to attempt, regardless of mode. This creates a separate telemetry event for `pca_cache` as a new authflow type, which is always silent. The remaining authflows no longer attempt to use the cache first.
@@ -151,7 +153,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.0...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.1...HEAD
+[0.8.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.4...0.8.0
 [0.7.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.2...0.7.3
