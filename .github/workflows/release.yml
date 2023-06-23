@@ -40,10 +40,8 @@ jobs:
     strategy:
       matrix:
         # We build on Linux, but don't yet ship Linux because we can't easily sign those releases.
-        runtime: [linux-x64, osx-x64, osx-arm64, win10-x64]
+        runtime: [osx-x64, osx-arm64, win10-x64]
         include:
-          - runtime: linux-x64
-            os: ubuntu-latest
           - runtime: osx-x64
             os: macos-latest
           - runtime: osx-arm64
