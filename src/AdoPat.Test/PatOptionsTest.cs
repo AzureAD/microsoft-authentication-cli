@@ -3,6 +3,7 @@
 
 namespace Microsoft.Authentication.AdoPat.Test
 {
+    using System.Collections.Immutable;
     using FluentAssertions;
     using NUnit.Framework;
 
@@ -20,33 +21,11 @@ namespace Microsoft.Authentication.AdoPat.Test
             {
                 Organization = Organization,
                 DisplayName = DisplayName,
-                Scopes = new[] { "test.scope.a", "test.scope.b", "test.scope.c" },
+                Scopes = ImmutableSortedSet.CreateRange<string>(new[] { "test.scope.a", "test.scope.b", "test.scope.c" }),
             };
             var expected = $"{OrganizationHash}-{DisplayNameHash}-eb52c21ad04b684f72bb1cef51e7f4ca58ce5a753744123a5df8f4e1781f831d";
 
             patOptions.CacheKey().Should().Be(expected);
-        }
-
-        [Test]
-        public void CacheKey_Scope_Order_Is_Deterministic()
-        {
-            // These two PAT options have the same organization, display name,
-            // and scopes, but the scopes are in different orders. They should
-            // still be considered to have the same PAT cache key.
-            var patOptions1 = new PatOptions
-            {
-                Organization = Organization,
-                DisplayName = DisplayName,
-                Scopes = new[] { "test.scope.a", "test.scope.b", "test.scope.c" },
-            };
-            var patOptions2 = new PatOptions
-            {
-                Organization = Organization,
-                DisplayName = DisplayName,
-                Scopes = new[] { "test.scope.b", "test.scope.a", "test.scope.c" },
-            };
-
-            patOptions1.CacheKey().Should().Be(patOptions2.CacheKey());
         }
     }
 }
