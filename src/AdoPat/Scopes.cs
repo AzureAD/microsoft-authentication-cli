@@ -11,8 +11,7 @@ namespace Microsoft.Authentication.AdoPat
     public static class Scopes
     {
         // These scopes should be kept up-to-date with https://aka.ms/azure-devops-pat-scopes.
-        public static HashSet<string> ValidScopes = new HashSet<string>
-        {
+        public static ImmutableHashSet<string> ValidScopes = ImmutableHashSet.CreateRange<string>(new[] {
             // Agent Pools
             "vso.agentpools",
             "vso.agentpools_manage",
@@ -137,7 +136,7 @@ namespace Microsoft.Authentication.AdoPat
             "vso.work",
             "vso.work_write",
             "vso.work_full",
-        };
+        });
 
         /// <summary>Validate the given scopes.</summary>
         /// <param name="scopes">The scopes to validate.</param>
@@ -153,10 +152,7 @@ namespace Microsoft.Authentication.AdoPat
         /// <returns>Normalized scopes in sorted order. This might be the empty set.</returns>
         public static ImmutableSortedSet<string> Normalize(IEnumerable<string> scopes)
         {
-            var scopesCount = scopes?.Count() ?? 0;
-            return (scopesCount == 0) ?
-                ImmutableSortedSet.Create<string>() :
-                scopes.Select(scope => scope.ToLower()).ToImmutableSortedSet();
+            return (scopes ?? Enumerable.Empty<string>()).Select(scope => scope.ToLower()).ToImmutableSortedSet();
         }
     }
 }

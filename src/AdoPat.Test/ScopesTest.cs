@@ -11,7 +11,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 
     public class ScopesTest
     {
-        private static HashSet<string> validScopes = Scopes.ValidScopes;
+        private static ImmutableHashSet<string> validScopes = Scopes.ValidScopes;
 
         [Test, TestCaseSource(nameof(validScopes))]
         public void Valid_Scopes_Are_Valid(string scope)
