@@ -81,6 +81,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         [Option(CommandAad.PromptHintOption, CommandAad.PromptHintHelpText, CommandOptionType.SingleValue)]
         private string PromptHint { get; set; } = null;
 
+        [Option(CommandAad.TenantOption, Description = "The Azure Tenant ID to use for authentication. Defaults to Microsoft.")]
+        private string Tenant { get; set; } = AzureAuth.Ado.Constants.Tenant.Microsoft;
+
         [Option(CommandAad.ModeOption, CommandAad.AuthModeHelperText, CommandOptionType.MultipleValue)]
         private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
 
@@ -201,7 +204,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private TokenResult AccessToken(IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
         {
             return publicClientAuth.Token(
-                AzureAuth.Ado.Constants.AdoParams,
+                AzureAuth.Ado.AuthParameters.AdoParameters(this.Tenant),
                 this.AuthModes,
                 this.Domain,
                 this.PromptHint,

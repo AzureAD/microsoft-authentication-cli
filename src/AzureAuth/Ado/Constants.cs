@@ -28,11 +28,6 @@ namespace Microsoft.Authentication.AzureAuth.Ado
         public const string SystemDefinitionId = "SYSTEM_DEFINITIONID";
 
         /// <summary>
-        /// The default auth params for AzureDevops.
-        /// </summary>
-        public static readonly AuthParameters AdoParams = new AuthParameters(Client.VisualStudio, Tenant.Microsoft, new[] { Scope.AzureDevOpsDefault });
-
-        /// <summary>
         /// Azure tenant IDs.
         /// </summary>
         public static class Tenant
