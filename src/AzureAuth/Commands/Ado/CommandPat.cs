@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.IO;
     using McMaster.Extensions.CommandLineUtils;
 
@@ -72,7 +73,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private string DisplayName { get; set; } = null;
 
         [Option(ScopeOption, ScopeHelp, CommandOptionType.MultipleValue)]
-        private string[] Scopes { get; set; } = null;
+        private IEnumerable<string> RawScopes { get; set; } = null;
 
         [Option(OutputOption, OutputHelp, CommandOptionType.SingleValue)]
         private OutputMode Output { get; set; } = OutputMode.Token;
@@ -88,6 +89,20 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
         [Option(CommandAad.TimeoutOption, CommandAad.TimeoutHelpText, CommandOptionType.SingleValue)]
         private double Timeout { get; set; } = CommandAad.GlobalTimeout.TotalMinutes;
+
+        // Scopes are normalized from application start to prevent reparsing.
+        private ImmutableSortedSet<string> _scopes;
+        private ImmutableSortedSet<string> Scopes
+        {
+            get
+            {
+                if (this._scopes is null)
+                {
+                    this._scopes = AdoPat.Scopes.Normalize(this.RawScopes);
+                }
+                return this._scopes;
+            }
+        }
 
         /// <summary>
         /// Executes the command and returns a status code indicating the success or failure of the execution.
@@ -142,12 +157,24 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private bool ValidOptions(ILogger logger)
         {
             bool validOptions = true;
-            int scopesCount = this.Scopes?.Length ?? 0;
 
-            if (scopesCount == 0)
+            if (this.Scopes.IsEmpty)
             {
                 logger.LogError($"The {ScopeOption} field is required.");
                 validOptions = false;
+            }
+            else
+            {
+                var invalidScopes = AdoPat.Scopes.Validate(this.Scopes);
+                if (!invalidScopes.IsEmpty)
+                {
+                    foreach (var scope in invalidScopes)
+                    {
+                        logger.LogError($"{scope} is not a valid Azure DevOps PAT scope.");
+                    }
+                    logger.LogError($"Consult {AdoPat.Constants.PatListURL} for a list of valid scopes.");
+                    validOptions = false;
+                }
             }
 
             if (string.IsNullOrEmpty(this.Organization))

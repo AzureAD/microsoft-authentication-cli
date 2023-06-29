@@ -5,6 +5,7 @@ namespace Microsoft.Authentication.AdoPat.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
@@ -47,7 +48,7 @@ namespace Microsoft.Authentication.AdoPat.Test
         {
             DisplayName = DisplayName,
             Organization = Organization,
-            Scopes = new string[] { Scope },
+            Scopes = ImmutableSortedSet.CreateRange<string>(new[] { Scope }),
         };
 
         [SetUp]
