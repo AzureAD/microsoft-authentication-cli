@@ -6,8 +6,8 @@ AzureAuth is a generic Azure credential provider. It currently supports the foll
 * [System Web Browser](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-web-browsers) (Used on OSX in-place of Embedded Web View)
 * [Device Code Flow](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/Device-Code-Flow) (All platforms, terminal interface only).
 
-## Requirements
-This CLI is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet). This means it does not provide any client ID (aka app registration) by default. You must register and configure your own app registration to authenticate with.
+## `aad` subcommand
+The `azureauth aad` subcommand is a "pass-through" for using [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet). This means it does not provide any client ID (aka app registration) by default. You must register and configure your own app registration to authenticate with.
 
 ### Configure your App Registration
 1. Follow [this quick start guide](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app) to setup your application.
@@ -68,13 +68,13 @@ tenant = "a3be859b-7f9a-4955-98ed-f3602dbd954c"
 
 Usage:
 ```
-azureauth --alias alias1 --config <path to the config file>
+azureauth aad --alias alias1 --config <path to the config file>
 ```
 
 or if you set the environment variable `AZUREAUTH_CONFIG` to the config file path, you can omit the option `--config` and use the below command.
 
 ```
-azureauth --alias alias1
+azureauth aad --alias alias1
 ```
 
 ## Shelling out to AzureAuth CLI
@@ -101,14 +101,75 @@ Azureauth defaults to a 15 minute timeout. You can override this with a custom t
 
 Usage:
 ```
-azureauth --alias alias1 --timeout 10.75
+azureauth aad --alias alias1 --timeout 10.75
 ```
 
-Use the command `azureauth --help` to understand more available options.
+Use the command `azureauth aad --help` to understand more available options.
 
 ### Examples
 1. Sample python code available [here](../examples/python/).
 2. Sample command to authenticate your client to a resource under a tenant. 
     ```
-    azureauth --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
+    azureauth aad --client <clientID> --resource <resourceID> --tenant <tenantID> --output <output format>
     ```
+
+## `ado` subcommand
+The `azureauth ado` subcommand is a logical grouping for two subcommands,
+`azureauth ado pat` and `azureauth ado token`.
+
+### `pat` subcommand
+The `azureauth ado pat` subcommand is designed to create and cache Azure DevOps
+Personal Access Tokens (PATs) using encrypted local storage.
+
+At a minimum users must specify
+1. The `--organization` the PAT is for.
+2. The `--display-name` of the PAT.
+3. The intended `--scope` of the PAT (you can specify multiple).
+4. A `--prompt-hint` which can be displayed if an interactive prompt is required.
+
+Here is an example invocation:
+```
+azureauth ado pat --organization Contoso --display-name NuGetPackages --scope vso.packaging --prompt-hint NuGetPackages
+```
+
+PATs created by the `azureauth ado pat` subcommand are valid for up to a week.
+During that time requests for the same `organization`, `display-name`, `scope`
+combo will yield a cached PAT. If the PAT would expire within 48 hours then a
+new PAT is generated and the old PAT is invalidated.
+
+### `token` subcommand
+The `azureauth ado token` subcommand is designed for scenarios where the calling
+application doesn't care what kind of Azure DevOps token it receives. It is most
+useful in scripts that normally run as part of an automated pipeline, but that
+are occassionally triggered manually by users as well.
+
+Under normal circumstances the `azureauth ado token` subcommand functions like
+a built-in alias for `azureauth aad` which provides Azure DevOps defaults. That
+is,
+```
+azureauth ado token
+```
+should be considered equivalent to
+```
+ azureauth aad --client <default ADO client> --tenant <tenantID> --scope <default ADO scope>
+```
+However, the `azureauth ado token` subcommand will also detect a Personal Access
+Token (PAT) in environment variables and output that instead if it is available.
+
+This is particularly useful when combined with the `--output` flag. For example,
+if you choose the `header` output option the subcommand will correctly choose
+between formatting the output for `Authorization: Bearer` or
+`Authorization: Basic` depending on the token type.
+
+#### Environment Variables
+Both the `AZUREAUTH_ADO_PAT` and `SYSTEM_ACCESSTOKEN` environment variables are
+respected as sources for a PAT.
+
+## `info` subcommand
+The `azureauth info` subcommand displays information about your AzureAuth
+installation. Presently this is limited to application version and telemetry
+device ID. This device ID is only used when telemetry is enabled (it's **off by
+default**). You can reset the ID with
+```
+azureauth info reset-device-id
+```
