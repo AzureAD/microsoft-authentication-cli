@@ -100,7 +100,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
 
             // If no PAT then use AAD AT.
             TokenResult token = publicClientAuth.Token(
-                authParams: AzureAuth.Ado.Constants.AdoParams,
+                AzureAuth.Ado.AuthParameters.AdoParameters(this.Tenant),
                 authModes: this.AuthModes,
                 domain: this.Domain,
                 prompt: this.PromptHint,
