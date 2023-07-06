@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2023-07-06
+### Added
+- The `azureauth ado` subcommands now support a `--tenant` flag.
+
+### Changed
+- The `azureauth ado pat` subcommand now validates `--scope` before creating a PAT.
+
 ## [0.8.1] - 2023-05-23
 ### Changed
 - The `azureauth ado token` command uses `microsoft.com` as the default `--domain` option value.
@@ -153,7 +160,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.1...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.2...HEAD
+[0.8.2]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.4...0.8.0
 [0.7.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.7.3...0.7.4
