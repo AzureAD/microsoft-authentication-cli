@@ -28,7 +28,7 @@ namespace Microsoft.Authentication.AdoPat
         /// <summary>
         /// Gets the PAT scopes.
         /// </summary>
-        public string[] Scopes { get; init; } = default;
+        public ImmutableSortedSet<string> Scopes { get; init; } = default;
 
         /// <summary>
         /// Gets the string used as a cache key which corresponds to these options.
@@ -38,7 +38,7 @@ namespace Microsoft.Authentication.AdoPat
         {
             // We concatenate scopes with the empty string after sorting and
             // deduplicating them to ensure the cache key is always the same.
-            var sortedScopes = string.Concat(this.Scopes.ToImmutableSortedSet());
+            var sortedScopes = string.Concat(this.Scopes);
 
             using (SHA256 sha256 = SHA256.Create())
             {
