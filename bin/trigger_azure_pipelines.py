@@ -10,7 +10,8 @@ import zipfile
 
 from azure.devops.connection import Connection
 from azure.devops.v6_0.pipelines.pipelines_client import PipelinesClient
-from azure.devops.v6_0.pipelines.models import Run
+from azure.devops.v6_0.build.build_client import BuildClient
+from azure.devops.v6_0.build.models import TimelineRecord
 from msrest.authentication import BasicAuthentication
 from requests import Response
 
@@ -27,23 +28,25 @@ def ado_connection(organization: str, ado_pat: str) -> Connection:
         creds=BasicAuthentication("", ado_pat),
     )
 
-
-def wait_for_pipeline_run(
-    pipeline_client: PipelinesClient, project: str, pipeline_id: int, run_id: str
-) -> Run:
-    """Wait for the azure devops pipepline run to finish"""
-    run = pipeline_client.get_run(project, pipeline_id, run_id)
+def wait_for_stage(
+    build_client: BuildClient, project: str, stage_id: str, run_id: str
+) -> TimelineRecord:
+    """Wait for the dedicated stage in azure devops pipepline run to finish"""
 
     # polling interval is set in accordance with the rate limits specified here:
     # https://learn.microsoft.com/en-us/azure/devops/integrate/concepts/rate-limits?view=azure-devops
     polling_interval_seconds = 30
 
-    # Wait until the build have a complete status.
-    # https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/get?view=azure-devops-rest-6.0#runstate
-    while run.state not in COMPLETED_STATUSES:
-        time.sleep(polling_interval_seconds)
-        run = pipeline_client.get_run(project, pipeline_id, run_id)
-    return run
+    # Wait until the stage have a complete status.
+    # https://learn.microsoft.com/en-us/rest/api/azure/devops/build/timeline/get?view=azure-devops-rest-6.0
+    while True:
+        timeline = build_client.get_build_timeline(project, run_id)
+        records = timeline.records
+        record = next(filter(lambda record: record.identifier == stage_id, records), None)
+        if record == None or record.state not in COMPLETED_STATUSES:
+            time.sleep(polling_interval_seconds)
+    
+        return record
 
 
 def trigger_azure_pipeline_and_wait_until_its_completed(
@@ -51,6 +54,7 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     organization: str,
     project: str,
     pipeline_id: str,
+    stage_id: str,
     version: str,
     commit_hash: str,
 ) -> str:
@@ -71,9 +75,10 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
         "Successfully triggered a pipeline. Waiting for the run to be completed.\n"
         f"More details on the triggered pipeline can be found here: {pipeline_url}"
     )
-    completed_run = wait_for_pipeline_run(
-        pipeline_client, project, pipeline_id, pipeline_status.id
+    completed_run = wait_for_stage(
+        ado_client.get_build_client(), project, stage_id, pipeline_status.id
     )
+
     if completed_run.result in FAILED_STATUSES:
         raise Exception("Azure DevOps pipeline run failed!")
 
@@ -120,6 +125,7 @@ def main() -> None:
         organization = os.environ["ADO_ORGANIZATION"]
         project = os.environ["ADO_PROJECT"]
         pipeline_id = os.environ["ADO_AZUREAUTH_LINUX_PIPELINE_ID"]
+        stage_id = os.environ["ADO_AZUREAUTH_LINUX_STAGE_ID"]
         version = os.environ["VERSION"]
         commit_hash = os.environ["GITHUB_SHA"]
         ado_artifact_name = os.environ["ADO_LINUX_ARTIFACT_NAME"]
@@ -138,6 +144,7 @@ def main() -> None:
         organization,
         project,
         pipeline_id,
+        stage_id,
         version,
         commit_hash,
     )
