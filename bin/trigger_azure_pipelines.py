@@ -56,6 +56,7 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     pipeline_id: str,
     stage_id: str,
     version: str,
+    debian_revision: str,
     commit_hash: str,
 ) -> str:
     """Triggers an azure pipeline and waits for it to be finished"""
@@ -66,7 +67,7 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
     # queue build API: https://learn.microsoft.com/en-us/rest/api/azure/devops/build/builds/queue?view=azure-devops-rest-6.0
 
     run_parameters = {
-        "templateParameters": {"upstream_version": version, "commit_hash": commit_hash}
+        "templateParameters": {"upstream_version": version, "commit_hash": commit_hash, "debian_revision": debian_revision}
     }
     pipeline_status = pipeline_client.run_pipeline(run_parameters, project, pipeline_id)
     run_id = pipeline_status.id
@@ -127,6 +128,7 @@ def main() -> None:
         pipeline_id = os.environ["ADO_AZUREAUTH_LINUX_PIPELINE_ID"]
         stage_id = os.environ["ADO_AZUREAUTH_LINUX_STAGE_ID"]
         version = os.environ["VERSION"]
+        debian_revision = os.environ["DEBIAN_REVISION"]
         commit_hash = os.environ["GITHUB_SHA"]
         ado_artifact_name = os.environ["ADO_LINUX_ARTIFACT_NAME"]
         artifact_download_path = os.environ["ADO_LINUX_ARTIFACT_DOWNLOAD_PATH"]
@@ -146,6 +148,7 @@ def main() -> None:
         pipeline_id,
         stage_id,
         version,
+        debian_revision,
         commit_hash,
     )
 
