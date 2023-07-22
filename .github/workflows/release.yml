@@ -252,4 +252,5 @@ jobs:
           azureauth-${{ github.event.inputs.version }}-win10-x64.zip
           azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
           azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
-          azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb	
+          azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
+          azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
