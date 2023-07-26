@@ -45,8 +45,8 @@ def wait_for_stage(
         record = next(filter(lambda record: record.identifier == stage_id, records), None)
         if record == None or record.state not in COMPLETED_STATUSES:
             time.sleep(polling_interval_seconds)
-    
-        return record
+        else:
+            return record
 
 
 def trigger_azure_pipeline_and_wait_until_its_completed(
