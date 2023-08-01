@@ -16,7 +16,7 @@ from msrest.authentication import BasicAuthentication
 from requests import Response
 
 # https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/get?view=azure-devops-rest-6.0#runresult
-FAILED_STATUSES: set[str] = {"canceled", "failed", "unknown"}
+FAILED_STATUSES: set[str] = {"canceled", "failed", "skipped", "unknown"}
 COMPLETED_STATUSES: set[str] = {"completed"}
 
 
