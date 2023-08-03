@@ -15,9 +15,11 @@ from azure.devops.v6_0.build.models import TimelineRecord
 from msrest.authentication import BasicAuthentication
 from requests import Response
 
-# https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/get?view=azure-devops-rest-6.0#runresult
-FAILED_STATUSES: set[str] = {"canceled", "failed", "skipped", "unknown"}
-COMPLETED_STATUSES: set[str] = {"completed"}
+# https://learn.microsoft.com/en-us/rest/api/azure/devops/build/timeline/get#taskresult
+FAILED_RESULTS: set[str] = {"abandoned", "canceled", "failed", "skipped"}
+
+# https://learn.microsoft.com/en-us/rest/api/azure/devops/build/timeline/get#timelinerecordstate
+COMPLETED_STATES: set[str] = {"completed"}
 
 
 def ado_connection(organization: str, ado_pat: str) -> Connection:
@@ -43,7 +45,7 @@ def wait_for_stage(
         timeline = build_client.get_build_timeline(project, run_id)
         records = timeline.records
         record = next(filter(lambda record: record.identifier == stage_id, records), None)
-        if record == None or record.state not in COMPLETED_STATUSES:
+        if record == None or record.state not in COMPLETED_STATES:
             time.sleep(polling_interval_seconds)
         else:
             return record
@@ -80,7 +82,7 @@ def trigger_azure_pipeline_and_wait_until_its_completed(
         ado_client.get_build_client(), project, stage_id, pipeline_status.id
     )
 
-    if completed_run.result in FAILED_STATUSES:
+    if completed_run.result in FAILED_RESULTS:
         raise Exception("Azure DevOps pipeline run failed!")
 
     return run_id
