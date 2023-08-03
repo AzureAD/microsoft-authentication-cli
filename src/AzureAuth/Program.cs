@@ -97,6 +97,12 @@ namespace Microsoft.Authentication.AzureAuth
             services.AddSingleton<IPublicClientAuth, PublicClientAuth>();
             services.AddSingleton<ILogger>(logger);
 
+            Console.CancelKeyPress += (_, _) =>
+            {
+                logger.LogWarning("Received SIGINT (Ctrl+C), exiting...");
+                Environment.Exit(2);
+            };
+
             new Lasso(app, options, services).Execute(args);
         }
     }
