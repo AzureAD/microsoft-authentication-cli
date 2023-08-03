@@ -19,6 +19,11 @@ updates:
        msal-dependencies:
           patterns:
             - "Microsoft.Identity.*"
+    ignore:
+      - dependency-name: "Microsoft.Identity.*"
+        # For Microsoft.Identity.*, ignore all Dependabot updates for 16.0.*.*
+        versions: ["16.0.*.*"]
+
     registries:
       - nuget-azure-devops # Allow version updates for dependencies in this registry
 registries:
