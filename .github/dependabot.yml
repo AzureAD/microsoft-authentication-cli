@@ -8,28 +8,13 @@ updates:
       interval: "weekly"
   - package-ecosystem: "nuget"
     directory: "/"
-    registries:
-      - nuget-azure-devops # Allow version updates for dependencies in this registry
-    schedule:
-      interval: "weekly"
-    allow:
-      # Allow updates for Lasso
-      - dependency-name: "Microsoft.Office.Lasso"
-  - package-ecosystem: "nuget"
-    directory: "/"
     schedule:
       interval: "weekly"
     allow:
       # Allow updates for MSAL and any packages starting "Microsoft.Identity"
-      - dependency-name: "Microsoft.Identity*"
+      - dependency-name: "Microsoft.Identity.*"
     groups:
        # Combine MSAL packages to one Pull Request.
        msal-dependencies:
           patterns:
             - "Microsoft.Identity.*"
-registries:
-  nuget-azure-devops:
-    type: nuget-feed
-    url: https://office.pkgs.visualstudio.com/DefaultCollection/_packaging/Office/nuget/v3/index.json
-    username: office
-    password: ${{ secrets.ADO_TOKEN }}
