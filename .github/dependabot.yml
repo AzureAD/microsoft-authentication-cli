@@ -17,7 +17,11 @@ updates:
       - dependency-name: "Microsoft.Office.Lasso"
       # Allow updates for MSAL and any packages starting "Microsoft.Identity"
       - dependency-name: "Microsoft.Identity*"
-
+    groups:
+       # Combine MSAL packages to one Pull Request.
+       msal-dependencies:
+          patterns:
+            - "Microsoft.Identity.*"
 registries:
   nuget-azure-devops:
     type: nuget-feed
