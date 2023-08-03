@@ -1,0 +1,20 @@
+# Set update schedule for GitHub Actions
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      # Check for updates to GitHub Actions every week
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/src"
+    registries:
+      - nuget-azure-devops # Allow version updates for dependencies in this registry
+    schedule:
+      interval: "weekly"
+registries:
+  nuget-azure-devops:
+    type: nuget-feed
+    url: https://office.pkgs.visualstudio.com/DefaultCollection/_packaging/Office/nuget/v3/index.json
+    username: office
+    password: ${{ secrets.ADO_TOKEN }}
