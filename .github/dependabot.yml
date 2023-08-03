@@ -12,6 +12,12 @@ updates:
       - nuget-azure-devops # Allow version updates for dependencies in this registry
     schedule:
       interval: "weekly"
+    allow:
+      # Allow updates for Lasso
+      - dependency-name: "Microsoft.Office.Lasso"
+      # Allow updates for MSAL and any packages starting "Microsoft.Identity"
+      - dependency-name: "Microsoft.Identity*"
+
 registries:
   nuget-azure-devops:
     type: nuget-feed
