@@ -15,6 +15,11 @@ updates:
     allow:
       # Allow updates for Lasso
       - dependency-name: "Microsoft.Office.Lasso"
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    allow:
       # Allow updates for MSAL and any packages starting "Microsoft.Identity"
       - dependency-name: "Microsoft.Identity*"
     groups:
