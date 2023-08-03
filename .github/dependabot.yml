@@ -7,7 +7,7 @@ updates:
       # Check for updates to GitHub Actions every week
       interval: "weekly"
   - package-ecosystem: "nuget"
-    directory: "/src"
+    directory: "/"
     registries:
       - nuget-azure-devops # Allow version updates for dependencies in this registry
     schedule:
