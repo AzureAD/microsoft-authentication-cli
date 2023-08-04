@@ -43,7 +43,7 @@ def wait_for_stage(
     # https://learn.microsoft.com/en-us/rest/api/azure/devops/build/timeline/get?view=azure-devops-rest-6.0
     while True:
         timeline = build_client.get_build_timeline(project, run_id)
-        record = next((r for r in records if r.identifier == stage_id), None)
+        record = next((r for r in timeline.records if r.identifier == stage_id), None)
         if record == None or record.state not in COMPLETED_STATES:
             time.sleep(polling_interval_seconds)
         else:
