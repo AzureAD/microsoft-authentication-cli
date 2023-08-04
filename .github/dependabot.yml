@@ -21,11 +21,11 @@ updates:
             - "Microsoft.Identity.*"
     ignore:
       - dependency-name: "Microsoft.Identity.*"
-        # For Microsoft.Identity.*, ignore all Dependabot updates for 16.0.*.*
+        # For Microsoft.Identity.*, ignore all Dependabot updates for 16.0.*.*, which is an internal version and cannot be used.
         versions: ["16.0.*.*"]
-
     registries:
       - nuget-azure-devops # Allow version updates for dependencies in this registry
+      
 registries:
   nuget-azure-devops:
     type: nuget-feed
