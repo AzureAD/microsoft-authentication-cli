@@ -40,10 +40,8 @@ jobs:
     strategy:
       matrix:
         # We build on Linux, but don't yet ship Linux because we can't easily sign those releases.
-        runtime: [linux-x64, osx-x64, osx-arm64, win10-x64]
+        runtime: [osx-x64, osx-arm64, win10-x64]
         include:
-          - runtime: linux-x64
-            os: ubuntu-latest
           - runtime: osx-x64
             os: macos-latest
           - runtime: osx-arm64
@@ -148,6 +146,43 @@ jobs:
           name: azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
           path: azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
 
+  # Build and sign Linux binaries on Azure DevOps and publish them to GitHub and packages.microsoft.com.
+  linux_release:
+    runs-on: ubuntu-latest
+    needs: [validate]
+    env:
+      ADO_LINUX_ARTIFACT_DOWNLOAD_PATH: dist/linux
+      ADO_LINUX_ARTIFACT_NAME: ${{ vars.ADO_LINUX_ARTIFACT_NAME }}
+      DEBIAN_REVISION: 1
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+    - name: Build, Sign and Download Linux Binaries
+      run: |
+        pip install -r bin/requirements.txt
+        python ./bin/trigger_azure_pipelines.py
+      env:
+        AZURE_DEVOPS_BUILD_PAT: ${{ secrets.AZURE_DEVOPS_BUILD_PAT }}
+        ADO_ORGANIZATION: ${{ secrets.ADO_ORGANIZATION }}
+        ADO_PROJECT: ${{ secrets.ADO_PROJECT}}
+        ADO_AZUREAUTH_LINUX_PIPELINE_ID: ${{ secrets.ADO_AZUREAUTH_LINUX_PIPELINE_ID }}
+        ADO_AZUREAUTH_LINUX_STAGE_ID: ${{ vars.ADO_AZUREAUTH_LINUX_STAGE_ID }}
+        VERSION: ${{ github.event.inputs.version }}
+    - name: Upload linux-x64 artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
+        path: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
+    - name: Upload linux-arm64 artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
+        path: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
+
   # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
   package:
     runs-on: ubuntu-latest
@@ -189,13 +224,15 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [package]
+    needs: [package, linux_release]
     # The 'release' environment is what requires reviews before creating the release.
     environment:
       name: release
     # These permissions are required in order to use `softprops/action-gh-release` to upload.
     permissions:
       contents: write
+    env:
+      DEBIAN_REVISION: 1
     steps:
     - name: Download win10-x64 artifact
       uses: actions/download-artifact@v3
@@ -209,6 +246,15 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
+    - name: Download linux-x64 artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
+    - name: Download linux-arm64 artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
+
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
@@ -220,3 +266,5 @@ jobs:
           azureauth-${{ github.event.inputs.version }}-win10-x64.zip
           azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
           azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
+          azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
+          azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
