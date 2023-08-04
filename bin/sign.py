@@ -248,7 +248,7 @@ def parse_env_vars(runtime: str) -> tuple[str, str, str, JSON]:
                     "authenticode": os.environ["SIGNING_KEY_CODE_AUTHENTICODE"],
                     "mac": os.environ["SIGNING_KEY_CODE_MAC"],
                 }
-            case "linux-x64":
+            case "linux-x64" | "linux-arm64":
                 # This key code is used for signing .deb on Linux.
                 key_codes = {"linux": os.environ["SIGNING_KEY_CODE_LINUX"]}
 
