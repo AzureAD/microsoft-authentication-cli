@@ -175,12 +175,12 @@ jobs:
     - name: Upload linux-x64 artifact
       uses: actions/upload-artifact@v3
       with:
-        name: azureauth_${{ github.event.inputs.version }}-linux-amd64.deb
+        name: azureauth-${{ github.event.inputs.version }}-linux-amd64.deb
         path: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
     - name: Upload linux-arm64 artifact
       uses: actions/upload-artifact@v3
       with:
-        name: azureauth_${{ github.event.inputs.version }}-linux-arm64.deb
+        name: azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
         path: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
 
   # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
@@ -266,5 +266,5 @@ jobs:
           azureauth-${{ github.event.inputs.version }}-win10-x64.zip
           azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
           azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
-          azureauth_${{ github.event.inputs.version }}-linux-amd64.deb
-          azureauth_${{ github.event.inputs.version }}-linux-arm64.deb
+          azureauth-${{ github.event.inputs.version }}-linux-amd64.deb
+          azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
