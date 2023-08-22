@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AzureAuth now can handle SIGINT(Ctrl+C) correctly and return 2.
 
 ### Changed
-- When attempting the IWA authentication flow without a VPN connection, the warning message "IWA only works on Corp Net, please turn on VPN." will be downgraded to info level.
+- Optimize the warning message from IWA auth flow when VPN is not connected.
 
 ## [0.8.2] - 2023-07-06
 ### Added
