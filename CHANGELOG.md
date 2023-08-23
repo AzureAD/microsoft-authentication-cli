@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AzureAuth now can handle SIGINT(Ctrl+C) correctly and return 2.
 
 ### Changed
-- Optimize the warning message from IWA auth flow when VPN is not connected.
+- Optimize the warning message from IWA auth flow when VPN is not connected, and downgrade it to debug level.
 
 ## [0.8.2] - 2023-07-06
 ### Added
