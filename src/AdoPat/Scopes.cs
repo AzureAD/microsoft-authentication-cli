@@ -34,6 +34,11 @@ namespace Microsoft.Authentication.AdoPat
             "vso.code_full",
             "vso.code_status",
 
+            // Drop
+            "vso.drop",
+            "vso.drop_write",
+            "vso.drop_manage",
+
             // Entitlements
             "vso.entitlements",
             "vso.memberentitlementmanagement",
