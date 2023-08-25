@@ -249,11 +249,11 @@ jobs:
     - name: Download linux-x64 artifact
       uses: actions/download-artifact@v3
       with:
-        name: azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
+        name: azureauth-${{ github.event.inputs.version }}-linux-x64.deb
     - name: Download linux-arm64 artifact
       uses: actions/download-artifact@v3
       with:
-        name: azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
+        name: azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
