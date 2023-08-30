@@ -72,7 +72,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             }
             catch (MsalClientException ex) when (ex.Message.Contains("WS-Trust endpoint not found"))
             {
-                this.logger.LogWarning($"IWA only works on Corp Net, please turn on VPN.");
+                this.logger.LogDebug($"IWA only works on corporate AD backed network, AzureAuth is trying to use other auth flows if applicable.");
+                this.logger.LogDebug($"Turn on VPN for IWA mode to succeed.");
                 throw;
             }
 

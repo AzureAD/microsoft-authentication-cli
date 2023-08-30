@@ -103,7 +103,7 @@ namespace Microsoft.Authentication.AzureAuth
                 Environment.Exit(2);
             };
 
-            new Lasso(app, options, services).Execute(args);
+            new LassoMcMaster(app, options, services).Execute(args);
         }
     }
 }
