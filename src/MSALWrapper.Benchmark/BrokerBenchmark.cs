@@ -16,8 +16,8 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
     /// </summary>
     public class BrokerBenchmark
     {
-        private readonly Guid clientID = Guid.Parse("00000000-0000-0000-0000-000000000000"); // Replace with your own client ID.
-        private readonly Guid tenantID = Guid.Parse("00000000-0000-0000-0000-000000000000"); // Replace with your own tenant ID.
+        private readonly Guid clientID = Guid.Parse("872cd9fa-d31f-45e0-9eab-6e460a02d1f1"); // Replace with your own client ID.
+        private readonly Guid tenantID = Guid.Parse("72f988bf-86f1-41af-91ab-2d7cd011db47"); // Replace with your own tenant ID.
         private readonly List<string> scopes = new List<string>();
         private readonly ILogger logger;
 
@@ -89,7 +89,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
 ;
             if (useNativeBroker)
             {
-                clientBuilder.WithBrokerPreview();
+                clientBuilder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
             }
             else
             {

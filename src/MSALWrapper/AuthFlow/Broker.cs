@@ -157,12 +157,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     Identity.Client.LogLevel.Verbose,
                     enablePiiLogging: false,
                     enableDefaultPlatformLogging: true)
-                .WithWindowsBrokerOptions(new WindowsBrokerOptions
+                .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
                 {
-                    HeaderText = this.promptHint,
+                    Title = this.promptHint,
                 })
-                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()) // Pass parent window handle to MSAL so it can parent the authentication dialogs.
-                .WithBrokerPreview(); // Use native broker mode.
+                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()); // Pass parent window handle to MSAL so it can parent the authentication dialogs.
 
             return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId);
         }
