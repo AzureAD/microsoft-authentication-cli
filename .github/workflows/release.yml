@@ -173,14 +173,16 @@ jobs:
         ADO_AZUREAUTH_LINUX_STAGE_ID: ${{ vars.ADO_AZUREAUTH_LINUX_STAGE_ID }}
         VERSION: ${{ github.event.inputs.version }}
 
-    - name: Rename linux-x64 artifact
+    - name: Rename linux artifact
+      env:
+          DEB_AMD64_SOURCE: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
+          DEB_AMD64_TARGET: azureauth-${{ github.event.inputs.version }}-linux-x64.deb
+          DEB_ARM64_SOURCE: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
+          DEB_ARM64_TARGET: azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
       run: |
-        mv ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb \
-        azureauth-${{ github.event.inputs.version }}-linux-x64.deb
-    - name: Rename linux-arm64 artifact
-      run: |
-        mv ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb \
-        azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
+            mv ${{ env.DEB_AMD64_SOURCE }} ${{ env.DEB_AMD64_TARGET}}
+            mv ${{ env.DEB_ARM64_SOURCE }} ${{ env.DEB_ARM64_TARGET}}
+            
     - name: Upload linux artifact
       uses: actions/upload-artifact@v3
       with:
