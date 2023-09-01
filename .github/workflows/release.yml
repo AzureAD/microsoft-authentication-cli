@@ -180,8 +180,8 @@ jobs:
           DEB_ARM64_SOURCE: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
           DEB_ARM64_TARGET: azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
       run: |
-            mv ${{ env.DEB_AMD64_SOURCE }} ${{ env.DEB_AMD64_TARGET}}
-            mv ${{ env.DEB_ARM64_SOURCE }} ${{ env.DEB_ARM64_TARGET}}
+            mv ${{ env.DEB_AMD64_SOURCE }} ${{ env.DEB_AMD64_TARGET }}
+            mv ${{ env.DEB_ARM64_SOURCE }} ${{ env.DEB_ARM64_TARGET }}
             
     - name: Upload linux artifact
       uses: actions/upload-artifact@v3
