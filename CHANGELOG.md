@@ -6,11 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.8.4] - 2023-09-05
-### Changed
-- Upgrade Lasso to `2023.8.24.1`.
-- Upgrade MSAL to `4.55.0`.
-
 ## [0.8.3] - 2023-08-24
 ### Added
 - Added support for distributing debian packages.
@@ -176,8 +171,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.4...HEAD
-[0.8.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.3...0.8.4
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.3...HEAD
 [0.8.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.0...0.8.1
