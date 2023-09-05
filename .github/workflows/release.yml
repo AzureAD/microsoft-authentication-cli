@@ -172,16 +172,24 @@ jobs:
         ADO_AZUREAUTH_LINUX_PIPELINE_ID: ${{ secrets.ADO_AZUREAUTH_LINUX_PIPELINE_ID }}
         ADO_AZUREAUTH_LINUX_STAGE_ID: ${{ vars.ADO_AZUREAUTH_LINUX_STAGE_ID }}
         VERSION: ${{ github.event.inputs.version }}
-    - name: Upload linux-x64 artifact
+
+    - name: Rename linux artifact
+      env:
+          DEB_AMD64_SOURCE: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
+          DEB_AMD64_TARGET: azureauth-${{ github.event.inputs.version }}-linux-x64.deb
+          DEB_ARM64_SOURCE: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
+          DEB_ARM64_TARGET: azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
+      run: |
+            mv ${{ env.DEB_AMD64_SOURCE }} ${{ env.DEB_AMD64_TARGET }}
+            mv ${{ env.DEB_ARM64_SOURCE }} ${{ env.DEB_ARM64_TARGET }}
+            
+    - name: Upload linux artifact
       uses: actions/upload-artifact@v3
       with:
-        name: azureauth-${{ github.event.inputs.version }}-linux-x64.deb
-        path: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_amd64.deb
-    - name: Upload linux-arm64 artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
-        path: ${{ env.ADO_LINUX_ARTIFACT_DOWNLOAD_PATH }}/${{ env.ADO_LINUX_ARTIFACT_NAME }}/azureauth_${{ github.event.inputs.version }}-${{ env.DEBIAN_REVISION }}_arm64.deb
+        name: azureauth-linux
+        path: |
+          azureauth-${{ github.event.inputs.version }}-linux-x64.deb
+          azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
 
   # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
   package:
@@ -231,8 +239,6 @@ jobs:
     # These permissions are required in order to use `softprops/action-gh-release` to upload.
     permissions:
       contents: write
-    env:
-      DEBIAN_REVISION: 1
     steps:
     - name: Download win10-x64 artifact
       uses: actions/download-artifact@v3
@@ -249,11 +255,7 @@ jobs:
     - name: Download linux-x64 artifact
       uses: actions/download-artifact@v3
       with:
-        name: azureauth-${{ github.event.inputs.version }}-linux-x64.deb
-    - name: Download linux-arm64 artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: azureauth-${{ github.event.inputs.version }}-linux-arm64.deb
+        name: azureauth-linux
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
