@@ -1,15 +1,21 @@
 # Enable a default -Verbose flag for debug output.
 [CmdletBinding()]
-Param([switch] $NoUpdatePath)
 
 # Halt script execution at the first failed command.
 $script:ErrorActionPreference='Stop'
+
+$deleted = $false
 
 function Uninstall {
     $uninstallDirectory = Get-UninstallDirectory
     Remove-InstallationFolder $uninstallDirectory
     Remove-FromPath $uninstallDirectory
-    Write-Output "Uninstalled AzureAuth!"
+
+    if ($deleted) {
+        Write-Output "Uninstalled AzureAuth!"
+    } else {
+        Write-Output "There were no AzureAuth installations to be deleted."
+    }
 }
 
 function Get-UninstallDirectory {
@@ -25,6 +31,7 @@ function Remove-InstallationFolder {
     if (Test-Path -Path $directory) {
         Write-Verbose "Removing installations at '${directory}'"
         Remove-Item -Force -Recurse $directory
+        $script:deleted = $true
     } else {
         Write-Verbose "There were no installations found at '${directory}'"
     }
@@ -44,7 +51,7 @@ function Remove-FromPath {
         if (!$az.Contains($uninstallDirectory)) {
             $additionalDirectory = (Get-Item $az).Directory.FullName
             Write-Verbose "Additional installation found in ${additionalDirectory}"
-            $index = $otherDirectories.Add($additionalDirectory)
+            $_ = $otherDirectories.Add($additionalDirectory)
             Remove-InstallationFolder ($additionalDirectory)
         }
     }
