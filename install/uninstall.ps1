@@ -25,13 +25,13 @@ function Get-AzureauthsInPath {
     # Installations in custom locations that are not listed in PATH cannot
     # be found and uninstalled.
     ForEach($az in $azureauthsInPath) {
+        $tempDirectory = (Get-Item $az).Directory.FullName
         if (!$az.Contains($azureauthDefaultLocation)) {
-            $additionalDirectory = (Get-Item $az).Directory.FullName
-            Write-Warning "Additional installation found in ${additionalDirectory}"
+            Write-Warning "Additional installation found in ${tempDirectory}"
         } else {
             # We add the PATH location to the list and not the default location to later
             # remove it from the PATH (default location is the whole parent folder).
-            $_ = $allLocations.Add($az)
+            $_ = $allLocations.Add($tempDirectory)
         }
     }
 
