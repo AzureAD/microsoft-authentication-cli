@@ -7,9 +7,12 @@ $script:ErrorActionPreference='Stop'
 $azureauthDefaultLocation = ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "Programs", "AzureAuth"))
 
 function Uninstall {
+    Close-AzureauthInstances
+
     $locations = Get-AzureauthsInPath
     Remove-AzureauthDirectories $locations
     Remove-FromPath $locations
+    
     Write-Output "Uninstalled AzureAuth!"
 }
 
@@ -81,6 +84,22 @@ function Remove-FromPath {
 
     Set-ItemProperty -Path $registryPath -Name PATH -Value $updatedPath
     Send-SettingChange
+}
+
+function Close-AzureauthInstances {
+    # Uninstall will fail if there are instances of AzureAuth running. 
+    # We suppress taskkill output here because this is a best effort attempt and we don't want the user to see its output.
+    # Here, Get-Process is used to first determine whether there is an existing azureauth process. If there is, kill the existing process first.
+    $ProcessCheck = Get-Process -Name azureauth -ErrorAction SilentlyContinue -ErrorVariable ProcessError
+    if ($null -ne $ProcessCheck) {
+        Write-Verbose "Stopping any currently running azureauth instances"
+        taskkill /f /im azureauth.exe 2>&1 | Out-Null
+
+        # After killing the process it is still possible for there there to be locks on the files it was using (including
+        # its own DLLs). The OS may take an indeterminate amount of time to clean those up, but so far we've observed 1
+        # second to be enough.
+        Start-Sleep -Seconds 1
+    }
 }
 
 # Send WM_SETTINGCHANGE after changing Environment variables.
