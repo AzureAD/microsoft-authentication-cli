@@ -4,25 +4,46 @@
 # Halt script execution at the first failed command.
 $script:ErrorActionPreference='Stop'
 
-$deleted = $false
+$azureauthDefaultLocation = ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "Programs", "AzureAuth"))
 
 function Uninstall {
-    $uninstallDirectory = Get-UninstallDirectory
-    Remove-InstallationFolder $uninstallDirectory
-    Remove-FromPath $uninstallDirectory
-
-    if ($deleted) {
-        Write-Output "Uninstalled AzureAuth!"
-    } else {
-        Write-Output "There were no AzureAuth installations to be deleted."
-    }
+    $locations = Get-AzureauthsInPath
+    Remove-AzureauthDirectories $locations
+    Remove-FromPath $locations
+    Write-Output "Uninstalled AzureAuth!"
 }
 
-function Get-UninstallDirectory {
-    $directory = if (![string]::IsNullOrEmpty($Env:AZUREAUTH_INSTALL_DIRECTORY)) {
-        Write-Error "Uninstalling from custom location is not supported"
-    } 
-    return ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "Programs", "AzureAuth"))
+function Get-AzureauthsInPath {
+    $allLocations = [System.Collections.ArrayList]@()
+    $azureauthsInPath = (Get-Command -Name azureauth -ErrorAction SilentlyContinue -CommandType Application -All).Source
+
+    # Uninstallation is only supported from the default AzureAuth location.
+    # We warn the user of any custom locations that are listed in the PATH.
+    # Installations in custom locations that are not listed in PATH cannot
+    # be found and uninstalled.
+    ForEach($az in $azureauthsInPath) {
+        if (!$az.Contains($azureauthDefaultLocation)) {
+            $additionalDirectory = (Get-Item $az).Directory.FullName
+            Write-Warning "Additional installation found in ${additionalDirectory}"
+        } else {
+            # We add the PATH location to the list and not the default location to later
+            # remove it from the PATH (default location is the whole parent folder).
+            $_ = $allLocations.Add($az)
+        }
+    }
+
+    return $allLocations
+}
+
+function Remove-AzureauthDirectories {
+    param([System.Collections.ArrayList]$locations)
+
+    ForEach ($location in $locations) {
+        Remove-InstallationFolder $location
+    }
+    
+    # We also delte AzureAuth parent folder
+    Remove-InstallationFolder $azureauthDefaultLocation
 }
 
 function Remove-InstallationFolder {
@@ -31,30 +52,16 @@ function Remove-InstallationFolder {
     if (Test-Path -Path $directory) {
         Write-Verbose "Removing installations at '${directory}'"
         Remove-Item -Force -Recurse $directory
-        $script:deleted = $true
     } else {
         Write-Verbose "There were no installations found at '${directory}'"
     }
 }
 
 function Remove-FromPath {
-    param ([string]$uninstallDirectory)
+    param ([System.Collections.ArrayList]$locationsToDelete)
 
     $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
     $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
-
-    # We try to find any other AzureAuth installations that are not in default location.
-    # Installations in custom locations that are not listed in PATH cannot be found.
-    $azureauthsInPath = (Get-Command -Name azureauth -ErrorAction SilentlyContinue -CommandType Application -All).Source
-    $otherDirectories = [System.Collections.ArrayList]@()
-    ForEach($az in $azureauthsInPath) {
-        if (!$az.Contains($uninstallDirectory)) {
-            $additionalDirectory = (Get-Item $az).Directory.FullName
-            Write-Verbose "Additional installation found in ${additionalDirectory}"
-            $_ = $otherDirectories.Add($additionalDirectory)
-            Remove-InstallationFolder ($additionalDirectory)
-        }
-    }
 
     # Reconstruct the $PATH without any azureauth directories.
     $updatedPath = "";
@@ -62,8 +69,7 @@ function Remove-FromPath {
         $paths = $currentPath.Split(";")
         $pathArr = @()
         ForEach($path in $paths){
-            if(!$path.Equals("") -And !$path.Contains($uninstallDirectory) -And ` 
-                    !$otherDirectories.Contains($path)) {
+            if(!$path.Equals("") -And ($locationsToDelete.Count -eq 0 -Or !$locationsToDelete.Contains($path))) {
                 $pathArr += "${path}"
             }
             elseif (!$path.Equals("")) {
@@ -75,7 +81,6 @@ function Remove-FromPath {
 
     Set-ItemProperty -Path $registryPath -Name PATH -Value $updatedPath
     Send-SettingChange
-    Write-Verbose "Custom installations that were not in `$env:Path could not be deleted."
 }
 
 # Send WM_SETTINGCHANGE after changing Environment variables.
