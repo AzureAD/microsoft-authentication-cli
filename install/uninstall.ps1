@@ -6,52 +6,48 @@ $script:ErrorActionPreference='Stop'
 
 $azureauthDefaultLocation = ([System.IO.Path]::Combine($Env:LOCALAPPDATA, "Programs", "AzureAuth"))
 
-if (![string]::IsNullOrEmpty($Env:AZUREAUTH_INSTALL_DIRECTORY) `
-        -And $Env:AZUREAUTH_INSTALL_DIRECTORY -ne $azureauthDefaultLocation) {
-    Write-Warning "Ignoring AZUREAUTH_INSTALL_DIRECTORY environment variable. Custom uninstallation locations are not supported."
-}
-
 function Uninstall {
-    Close-AzureauthInstances
+    if (![string]::IsNullOrEmpty($Env:AZUREAUTH_INSTALL_DIRECTORY) `
+            -And $Env:AZUREAUTH_INSTALL_DIRECTORY -ne $azureauthDefaultLocation) {
+        Write-Warning "Ignoring AZUREAUTH_INSTALL_DIRECTORY environment variable. Uninstallation for custom locations is not supported."
+    }
 
-    $locations = Get-AzureauthsInPath
-    Remove-AzureauthDirectories $locations
+    Kill-Process
+
+    $locations = Get-Paths
+    Remove-Directories $locations
     Remove-FromPath $locations
 
     Write-Output "Uninstalled AzureAuth!"
 }
 
-function Get-AzureauthsInPath {
-    $allLocations = [System.Collections.ArrayList]@()
+function Get-Paths {
+    $pathLocations = [System.Collections.ArrayList]@()
     $azureauthsInPath = (Get-Command -Name azureauth -ErrorAction SilentlyContinue -CommandType Application -All).Source
 
-    # Uninstallation is only supported from the default AzureAuth location.
-    # We warn the user of any custom locations that are listed in the PATH.
+    # We only warn the user of any custom locations that are found in the PATH.
     # Installations in custom locations that are not listed in PATH cannot
     # be found and uninstalled.
-    # We still...
     ForEach($az in $azureauthsInPath) {
-        $tempDirectory = (Get-Item $az).Directory.FullName
+        $azureauthParent = (Get-Item $az).Directory.FullName
         if (!$az.Contains($azureauthDefaultLocation)) {
-            Write-Warning "Additional installation found in ${tempDirectory}"
+            Write-Warning "Additional installation found in '${azureauthParent}'. Uninstallation from custom locations is not supported."
         } else {
-            # We add the PATH location to the list and not the default location to later
-            # remove it from the PATH (default location is the whole parent folder).
-            $_ = $allLocations.Add($tempDirectory)
+            $_ = $pathLocations.Add($azureauthParent)
         }
     }
 
-    return $allLocations
+    return $pathLocations
 }
 
-function Remove-AzureauthDirectories {
+function Remove-Directories {
     param([System.Collections.ArrayList]$locationsToDelete)
 
     ForEach ($location in $locationsToDelete) {
         Remove-InstallationFolder $location
     }
     
-    # We also delte AzureAuth parent folder
+    # We also delete AzureAuth parent folder.
     Remove-InstallationFolder $azureauthDefaultLocation
 }
 
@@ -92,7 +88,7 @@ function Remove-FromPath {
     Send-SettingChange
 }
 
-function Close-AzureauthInstances {
+function Kill-Process {
     # Uninstall will fail if there are instances of AzureAuth running. 
     # We suppress taskkill output here because this is a best effort attempt and we don't want the user to see its output.
     # Here, Get-Process is used to first determine whether there is an existing azureauth process. If there is, kill the existing process first.
