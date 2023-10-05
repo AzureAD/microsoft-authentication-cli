@@ -1,5 +1,6 @@
 # Enable a default -Verbose flag for debug output.
 [CmdletBinding()]
+$VerbosePreference = "Continue"
 
 # Halt script execution at the first failed command.
 $script:ErrorActionPreference='Stop'
@@ -65,7 +66,7 @@ function Remove-FromPath {
                 $pathArr += "${path}"
             }
             elseif (!$path.Equals("")) {
-                Write-Verbose "Removing '${path}' from `$env:PATH"
+                Write-Verbose "Removing '${path}' from PATH"
             }
         }
         $updatedPath = ($pathArr -join ";") + ";"
