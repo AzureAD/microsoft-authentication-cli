@@ -14,40 +14,14 @@ function Uninstall {
 
     Kill-Process
 
-    $locations = Get-Paths
-    Remove-Directories $locations
-    Remove-FromPath $locations
+    Remove-Directories
+    Remove-FromPath
 
+    Write-WarningForCustomLocations
     Write-Output "Uninstalled AzureAuth!"
 }
 
-function Get-Paths {
-    $pathLocations = [System.Collections.ArrayList]@()
-    $azureauthsInPath = (Get-Command -Name azureauth -ErrorAction SilentlyContinue -CommandType Application -All).Source
-
-    # We only warn the user of any custom locations that are found in the PATH.
-    # Installations in custom locations that are not listed in PATH cannot
-    # be found and uninstalled.
-    ForEach($az in $azureauthsInPath) {
-        $azureauthParent = (Get-Item $az).Directory.FullName
-        if (!$az.Contains($azureauthDefaultLocation)) {
-            Write-Warning "Additional installation found in '${azureauthParent}'. Uninstallation from custom locations is not supported."
-        } else {
-            $_ = $pathLocations.Add($azureauthParent)
-        }
-    }
-
-    return $pathLocations
-}
-
 function Remove-Directories {
-    param([System.Collections.ArrayList]$locationsToDelete)
-
-    ForEach ($location in $locationsToDelete) {
-        Remove-InstallationFolder $location
-    }
-    
-    # We also delete AzureAuth parent folder.
     Remove-InstallationFolder $azureauthDefaultLocation
 }
 
@@ -63,8 +37,6 @@ function Remove-InstallationFolder {
 }
 
 function Remove-FromPath {
-    param ([System.Collections.ArrayList]$locationsToDelete)
-
     $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
     $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
 
@@ -74,7 +46,7 @@ function Remove-FromPath {
         $paths = $currentPath.Split(";")
         $pathArr = @()
         ForEach($path in $paths){
-            if(!$path.Equals("") -And ($locationsToDelete.Count -eq 0 -Or !$locationsToDelete.Contains($path))) {
+            if(!$path.Equals("") -And !$path.Contains($azureauthDefaultLocation)) {
                 $pathArr += "${path}"
             }
             elseif (!$path.Equals("")) {
@@ -86,6 +58,37 @@ function Remove-FromPath {
 
     Set-ItemProperty -Path $registryPath -Name PATH -Value $updatedPath
     Send-SettingChange
+}
+
+function Get-CustomLocationsFromPath {
+    $customLocations = [System.Collections.ArrayList]@()
+    $azureauthsInPath = (Get-Command -Name azureauth -ErrorAction SilentlyContinue -CommandType Application -All).Source
+
+    ForEach($az in $azureauthsInPath) {
+        $azureauthParent = (Get-Item $az).Directory.FullName
+        if (!$az.Contains($azureauthDefaultLocation)) {
+            $_ = $customLocations.Add($azureauthParent)
+        }
+    }
+
+    return $customLocations
+}
+
+function Write-WarningForCustomLocations {
+    # We only warn the user of any custom locations that are found in the PATH.
+    # Installations in custom locations that are not listed in PATH cannot
+    # be found and uninstalled.
+    $customLocations = Get-CustomLocationsFromPath
+    $customLocationsCount = $customLocations.Count 
+
+    if ($customLocationsCount -ne 0) {
+        $warning = "Uninstallation from custom locations is unsupported. Custom locations must be removed manually. 
+                    `rFound ${customLocationsCount} potential installations outside of the default location:"
+        ForEach($location in $customLocations) {
+            $warning += "`n   ${location}"
+        }
+        Write-Warning $warning
+    }
 }
 
 function Kill-Process {
