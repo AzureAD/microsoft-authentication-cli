@@ -13,7 +13,7 @@ function Get-CustomLocationsFromPath {
 
     ForEach($az in $azureauthsInPath) {
         $azureauthParent = (Get-Item $az).Directory.FullName
-        if (!$az.Contains($azureauthDefaultLocation)) {
+        if (!(Is-ChildOfDefaultLocation($azureauthParent))) {
             $_ = $customLocations.Add($azureauthParent)
         }
     }
@@ -52,6 +52,13 @@ function Send-SettingChange {
     [void] ([Win32.Nativemethods]::SendMessageTimeout($HWND_BROADCAST, $WM_SETTINGCHANGE, [UIntPtr]::Zero, "Environment", 2, 5000, [ref] $result))
 }
 
+function Is-ChildOfDefaultLocation {
+    param ([string]$path) 
+    
+    $parent = (Split-Path $path -Parent)
+    return ($parent -eq $azureauthDefaultLocation)
+}
+
 function Remove-FromPath {
     $registryPath = 'Registry::HKEY_CURRENT_USER\Environment'
     $currentPath = (Get-ItemProperty -Path $registryPath -Name PATH -ErrorAction SilentlyContinue).Path
@@ -62,7 +69,7 @@ function Remove-FromPath {
         $paths = $currentPath.Split(";")
         $pathArr = @()
         ForEach($path in $paths){
-            if(!$path.Equals("") -And !$path.Contains($azureauthDefaultLocation)) {
+            if(!$path.Equals("") -And !(Is-ChildOfDefaultLocation($path))) {
                 $pathArr += "${path}"
             }
             elseif (!$path.Equals("")) {
