@@ -73,7 +73,7 @@ function Remove-FromPath {
                 $pathArr += "${path}"
             }
             elseif (!$path.Equals("")) {
-                Write-Verbose "Removing '${path}' from PATH"
+                Write-Verbose "Removing PATH entry '${path}'"
             }
         }
         $updatedPath = ($pathArr -join ";") + ";"
@@ -87,7 +87,7 @@ function Remove-InstallationFolder {
     param ([string]$directory)
 
     if (Test-Path -Path $directory) {
-        Write-Verbose "Removing installations at '${directory}'"
+        Write-Verbose "Removing all installations at '${directory}'"
         Remove-Item -Force -Recurse $directory
     } else {
         Write-Verbose "There were no installations found at '${directory}'"
