@@ -1,6 +1,7 @@
 # Uninstalling AzureAuth
 
-We provide an uninstall script you can use to Uninstall AzureAuth. The script removes the default AzureAuth reference in the PATH and it will deletes the AzureAuth installation folder.
+The uninstall script can be used to uninstall AzureAuth. The script removes the default AzureAuth reference in the PATH and deletes the AzureAuth installation folder.
+
 
 The script currently doesn't support uninstalling from custom locations. This is to avoid removing any potential files that are not safe to delete. If there are any potential installations in custom locations found in the PATH (installed through the `$AZUREAUTH_INSTALL_DIRECTORY` environment variable), a warning will be printed showing its location. Installations in custom locations that are not listed in the PATH cannot be found and uninstalled.
 
