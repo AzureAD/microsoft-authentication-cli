@@ -8,7 +8,7 @@ The script currently doesn't support uninstalling from custom locations. This is
 
 Run the following in PowerShell:
 
-```
+```PowerShell
 $script = "${env:TEMP}\uninstall.ps1"
 $url = "https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/main/install/uninstall.ps1"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
