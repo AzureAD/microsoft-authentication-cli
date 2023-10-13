@@ -14,8 +14,3 @@ $url = "https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/m
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Invoke-WebRequest $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $script }
 ```
-
-## Note
-
-* The script doesn't work for versions previous to AzureAuth 0.4.0.
-* The script won't work as intended if you try to uninstall right after installing because PATH changes from the installation won't take effect until after restarting PowerShell.
