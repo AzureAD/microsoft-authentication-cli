@@ -45,6 +45,8 @@ Invoke-WebRequest $url -OutFile $script; if ($?) { &$script }; if ($?) { rm $scr
 **Note**: The script does not signal currently running processes to update their environments, so you'll need to
 relaunch applications before the `$PATH` changes take effect.
 
+**Note**: Uninstalling can be done with the uninstallation script. [Read more](docs/uninstall.md)
+
 ## macOS
 
 On macOS we provide a shell bootstrap script, which will download and extract the application to `$HOME/.azureauth`
