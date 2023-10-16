@@ -21,7 +21,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
-        <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.55.0" />
+        <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.56.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
@@ -31,7 +31,7 @@
         <!--Windows: Explicitly continue using the net5 version of MSAL since there is no net6 target yet 
          https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3682-->
         <PackageReference Include="Microsoft.Identity.Client" GeneratePathProperty="true">
-            <Version>4.55.0</Version>
+            <Version>4.56.0</Version>
         </PackageReference>
 
         <Reference Include="Microsoft.Identity.Client">
@@ -41,6 +41,6 @@
     
     <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) == false">
         <!-- Not Windows: simple package reference -->
-        <PackageReference Include="Microsoft.Identity.Client" Version="4.55.0" />
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.56.0" />
     </ItemGroup>
 </Project>
