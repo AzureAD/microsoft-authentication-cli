@@ -26,20 +26,15 @@ release_name() {
     case "${os_name}" in
         Darwin)
             name="${name}-osx"
-            arch="$(echo $os_info | rev | cut -d ' ' -f1 | rev)"
-
-            case "${arch}" in
-                arm64)
-                    name="${name}-arm64"
-                    ;;
-                x86_64)
-                    name="${name}-x64"
-                    ;;
-                *)
-                    error "Unsupported architecture '${arch}', unable to download a release"
-                    exit 1
-                    ;;
-            esac
+            # check if os_info contains arm64 or x86_64
+            if echo $os_info | grep -q arm64; then
+                name="${name}-arm64"
+            elif echo $os_info | grep -q x86_64; then
+                name="${name}-x64"
+            else
+                error "Unsupported architecture '${arch}', unable to download a release"
+                exit 1
+            fi
             ;;
         *)
             error "Unsupported OS '${os_name}', unable to download a release"
