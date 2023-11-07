@@ -1,4 +1,7 @@
 # This pipeline will be triggered when either main branch is pushed or 2AM on workdays.
+variables:
+  name: tags
+  value: production
 trigger:
   branches:
     include:
