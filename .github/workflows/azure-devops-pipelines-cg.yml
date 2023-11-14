@@ -1,4 +1,8 @@
 # This pipeline will be triggered when either main branch is pushed or 2AM on workdays.
+variables:
+  - name: tags
+    value: "production"
+    readonly: true
 trigger:
   branches:
     include:
@@ -9,21 +13,35 @@ schedules:
   branches:
     include:
     - main
-
-jobs:
-- job: ComponentGovernance
-  displayName: Component Governance
-  pool:
-    name: Azure Pipelines
-  steps:
-  - task: UseDotNet@2
-    inputs:
-      packageType: 'sdk'
-      version: '6.x'
-  - task: DotNetCoreCLI@2
-    displayName: dotnet restore
-    inputs:
-      command: 'restore'
-      projects: '**/*.csproj'
-      feedsToUse: 'config'
-      nugetConfigPath: 'nuget.config'
+resources:
+  repositories:
+  - repository: CustomPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/OfficePipelineTemplates
+    ref: refs/tags/release
+extends:
+  template: v1/Office.Official.PipelineTemplate.yml@CustomPipelineTemplates
+  parameters:
+    pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: windows-2022
+      os: windows
+    customBuildTags:
+    - ES365AIMigrationTooling
+    stages:
+    - stage: __default
+      jobs:
+      - job: ComponentGovernance
+        displayName: Component Governance
+        steps:
+        - task: UseDotNet@2
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
+        - task: DotNetCoreCLI@2
+          displayName: dotnet restore
+          inputs:
+            command: 'restore'
+            projects: '**/*.csproj'
+            feedsToUse: 'config'
+            nugetConfigPath: 'nuget.config'
