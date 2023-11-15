@@ -104,10 +104,10 @@ jobs:
       - name: Download ESRPClient.exe
         env:
           ESRP_VERSION: ${{ secrets.ESRP_VERSION }}
-          NUGET_CREDENTIALS: ${{ secrets.NUGET_CREDENTIALS }}
+          NUGET_CREDENTIALS: ${{ secrets.ADO_TOKEN }}
         run: |
-          nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://microsoft.pkgs.visualstudio.com/_packaging/ESRP/nuget/v3/index.json
-          nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://microsoft.pkgs.visualstudio.com/_packaging/ESRP/nuget/v3/index.json
+          nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
+          nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
       - name: Login to Azure
         uses: azure/login@v1
         with:
