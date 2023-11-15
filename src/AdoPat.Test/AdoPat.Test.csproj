@@ -1,9 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-
-    <IsPackable>false</IsPackable>
+      <TargetFrameworks>net8.0</TargetFrameworks>
+      <IsPackable>false</IsPackable>
 
     <!-- Stylecop warnings as errors flag for build to fail -->
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
