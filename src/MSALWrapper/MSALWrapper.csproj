@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.32.0" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.16.0" />
     <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.55.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.55.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.57.0" />
 
   </ItemGroup>
 
