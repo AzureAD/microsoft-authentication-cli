@@ -129,7 +129,7 @@ jobs:
           Remove-Item cert.pfx
       # We download all artifacts and overwrite them with signed files, but only upload ones which we can properly sign.
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Sign artifacts
         env:
           SIGNING_AAD_ID: ${{ secrets.SIGNING_AAD_ID }}
@@ -197,7 +197,7 @@ jobs:
     needs: [sign]
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
     - name: Install Zip
       run: sudo apt install -y zip
     - name: Create win10-x64 archive
@@ -241,19 +241,19 @@ jobs:
       contents: write
     steps:
     - name: Download win10-x64 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: azureauth-${{ github.event.inputs.version }}-win10-x64.zip
     - name: Download osx-x64 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
     - name: Download osx-arm64 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
     - name: Download linux-x64 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: azureauth-linux
 
