@@ -3,7 +3,6 @@ using McMaster.Extensions.CommandLineUtils;
 
 using Microsoft.Authentication.AdoPat;
 using Microsoft.Extensions.Logging;
-using Microsoft.Office.Lasso.Telemetry;
 
 using System.Linq;
 
@@ -16,6 +15,8 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado.Pat
     public class CommandScopes
     {
         private readonly ILogger logger;
+
+        private readonly string UrlMessage = $"See {AdoPat.Constants.PatListURL} for details.";
 
         /// <summary>
         /// Create a CommandScopes
@@ -32,6 +33,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado.Pat
         /// <returns></returns>
         public int OnExecute()
         {
+            // Print at the top and bottom because it's a long list.
+            logger.LogInformation(UrlMessage + "\n");
+
             var scopes = Scopes.ValidScopes.ToList();
             scopes.Sort();
 
@@ -40,6 +44,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado.Pat
                 logger.LogInformation(scope);
             }
 
+            logger.LogInformation("\n" + UrlMessage);
             return 0;
         }
     }
