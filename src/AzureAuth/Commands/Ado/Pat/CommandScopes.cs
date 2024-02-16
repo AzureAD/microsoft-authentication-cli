@@ -4,6 +4,7 @@ using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Authentication.AdoPat;
 using Microsoft.Extensions.Logging;
 
+using System;
 using System.Linq;
 
 namespace Microsoft.Authentication.AzureAuth.Commands.Ado.Pat
@@ -33,17 +34,12 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado.Pat
         /// <returns></returns>
         public int OnExecute()
         {
-            // Print at the top and bottom because it's a long list.
-            logger.LogInformation(UrlMessage + "\n");
-
             var scopes = Scopes.ValidScopes.ToList();
             scopes.Sort();
 
-            foreach (var scope in scopes)
-            {
-                logger.LogInformation(scope);
-            }
-
+            // Print URL at the top and bottom because it's a long list of scopes.
+            logger.LogInformation(UrlMessage + "\n");
+            logger.LogInformation(string.Join(Environment.NewLine, scopes));
             logger.LogInformation("\n" + UrlMessage);
             return 0;
         }
