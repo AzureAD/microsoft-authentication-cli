@@ -36,12 +36,7 @@ namespace Microsoft.Authentication.AdoPat
         /// <param name="client">Any class that implements the <see cref="IPatClient"/> interface.</param>
         /// <param name="now">A function for computing the current moment. Defaults to null, which
         /// uses <see cref="DateTime.UtcNow"/>. Overriding this should only be necessary in testing.</param>
-        public PatManager(
-            ILogger logger,
-            IPatCache cache,
-            IPatClient client,
-            Func<DateTime> now = null
-        )
+        public PatManager(ILogger logger, IPatCache cache, IPatClient client, Func<DateTime> now = null)
         {
             this.logger = logger;
             this.cache = cache;
@@ -58,8 +53,7 @@ namespace Microsoft.Authentication.AdoPat
         /// <returns>An Azure DevOps Personal Access Token.</returns>
         public async Task<PatToken> GetPatAsync(
             PatOptions options,
-            CancellationToken cancellationToken = default
-        )
+            CancellationToken cancellationToken = default)
         {
             var cacheKey = options.CacheKey();
             this.logger.LogDebug($"Checking for PAT in cache with key '{cacheKey}'");
@@ -69,32 +63,25 @@ namespace Microsoft.Authentication.AdoPat
             // If the PAT was present in the cache, but is inactive we must also create a new one.
             // If the PAT was present in the cache, but will expire soon we must regenerate it.
             // Otherwise we can simply return the PAT as is.
-            if (
-                this.NullPat(pat)
-                || await this.Inactive(pat, cancellationToken).ConfigureAwait(false)
-            )
+            if (this.NullPat(pat) || await this.Inactive(pat, cancellationToken).ConfigureAwait(false))
             {
                 this.logger.LogDebug($"Creating new PAT with {options}");
-                pat = await this.client
-                    .CreateAsync(
-                        displayName: options.DisplayName,
-                        scope: string.Join(" ", options.Scopes),
-                        validTo: this.now().AddDays(ValidToExtensionDays),
-                        cancellationToken: cancellationToken
-                    )
-                    .ConfigureAwait(false);
+                pat = await this.client.CreateAsync(
+                    displayName: options.DisplayName,
+                    scope: string.Join(" ", options.Scopes),
+                    validTo: this.now().AddDays(ValidToExtensionDays),
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
                 this.cache.Put(options.CacheKey(), pat);
             }
             else if (this.ExpiringSoon(pat))
             {
                 this.logger.LogDebug($"Regenerating PAT with {options}");
-                pat = await this.client
-                    .RegenerateAsync(
-                        pat,
-                        this.now().AddDays(ValidToExtensionDays),
-                        cancellationToken
-                    )
-                    .ConfigureAwait(false);
+                pat = await this.client.RegenerateAsync(
+                    pat,
+                    this.now().AddDays(ValidToExtensionDays),
+                    cancellationToken)
+                .ConfigureAwait(false);
                 this.cache.Put(options.CacheKey(), pat);
             }
 
@@ -114,14 +101,9 @@ namespace Microsoft.Authentication.AdoPat
         }
 
         // Whether the given PAT is still considered active by Azure DevOps.
-        private async Task<bool> Inactive(
-            PatToken pat,
-            CancellationToken cancellationToken = default
-        )
+        private async Task<bool> Inactive(PatToken pat, CancellationToken cancellationToken = default)
         {
-            var activePats = await this.client
-                .ListActiveAsync(cancellationToken)
-                .ConfigureAwait(false);
+            var activePats = await this.client.ListActiveAsync(cancellationToken).ConfigureAwait(false);
             var active = activePats.ContainsKey(pat.AuthorizationId);
             this.logger.LogDebug($"PAT active: {active}");
             return !active;
