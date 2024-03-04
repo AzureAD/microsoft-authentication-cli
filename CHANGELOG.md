@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [0.8.5] - 2024-03-04
-### Changed
+### Added
 - The `azureauth ado pat` subcommand now supports the `vso.governance` Azure DevOps scope.
 
 ## [0.8.4] - 2023-09-05
@@ -180,8 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.5...HEAD
-[0.8.5]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.4...0.8.5
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.4...HEAD
 [0.8.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.3...0.8.4
 [0.8.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.1...0.8.2
