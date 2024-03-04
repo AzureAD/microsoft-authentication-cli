@@ -37,7 +37,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private const string ScopeHelp = "A token scope for accessing Azure DevOps resources. Repeated invocations allowed.";
 
         private const string NoValidationFlag = "--no-validate";
-        private const string NoValidationHelp = "Flag to skip scope validation. Allows addition of non-public ADO scopes.";
+        private const string NoValidationHelp = "Skip scopes validation.";
 
         private const string OutputOption = "--output";
         private const string OutputHelp = "How PAT information is displayed. [default: token]\n[possible values: none, status, token, base64, header, headervalue, json]";
