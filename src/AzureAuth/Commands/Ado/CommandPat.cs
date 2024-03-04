@@ -36,6 +36,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private const string ScopeOption = "--scope";
         private const string ScopeHelp = "A token scope for accessing Azure DevOps resources. Repeated invocations allowed.";
 
+        private const string NoValidationFlag = "--no-validate";
+        private const string NoValidationHelp = "Flag to skip scope validation. Allows addition of non-public ADO scopes.";
+
         private const string OutputOption = "--output";
         private const string OutputHelp = "How PAT information is displayed. [default: token]\n[possible values: none, status, token, base64, header, headervalue, json]";
 
@@ -74,6 +77,9 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 
         [Option(ScopeOption, ScopeHelp, CommandOptionType.MultipleValue)]
         private IEnumerable<string> RawScopes { get; set; } = null;
+
+        [Option(NoValidationFlag, NoValidationHelp, CommandOptionType.NoValue)]
+        private bool NoScopeValidation { get; set; }
 
         [Option(OutputOption, OutputHelp, CommandOptionType.SingleValue)]
         private OutputMode Output { get; set; } = OutputMode.Token;
@@ -168,15 +174,22 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
             }
             else
             {
-                var invalidScopes = AdoPat.Scopes.Validate(this.Scopes);
-                if (!invalidScopes.IsEmpty)
+                if(NoScopeValidation)
                 {
-                    foreach (var scope in invalidScopes)
+                    logger.LogWarning($"Received {NoValidationFlag} flag. AzureAuth will skip validation of scopes.");
+                }
+                else
+                {
+                    var invalidScopes = AdoPat.Scopes.Validate(this.Scopes);
+                    if (!invalidScopes.IsEmpty)
                     {
-                        logger.LogError($"{scope} is not a valid Azure DevOps PAT scope.");
+                        foreach (var scope in invalidScopes)
+                        {
+                            logger.LogError($"{scope} is not a valid Azure DevOps PAT scope.");
+                        }
+                        logger.LogError($"Consult {AdoPat.Constants.PatListURL} for a list of valid scopes.");
+                        validOptions = false;
                     }
-                    logger.LogError($"Consult {AdoPat.Constants.PatListURL} for a list of valid scopes.");
-                    validOptions = false;
                 }
             }
 
