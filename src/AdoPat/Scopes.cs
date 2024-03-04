@@ -56,6 +56,9 @@ namespace Microsoft.Authentication.AdoPat
             "vso.identity",
             "vso.identity_manage",
 
+            // Governance
+            "vso.governance",
+
             // Load Test
             "vso.loadtest",
             "vso.loadtest_write",
