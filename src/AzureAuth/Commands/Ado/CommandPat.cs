@@ -25,6 +25,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     /// An ADO Command for creating or fetching, and returning Azure Devops PATs.
     /// </summary>
     [Command("pat", Description = "Create and cache Azure Devops Personal Access Tokens (PATs) using encrypted local storage.")]
+    [Subcommand(typeof(Pat.CommandScopes))]
     public class CommandPat
     {
         private const string OrganizationOption = "--organization";
