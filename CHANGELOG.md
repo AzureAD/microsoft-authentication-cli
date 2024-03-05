@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added `--allow-custom-scopes` flag to skip validation and allow custom Azure DevOps PAT scopes.
 - Added new sub-command `azureauth ado pat scopes` to list the set of actual scopes the `pat` command validates against and print the short-link to the pat scopes docs.
 
 ## [0.8.4] - 2023-09-05
