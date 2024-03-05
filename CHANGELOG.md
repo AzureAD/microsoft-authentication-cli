@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `--no-validate` flag to skip scope validation for `ado pat`. This allows addition of non-public ADO scopes.
+- `--allow-custom-scopes` to skip validation and allow custom Azure DevOps PAT scopes.
 
 ## [0.8.4] - 2023-09-05
 ### Changed

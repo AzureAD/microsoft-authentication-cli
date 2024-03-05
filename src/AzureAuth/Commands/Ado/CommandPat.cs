@@ -36,8 +36,8 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private const string ScopeOption = "--scope";
         private const string ScopeHelp = "A token scope for accessing Azure DevOps resources. Repeated invocations allowed.";
 
-        private const string NoValidationFlag = "--no-validate";
-        private const string NoValidationHelp = "Skip scopes validation.";
+        private const string AllowCustomScopesFlag = "--allow-custom-scopes";
+        private const string AllowCustomScopesHelp = "Skip validation and allow custom Azure DevOps PAT scopes.";
 
         private const string OutputOption = "--output";
         private const string OutputHelp = "How PAT information is displayed. [default: token]\n[possible values: none, status, token, base64, header, headervalue, json]";
@@ -78,8 +78,8 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         [Option(ScopeOption, ScopeHelp, CommandOptionType.MultipleValue)]
         private IEnumerable<string> RawScopes { get; set; } = null;
 
-        [Option(NoValidationFlag, NoValidationHelp, CommandOptionType.NoValue)]
-        private bool NoScopeValidation { get; set; }
+        [Option(AllowCustomScopesFlag, AllowCustomScopesHelp, CommandOptionType.NoValue)]
+        private bool AllowCustomScopes { get; set; }
 
         [Option(OutputOption, OutputHelp, CommandOptionType.SingleValue)]
         private OutputMode Output { get; set; } = OutputMode.Token;
@@ -172,24 +172,22 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
                 logger.LogError($"The {ScopeOption} field is required.");
                 validOptions = false;
             }
+            else if (AllowCustomScopes)
+            {
+                logger.LogWarning($"Skipping scopes validation.");
+            }
             else
             {
-                if(NoScopeValidation)
+                var unknownScopes = AdoPat.Scopes.Validate(this.Scopes);
+                if (!unknownScopes.IsEmpty)
                 {
-                    logger.LogWarning($"Received {NoValidationFlag} flag. AzureAuth will skip validation of scopes.");
-                }
-                else
-                {
-                    var invalidScopes = AdoPat.Scopes.Validate(this.Scopes);
-                    if (!invalidScopes.IsEmpty)
+                    foreach (var scope in unknownScopes)
                     {
-                        foreach (var scope in invalidScopes)
-                        {
-                            logger.LogError($"{scope} is not a valid Azure DevOps PAT scope.");
-                        }
-                        logger.LogError($"Consult {AdoPat.Constants.PatListURL} for a list of valid scopes.");
-                        validOptions = false;
+                        logger.LogError($"{scope} is not a known Azure DevOps PAT scope.");
                     }
+                    logger.LogError($"Consult {AdoPat.Constants.PatListURL} for a list of known scopes.");
+                    logger.LogError($"Use {AllowCustomScopesFlag} to create a PAT with custom scopes.");
+                    validOptions = false;
                 }
             }
 
