@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Package Name="AzureAuth" Version="1.0.0.0" Manufacturer="Microsoft" UpgradeCode="B0B15C00-1DC4-0374-A1D1-E902240936D5">
+        <MediaTemplate EmbedCab="yes"/>
+        <StandardDirectory Id="LocalAppDataFolder">
+            <Directory
+                Id="INSTALLFOLDER"
+                Name="!(bind.Property.Manufacturer) !(bind.Property.ProductName)" />
+                <Files Include="Programs\AzureAuth\0.8.5\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\cs\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\de\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\es\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\fr\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\it\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\ja\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\ko\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\pl\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\pt-BR\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\ru\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\tr\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\zh-Hans\*" />
+                <Files Include="Programs\AzureAuth\0.8.5\zh-Hant\*" />
+        </StandardDirectory>
+    </Package>
+</Wix>
