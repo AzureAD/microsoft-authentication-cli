@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- Package Naming, Building, & Versioning -->
     <PackageId>Microsoft.Authentication.MSALWrapper</PackageId>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Microsoft.Authentication.MSALWrapper</RootNamespace>
+      <TargetFrameworks>net8.0</TargetFrameworks>
+      <RootNamespace>Microsoft.Authentication.MSALWrapper</RootNamespace>
 
     <PackageOutputPath>../</PackageOutputPath>
 
