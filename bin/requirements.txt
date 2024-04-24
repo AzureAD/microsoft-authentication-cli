@@ -1,7 +1,7 @@
 azure-devops==6.0.0b4
 certifi==2023.7.22
 charset-normalizer==2.1.1
-idna==3.4
+idna==3.7
 isodate==0.6.1
 msrest==0.6.21
 oauthlib==3.2.2
