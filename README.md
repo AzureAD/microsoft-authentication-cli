@@ -17,7 +17,7 @@ The CLI is designed for authenticating and returning an access token for public 
 | ------------------------------------------ | ----------------------- | ------------- | ---------------- | ------------- | ------------------------------- |
 | Windows                                    | ✅                      | ✅            | ✅               | ✅            | ⚠️ `--domain` account filtering |
 | OSX (MacOS)                                | ⚠️ via Web Browser      | ✅            | ✅               | ✅            | ⚠️ `--domain` account filtering |
-| Ubuntu (linux) <br/>‼️Releases coming soon | ⚠️ via Edge             | ✅            | ✅               | ❌       | ⚠️ `--domain` account filtering |
+| Ubuntu (linux) <br/>‼️Releases coming soon | ⚠️ via Edge             | ✅            | ✅               | ❌            | ⚠️ `--domain` account filtering |
 
 <br/>
 
