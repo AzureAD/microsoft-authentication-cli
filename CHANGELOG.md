@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Upgrade MSAL from `4.55.0` to `4.59.1`.
+
+### Added
 - Added the word `Warning` before logging IWA failures so users worry less about IWA issues.
 
 ## [0.8.5] - 2024-03-06
