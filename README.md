@@ -16,7 +16,7 @@ The CLI is designed for authenticating and returning an access token for public 
 | Operating System                           | Integrated Windows Auth | Auth Broker Integration | Web Auth Flow            | Device Code Flow | Token Caching | Multi-Account Support           |
 | ------------------------------------------ | ----------------------- | ----------------------- | ------------------------ | ---------------- | ------------- | ------------------------------- |
 | Windows                                    | ✅                      | ✅                      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
-| OSX (MacOS)                                | ❌                      | ⚠️ via Web Browser      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
+| OSX (MacOS)                                | N/A                      | ⚠️ via Web Browser      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
 | Ubuntu (linux) <br/>‼️Releases coming soon  | ❌                      | ⚠️ via Edge             | ⚠️ via non headless env | ✅              | ❌          | ⚠️ `--domain` account filtering |
 
 <br/>
