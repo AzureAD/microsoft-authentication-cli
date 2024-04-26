@@ -145,8 +145,8 @@ namespace Microsoft.Authentication.AdoPat
 
         /// <summary>Validate the given scopes.</summary>
         /// <param name="scopes">The scopes to validate.</param>
-        /// <returns>The set of invalid scopes present in the given scopes. The
-        /// empty set means no scopes were invalid.</returns>
+        /// <returns>The set of unknown scopes present in the given scopes. The
+        /// empty set means no scopes were unknown.</returns>
         public static ImmutableHashSet<string> Validate(IEnumerable<string> scopes)
         {
             return scopes.Except(ValidScopes).ToImmutableHashSet();
