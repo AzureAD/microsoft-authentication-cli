@@ -17,7 +17,7 @@ The CLI is designed for authenticating and returning an access token for public 
 | ------------------------------------------ | ----------------------- | ----------------------- | ------------------------ | ---------------- | ------------- | ------------------------------- |
 | Windows                                    | ✅                      | ✅                      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
 | OSX (MacOS)                                | N/A                      | ⚠️ via Web Browser      | ✅                      | ✅             | ✅          | ⚠️ `--domain` account filtering |
-| Ubuntu (linux) <br/>‼️Releases coming soon  | N/A                      | ⚠️ via Edge             | ⚠️ in GUI environments | ✅        | ⚠️ in GUI environments. See [msal/#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)      | ⚠️ `--domain` account filtering |
+| Ubuntu (linux) <br/>‼️Releases coming soon  | N/A                      | ⚠️ via Edge             | ⚠️ in GUI environments | ✅        | ⚠️ in GUI environments. See [msal#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)      | ⚠️ `--domain` account filtering |
 
 <br/>
 
