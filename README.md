@@ -16,8 +16,8 @@ The CLI is designed for authenticating and returning an access token for public 
 | Operating System                           | Integrated Windows Auth | Auth Broker Integration | Web Auth Flow            | Device Code Flow | Token Caching | Multi-Account Support           |
 | ------------------------------------------ | ----------------------- | ----------------------- | ------------------------ | ---------------- | ------------- | ------------------------------- |
 | Windows                                    | ✅                      | ✅                      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
-| OSX (MacOS)                                | N/A                      | ⚠️ via Web Browser      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
-| Ubuntu (linux) <br/>‼️Releases coming soon  | N/A                      | ⚠️ via Edge             | ⚠️ In graphical environments | ✅              | ❌          | ⚠️ `--domain` account filtering |
+| OSX (MacOS)                                | N/A                      | ⚠️ via Web Browser      | ✅                      | ✅             | ✅          | ⚠️ `--domain` account filtering |
+| Ubuntu (linux) <br/>‼️Releases coming soon  | N/A                      | ⚠️ via Edge             | ⚠️ in GUI environments | ✅        | ⚠️ in GUI environments. See [msal/#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)      | ⚠️ `--domain` account filtering |
 
 <br/>
 
