@@ -66,8 +66,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 ex.Classification == UiRequiredExceptionClassification.BasicAction
                 && ex.Message.StartsWith("AADSTS50076", StringComparison.OrdinalIgnoreCase))
             {
-                this.logger.LogWarning("IWA failed, 2FA is required.");
-                this.logger.LogWarning("IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.");
+                this.logger.LogWarning("Warning: IWA failed, 2FA is required.");
+                this.logger.LogWarning("Warning: IWA can pass this requirement if you log into Windows with either a Smart Card or Windows Hello.");
                 throw;
             }
             catch (MsalClientException ex) when (ex.Message.Contains("WS-Trust endpoint not found"))

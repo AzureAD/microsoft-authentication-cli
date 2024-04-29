@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.6] - 2024-04-25
+### Changed
+- Upgrade MSAL from `4.55.0` to `4.59.1`.
+
+### Added
+- Added the word `Warning` before logging IWA failures so users worry less about IWA issues.
+
+## [0.8.5] - 2024-03-06
+### Added
+- Added `--allow-custom-scopes` flag to skip validation and allow custom Azure DevOps PAT scopes.
+- Added new sub-command `azureauth ado pat scopes` to list the set of actual scopes the `pat` command validates against and print the short-link to the pat scopes docs.
+
 ## [0.8.4] - 2023-09-05
 ### Changed
 - Upgrade Lasso to `2023.8.24.1`.
@@ -176,7 +188,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.4...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.6...HEAD
+[0.8.6]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.5...0.8.6
+[0.8.5]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.4...0.8.5
 [0.8.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.3...0.8.4
 [0.8.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.1...0.8.2
