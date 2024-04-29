@@ -17,6 +17,7 @@ namespace Microsoft.Authentication.AdoPat
     /// </remarks>
     public class PatManager
     {
+        // The ValidToExtensionDays value cannot exceed 7. The Azure DevOps PAT API will not allow a PAT to be valid for more than 7 days, and may return an error if the value is higher.
         private const int ValidToExtensionDays = 7;
         private const int NearingExpirationDays = 2;
 
