@@ -7,17 +7,17 @@
 
 ---
 
-`AzureAuth` is a CLI wrapper for performing AAD Authentication. It makes use of [MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) for authentication and [MSAL Extensions](https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet) for caching.
+`AzureAuth` is a CLI wrapper for performing AAD Authentication. It makes use of [MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) for authentication and caching.
 
 The CLI is designed for authenticating and returning an access token for public client AAD applications. This acts like a credential provider for Azure Devops and any other [public client app](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications).
 
 # Platform Support
 
-| Operating System                           | Auth Broker Integration | Web Auth Flow | Device Code Flow | Token Caching | Multi-Account Support           |
-| ------------------------------------------ | ----------------------- | ------------- | ---------------- | ------------- | ------------------------------- |
-| Windows                                    | ✅                      | ✅            | ✅               | ✅            | ⚠️ `--domain` account filtering |
-| OSX (MacOS)                                | ⚠️ via Web Browser      | ✅            | ✅               | ✅            | ⚠️ `--domain` account filtering |
-| Ubuntu (linux) <br/>‼️Releases coming soon | ⚠️ via Edge             | ✅            | ✅               | ✅            | ⚠️ `--domain` account filtering |
+| Operating System                           | Integrated Windows Auth | Auth Broker Integration | Web Auth Flow            | Device Code Flow | Token Caching | Multi-Account Support           |
+| ------------------------------------------ | ----------------------- | ----------------------- | ------------------------ | ---------------- | ------------- | ------------------------------- |
+| Windows                                    | ✅                      | ✅                      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
+| OSX (MacOS)                                | N/A                      | ⚠️ via Web Browser      | ✅                      | ✅             | ✅          | ⚠️ `--domain` account filtering |
+| Ubuntu (linux) <br/>‼️Releases coming soon  | N/A                      | ⚠️ via Edge             | ⚠️ in GUI environments | ✅        | ⚠️ in GUI environments. See [msal#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)      | ⚠️ `--domain` account filtering |
 
 <br/>
 
