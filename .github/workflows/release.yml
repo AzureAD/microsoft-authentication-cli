@@ -42,10 +42,11 @@ jobs:
         # We build on Linux, but don't yet ship Linux because we can't easily sign those releases.
         runtime: [osx-x64, osx-arm64, win10-x64]
         include:
+        # macos-latest (currently 14) breaks this flow. Refer https://github.com/actions/runner-images/issues/9766.
           - runtime: osx-x64
-            os: macos-latest
+            os: macos-13
           - runtime: osx-arm64
-            os: macos-latest
+            os: macos-13
           - runtime: win10-x64
             os: windows-latest
     steps:
