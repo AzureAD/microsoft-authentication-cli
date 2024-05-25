@@ -10,25 +10,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    allow:
-      # Allow updates for MSAL and any packages starting "Microsoft.Identity"
-      - dependency-name: "Microsoft.Identity.*"
-      - dependency-name: "Microsoft.Office.Lasso"
     groups:
-       # Combine MSAL packages to one Pull Request.
-       msal-dependencies:
-          patterns:
-            - "Microsoft.Identity.*"
+      # Combine MSAL packages to one Pull Request.
+      msal-dependencies:
+        patterns:
+          - "Microsoft.Identity.*"
     ignore:
-      - dependency-name: "Microsoft.Identity.*"
-        # For Microsoft.Identity.*, ignore all Dependabot updates for 16.0.*.*, which is an internal version and cannot be used.
-        versions: ["16.0.*.*"]
-    registries:
-      - nuget-azure-devops # Allow version updates for dependencies in this registry
-      
-registries:
-  nuget-azure-devops:
-    type: nuget-feed
-    url: https://office.pkgs.visualstudio.com/DefaultCollection/_packaging/Office/nuget/v3/index.json
-    username: office
-    password: ${{ secrets.ADO_TOKEN }}
+      - dependency-name: "Microsoft.Office.Lasso"
