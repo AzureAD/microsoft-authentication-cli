@@ -12,7 +12,7 @@ from azure.devops.connection import Connection
 from azure.devops.v6_0.pipelines.pipelines_client import PipelinesClient
 from azure.devops.v6_0.build.build_client import BuildClient
 from azure.devops.v6_0.build.models import TimelineRecord
-from msrest.authentication import BasicAuthentication
+from msrest.authentication import BasicTokenAuthentication
 from requests import Response
 
 # https://learn.microsoft.com/en-us/rest/api/azure/devops/build/timeline/get#taskresult
@@ -22,12 +22,12 @@ FAILED_RESULTS: set[str] = {"abandoned", "canceled", "failed", "skipped"}
 COMPLETED_STATES: set[str] = {"completed"}
 
 
-def ado_connection(organization: str, ado_pat: str) -> Connection:
+def ado_connection(organization: str, ado_token: str) -> Connection:
     """Returns an ADO connection to call the ADO REST APIs."""
 
     return Connection(
         base_url=f"https://dev.azure.com/{organization}",
-        creds=BasicAuthentication("", ado_pat),
+        creds=BasicTokenAuthentication({"access_token": ado_token}),
     )
 
 def wait_for_stage(
@@ -123,7 +123,7 @@ def main() -> None:
     try:
         # ADO PAT (Azure DevOps Personal Access Token) with "Build" scope.
         # More information here - https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat
-        ado_pat = os.environ["AZURE_DEVOPS_BUILD_PAT"]
+        ado_token = os.environ["AZURE_DEVOPS_ACCESS_TOKEN"]
         organization = os.environ["ADO_ORGANIZATION"]
         project = os.environ["ADO_PROJECT"]
         pipeline_id = os.environ["ADO_AZUREAUTH_LINUX_PIPELINE_ID"]
@@ -139,7 +139,7 @@ def main() -> None:
         name = str(exc).replace("'", "")
         sys.exit(f"Error: missing env var: {name}")
 
-    ado_client = ado_connection(organization, ado_pat).clients_v6_0
+    ado_client = ado_connection(organization, ado_token).clients_v6_0
 
     # 2. Trigger azure pipeline and wait for it to be finished.
     run_id = trigger_azure_pipeline_and_wait_until_its_completed(
