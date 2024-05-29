@@ -121,8 +121,6 @@ def download_artifact(
 def main() -> None:
     # 1. Read env vars.
     try:
-        # ADO PAT (Azure DevOps Personal Access Token) with "Build" scope.
-        # More information here - https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat
         ado_token = os.environ["AZURE_DEVOPS_ACCESS_TOKEN"]
         organization = os.environ["ADO_ORGANIZATION"]
         project = os.environ["ADO_PROJECT"]
