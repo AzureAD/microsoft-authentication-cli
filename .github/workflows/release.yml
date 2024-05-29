@@ -34,6 +34,7 @@ jobs:
       contents: read
       security-events: write
       statuses: write
+      id-token: write
       
     runs-on: ${{ matrix.os }}
     needs: [validate]
@@ -52,31 +53,31 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+
+    - name: Get Azure DevOps Access Token
+      id: getToken
+      uses: "./.github/actions/get-ado-token"
       with:
-        languages: csharp
+        client-id: ${{ secrets.AZURE_RELEASE_WORKFLOW_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_RELEASE_WORKFLOW_TENANT_ID }}
+        organization: ${{ secrets.ADO_ORGANIZATION }}
 
     - name: Setup .NET 6
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
+
     - name: Install dependencies
       run: dotnet restore --runtime ${{ matrix.runtime }}
       env:
-        ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
+        ADO_TOKEN: ${{ steps.getToken.outputs.token }}
     - name: Test
       run: dotnet test --no-restore --configuration release
-    
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
 
     - name: Build artifacts
       run: dotnet publish src/AzureAuth/AzureAuth.csproj -p:Version=${{ github.event.inputs.version }} --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}
       env:
-        ADO_TOKEN: ${{ secrets.ADO_TOKEN }}
+        ADO_TOKEN: ${{ steps.getToken.outputs.token }}
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
@@ -84,13 +85,51 @@ jobs:
         name: azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
         path: dist/${{ matrix.runtime }}
 
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      id-token: write
+    needs: [validate]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Get Azure DevOps Access Token
+      id: getToken
+      uses: "./.github/actions/get-ado-token"
+      with:
+        client-id: ${{ secrets.AZURE_RELEASE_WORKFLOW_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_RELEASE_WORKFLOW_TENANT_ID }}
+        organization: ${{ secrets.ADO_ORGANIZATION }}
+
+      # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: csharp
+
+    # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
+    # If this step fails, then you should remove it and run the build manually (see below)
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+      env:
+        ADO_TOKEN: ${{ steps.getToken.outputs.token }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:csharp"
+
   sign:
     # This step has to run on Windows because ESRPClient.exe is currently only available for that platform.
     runs-on: windows-latest
-    needs: [build]
+    needs: [build, analyze]
     strategy:
       matrix:
         runtime: [osx-x64, osx-arm64, win10-x64]
+    permissions:
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,10 +141,17 @@ jobs:
         uses: NuGet/setup-nuget@v1
         with:
           nuget-version: '5.x'
+      - name: Get Azure DevOps Access Token
+        id: getToken
+        uses: "./.github/actions/get-ado-token"
+        with:
+          client-id: ${{ secrets.AZURE_RELEASE_WORKFLOW_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_RELEASE_WORKFLOW_TENANT_ID }}
+          organization: ${{ secrets.ADO_ORGANIZATION }}
       - name: Download ESRPClient.exe
         env:
           ESRP_VERSION: ${{ secrets.ESRP_VERSION }}
-          NUGET_CREDENTIALS: ${{ secrets.ADO_TOKEN }}
+          NUGET_CREDENTIALS: ${{ steps.getToken.outputs.token }}
         run: |
           nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
           nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
@@ -155,6 +201,8 @@ jobs:
       ADO_LINUX_ARTIFACT_DOWNLOAD_PATH: dist/linux
       ADO_LINUX_ARTIFACT_NAME: ${{ vars.ADO_LINUX_ARTIFACT_NAME }}
       DEBIAN_REVISION: 1
+    permissions:
+      id-token: write
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -162,12 +210,19 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
+    - name: Get Azure DevOps Access Token
+      id: getToken
+      uses: "./.github/actions/get-ado-token"
+      with:
+        client-id: ${{ secrets.AZURE_RELEASE_WORKFLOW_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_RELEASE_WORKFLOW_TENANT_ID }}
+        organization: ${{ secrets.ADO_ORGANIZATION }}
     - name: Build, Sign and Download Linux Binaries
       run: |
         pip install -r bin/requirements.txt
         python ./bin/trigger_azure_pipelines.py
       env:
-        AZURE_DEVOPS_BUILD_PAT: ${{ secrets.AZURE_DEVOPS_BUILD_PAT }}
+        AZURE_DEVOPS_ACCESS_TOKEN: ${{ steps.getToken.outputs.token }}
         ADO_ORGANIZATION: ${{ secrets.ADO_ORGANIZATION }}
         ADO_PROJECT: ${{ secrets.ADO_PROJECT}}
         ADO_AZUREAUTH_LINUX_PIPELINE_ID: ${{ secrets.ADO_AZUREAUTH_LINUX_PIPELINE_ID }}
