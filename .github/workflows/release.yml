@@ -86,7 +86,7 @@ jobs:
         path: dist/${{ matrix.runtime }}
 
   analyze:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       security-events: write
       id-token: write
