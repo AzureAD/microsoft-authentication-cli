@@ -80,7 +80,7 @@ jobs:
         ADO_TOKEN: ${{ steps.getToken.outputs.token }}
         
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
         path: dist/${{ matrix.runtime }}
@@ -188,7 +188,7 @@ jobs:
           ESRP_CLIENT_EXE: ".\\esrp\\Microsoft.EsrpClient.${{ secrets.ESRP_VERSION }}\\tools\\EsrpClient.exe"
         run: python .\bin\sign.py "$env:ESRP_CLIENT_EXE" --runtime=${{ matrix.runtime }} --source=azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
       - name: Upload signed artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
           path: azureauth-${{ github.event.inputs.version }}-${{ matrix.runtime }}
@@ -240,7 +240,7 @@ jobs:
             mv ${{ env.DEB_ARM64_SOURCE }} ${{ env.DEB_ARM64_TARGET }}
             
     - name: Upload linux artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: azureauth-linux
         path: |
@@ -261,7 +261,7 @@ jobs:
         cd azureauth-${{ github.event.inputs.version }}-win10-x64
         zip ../azureauth-${{ github.event.inputs.version }}-win10-x64.zip *
     - name: Upload win10-x64 artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: azureauth-${{ github.event.inputs.version }}-win10-x64.zip
         path: azureauth-${{ github.event.inputs.version }}-win10-x64.zip
@@ -271,7 +271,7 @@ jobs:
         chmod +x azureauth createdump *.dylib
         tar -czf ../azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz *
     - name: Upload osx-x64 artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
         path: azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
@@ -281,7 +281,7 @@ jobs:
         chmod +x azureauth createdump *.dylib
         tar -czf ../azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz *
     - name: Upload osx-arm64 artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
         path: azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
