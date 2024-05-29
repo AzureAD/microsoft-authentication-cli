@@ -44,7 +44,7 @@ jobs:
 
   analyze:
     name: Analyze
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
     permissions:
