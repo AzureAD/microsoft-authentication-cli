@@ -17,7 +17,7 @@ resources:
     ref: refs/tags/release
 
 extends:
-  template: v1/Office.Official.PipelineTemplate.yml@CustomPipelineTemplates
+  template: v1/Office.Unofficial.PipelineTemplate.yml@CustomPipelineTemplates
   parameters:
     pool:
       name: Azure-Pipelines-1ESPT-ExDShared
