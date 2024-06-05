@@ -79,7 +79,7 @@ extends:
             inputs:
               command: restore
               feedsToUse: select
-              vstsFeed: $(feedId)
+              vstsFeed: $(vstsFeedId)
               includeNuGetOrg: false
               arguments: '--runtime ${{ matrix.runtime }}'
 
