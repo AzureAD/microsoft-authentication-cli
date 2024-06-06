@@ -30,6 +30,7 @@ extends:
           pool:
             name: Azure-Pipelines-1ESPT-ExDShared
             image: ubuntu-latest
+            os: linux
           displayName: Validate
           steps:
             - checkout: self
@@ -47,19 +48,23 @@ extends:
           matrix:
             x64-windows:
               poolName: Azure-Pipelines-1ESPT-ExDShared
-              image: 'windows-latest'
-              runtime: 'win10-x64'
+              image: windows-latest
+              os: windows
+              runtime: win10-x64
             x64-mac:
               poolName: Azure Pipelines
-              image: 'macOS-latest'
-              runtime: 'osx-x64'
+              image: macOS-latest
+              os: macOS
+              runtime: osx-x64
             arm-mac:
               poolName: Azure Pipelines
-              image: 'macOS-latest'
-              runtime: 'osx-arm64'
+              image: macOS-latest
+              os: macOS
+              runtime: osx-arm64
         pool:
           name: $(poolName)
           image: $(image)
+          os: $(os)
         displayName: Build
         steps:
           - checkout: self
