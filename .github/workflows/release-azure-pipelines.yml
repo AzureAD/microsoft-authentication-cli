@@ -1,4 +1,12 @@
 # This pipeline will be triggered manually.
+parameters:
+- name: version
+  type: string
+- name: prerelease
+  displayName: Prerelease?
+  type: boolean
+  default: true
+
 variables:
 - name: tags
   value: "nonproduction"
@@ -38,7 +46,7 @@ extends:
               inputs:
                 targetType: inline
                 script: |
-                  echo $(version) | python ./bin/version.py
+                  echo ${{ parameters.version }} | python ./bin/version.py
 
     - stage: build
       displayName: Build
@@ -98,10 +106,10 @@ extends:
             inputs:
               command: publish
               projects: src/AzureAuth/AzureAuth.csproj
-              arguments: -p:Version=$(version) --configuration release --self-contained true --runtime $(runtime) --output dist/$(runtime)
+              arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime $(runtime) --output dist/$(runtime)
 
         templateContext:
           outputs:
           - output: pipelineArtifact
             path: dist/$(runtime)
-            artifact: azureauth-$(version)-$(runtime)
+            artifact: azureauth-${{ parameters.version }}-$(runtime)
