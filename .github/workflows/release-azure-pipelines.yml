@@ -58,8 +58,8 @@ extends:
               image: 'macOS-latest'
               runtime: 'osx-arm64'
         pool:
-          name: ${{ matrix.poolName }}
-          image: ${{ matrix.image }}
+          name: $(poolName)
+          image: $(image)
         displayName: Build
         steps:
           - checkout: self
@@ -80,7 +80,7 @@ extends:
               feedsToUse: select
               vstsFeed: $(vstsFeedId)
               includeNuGetOrg: false
-              arguments: '--runtime ${{ matrix.runtime }}'
+              arguments: '--runtime $(runtime)'
 
           - task: DotNetCoreCLI@2
             displayName: Test
@@ -93,10 +93,10 @@ extends:
             inputs:
               command: publish
               projects: 'src/AzureAuth/AzureAuth.csproj'
-              arguments: '-p:Version=$(version) --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}'
+              arguments: '-p:Version=$(version) --configuration release --self-contained true --runtime $(runtime) --output dist/$(runtime)'
 
         templateContext:
           outputs:
           - output: pipelineArtifact
-            path: dist/${{ matrix.runtime }}
-            artifact: azureauth-$(version)-${{ matrix.runtime }}
+            path: dist/$(runtime)
+            artifact: azureauth-$(version)-$(runtime)
