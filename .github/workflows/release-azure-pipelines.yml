@@ -85,7 +85,7 @@ extends:
               feedsToUse: select
               vstsFeed: $(vstsFeedId)
               includeNuGetOrg: false
-              arguments: '--runtime $(runtime)'
+              arguments: --runtime $(runtime)
 
           - task: DotNetCoreCLI@2
             displayName: Test
@@ -97,8 +97,8 @@ extends:
             displayName: Build artifacts
             inputs:
               command: publish
-              projects: 'src/AzureAuth/AzureAuth.csproj'
-              arguments: '-p:Version=$(version) --configuration release --self-contained true --runtime $(runtime) --output dist/$(runtime)'
+              projects: src/AzureAuth/AzureAuth.csproj
+              arguments: -p:Version=$(version) --configuration release --self-contained true --runtime $(runtime) --output dist/$(runtime)
 
         templateContext:
           outputs:
