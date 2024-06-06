@@ -1,0 +1,102 @@
+# This pipeline will be triggered manually.
+variables:
+- name: tags
+  value: "nonproduction"
+  readonly: true
+
+trigger: none
+
+pr: none
+
+resources:
+  repositories:
+  - repository: CustomPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/OfficePipelineTemplates
+    ref: refs/tags/release
+
+extends:
+  template: v1/Office.Unofficial.PipelineTemplate.yml@CustomPipelineTemplates
+  parameters:
+    pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: windows-latest
+      os: windows
+    stages:
+    - stage: validate
+      displayName: Validate
+      jobs:
+        - job: validate
+          pool:
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: ubuntu-latest
+          displayName: Validate
+          steps:
+            - checkout: self
+            - task: Bash@3
+              inputs:
+                targetType: inline
+                script: |
+                  echo $(version) | python ./bin/version.py
+
+    - stage: build
+      displayName: Build
+      jobs:
+      - job: build
+        strategy:
+          matrix:
+            x64-windows:
+              poolName: Azure-Pipelines-1ESPT-ExDShared
+              image: 'windows-latest'
+              runtime: 'win10-x64'
+            x64-mac:
+              poolName: Azure Pipelines
+              image: 'macOS-latest'
+              runtime: 'osx-x64'
+            arm-mac:
+              poolName: Azure Pipelines
+              image: 'macOS-latest'
+              runtime: 'osx-arm64'
+        pool:
+          name: ${{ matrix.poolName }}
+          image: ${{ matrix.image }}
+        displayName: Build
+        steps:
+          - checkout: self
+          - task: UseDotNet@2
+            displayName: Use .NET Core sdk 6.x
+            inputs:
+              version: 6.x
+
+          - task: NuGetToolInstaller@0
+            displayName: Use NuGet 6.x
+            inputs:
+              versionSpec: 6.x
+
+          - task: DotNetCoreCLI@2
+            displayName: Install dependencies
+            inputs:
+              command: restore
+              feedsToUse: select
+              vstsFeed: $(vstsFeedId)
+              includeNuGetOrg: false
+              arguments: '--runtime ${{ matrix.runtime }}'
+
+          - task: DotNetCoreCLI@2
+            displayName: Test
+            inputs:
+              command: test
+              arguments: --configuration release
+          
+          - task: DotNetCoreCLI@2
+            displayName: Build artifacts
+            inputs:
+              command: publish
+              projects: 'src/AzureAuth/AzureAuth.csproj'
+              arguments: '-p:Version=$(version) --configuration release --self-contained true --runtime ${{ matrix.runtime }} --output dist/${{ matrix.runtime }}'
+
+        templateContext:
+          outputs:
+          - output: pipelineArtifact
+            path: dist/${{ matrix.runtime }}
+            artifact: azureauth-$(version)-${{ matrix.runtime }}
