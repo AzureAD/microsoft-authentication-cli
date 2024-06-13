@@ -1,115 +1,118 @@
 # This pipeline will be triggered manually.
 parameters:
-- name: version
-  type: string
-- name: prerelease
-  displayName: Prerelease?
-  type: boolean
-  default: true
-
-variables:
-- name: tags
-  value: "nonproduction"
-  readonly: true
-
-trigger: none
-
-pr: none
-
-resources:
-  repositories:
-  - repository: CustomPipelineTemplates
-    type: git
-    name: 1ESPipelineTemplates/OfficePipelineTemplates
-    ref: refs/tags/release
-
-extends:
-  template: v1/Office.Unofficial.PipelineTemplate.yml@CustomPipelineTemplates
-  parameters:
-    pool:
-      name: Azure-Pipelines-1ESPT-ExDShared
-      image: windows-latest
-      os: windows
-    stages:
-    - stage: validate
-      displayName: Validate
-      jobs:
-        - job: validate
-          pool:
-            name: Azure-Pipelines-1ESPT-ExDShared
-            image: ubuntu-latest
-            os: linux
-          displayName: Validate
-          steps:
-            - checkout: self
-            - task: Bash@3
-              inputs:
-                targetType: inline
-                script: |
-                  echo ${{ parameters.version }} | python ./bin/version.py
-
-    - stage: build
-      displayName: Build
-      jobs:
-      - job: build
-        strategy:
-          matrix:
-            x64-windows:
-              poolName: Azure-Pipelines-1ESPT-ExDShared
-              image: windows-latest
-              os: windows
-              runtime: win10-x64
-            x64-mac:
-              poolName: Azure Pipelines
-              image: macOS-latest
-              os: macOS
-              runtime: osx-x64
-            arm-mac:
-              poolName: Azure Pipelines
-              image: macOS-latest
-              os: macOS
-              runtime: osx-arm64
-        pool:
-          name: $(poolName)
-          image: $(image)
-          os: $(os)
+  - name: version
+    type: string
+  - name: prerelease
+    displayName: Prerelease?
+    type: boolean
+    default: true
+  - name: buildConfigs
+    type: object
+    default:
+    - pool:
+        name: Azure-Pipelines-1ESPT-ExDShared
+        image: windows-latest
+        os: windows
+      runtime: win10-x64
+    - pool:
+        name: Azure Pipelines
+        image: macOS-latest
+        os: macOS
+      runtime: osx-x64
+    - pool:
+        name: Azure Pipelines
+        image: macOS-latest
+        os: macOS
+      runtime: osx-arm64
+  
+  variables:
+  - name: tags
+    value: "nonproduction"
+    readonly: true
+  
+  trigger: none
+  
+  pr: none
+  
+  resources:
+    repositories:
+    - repository: CustomPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/OfficePipelineTemplates
+      ref: refs/tags/release
+  
+  extends:
+    template: v1/Office.Unofficial.PipelineTemplate.yml@CustomPipelineTemplates
+    parameters:
+      pool:
+        name: Azure-Pipelines-1ESPT-ExDShared
+        image: ubuntu-latest
+        os: linux
+      sdl:
+        sourceAnalysisPool:
+          name: Azure-Pipelines-1ESPT-ExDShared
+          image: windows-latest
+          os: windows
+      stages:
+      - stage: validate
+        displayName: Validate
+        jobs:
+          - job: validate
+            displayName: Validate
+            steps:
+              - checkout: self
+              - task: Bash@3
+                inputs:
+                  targetType: inline
+                  script: |
+                    echo ${{ parameters.version }} | python ./bin/version.py
+  
+      - stage: build
         displayName: Build
-        steps:
-          - checkout: self
-          - task: UseDotNet@2
-            displayName: Use .NET Core sdk 6.x
-            inputs:
-              version: 6.x
-
-          - task: NuGetToolInstaller@0
-            displayName: Use NuGet 6.x
-            inputs:
-              versionSpec: 6.x
-
-          - task: DotNetCoreCLI@2
-            displayName: Install dependencies
-            inputs:
-              command: restore
-              feedsToUse: select
-              vstsFeed: $(vstsFeedId)
-              includeNuGetOrg: false
-              arguments: --runtime $(runtime)
-
-          - task: DotNetCoreCLI@2
-            displayName: Test
-            inputs:
-              command: test
-              arguments: --configuration release
-          
-          - task: DotNetCoreCLI@2
-            displayName: Build artifacts
-            inputs:
-              command: publish
-              projects: src/AzureAuth/AzureAuth.csproj
-              arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime $(runtime) --output dist/$(runtime)
-
-        templateContext:
-          outputs:
-          - output: pipelineArtifact
-            path: dist/$(runtime)
-            artifact: azureauth-${{ parameters.version }}-$(runtime)
+        jobs:
+        - ${{ each config in parameters.buildConfigs }}:
+          - job: build_${{ replace(config.runtime,'-', '_') }}
+            displayName: Building for ${{ config.runtime }} on ${{ config.pool.name }}
+            pool:
+              name: ${{ config.pool.name }}
+              image: ${{ config.pool.image }}
+              os: ${{ config.pool.os }}
+            steps:
+              - checkout: self
+              - task: UseDotNet@2
+                displayName: Use .NET Core sdk 6.x
+                inputs:
+                  version: 6.x
+  
+              - task: NuGetToolInstaller@0
+                displayName: Use NuGet 6.x
+                inputs:
+                  versionSpec: 6.x
+  
+              - task: DotNetCoreCLI@2
+                displayName: Install dependencies
+                inputs:
+                  command: restore
+                  feedsToUse: select
+                  vstsFeed: $(vstsFeedId)
+                  includeNuGetOrg: false
+                  arguments: --runtime ${{ config.runtime }}
+  
+              - task: DotNetCoreCLI@2
+                displayName: Test
+                inputs:
+                  command: test
+                  arguments: --configuration release
+              
+              - task: DotNetCoreCLI@2
+                displayName: Build artifacts
+                inputs:
+                  command: publish
+                  projects: src/AzureAuth/AzureAuth.csproj
+                  arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }}
+  
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                path: dist/${{ config.runtime }}
+                artifact: azureauth-${{ parameters.version }}-${{ config.runtime }}
