@@ -91,29 +91,25 @@ extends:
 
             - task: DotNetCoreCLI@2
               displayName: Install dependencies
-              env:
-                ADO_TOKEN: $(System.AccessToken)
               inputs:
                 command: restore
+                feedsToUse: select
+                vstsFeed: $(vstsFeedId)
                 includeNuGetOrg: false
                 arguments: --runtime ${{ config.runtime }}
 
             - task: DotNetCoreCLI@2
               displayName: Test
-              env:
-                ADO_TOKEN: $(System.AccessToken)
               inputs:
                 command: test
-                arguments: --configuration release
+                arguments: --configuration release --no-restore
             
             - task: DotNetCoreCLI@2
               displayName: Build artifacts
-              env:
-                ADO_TOKEN: $(System.AccessToken)
               inputs:
                 command: publish
                 projects: src/AzureAuth/AzureAuth.csproj
-                arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }}
+                arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }} --no-restore
 
           templateContext:
             outputs:
