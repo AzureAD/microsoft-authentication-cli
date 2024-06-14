@@ -108,8 +108,11 @@ extends:
               displayName: Build artifacts
               inputs:
                 command: publish
-                projects: '**/src/AzureAuth/AzureAuth.csproj'
+                projects: src/AzureAuth/AzureAuth.csproj
                 arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }} --no-restore
+                publishWebProjects: false
+                zipAfterPublish: false
+                modifyOutputPath: true
 
           templateContext:
             outputs:
