@@ -113,7 +113,7 @@ extends:
               inputs:
                 command: publish
                 projects: src/AzureAuth/AzureAuth.csproj
-                arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }} --no-restore
+                arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }}
                 publishWebProjects: false
                 zipAfterPublish: false
                 modifyOutputPath: true
