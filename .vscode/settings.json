@@ -1,10 +1,11 @@
 {
-    "cSpell.words": [
-        "authflow",
-        "Corext",
-        "devicecode",
-        "MSAL",
-        "prompthint",
-        "validargs"
-    ]
+  "cSpell.words": [
+    "authflow",
+    "Corext",
+    "devicecode",
+    "MSAL",
+    "prompthint",
+    "validargs"
+  ],
+  "azure-pipelines.1ESPipelineTemplatesSchemaFile": true
 }
