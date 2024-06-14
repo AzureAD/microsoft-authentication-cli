@@ -2,6 +2,7 @@
 parameters:
   - name: version
     type: string
+    default: 0.8.6
   - name: prerelease
     displayName: Prerelease?
     type: boolean
@@ -30,7 +31,10 @@ variables:
   value: "nonproduction"
   readonly: true
 
-trigger: none
+trigger:
+  branches:
+    include:
+      - fixing-indentation
 
 pr: none
 
