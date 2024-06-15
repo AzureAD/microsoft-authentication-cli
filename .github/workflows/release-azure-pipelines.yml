@@ -146,9 +146,10 @@ extends:
           os: windows
         templateContext:
           inputs:
-          - input: pipelineArtifact
-            artifactName: '*'
-            targetPath: .
+          - ${{ each config in parameters.buildConfigs }}:
+            - input: pipelineArtifact
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+              targetPath: .
         steps:
         - checkout: self
         - task: UsePythonVersion@0
