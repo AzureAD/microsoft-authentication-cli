@@ -91,6 +91,11 @@ extends:
             name: ${{ config.pool.name }}
             image: ${{ config.pool.image }}
             os: ${{ config.pool.os }}
+          templateContext:
+            outputs:
+            - output: pipelineArtifact
+              targetPath: dist/${{ config.runtime }}
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
           steps:
             - checkout: self
             - task: UseDotNet@2
@@ -130,12 +135,6 @@ extends:
                 zipAfterPublish: false
                 modifyOutputPath: true
 
-          templateContext:
-            outputs:
-            - output: pipelineArtifact
-              targetPath: dist/${{ config.runtime }}
-              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-
     - stage: sign
       displayName: Sign
       dependsOn: build
@@ -150,13 +149,13 @@ extends:
             os: windows
           templateContext:
             inputs:
-              - input: pipelineArtifact
-                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-                targetPath: .
+            - input: pipelineArtifact
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+              targetPath: .
             outputs:
-              - output: pipelineArtifact
-                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-                targetPath: .
+            - output: pipelineArtifact
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+              targetPath: .
           steps:
           - checkout: self
           - task: UsePythonVersion@0
@@ -220,48 +219,48 @@ extends:
             os: linux
           templateContext:
             inputs:
-              - {{ each config in parameters.buildConfigs }}:
-                - input: pipelineArtifact
-                  artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-                  targetPath: .
+            - ${{ each config in parameters.buildConfigs }}:
+              - input: pipelineArtifact
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+                targetPath: .
             outputs:
-              - {{ each config in parameters.buildConfigs }}:
-                - output: pipelineArtifact
-                  artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
-                  targetPath: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+            - ${{ each config in parameters.buildConfigs }}:
+              - output: pipelineArtifact
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+                targetPath: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
           steps:
-            - task: ArchiveFiles@2
-              displayName: Create win10-x64 archive
-              inputs:
-                rootFolderOrFile: azureauth-${{ parameters.version }}-win10-x64
-                includeRootFolder: false
-                archiveType: zip
-                archiveFile: azureauth-${{ parameters.version }}-win10-x64.zip
-            - task: Bash@3
-              displayName: Prepare osx-x64 executables
-              inputs:
-                targetType: inline
-                script: |
-                  cd azureauth-${{ github.event.inputs.version }}-osx-x64
-                  chmod +x azureauth createdump *.dylib
-            - task: ArchiveFiles@2
-              displayName: Create osx-x64 archive
-              inputs:
-                rootFolderOrFile: azureauth-${{ parameters.version }}-osx-x64
-                includeRootFolder: false
-                archiveType: tar
-                archiveFile: azureauth-${{ parameters.version }}-osx-x64.tar
-            - task: Bash@3
-              displayName: Prepare osx-arm64 executables
-              inputs:
-                targetType: inline
-                script: |
-                  cd azureauth-${{ github.event.inputs.version }}-osx-arm64
-                  chmod +x azureauth createdump *.dylib
-            - task: ArchiveFiles@2
-              displayName: Create osx-arm64 archive
-              inputs:
-                rootFolderOrFile: azureauth-${{ parameters.version }}-osx-arm64
-                includeRootFolder: false
-                archiveType: tar
-                archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar
+          - task: ArchiveFiles@2
+            displayName: Create win10-x64 archive
+            inputs:
+              rootFolderOrFile: azureauth-${{ parameters.version }}-win10-x64
+              includeRootFolder: false
+              archiveType: zip
+              archiveFile: azureauth-${{ parameters.version }}-win10-x64.zip
+          - task: Bash@3
+            displayName: Prepare osx-x64 executables
+            inputs:
+              targetType: inline
+              script: |
+                cd azureauth-${{ github.event.inputs.version }}-osx-x64
+                chmod +x azureauth createdump *.dylib
+          - task: ArchiveFiles@2
+            displayName: Create osx-x64 archive
+            inputs:
+              rootFolderOrFile: azureauth-${{ parameters.version }}-osx-x64
+              includeRootFolder: false
+              archiveType: tar
+              archiveFile: azureauth-${{ parameters.version }}-osx-x64.tar
+          - task: Bash@3
+            displayName: Prepare osx-arm64 executables
+            inputs:
+              targetType: inline
+              script: |
+                cd azureauth-${{ github.event.inputs.version }}-osx-arm64
+                chmod +x azureauth createdump *.dylib
+          - task: ArchiveFiles@2
+            displayName: Create osx-arm64 archive
+            inputs:
+              rootFolderOrFile: azureauth-${{ parameters.version }}-osx-arm64
+              includeRootFolder: false
+              archiveType: tar
+              archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar
