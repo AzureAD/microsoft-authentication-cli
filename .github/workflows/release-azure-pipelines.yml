@@ -147,6 +147,7 @@ extends:
         templateContext:
           inputs:
           - input: pipelineArtifact
+            artifactName: '*'
             targetPath: .
         steps:
         - checkout: self
