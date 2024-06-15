@@ -15,16 +15,19 @@ parameters:
         image: windows-latest
         os: windows
       runtime: win10-x64
+      archiveExt: zip
     - pool:
         name: Azure Pipelines
         image: macOS-latest
         os: macOS
       runtime: osx-x64
+      archiveExt: tar.gz
     - pool:
         name: Azure Pipelines
         image: macOS-latest
         os: macOS
       runtime: osx-arm64
+      archiveExt: tar.gz
   
 variables:
 - name: tags
@@ -137,51 +140,128 @@ extends:
       displayName: Sign
       dependsOn: build
       jobs:
-      - job: sign
-        displayName: Sign
-        pool:
-          name: Azure-Pipelines-1ESPT-ExDShared
-          # This step has to run on Windows because ESRPClient.exe is currently only available for that platform.
-          image: windows-latest
-          os: windows
-        templateContext:
-          inputs:
-          - ${{ each config in parameters.buildConfigs }}:
-            - input: pipelineArtifact
-              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-              targetPath: .
-        steps:
-        - checkout: self
-        - task: UsePythonVersion@0
-          displayName: Use Python $(pythonVersion)
-          inputs:
-            versionSpec: $(pythonVersion)
-        - task: NuGetToolInstaller@1
-          inputs:
-            versionSpec: 5.x
-        - task: PowerShell@2
-          displayName: Download ESRPClient.exe
-          env:
-            ESRP_VERSION: $(esrpVersion)
-            NUGET_CREDENTIALS: $(System.AccessToken)
-          inputs:
-            targetType: inline
-            script: |
-              nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
-              nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
-            failOnStderr: true
-        # - task: AzureCLI@2
-        #   displayName: Login to Azure with Service Principal
-        #   inputs:
-        #     azureSubscription: $(esrpKVServiceConnection)
-        #     scriptType: ps
-        #     scriptLocation: inlineScript
-        #     addSpnToEnvironment: true
-        #     inlineScript: |
-        #       az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
-        #       certutil -f -importpfx cert.pfx
-        #       Remove-Item cert.pfx
+      - ${{ each config in parameters.buildConfigs }}:
+        - job: sign
+          displayName: Sign
+          pool:
+            name: Azure-Pipelines-1ESPT-ExDShared
+            # This step has to run on Windows because ESRPClient.exe is currently only available for that platform.
+            image: windows-latest
+            os: windows
+          templateContext:
+            inputs:
+              - input: pipelineArtifact
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+                targetPath: .
+            outputs:
+              - output: pipelineArtifact
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+                targetPath: .
+          steps:
+          - checkout: self
+          - task: UsePythonVersion@0
+            displayName: Use Python $(pythonVersion)
+            inputs:
+              versionSpec: $(pythonVersion)
+          - task: NuGetToolInstaller@1
+            inputs:
+              versionSpec: 5.x
+          - task: PowerShell@2
+            displayName: Download ESRPClient.exe
+            env:
+              ESRP_VERSION: $(esrpVersion)
+              NUGET_CREDENTIALS: $(System.AccessToken)
+            inputs:
+              targetType: inline
+              script: |
+                nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
+                nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
+              failOnStderr: true
+          # - task: AzureCLI@2
+          #   displayName: Login to Azure with Service Principal
+          #   inputs:
+          #     azureSubscription: $(esrpKVServiceConnection)
+          #     scriptType: ps
+          #     scriptLocation: inlineScript
+          #     addSpnToEnvironment: true
+          #     inlineScript: |
+          #       az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
+          #       certutil -f -importpfx cert.pfx
+          #       Remove-Item cert.pfx
 
-        #       az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
-        #       certutil -f -importpfx cert.pfx
-        #       Remove-Item cert.pfx
+          #       az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
+          #       certutil -f -importpfx cert.pfx
+          #       Remove-Item cert.pfx
+          # - task: PowerShell@2
+          #   displayName: Sign artifacts
+          #   env:
+          #     SIGNING_AAD_ID: ${{ secrets.SIGNING_AAD_ID }}
+          #     SIGNING_TENANT_ID: ${{ secrets.SIGNING_TENANT_ID }}
+          #     SIGNING_KEY_CODE_AUTHENTICODE: ${{ secrets.SIGNING_KEY_CODE_AUTHENTICODE }}
+          #     SIGNING_KEY_CODE_MAC: ${{ secrets.SIGNING_KEY_CODE_MAC }}
+          #     SIGNING_KEY_CODE_LINUX: ${{ secrets.SIGNING_KEY_CODE_LINUX }}
+          #     SIGNING_CUSTOMER_CORRELATION_ID: ${{ secrets.SIGNING_CUSTOMER_CORRELATION_ID }}
+          #     ESRP_CLIENT_EXE: ".\\esrp\\Microsoft.EsrpClient.${{ secrets.ESRP_VERSION }}\\tools\\EsrpClient.exe"
+          #   inputs:
+          #     targetType: inline
+          #     script: |
+          #       python .\bin\sign.py $env:ESRP_CLIENT_EXE --runtime=${{ config.runtime }} --source=azureauth-${{ parameters.version }}-${{ config.runtime }}
+
+    # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
+    - stage: package
+      displayName: Package
+      dependsOn: sign
+      jobs:
+        - job: package
+          displayName: Package
+          pool:
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: ubuntu-latest
+            os: linux
+          templateContext:
+            inputs:
+              - {{ each config in parameters.buildConfigs }}:
+                - input: pipelineArtifact
+                  artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+                  targetPath: .
+            outputs:
+              - {{ each config in parameters.buildConfigs }}:
+                - output: pipelineArtifact
+                  artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+                  targetPath: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+          steps:
+            - task: ArchiveFiles@2
+              displayName: Create win10-x64 archive
+              inputs:
+                rootFolderOrFile: azureauth-${{ parameters.version }}-win10-x64
+                includeRootFolder: false
+                archiveType: zip
+                archiveFile: azureauth-${{ parameters.version }}-win10-x64.zip
+            - task: Bash@3
+              displayName: Prepare osx-x64 executables
+              inputs:
+                targetType: inline
+                script: |
+                  cd azureauth-${{ github.event.inputs.version }}-osx-x64
+                  chmod +x azureauth createdump *.dylib
+            - task: ArchiveFiles@2
+              displayName: Create osx-x64 archive
+              inputs:
+                rootFolderOrFile: azureauth-${{ parameters.version }}-osx-x64
+                includeRootFolder: false
+                archiveType: tar
+                archiveFile: azureauth-${{ parameters.version }}-osx-x64.tar
+            - task: Bash@3
+              displayName: Prepare osx-arm64 executables
+              inputs:
+                targetType: inline
+                script: |
+                  cd azureauth-${{ github.event.inputs.version }}-osx-arm64
+                  chmod +x azureauth createdump *.dylib
+            - task: ArchiveFiles@2
+              displayName: Create osx-arm64 archive
+              inputs:
+                rootFolderOrFile: azureauth-${{ parameters.version }}-osx-arm64
+                includeRootFolder: false
+                archiveType: tar
+                archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar
