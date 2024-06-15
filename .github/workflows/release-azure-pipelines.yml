@@ -140,8 +140,8 @@ extends:
       dependsOn: build
       jobs:
       - ${{ each config in parameters.buildConfigs }}:
-        - job: sign
-          displayName: Sign
+        - job: sign_${{ replace(config.runtime,'-', '_') }}
+          displayName: Signing ${{ config.runtime }}
           pool:
             name: Azure-Pipelines-1ESPT-ExDShared
             # This step has to run on Windows because ESRPClient.exe is currently only available for that platform.
