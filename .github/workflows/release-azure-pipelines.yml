@@ -30,6 +30,9 @@ variables:
 - name: tags
   value: "nonproduction"
   readonly: true
+- name: pythonVersion
+  value: 3.10
+  readonly: true
 
 trigger:
   branches:
@@ -61,15 +64,19 @@ extends:
     - stage: validate
       displayName: Validate
       jobs:
-        - job: validate
-          displayName: Validate
-          steps:
-            - checkout: self
-            - task: Bash@3
-              inputs:
-                targetType: inline
-                script: |
-                  echo ${{ parameters.version }} | python ./bin/version.py
+      - job: validate
+        displayName: Validate
+        steps:
+        - checkout: self
+        - task: UsePythonVersion@0
+          displayName: Use Python $(pythonVersion)
+          inputs:
+            versionSpec: $(pythonVersion)
+        - task: Bash@3
+          inputs:
+            targetType: inline
+            script: |
+              echo ${{ parameters.version }} | python ./bin/version.py
 
     - stage: build
       displayName: Build
@@ -123,5 +130,56 @@ extends:
           templateContext:
             outputs:
             - output: pipelineArtifact
-              path: dist/${{ config.runtime }}
-              artifact: azureauth-${{ parameters.version }}-${{ config.runtime }}
+              targetPath: dist/${{ config.runtime }}
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+
+    - stage: sign
+      displayName: Sign
+      dependsOn: build
+      jobs:
+      - job: sign
+        displayName: Sign
+        pool:
+          name: Azure-Pipelines-1ESPT-ExDShared
+          # This step has to run on Windows because ESRPClient.exe is currently only available for that platform.
+          image: windows-latest
+          os: windows
+        templateContext:
+          inputs:
+          - input: pipelineArtifact
+            targetPath: .
+        steps:
+        - checkout: self
+        - task: UsePythonVersion@0
+          displayName: Use Python $(pythonVersion)
+          inputs:
+            versionSpec: $(pythonVersion)
+        - task: NuGetToolInstaller@1
+          inputs:
+            versionSpec: 5.x
+        - task: PowerShell@2
+          displayName: Download ESRPClient.exe
+          env:
+            ESRP_VERSION: $(esrpVersion)
+            NUGET_CREDENTIALS: $(System.AccessToken)
+          inputs:
+            targetType: inline
+            script: |
+              nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
+              nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
+            failOnStderr: true
+        - task: AzureCLI@2
+          displayName: Login to Azure with Service Principal
+          inputs:
+            azureSubscription: $(esrpKVServiceConnection)
+            scriptType: ps
+            scriptLocation: inlineScript
+            addSpnToEnvironment: true
+            inlineScript: |
+              az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
+              certutil -f -importpfx cert.pfx
+              Remove-Item cert.pfx
+
+              az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
+              certutil -f -importpfx cert.pfx
+              Remove-Item cert.pfx
