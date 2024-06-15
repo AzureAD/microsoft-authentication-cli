@@ -169,18 +169,18 @@ extends:
               nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
               nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
             failOnStderr: true
-        - task: AzureCLI@2
-          displayName: Login to Azure with Service Principal
-          inputs:
-            azureSubscription: $(esrpKVServiceConnection)
-            scriptType: ps
-            scriptLocation: inlineScript
-            addSpnToEnvironment: true
-            inlineScript: |
-              az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
-              certutil -f -importpfx cert.pfx
-              Remove-Item cert.pfx
+        # - task: AzureCLI@2
+        #   displayName: Login to Azure with Service Principal
+        #   inputs:
+        #     azureSubscription: $(esrpKVServiceConnection)
+        #     scriptType: ps
+        #     scriptLocation: inlineScript
+        #     addSpnToEnvironment: true
+        #     inlineScript: |
+        #       az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
+        #       certutil -f -importpfx cert.pfx
+        #       Remove-Item cert.pfx
 
-              az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
-              certutil -f -importpfx cert.pfx
-              Remove-Item cert.pfx
+        #       az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
+        #       certutil -f -importpfx cert.pfx
+        #       Remove-Item cert.pfx
