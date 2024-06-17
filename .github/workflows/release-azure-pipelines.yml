@@ -264,3 +264,39 @@ extends:
               includeRootFolder: false
               archiveType: tar
               archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar
+
+    # - stage: release
+    #   displayName: Release
+    #   dependsOn: package
+    #   jobs:
+    #   - job: release
+    #     displayName: Release
+    #     pool:
+    #       name: Azure-Pipelines-1ESPT-ExDShared
+    #       image: ubuntu-latest
+    #       os: linux
+    #     steps:
+    #     - name: Download win10-x64 artifact
+    #       uses: actions/download-artifact@v3
+    #       with:
+    #         name: azureauth-${{ github.event.inputs.version }}-win10-x64.zip
+    #     - name: Download osx-x64 artifact
+    #       uses: actions/download-artifact@v3
+    #       with:
+    #         name: azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
+    #     - name: Download osx-arm64 artifact
+    #       uses: actions/download-artifact@v3
+    #       with:
+    #         name: azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
+        
+    #     - name: Create Release
+    #       uses: softprops/action-gh-release@v1
+    #       with:
+    #         name: ${{ github.event.inputs.version }}
+    #         body: "Release ${{ github.event.inputs.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ github.event.inputs.version }}/CHANGELOG.md) for updates."
+    #         tag_name: ${{ github.event.inputs.version }}
+    #         prerelease: ${{ github.event.inputs.prerelease }}
+    #         files: |
+    #           azureauth-${{ github.event.inputs.version }}-win10-x64.zip
+    #           azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
+    #           azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
