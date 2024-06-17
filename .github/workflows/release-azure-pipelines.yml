@@ -154,7 +154,7 @@ extends:
               targetPath: .
             outputs:
             - output: pipelineArtifact
-              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
               targetPath: .
           steps:
           - checkout: self
@@ -221,12 +221,12 @@ extends:
             inputs:
             - ${{ each config in parameters.buildConfigs }}:
               - input: pipelineArtifact
-                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
                 targetPath: .
             outputs:
             - ${{ each config in parameters.buildConfigs }}:
               - output: pipelineArtifact
-                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}-packaged
                 targetPath: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
           steps:
           - task: ArchiveFiles@2
