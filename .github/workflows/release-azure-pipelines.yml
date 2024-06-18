@@ -151,11 +151,11 @@ extends:
             inputs:
             - input: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-              targetPath: $(Pipeline.Workspace)
+              targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}
             outputs:
             - output: pipelineArtifact
-              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
-              targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+              targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}
           steps:
           - download: current
             artifact: azureauth-${{ parameters.version }}-${{ config.runtime }}
@@ -223,13 +223,13 @@ extends:
             inputs:
             - ${{ each config in parameters.buildConfigs }}:
               - input: pipelineArtifact
-                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
-                targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
+                targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}
             outputs:
             - ${{ each config in parameters.buildConfigs }}:
               - output: pipelineArtifact
-                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}-packaged
-                targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}-packaged
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+                targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
           steps:
           - task: ArchiveFiles@2
             displayName: Create win10-x64 archive
