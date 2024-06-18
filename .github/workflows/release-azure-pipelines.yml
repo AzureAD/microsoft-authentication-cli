@@ -157,6 +157,8 @@ extends:
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
               targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}
           steps:
+          - download: current
+            artifact: azureauth-${{ parameters.version }}-${{ config.runtime }}
           - checkout: self
           - task: UsePythonVersion@0
             displayName: Use Python $(pythonVersion)
