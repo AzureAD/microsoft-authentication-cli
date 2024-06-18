@@ -234,7 +234,7 @@ extends:
           - task: ArchiveFiles@2
             displayName: Create win10-x64 archive
             inputs:
-              rootFolderOrFile: azureauth-${{ parameters.version }}-win10-x64
+              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-win10-x64
               includeRootFolder: false
               archiveType: zip
               archiveFile: azureauth-${{ parameters.version }}-win10-x64.zip
@@ -243,12 +243,12 @@ extends:
             inputs:
               targetType: inline
               script: |
-                cd azureauth-${{ parameters.version }}-osx-x64
+                cd $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-x64
                 chmod +x azureauth createdump *.dylib
           - task: ArchiveFiles@2
             displayName: Create osx-x64 archive
             inputs:
-              rootFolderOrFile: azureauth-${{ parameters.version }}-osx-x64
+              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-x64
               includeRootFolder: false
               archiveType: tar
               archiveFile: azureauth-${{ parameters.version }}-osx-x64.tar
@@ -257,12 +257,12 @@ extends:
             inputs:
               targetType: inline
               script: |
-                cd azureauth-${{ parameters.version }}-osx-arm64
+                cd $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-arm64
                 chmod +x azureauth createdump *.dylib
           - task: ArchiveFiles@2
             displayName: Create osx-arm64 archive
             inputs:
-              rootFolderOrFile: azureauth-${{ parameters.version }}-osx-arm64
+              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-arm64
               includeRootFolder: false
               archiveType: tar
               archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar
