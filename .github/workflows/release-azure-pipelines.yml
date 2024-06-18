@@ -151,7 +151,7 @@ extends:
             inputs:
             - input: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-              targetPath: ./azureauth-${{ parameters.version }}-${{ config.runtime }}
+              targetPath: $(Pipeline.Workspace)
             outputs:
             - output: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
