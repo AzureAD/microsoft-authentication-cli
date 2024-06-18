@@ -243,7 +243,9 @@ extends:
             inputs:
               targetType: inline
               script: |
-                cd $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-x64
+                pwd
+                cd azureauth-${{ parameters.version }}-osx-x64
+                pwd
                 chmod +x azureauth createdump *.dylib
           - task: ArchiveFiles@2
             displayName: Create osx-x64 archive
@@ -257,7 +259,7 @@ extends:
             inputs:
               targetType: inline
               script: |
-                cd $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-arm64
+                cd azureauth-${{ parameters.version }}-osx-arm64
                 chmod +x azureauth createdump *.dylib
           - task: ArchiveFiles@2
             displayName: Create osx-arm64 archive
