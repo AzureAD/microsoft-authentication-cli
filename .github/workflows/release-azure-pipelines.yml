@@ -191,13 +191,15 @@ extends:
               scriptLocation: inlineScript
               addSpnToEnvironment: true
               inlineScript: |
+                Write-Output "Downloading certs"
                 az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
                 certutil -f -importpfx cert.pfx
                 Remove-Item cert.pfx
-                
+                Write-Output "Downloaded AAD cert"
                 az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
                 certutil -f -importpfx cert.pfx
                 Remove-Item cert.pfx
+                Write-Output "Downloaded REQ cert"
           # - task: PowerShell@2
           #   displayName: Sign artifacts
           #   env:
