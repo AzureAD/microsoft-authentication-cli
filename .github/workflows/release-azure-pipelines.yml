@@ -193,9 +193,11 @@ extends:
               inlineScript: |
                 Write-Output "Downloading certs"
                 az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
-                certutil -f -importpfx cert.pfx
-                Remove-Item cert.pfx
                 Write-Output "Downloaded AAD cert"
+                certutil -f -importpfx cert.pfx
+                Write-Output "Completed cert util"
+                Remove-Item cert.pfx
+                Write-Output "Finished AAD cert"
                 az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
                 certutil -f -importpfx cert.pfx
                 Remove-Item cert.pfx
