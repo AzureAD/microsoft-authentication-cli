@@ -37,10 +37,7 @@ variables:
   value: 3.10
   readonly: true
 
-trigger:
-  branches:
-    include:
-      - fixing-indentation
+trigger: none
 
 pr: none
 
