@@ -154,7 +154,7 @@ extends:
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
               targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
           steps:
-            - task: EsrpCodeSigning@1
+            - task: EsrpCodeSigning@5
               displayName: Sign artifacts with ESRP ADO Task
               condition: eq('${{ config.runtime }}', 'win10-x64')
               env:
