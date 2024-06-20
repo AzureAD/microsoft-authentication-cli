@@ -151,7 +151,7 @@ extends:
               targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
             outputs:
             - output: pipelineArtifact
-              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
               targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
           steps:
             - task: EsrpCodeSigning@5
@@ -196,6 +196,14 @@ extends:
                 MaxConcurrency: '50'
                 MaxRetryAttempts: '5'
                 PendingAnalysisWaitTimeoutMinutes: '5'
+            - task: ArchiveFiles@2
+              displayName: Codesigning - zip artifacts to send to ESRP
+              condition: startsWith('${{ config.runtime }}', 'osx')
+              inputs:
+                rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
+                includeRootFolder: false
+                archiveType: zip
+                archiveFile: azureauth-${{ parameters.version }}-${{ config.runtime }}.zip  
             - task: EsrpCodeSigning@5
               displayName: Sign artifacts osx
               condition: startsWith('${{ config.runtime }}', 'osx')
@@ -208,8 +216,8 @@ extends:
                 AuthAKVName: $(AZURE_VAULT)
                 AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
                 AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
-                FolderPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}/AzureAuth
-                Pattern: '*.dll,*.dylib'
+                FolderPath: $(Pipeline.Workspace)
+                Pattern: 'azureauth-${{ parameters.version }}-${{ config.runtime }}.zip'
                 signConfigType: 'inlineSignParams'
                 inlineOperation: |
                   [
@@ -232,6 +240,19 @@ extends:
                 MaxConcurrency: '50'
                 MaxRetryAttempts: '5'
                 PendingAnalysisWaitTimeoutMinutes: '5'
+            - task: ExtractFiles@1
+              displayName: Extract signed artifacts osx
+              condition: startsWith('${{ config.runtime }}', 'osx')
+              inputs:
+                archiveFilePatterns: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
+                destinationFolder: $(Pipeline.Workspace)
+            - task: PowerShell@2
+              displayName: 'List files'
+              inputs:
+                workingDirectory: $(Pipeline.Workspace)
+                targetType: 'inline'
+                script: |
+                  Get-ChildItem -Path . -Recurse | Select-Object FullName
 
     # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
     - stage: package
