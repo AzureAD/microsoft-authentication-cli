@@ -172,7 +172,7 @@ extends:
                 inlineOperation: |
                   [
                    {
-                    "KeyCode": $(SIGNING_KEY_CODE_AUTHENTICODE),
+                    "KeyCode":  "${{ env.SIGNING_KEY_CODE_AUTHENTICODE }}",
                     "OperationCode": "SigntoolSign",
                     "ToolName": "sign",
                     "ToolVersion": "1.0",
@@ -185,7 +185,7 @@ extends:
                     }
                    },
                    {
-                    "KeyCode": $(SIGNING_KEY_CODE_AUTHENTICODE),
+                    "KeyCode": "${{ env.SIGNING_KEY_CODE_AUTHENTICODE }}",
                     "OperationCode": "SigntoolVerify",
                     "ToolName": "sign",
                     "ToolVersion": "1.0",
