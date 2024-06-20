@@ -154,51 +154,93 @@ extends:
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
               targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
           steps:
-          - download: current
-            artifact: azureauth-${{ parameters.version }}-${{ config.runtime }}
-          - checkout: self
-          - task: UsePythonVersion@0
-            displayName: Use Python $(pythonVersion)
-            inputs:
-              versionSpec: $(pythonVersion)
-          - task: NuGetToolInstaller@1
-            inputs:
-              versionSpec: 5.x
-          - task: PowerShell@2
-            displayName: Download ESRPClient.exe
-            env:
-              ESRP_VERSION: $(esrpVersion)
-              NUGET_CREDENTIALS: $(System.AccessToken)
-            inputs:
-              targetType: inline
-              script: |
-                nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
-                nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
-              failOnStderr: true
-          - task: AzureCLI@2
-            displayName: Login to Azure with Service Principal
-            env:
-              AZURE_SUBSCRIPTION: $(AZURE_SUBSCRIPTION)
-              AZURE_VAULT: $(AZURE_VAULT)
-              ESRP_AAD_CERT_NAME: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
-              ESRP_REQ_CERT_NAME: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
-            inputs:
-              azureSubscription: $(esrpKVServiceConnection)
-              scriptType: ps
-              scriptLocation: inlineScript
-              addSpnToEnvironment: true
-              inlineScript: |
-                Write-Output "Downloading certs"
-                az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
-                Write-Output "Downloaded AAD cert"
-                certutil -f -importpfx cert.pfx
-                Write-Output "Completed cert util"
-                Remove-Item cert.pfx
-                Write-Output "Finished AAD cert"
-                az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
-                certutil -f -importpfx cert.pfx
-                Remove-Item cert.pfx
-                Write-Output "Downloaded REQ cert"
+            - task: EsrpCodeSigning@5
+              displayName: Sign artifacts with ESRP ADO Task
+              condition: eq('${{ config.runtime }}', 'win10-x64')
+              env:
+                SIGNING_KEY_CODE_AUTHENTICODE: $(SIGNING_KEY_CODE_AUTHENTICODE) 
+              inputs:
+                ConnectedServiceName: $(esrpVersion)
+                AppRegistrationClientId: $(SIGNING_AAD_ID)
+                AppRegistrationTenantId: $(SIGNING_TENANT_ID)
+                AuthAKVName: $(AZURE_VAULT)
+                AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
+                AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
+                FolderPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}/AzureAuth
+                Pattern: '*.dll,*.exe'
+                signConfigType: 'inlineSignParams'
+                inlineOperation: |
+                  [
+                   {
+                    "KeyCode": "$env:SIGNING_KEY_CODE_AUTHENTICODE",
+                    "OperationCode": "SigntoolSign",
+                    "ToolName": "sign",
+                    "ToolVersion": "1.0",
+                    "Parameters": {
+                     "OpusName": "Microsoft",
+                     "OpusInfo": "https://www.microsoft.com",
+                     "FileDigest": "/fd SHA256",
+                     "PageHash": "/NPH",
+                     "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                    }
+                   },
+                   {
+                    "KeyCode": "$env:SIGNING_KEY_CODE_AUTHENTICODE",
+                    "OperationCode": "SigntoolVerify",
+                    "ToolName": "sign",
+                    "ToolVersion": "1.0",
+                    "Parameters": {}
+                   }
+                  ]
+                SessionTimeout: '60'
+                MaxConcurrency: '50'
+                MaxRetryAttempts: '5'
+                PendingAnalysisWaitTimeoutMinutes: '5'
+          #- download: current
+          #  artifact: azureauth-${{ parameters.version }}-${{ config.runtime }}
+          #- checkout: self
+          #- task: UsePythonVersion@0
+          #  displayName: Use Python $(pythonVersion)
+          #  inputs:
+          #    versionSpec: $(pythonVersion)
+          #- task: NuGetToolInstaller@1
+          #  inputs:
+          #    versionSpec: 5.x
+          #- task: PowerShell@2
+          #  displayName: Download ESRPClient.exe
+          #  env:
+          #    ESRP_VERSION: $(esrpVersion)
+          #    NUGET_CREDENTIALS: $(System.AccessToken)
+          #  inputs:
+          #    targetType: inline
+          #    script: |
+          #      nuget sources add -Name esrp -Username esrp-downloader -Password $env:NUGET_CREDENTIALS -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
+          #      nuget install Microsoft.EsrpClient -Version "$env:ESRP_VERSION" -OutputDirectory .\esrp -Source https://pkgs.dev.azure.com/office/_packaging/Office/nuget/v3/index.json
+          #    failOnStderr: true
+          #- task: AzureCLI@2
+          #  displayName: Login to Azure with Service Principal
+          #  env:
+          #    AZURE_SUBSCRIPTION: $(AZURE_SUBSCRIPTION)
+          #    AZURE_VAULT: $(AZURE_VAULT)
+          #    ESRP_AAD_CERT_NAME: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
+          #    ESRP_REQ_CERT_NAME: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
+          #  inputs:
+          #    azureSubscription: $(esrpKVServiceConnection)
+          #    scriptType: ps
+          #    scriptLocation: inlineScript
+          #    addSpnToEnvironment: true
+          #    inlineScript: |
+          #      Write-Output "Downloading certs"
+          #      az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_AAD_CERT_NAME" -f cert.pfx
+          #      Write-Output "Downloaded AAD cert"
+          #      certutil -f -importpfx cert.pfx
+          #      Write-Output "Completed cert util"
+          #      Remove-Item cert.pfx
+          #      Write-Output "Finished AAD cert"
+          #      az keyvault secret download --subscription "$env:AZURE_SUBSCRIPTION" --vault-name "$env:AZURE_VAULT" --name "$env:ESRP_REQ_CERT_NAME" -f cert.pfx
+          #      certutil -f -importpfx cert.pfx
+          #      Remove-Item cert.pfx
+          #      Write-Output "Downloaded REQ cert"
           # - task: PowerShell@2
           #   displayName: Sign artifacts
           #   env:
