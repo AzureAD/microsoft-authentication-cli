@@ -138,7 +138,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1
+        uses: NuGet/setup-nuget@v2
         with:
           nuget-version: '5.x'
       - name: Get Azure DevOps Access Token
