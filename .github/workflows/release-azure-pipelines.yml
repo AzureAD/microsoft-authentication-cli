@@ -1,33 +1,33 @@
 # This pipeline will be triggered manually.
 parameters:
-  - name: version
-    type: string
-    default: 0.8.6
-  - name: prerelease
-    displayName: Prerelease?
-    type: boolean
-    default: true
-  - name: buildConfigs
-    type: object
-    default:
-    - pool:
-        name: Azure-Pipelines-1ESPT-ExDShared
-        image: windows-latest
-        os: windows
-      runtime: win10-x64
-      archiveExt: zip
-    - pool:
-        name: Azure Pipelines
-        image: macOS-latest
-        os: macOS
-      runtime: osx-x64
-      archiveExt: tar.gz
-    - pool:
-        name: Azure Pipelines
-        image: macOS-latest
-        os: macOS
-      runtime: osx-arm64
-      archiveExt: tar.gz
+- name: version
+  type: string
+  default: 0.8.6
+- name: prerelease
+  displayName: Prerelease?
+  type: boolean
+  default: true
+- name: buildConfigs
+  type: object
+  default:
+  - pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: windows-latest
+      os: windows
+    runtime: win10-x64
+    archiveExt: zip
+  - pool:
+      name: Azure Pipelines
+      image: macOS-latest
+      os: macOS
+    runtime: osx-x64
+    archiveExt: tar.gz
+  - pool:
+      name: Azure Pipelines
+      image: macOS-latest
+      os: macOS
+    runtime: osx-arm64
+    archiveExt: tar.gz
   
 variables:
 - name: tags
@@ -154,7 +154,7 @@ extends:
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
               targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
           steps:
-            - task: EsrpCodeSigning@5
+            - task: EsrpCodeSigning@1
               displayName: Sign artifacts with ESRP ADO Task
               condition: eq('${{ config.runtime }}', 'win10-x64')
               env:
@@ -172,7 +172,7 @@ extends:
                 inlineOperation: |
                   [
                    {
-                    "KeyCode": "$env:SIGNING_KEY_CODE_AUTHENTICODE",
+                    "KeyCode": $env:SIGNING_KEY_CODE_AUTHENTICODE,
                     "OperationCode": "SigntoolSign",
                     "ToolName": "sign",
                     "ToolVersion": "1.0",
@@ -185,7 +185,7 @@ extends:
                     }
                    },
                    {
-                    "KeyCode": "$env:SIGNING_KEY_CODE_AUTHENTICODE",
+                    "KeyCode": $env:SIGNING_KEY_CODE_AUTHENTICODE,
                     "OperationCode": "SigntoolVerify",
                     "ToolName": "sign",
                     "ToolVersion": "1.0",
