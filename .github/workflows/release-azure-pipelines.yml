@@ -160,7 +160,7 @@ extends:
               env:
                 SIGNING_KEY_CODE_AUTHENTICODE: $(SIGNING_KEY_CODE_AUTHENTICODE) 
               inputs:
-                ConnectedServiceName: $(esrpVersion)
+                ConnectedServiceName: $(esrpKVServiceConnection)
                 AppRegistrationClientId: $(SIGNING_AAD_ID)
                 AppRegistrationTenantId: $(SIGNING_TENANT_ID)
                 AuthAKVName: $(AZURE_VAULT)
