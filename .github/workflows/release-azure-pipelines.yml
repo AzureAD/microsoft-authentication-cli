@@ -145,17 +145,15 @@ extends:
             inputs:
             - input: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-              targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
+              targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}
             outputs:
             - output: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
-              targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
+              targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
           steps:
           - task: EsrpCodeSigning@5
             displayName: Sign artifacts win10-x64
             condition: eq('${{ config.runtime }}', 'win10-x64')
-            env:
-              SIGNING_KEY_CODE_AUTHENTICODE: $(SIGNING_KEY_CODE_AUTHENTICODE) 
             inputs:
               ConnectedServiceName: $(esrpKVServiceConnection)
               AppRegistrationClientId: $(SIGNING_AAD_ID)
@@ -163,7 +161,7 @@ extends:
               AuthAKVName: $(AZURE_VAULT)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
-              FolderPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}/AzureAuth
+              FolderPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}/AzureAuth
               Pattern: '*.dll,*.exe'
               signConfigType: 'inlineSignParams'
               inlineOperation: |
@@ -197,15 +195,13 @@ extends:
             displayName: Codesigning - zip artifacts to send to ESRP
             condition: startsWith('${{ config.runtime }}', 'osx')
             inputs:
-              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
+              rootFolderOrFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}
               includeRootFolder: false
               archiveType: zip
               archiveFile: azureauth-${{ parameters.version }}-${{ config.runtime }}.zip  
           - task: EsrpCodeSigning@5
             displayName: Sign artifacts osx
             condition: startsWith('${{ config.runtime }}', 'osx')
-            env:
-              SIGNING_KEY_CODE_MAC: $(SIGNING_KEY_CODE_MAC) 
             inputs:
               ConnectedServiceName: $(esrpKVServiceConnection)
               AppRegistrationClientId: $(SIGNING_AAD_ID)
@@ -213,7 +209,7 @@ extends:
               AuthAKVName: $(AZURE_VAULT)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
-              FolderPath: $(Pipeline.Workspace)
+              FolderPath: $(Build.ArtifactStagingDirectory)
               Pattern: 'azureauth-${{ parameters.version }}-${{ config.runtime }}.zip'
               signConfigType: 'inlineSignParams'
               inlineOperation: |
@@ -242,13 +238,14 @@ extends:
             condition: startsWith('${{ config.runtime }}', 'osx')
             inputs:
               archiveFilePatterns: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
-              destinationFolder: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
+              destinationFolder: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}
               cleanDestinationFolder: true
               overwriteExistingFiles: true
+          # We rename the signed artifacts to avoid conflicts with the unsigned pipeline artifacts from the previous stage.
           - task: PowerShell@2
             displayName: 'Rename & List files'
             inputs:
-              workingDirectory: $(Pipeline.Workspace)
+              workingDirectory: $(Build.ArtifactStagingDirectory)
               targetType: 'inline'
               script: |
                 mv "azureauth-${{ parameters.version }}-${{ config.runtime }}" "azureauth-${{ parameters.version }}-${{ config.runtime }}-signed"
@@ -270,7 +267,7 @@ extends:
             - ${{ each config in parameters.buildConfigs }}:
               - input: pipelineArtifact
                 artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
-                targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
+                targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
             outputs:
             - ${{ each config in parameters.buildConfigs }}:
               - output: pipelineArtifact
@@ -280,7 +277,7 @@ extends:
           - task: ArchiveFiles@2
             displayName: Create win10-x64 archive
             inputs:
-              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-win10-x64-signed/AzureAuth
+              rootFolderOrFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-win10-x64-signed/AzureAuth
               includeRootFolder: false
               archiveType: zip
               archiveFile: azureauth-${{ parameters.version }}-win10-x64.zip
@@ -288,14 +285,14 @@ extends:
             displayName: Prepare osx-x64 executables
             inputs:
               targetType: inline
-              workingDirectory: $(Pipeline.Workspace)
+              workingDirectory: $(Build.ArtifactStagingDirectory)
               script: |
                 cd azureauth-${{ parameters.version }}-osx-x64-signed/AzureAuth
                 chmod +x azureauth createdump *.dylib
           - task: ArchiveFiles@2
             displayName: Create osx-x64 archive
             inputs:
-              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-x64-signed/AzureAuth
+              rootFolderOrFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-x64-signed/AzureAuth
               includeRootFolder: false
               archiveType: tar
               tarCompression: gz
@@ -303,7 +300,7 @@ extends:
           - task: Bash@3
             displayName: Prepare osx-arm64 executables
             inputs:
-              workingDirectory: $(Pipeline.Workspace)
+              workingDirectory: $(Build.ArtifactStagingDirectory)
               targetType: inline
               script: |
                 cd azureauth-${{ parameters.version }}-osx-arm64-signed/AzureAuth
@@ -311,7 +308,7 @@ extends:
           - task: ArchiveFiles@2
             displayName: Create osx-arm64 archive
             inputs:
-              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-arm64-signed/AzureAuth
+              rootFolderOrFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-arm64-signed/AzureAuth
               includeRootFolder: false
               archiveType: tar
               tarCompression: gz
@@ -332,12 +329,12 @@ extends:
           - ${{ each config in parameters.buildConfigs }}:
             - input: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
-              targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+              targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
         steps:
         - task: PowerShell@2
           displayName: 'List files'
           inputs:
-            workingDirectory: $(Pipeline.Workspace)
+            workingDirectory: $(Build.ArtifactStagingDirectory)
             targetType: 'inline'
             script: |
               Get-ChildItem -Path . -Recurse | Select-Object FullName
