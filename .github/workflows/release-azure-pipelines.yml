@@ -151,8 +151,8 @@ extends:
               targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
             outputs:
             - output: pipelineArtifact
-              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
-              targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
+              targetPath: $(Pipeline.Workspace)
           steps:
             - task: EsrpCodeSigning@5
               displayName: Sign artifacts win10-x64
@@ -244,14 +244,17 @@ extends:
               displayName: Extract signed artifacts osx
               condition: startsWith('${{ config.runtime }}', 'osx')
               inputs:
-                archiveFilePatterns: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
+                archiveFilePatterns: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
                 destinationFolder: $(Pipeline.Workspace)
+                overwriteExistingFiles: true
             - task: PowerShell@2
-              displayName: 'List files'
+              displayName: 'Rename & List files'
               inputs:
                 workingDirectory: $(Pipeline.Workspace)
                 targetType: 'inline'
                 script: |
+                  mv azureauth-${{ parameters.version }}-${{ config.runtime }} azureauth-${{ parameters.version }}-${{ config.runtime }-signed
+                  
                   Get-ChildItem -Path . -Recurse | Select-Object FullName
 
     # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
