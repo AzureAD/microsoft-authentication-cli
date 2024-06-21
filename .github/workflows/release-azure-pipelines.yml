@@ -152,7 +152,7 @@ extends:
             outputs:
             - output: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
-              targetPath: $(Pipeline.Workspace)
+              targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
           steps:
             - task: EsrpCodeSigning@5
               displayName: Sign artifacts win10-x64
@@ -246,6 +246,7 @@ extends:
               inputs:
                 archiveFilePatterns: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
                 destinationFolder: $(Pipeline.Workspace)
+                cleanDestinationFolder: false
                 overwriteExistingFiles: true
             - task: PowerShell@2
               displayName: 'Rename & List files'
