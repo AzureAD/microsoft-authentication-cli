@@ -285,7 +285,7 @@ extends:
             - ${{ each config in parameters.buildConfigs }}:
               - output: pipelineArtifact
                 artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
-                targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+                targetPath: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
           steps:
           - task: ArchiveFiles@2
             displayName: Create win10-x64 archive
