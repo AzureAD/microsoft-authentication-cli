@@ -309,7 +309,7 @@ extends:
               includeRootFolder: false
               archiveType: tar
               tarCompression: gz
-              archiveFile: azureauth-${{ parameters.version }}-osx-x64-packaged.tar.gz
+              archiveFile: azureauth-${{ parameters.version }}-osx-x64.tar.gz
           - task: Bash@3
             displayName: Prepare osx-arm64 executables
             inputs:
