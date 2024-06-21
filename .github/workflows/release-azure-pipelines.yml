@@ -300,9 +300,7 @@ extends:
               targetType: inline
               workingDirectory: $(Pipeline.Workspace)
               script: |
-                pwd
                 cd azureauth-${{ parameters.version }}-osx-x64-signed/AzureAuth
-                pwd
                 chmod +x azureauth createdump *.dylib
           - task: ArchiveFiles@2
             displayName: Create osx-x64 archive
@@ -310,7 +308,8 @@ extends:
               rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-x64-signed/AzureAuth
               includeRootFolder: false
               archiveType: tar
-              archiveFile: azureauth-${{ parameters.version }}-osx-x64-packaged.tar
+              tarCompression: gz
+              archiveFile: azureauth-${{ parameters.version }}-osx-x64-packaged.tar.gz
           - task: Bash@3
             displayName: Prepare osx-arm64 executables
             inputs:
@@ -325,7 +324,8 @@ extends:
               rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-arm64-signed/AzureAuth
               includeRootFolder: false
               archiveType: tar
-              archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar
+              tarCompression: gz
+              archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar.gz
 
     # - stage: release
     #   displayName: Release
