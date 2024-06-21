@@ -253,8 +253,7 @@ extends:
                 workingDirectory: $(Pipeline.Workspace)
                 targetType: 'inline'
                 script: |
-                  mv azureauth-${{ parameters.version }}-${{ config.runtime }} azureauth-${{ parameters.version }}-${{ config.runtime }-signed
-                  
+                  mv "azureauth-${{ parameters.version }}-${{ config.runtime }}" "azureauth-${{ parameters.version }}-${{ config.runtime }}-signed"
                   Get-ChildItem -Path . -Recurse | Select-Object FullName
 
     # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
