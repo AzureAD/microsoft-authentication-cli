@@ -94,43 +94,40 @@ extends:
               targetPath: dist/${{ config.runtime }}
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
           steps:
-            - checkout: self
-            - task: UseDotNet@2
-              displayName: Use .NET Core sdk 6.x
-              inputs:
-                version: 6.x
-
-            - task: NuGetToolInstaller@0
-              displayName: Use NuGet 6.x
-              inputs:
-                versionSpec: 6.x
-
-            - task: DotNetCoreCLI@2
-              displayName: Install dependencies
-              inputs:
-                command: restore
-                feedsToUse: select
-                vstsFeed: $(vstsFeedId)
-                includeNuGetOrg: false
-                arguments: --runtime ${{ config.runtime }}
-
-            - task: DotNetCoreCLI@2
-              displayName: Test
-              inputs:
-                command: test
-                arguments: --configuration release --no-restore
-            
-            - task: DotNetCoreCLI@2
-              displayName: Build artifacts
-              env:
-                ADO_TOKEN: $(System.AccessToken)
-              inputs:
-                command: publish
-                projects: src/AzureAuth/AzureAuth.csproj
-                arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }}
-                publishWebProjects: false
-                zipAfterPublish: false
-                modifyOutputPath: true
+          - checkout: self
+          - task: UseDotNet@2
+            displayName: Use .NET Core sdk 6.x
+            inputs:
+              version: 6.x
+          - task: NuGetToolInstaller@0
+            displayName: Use NuGet 6.x
+            inputs:
+              versionSpec: 6.x
+          - task: DotNetCoreCLI@2
+            displayName: Install dependencies
+            inputs:
+              command: restore
+              feedsToUse: select
+              vstsFeed: $(vstsFeedId)
+              includeNuGetOrg: false
+              arguments: --runtime ${{ config.runtime }}
+          - task: DotNetCoreCLI@2
+            displayName: Test
+            inputs:
+              command: test
+              arguments: --configuration release --no-restore
+          
+          - task: DotNetCoreCLI@2
+            displayName: Build artifacts
+            env:
+              ADO_TOKEN: $(System.AccessToken)
+            inputs:
+              command: publish
+              projects: src/AzureAuth/AzureAuth.csproj
+              arguments: -p:Version=${{ parameters.version }} --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }}
+              publishWebProjects: false
+              zipAfterPublish: false
+              modifyOutputPath: true
 
     - stage: sign
       displayName: Sign
@@ -154,115 +151,108 @@ extends:
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
               targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
           steps:
-            - task: EsrpCodeSigning@5
-              displayName: Sign artifacts win10-x64
-              condition: eq('${{ config.runtime }}', 'win10-x64')
-              env:
-                SIGNING_KEY_CODE_AUTHENTICODE: $(SIGNING_KEY_CODE_AUTHENTICODE) 
-              inputs:
-                ConnectedServiceName: $(esrpKVServiceConnection)
-                AppRegistrationClientId: $(SIGNING_AAD_ID)
-                AppRegistrationTenantId: $(SIGNING_TENANT_ID)
-                AuthAKVName: $(AZURE_VAULT)
-                AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
-                AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
-                FolderPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}/AzureAuth
-                Pattern: '*.dll,*.exe'
-                signConfigType: 'inlineSignParams'
-                inlineOperation: |
-                  [
-                   {
-                    "KeyCode": "$(SIGNING_KEY_CODE_AUTHENTICODE)",
-                    "OperationCode": "SigntoolSign",
-                    "ToolName": "sign",
-                    "ToolVersion": "1.0",
-                    "Parameters": {
-                     "OpusName": "Microsoft",
-                     "OpusInfo": "https://www.microsoft.com",
-                     "FileDigest": "/fd SHA256",
-                     "PageHash": "/NPH",
-                     "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
-                    }
-                   },
-                   {
-                    "KeyCode": "$(SIGNING_KEY_CODE_AUTHENTICODE)",
-                    "OperationCode": "SigntoolVerify",
-                    "ToolName": "sign",
-                    "ToolVersion": "1.0",
-                    "Parameters": {}
-                   }
-                  ]
-                SessionTimeout: '60'
-                MaxConcurrency: '50'
-                MaxRetryAttempts: '5'
-                PendingAnalysisWaitTimeoutMinutes: '5'
-            - task: ArchiveFiles@2
-              displayName: Codesigning - zip artifacts to send to ESRP
-              condition: startsWith('${{ config.runtime }}', 'osx')
-              inputs:
-                rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
-                includeRootFolder: false
-                archiveType: zip
-                archiveFile: azureauth-${{ parameters.version }}-${{ config.runtime }}.zip  
-            - task: EsrpCodeSigning@5
-              displayName: Sign artifacts osx
-              condition: startsWith('${{ config.runtime }}', 'osx')
-              env:
-                SIGNING_KEY_CODE_MAC: $(SIGNING_KEY_CODE_MAC) 
-              inputs:
-                ConnectedServiceName: $(esrpKVServiceConnection)
-                AppRegistrationClientId: $(SIGNING_AAD_ID)
-                AppRegistrationTenantId: $(SIGNING_TENANT_ID)
-                AuthAKVName: $(AZURE_VAULT)
-                AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
-                AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
-                FolderPath: $(Pipeline.Workspace)
-                Pattern: 'azureauth-${{ parameters.version }}-${{ config.runtime }}.zip'
-                signConfigType: 'inlineSignParams'
-                inlineOperation: |
-                  [
-                    {
-                      "KeyCode": "$(SIGNING_KEY_CODE_MAC)",
-                      "OperationCode": "MacAppDeveloperSign",
-                      "ToolName": "sign",
-                      "ToolVersion": "1.0",
-                      "Parameters": {}
-                   },
-                   {
+          - task: EsrpCodeSigning@5
+            displayName: Sign artifacts win10-x64
+            condition: eq('${{ config.runtime }}', 'win10-x64')
+            env:
+              SIGNING_KEY_CODE_AUTHENTICODE: $(SIGNING_KEY_CODE_AUTHENTICODE) 
+            inputs:
+              ConnectedServiceName: $(esrpKVServiceConnection)
+              AppRegistrationClientId: $(SIGNING_AAD_ID)
+              AppRegistrationTenantId: $(SIGNING_TENANT_ID)
+              AuthAKVName: $(AZURE_VAULT)
+              AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
+              AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
+              FolderPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}/AzureAuth
+              Pattern: '*.dll,*.exe'
+              signConfigType: 'inlineSignParams'
+              inlineOperation: |
+                [
+                 {
+                  "KeyCode": "$(SIGNING_KEY_CODE_AUTHENTICODE)",
+                  "OperationCode": "SigntoolSign",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {
+                   "OpusName": "Microsoft",
+                   "OpusInfo": "https://www.microsoft.com",
+                   "FileDigest": "/fd SHA256",
+                   "PageHash": "/NPH",
+                   "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                  }
+                 },
+                 {
+                  "KeyCode": "$(SIGNING_KEY_CODE_AUTHENTICODE)",
+                  "OperationCode": "SigntoolVerify",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {}
+                 }
+                ]
+              SessionTimeout: '60'
+              MaxConcurrency: '50'
+              MaxRetryAttempts: '5'
+              PendingAnalysisWaitTimeoutMinutes: '5'
+          - task: ArchiveFiles@2
+            displayName: Codesigning - zip artifacts to send to ESRP
+            condition: startsWith('${{ config.runtime }}', 'osx')
+            inputs:
+              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
+              includeRootFolder: false
+              archiveType: zip
+              archiveFile: azureauth-${{ parameters.version }}-${{ config.runtime }}.zip  
+          - task: EsrpCodeSigning@5
+            displayName: Sign artifacts osx
+            condition: startsWith('${{ config.runtime }}', 'osx')
+            env:
+              SIGNING_KEY_CODE_MAC: $(SIGNING_KEY_CODE_MAC) 
+            inputs:
+              ConnectedServiceName: $(esrpKVServiceConnection)
+              AppRegistrationClientId: $(SIGNING_AAD_ID)
+              AppRegistrationTenantId: $(SIGNING_TENANT_ID)
+              AuthAKVName: $(AZURE_VAULT)
+              AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
+              AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
+              FolderPath: $(Pipeline.Workspace)
+              Pattern: 'azureauth-${{ parameters.version }}-${{ config.runtime }}.zip'
+              signConfigType: 'inlineSignParams'
+              inlineOperation: |
+                [
+                  {
                     "KeyCode": "$(SIGNING_KEY_CODE_MAC)",
-                    "OperationCode": "SigntoolVerify",
+                    "OperationCode": "MacAppDeveloperSign",
                     "ToolName": "sign",
                     "ToolVersion": "1.0",
                     "Parameters": {}
-                   }
-                  ]
-                SessionTimeout: '60'
-                MaxConcurrency: '50'
-                MaxRetryAttempts: '5'
-                PendingAnalysisWaitTimeoutMinutes: '5'
-            - task: PowerShell@2
-              displayName: 'List files'
-              inputs:
-                workingDirectory: $(Pipeline.Workspace)
-                targetType: 'inline'
-                script: |
-                  Get-ChildItem -Path . -Recurse | Select-Object FullName
-            - task: ExtractFiles@1
-              displayName: Extract signed artifacts osx
-              condition: startsWith('${{ config.runtime }}', 'osx')
-              inputs:
-                archiveFilePatterns: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
-                destinationFolder: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
-                cleanDestinationFolder: true
-                overwriteExistingFiles: true
-            - task: PowerShell@2
-              displayName: 'Rename & List files'
-              inputs:
-                workingDirectory: $(Pipeline.Workspace)
-                targetType: 'inline'
-                script: |
-                  mv "azureauth-${{ parameters.version }}-${{ config.runtime }}" "azureauth-${{ parameters.version }}-${{ config.runtime }}-signed"
-                  Get-ChildItem -Path . -Recurse | Select-Object FullName
+                 },
+                 {
+                  "KeyCode": "$(SIGNING_KEY_CODE_MAC)",
+                  "OperationCode": "SigntoolVerify",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {}
+                 }
+                ]
+              SessionTimeout: '60'
+              MaxConcurrency: '50'
+              MaxRetryAttempts: '5'
+              PendingAnalysisWaitTimeoutMinutes: '5'
+          - task: ExtractFiles@1
+            displayName: Extract signed artifacts osx
+            condition: startsWith('${{ config.runtime }}', 'osx')
+            inputs:
+              archiveFilePatterns: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
+              destinationFolder: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
+              cleanDestinationFolder: true
+              overwriteExistingFiles: true
+          - task: PowerShell@2
+            displayName: 'Rename & List files'
+            inputs:
+              workingDirectory: $(Pipeline.Workspace)
+              targetType: 'inline'
+              script: |
+                mv "azureauth-${{ parameters.version }}-${{ config.runtime }}" "azureauth-${{ parameters.version }}-${{ config.runtime }}-signed"
+                Get-ChildItem -Path . -Recurse | Select-Object FullName
 
     # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
     - stage: package
@@ -327,29 +317,30 @@ extends:
               tarCompression: gz
               archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar.gz
 
-    # - stage: release
-    #   displayName: Release
-    #   dependsOn: package
-    #   jobs:
-    #   - job: release
-    #     displayName: Release
-    #     pool:
-    #       name: Azure-Pipelines-1ESPT-ExDShared
-    #       image: ubuntu-latest
-    #       os: linux
-    #     steps:
-    #     - name: Download win10-x64 artifact
-    #       uses: actions/download-artifact@v3
-    #       with:
-    #         name: azureauth-${{ github.event.inputs.version }}-win10-x64.zip
-    #     - name: Download osx-x64 artifact
-    #       uses: actions/download-artifact@v3
-    #       with:
-    #         name: azureauth-${{ github.event.inputs.version }}-osx-x64.tar.gz
-    #     - name: Download osx-arm64 artifact
-    #       uses: actions/download-artifact@v3
-    #       with:
-    #         name: azureauth-${{ github.event.inputs.version }}-osx-arm64.tar.gz
+    - stage: release
+      displayName: Release
+      dependsOn: package
+      jobs:
+      - job: release
+        displayName: Release
+        pool:
+          name: Azure-Pipelines-1ESPT-ExDShared
+          image: ubuntu-latest
+          os: linux
+        templateContext:
+          inputs:
+          - ${{ each config in parameters.buildConfigs }}:
+            - input: pipelineArtifact
+              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+              targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+        steps:
+        - task: PowerShell@2
+          displayName: 'List files'
+          inputs:
+            workingDirectory: $(Pipeline.Workspace)
+            targetType: 'inline'
+            script: |
+              Get-ChildItem -Path . -Recurse | Select-Object FullName
         
     #     - name: Create Release
     #       uses: softprops/action-gh-release@v1
