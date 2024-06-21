@@ -252,8 +252,8 @@ extends:
               condition: startsWith('${{ config.runtime }}', 'osx')
               inputs:
                 archiveFilePatterns: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
-                destinationFolder: $(Pipeline.Workspace)
-                cleanDestinationFolder: false
+                destinationFolder: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}
+                cleanDestinationFolder: true
                 overwriteExistingFiles: true
             - task: PowerShell@2
               displayName: 'Rename & List files'
@@ -284,46 +284,48 @@ extends:
             outputs:
             - ${{ each config in parameters.buildConfigs }}:
               - output: pipelineArtifact
-                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-packaged.${{ config.archiveExt }}
-                targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}-packaged.${{ config.archiveExt }}
+                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+                targetPath: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
           steps:
           - task: ArchiveFiles@2
             displayName: Create win10-x64 archive
             inputs:
-              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-win10-x64-signed
+              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-win10-x64-signed/AzureAuth
               includeRootFolder: false
               archiveType: zip
-              archiveFile: azureauth-${{ parameters.version }}-win10-x64-packaged.zip
+              archiveFile: azureauth-${{ parameters.version }}-win10-x64.zip
           - task: Bash@3
             displayName: Prepare osx-x64 executables
             inputs:
               targetType: inline
+              workingDirectory: $(Pipeline.Workspace)
               script: |
                 pwd
-                cd ../azureauth-${{ parameters.version }}-osx-x64
+                cd azureauth-${{ parameters.version }}-osx-x64-signed/AzureAuth
                 pwd
                 chmod +x azureauth createdump *.dylib
           - task: ArchiveFiles@2
             displayName: Create osx-x64 archive
             inputs:
-              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-x64
+              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-x64-signed/AzureAuth
               includeRootFolder: false
               archiveType: tar
               archiveFile: azureauth-${{ parameters.version }}-osx-x64-packaged.tar
           - task: Bash@3
             displayName: Prepare osx-arm64 executables
             inputs:
+              workingDirectory: $(Pipeline.Workspace)
               targetType: inline
               script: |
-                cd ../azureauth-${{ parameters.version }}-osx-arm64-packaged
+                cd azureauth-${{ parameters.version }}-osx-arm64-signed/AzureAuth
                 chmod +x azureauth createdump *.dylib
           - task: ArchiveFiles@2
             displayName: Create osx-arm64 archive
             inputs:
-              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-arm64
+              rootFolderOrFile: $(Pipeline.Workspace)/azureauth-${{ parameters.version }}-osx-arm64-signed/AzureAuth
               includeRootFolder: false
               archiveType: tar
-              archiveFile: azureauth-${{ parameters.version }}-osx-arm64-packaged.tar
+              archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar
 
     # - stage: release
     #   displayName: Release
