@@ -339,6 +339,7 @@ extends:
             script: |
               Get-ChildItem -Path . -Recurse | Select-Object FullName
         - task: GitHubRelease@1
+          displayName: 'Create AzureAuth GitHub Release'
           inputs:
             gitHubConnection: $(githubReleaseServiceConnection)
             repositoryName: 'AzureAD/microsoft-authentication-cli'
@@ -352,6 +353,6 @@ extends:
             releaseNotesSource: 'inline'
             releaseNotesInline: "Release ${{ parameters.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ parameters.version }}/CHANGELOG.md) for updates."
             assets: |
-              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-win10-x64.zip
-              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-x64.tar.gz
-              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-win10-x64.zip/azureauth-${{ parameters.version }}-win10-x64.zip
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-x64.tar.gz/azureauth-${{ parameters.version }}-osx-x64.tar.gz
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-arm64.tar.gz/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
