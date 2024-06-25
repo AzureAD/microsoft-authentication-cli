@@ -272,7 +272,7 @@ extends:
             - ${{ each config in parameters.buildConfigs }}:
               - output: pipelineArtifact
                 artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
-                targetPath: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+                targetPath: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
           steps:
           - task: ArchiveFiles@2
             displayName: Create win10-x64 archive
@@ -338,20 +338,20 @@ extends:
             targetType: 'inline'
             script: |
               Get-ChildItem -Path . -Recurse | Select-Object FullName
-#        - task: GitHubRelease@1
-#          inputs:
-#            gitHubConnection: $(esrpKVServiceConnection)
-#            repositoryName: 'AzureAD/microsoft-authentication-cli'
-#            action: 'create'
-#            target: $(Build.SourceVersion)
-#            tagSource: 'userSpecifiedTag'
-#            tag: ${{ parameters.version }}
-#            isPrerelease: ${{ parameters.prerelease }}
-#            isDraft: true
-#            addChangeLog: false
-#            releaseNotesSource: 'inline'
-#            releaseNotesInline: "Release ${{ parameters.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ parameters.version }}/CHANGELOG.md) for updates."
-#            assets: |
-#              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-win10-x64.zip
-#              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-x64.tar.gz
-#              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
+        - task: GitHubRelease@1
+          inputs:
+            gitHubConnection: $(esrpKVServiceConnection)
+            repositoryName: 'AzureAD/microsoft-authentication-cli'
+            action: 'create'
+            target: $(Build.SourceVersion)
+            tagSource: 'userSpecifiedTag'
+            tag: ${{ parameters.version }}
+            isPrerelease: ${{ parameters.prerelease }}
+            isDraft: true
+            addChangeLog: false
+            releaseNotesSource: 'inline'
+            releaseNotesInline: "Release ${{ parameters.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ parameters.version }}/CHANGELOG.md) for updates."
+            assets: |
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-win10-x64.zip
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-x64.tar.gz
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
