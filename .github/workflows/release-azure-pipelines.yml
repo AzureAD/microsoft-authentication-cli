@@ -198,7 +198,7 @@ extends:
               rootFolderOrFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}
               includeRootFolder: false
               archiveType: zip
-              archiveFile: azureauth-${{ parameters.version }}-${{ config.runtime }}.zip  
+              archiveFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
           - task: EsrpCodeSigning@5
             displayName: Sign artifacts osx
             condition: startsWith('${{ config.runtime }}', 'osx')
