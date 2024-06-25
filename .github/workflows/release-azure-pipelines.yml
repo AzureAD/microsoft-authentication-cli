@@ -243,7 +243,7 @@ extends:
               overwriteExistingFiles: true
           # We rename the signed artifacts to avoid conflicts with the unsigned pipeline artifacts from the previous stage.
           - task: PowerShell@2
-            displayName: 'Rename & List files'
+            displayName: Rename signed artifacts
             inputs:
               workingDirectory: $(Build.ArtifactStagingDirectory)
               targetType: 'inline'
@@ -331,7 +331,7 @@ extends:
               targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
         steps:
         - task: GitHubRelease@1
-          displayName: 'Create AzureAuth GitHub Release'
+          displayName: Create AzureAuth GitHub Release
           inputs:
             gitHubConnection: $(githubReleaseServiceConnection)
             repositoryName: 'AzureAD/microsoft-authentication-cli'
