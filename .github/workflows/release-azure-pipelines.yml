@@ -340,7 +340,7 @@ extends:
               Get-ChildItem -Path . -Recurse | Select-Object FullName
         - task: GitHubRelease@1
           inputs:
-            gitHubConnection: $(esrpKVServiceConnection)
+            gitHubConnection: $(githubReleaseServiceConnection)
             repositoryName: 'AzureAD/microsoft-authentication-cli'
             action: 'create'
             target: $(Build.SourceVersion)
