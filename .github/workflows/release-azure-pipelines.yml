@@ -237,7 +237,7 @@ extends:
             displayName: Extract signed artifacts osx
             condition: startsWith('${{ config.runtime }}', 'osx')
             inputs:
-              archiveFilePatterns: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
+              archiveFilePatterns: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.zip
               destinationFolder: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}
               cleanDestinationFolder: true
               overwriteExistingFiles: true
