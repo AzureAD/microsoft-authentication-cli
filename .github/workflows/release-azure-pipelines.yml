@@ -249,7 +249,6 @@ extends:
               targetType: 'inline'
               script: |
                 mv "azureauth-${{ parameters.version }}-${{ config.runtime }}" "azureauth-${{ parameters.version }}-${{ config.runtime }}-signed"
-                Get-ChildItem -Path . -Recurse | Select-Object FullName
 
     # Currently we package artifacts into the most commonly accessible archive format for their respective platforms.
     - stage: package
@@ -331,13 +330,6 @@ extends:
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
               targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
         steps:
-        - task: PowerShell@2
-          displayName: 'List files'
-          inputs:
-            workingDirectory: $(Build.ArtifactStagingDirectory)
-            targetType: 'inline'
-            script: |
-              Get-ChildItem -Path . -Recurse | Select-Object FullName
         - task: GitHubRelease@1
           displayName: 'Create AzureAuth GitHub Release'
           inputs:
