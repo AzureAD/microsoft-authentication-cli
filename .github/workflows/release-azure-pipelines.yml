@@ -317,8 +317,22 @@ extends:
       displayName: Release
       dependsOn: package
       jobs:
+      - job: approval
+        displayName: Manual Approval
+        pool:
+          name: Azure-Pipelines-1ESPT-ExDShared
+          image: ubuntu-latest
+          os: linux
+        timeoutInMinutes: 5760 # job times out in 4 days
+        steps:
+        - task: ManualValidation@0
+          timeoutInMinutes: 4320 # task times out in 3 days
+          inputs:
+            notifyUsers: $(REVIEWER)
+            instructions: 'Review the AzureAuth GitHub Release.'
       - job: release
         displayName: Release
+        dependsOn: approval
         pool:
           name: Azure-Pipelines-1ESPT-ExDShared
           image: ubuntu-latest
