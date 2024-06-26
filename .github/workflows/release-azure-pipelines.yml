@@ -30,7 +30,7 @@ parameters:
   
 variables:
 - name: tags
-  value: "production"
+  value: "nonproduction"
   readonly: true
 - name: pythonVersion
   value: 3.10
@@ -42,13 +42,13 @@ pr: none
 
 resources:
   repositories:
-  - repository: OfficePipelineTemplates
+  - repository: CustomPipelineTemplates
     type: git
     name: 1ESPipelineTemplates/OfficePipelineTemplates
     ref: refs/tags/release
 
 extends:
-  template: v1/Office.Official.PipelineTemplate.yml@OfficePipelineTemplates
+  template: v1/Office.Unofficial.PipelineTemplate.yml@CustomPipelineTemplates
   parameters:
     pool:
       name: Azure-Pipelines-1ESPT-ExDShared
