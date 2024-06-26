@@ -42,13 +42,13 @@ pr: none
 
 resources:
   repositories:
-  - repository: CustomPipelineTemplates
+  - repository: OfficePipelineTemplates
     type: git
     name: 1ESPipelineTemplates/OfficePipelineTemplates
     ref: refs/tags/release
 
 extends:
-  template: v1/Office.Unofficial.PipelineTemplate.yml@CustomPipelineTemplates
+  template: v1/Office.Official.PipelineTemplate.yml@OfficePipelineTemplates
   parameters:
     pool:
       name: Azure-Pipelines-1ESPT-ExDShared
@@ -190,6 +190,7 @@ extends:
               MaxConcurrency: '50'
               MaxRetryAttempts: '5'
               PendingAnalysisWaitTimeoutMinutes: '5'
+          # We need to zip the artifacts for osx before sending to ESRP for signing.
           - task: ArchiveFiles@2
             displayName: Codesigning - zip artifacts to send to ESRP
             condition: startsWith('${{ config.runtime }}', 'osx')
