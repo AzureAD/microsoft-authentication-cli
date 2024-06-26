@@ -319,10 +319,7 @@ extends:
       jobs:
       - job: approval
         displayName: Manual Approval
-        pool:
-          name: Azure-Pipelines-1ESPT-ExDShared
-          image: ubuntu-latest
-          os: linux
+        pool: server
         timeoutInMinutes: 5760 # job times out in 4 days
         steps:
         - task: ManualValidation@0
