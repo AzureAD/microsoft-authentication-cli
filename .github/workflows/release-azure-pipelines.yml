@@ -30,7 +30,7 @@ parameters:
   
 variables:
 - name: tags
-  value: "nonproduction"
+  value: "production"
   readonly: true
 - name: pythonVersion
   value: 3.10
