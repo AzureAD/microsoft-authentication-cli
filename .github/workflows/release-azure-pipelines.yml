@@ -107,7 +107,7 @@ extends:
             inputs:
               command: restore
               feedsToUse: select
-              vstsFeed: $(vstsFeedId)
+              vstsFeed: $(VSTS_FEED_ID)
               includeNuGetOrg: false
               arguments: --runtime ${{ config.runtime }}
           - task: DotNetCoreCLI@2
@@ -153,7 +153,7 @@ extends:
             displayName: Sign artifacts win10-x64
             condition: eq('${{ config.runtime }}', 'win10-x64')
             inputs:
-              ConnectedServiceName: $(esrpKVServiceConnection)
+              ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
               AuthAKVName: $(AZURE_VAULT)
@@ -202,7 +202,7 @@ extends:
             displayName: Sign artifacts osx
             condition: startsWith('${{ config.runtime }}', 'osx')
             inputs:
-              ConnectedServiceName: $(esrpKVServiceConnection)
+              ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
               AuthAKVName: $(AZURE_VAULT)
@@ -343,7 +343,7 @@ extends:
         - task: GitHubRelease@1
           displayName: Create AzureAuth GitHub Release
           inputs:
-            gitHubConnection: $(githubReleaseServiceConnection)
+            gitHubConnection: $(GITHUB_RELEASE_SERVICE_CONNECTION)
             repositoryName: 'AzureAD/microsoft-authentication-cli'
             action: 'create'
             target: $(Build.SourceVersion)
