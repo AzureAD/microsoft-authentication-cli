@@ -274,18 +274,24 @@ extends:
                 artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
                 targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
             outputs:
-            - ${{ each config in parameters.buildConfigs }}:
-              - output: pipelineArtifact
-                artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
-                targetPath: $(Build.SourcesDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+            - output: pipelineArtifact
+              artifactName: azureauth-${{ parameters.version }}-packaged
+              targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged
           steps:
+          - task: PowerShell@2
+            displayName: Create directory to place packaged artifacts
+            inputs:
+              workingDirectory: $(Build.ArtifactStagingDirectory)
+              targetType: 'inline'
+              script: |
+                mkdir azureauth-${{ parameters.version }}-packaged
           - task: ArchiveFiles@2
             displayName: Create win10-x64 archive
             inputs:
               rootFolderOrFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-win10-x64-signed/AzureAuth
               includeRootFolder: false
               archiveType: zip
-              archiveFile: azureauth-${{ parameters.version }}-win10-x64.zip
+              archiveFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged/azureauth-${{ parameters.version }}-win10-x64.zip
           - task: Bash@3
             displayName: Prepare osx-x64 executables
             inputs:
@@ -301,7 +307,7 @@ extends:
               includeRootFolder: false
               archiveType: tar
               tarCompression: gz
-              archiveFile: azureauth-${{ parameters.version }}-osx-x64.tar.gz
+              archiveFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged/azureauth-${{ parameters.version }}-osx-x64.tar.gz
           - task: Bash@3
             displayName: Prepare osx-arm64 executables
             inputs:
@@ -317,7 +323,7 @@ extends:
               includeRootFolder: false
               archiveType: tar
               tarCompression: gz
-              archiveFile: azureauth-${{ parameters.version }}-osx-arm64.tar.gz
+              archiveFile: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
 
     - stage: release
       displayName: Release
@@ -341,11 +347,9 @@ extends:
           image: ubuntu-latest
           os: linux
         templateContext:
-          inputs:
-          - ${{ each config in parameters.buildConfigs }}:
-            - input: pipelineArtifact
-              artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
-              targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-${{ config.runtime }}.${{ config.archiveExt }}
+        - input: pipelineArtifact
+          artifactName: azureauth-${{ parameters.version }}-packaged
+          targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged
         steps:
         - task: GitHubRelease@1
           displayName: Create AzureAuth GitHub Release
@@ -357,11 +361,11 @@ extends:
             tagSource: 'userSpecifiedTag'
             tag: ${{ parameters.version }}
             isPrerelease: ${{ parameters.prerelease }}
-            isDraft: false
+            isDraft: true
             addChangeLog: false
             releaseNotesSource: 'inline'
             releaseNotesInline: "Release ${{ parameters.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ parameters.version }}/CHANGELOG.md) for updates."
             assets: |
-              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-win10-x64.zip/azureauth-${{ parameters.version }}-win10-x64.zip
-              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-x64.tar.gz/azureauth-${{ parameters.version }}-osx-x64.tar.gz
-              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-osx-arm64.tar.gz/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged/azureauth-${{ parameters.version }}-win10-x64.zip
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged/azureauth-${{ parameters.version }}-osx-x64.tar.gz
+              $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
