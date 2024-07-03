@@ -113,6 +113,7 @@ extends:
               includeNuGetOrg: false
               arguments: --runtime ${{ config.runtime }}
           - task: DotNetCoreCLI@2
+            displayName: Build projects
             inputs:
               command: 'build'
               projects: '**/*.csproj'
@@ -120,8 +121,7 @@ extends:
             displayName: Test
             inputs:
               command: test
-              arguments: --configuration release --no-restore
-          
+              arguments: --configuration release --no-restore         
           - task: DotNetCoreCLI@2
             displayName: Build artifacts
             env:
