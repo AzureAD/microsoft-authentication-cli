@@ -347,9 +347,10 @@ extends:
           image: ubuntu-latest
           os: linux
         templateContext:
-        - input: pipelineArtifact
-          artifactName: azureauth-${{ parameters.version }}-packaged
-          targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged
+          inputs:
+          - input: pipelineArtifact
+            artifactName: azureauth-${{ parameters.version }}-packaged
+            targetPath: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}-packaged
         steps:
         - task: GitHubRelease@1
           displayName: Create AzureAuth GitHub Release
