@@ -111,6 +111,9 @@ extends:
               includeNuGetOrg: false
               arguments: --runtime ${{ config.runtime }}
           - task: DotNetCoreCLI@2
+            inputs:
+              command: 'build'
+          - task: DotNetCoreCLI@2
             displayName: Test
             inputs:
               command: test
