@@ -356,7 +356,7 @@ extends:
             tagSource: 'userSpecifiedTag'
             tag: ${{ parameters.version }}
             isPrerelease: ${{ parameters.prerelease }}
-            isDraft: true
+            isDraft: false
             addChangeLog: false
             releaseNotesSource: 'inline'
             releaseNotesInline: "Release ${{ parameters.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ parameters.version }}/CHANGELOG.md) for updates."
