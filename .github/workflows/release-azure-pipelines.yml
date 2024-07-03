@@ -59,6 +59,8 @@ extends:
         name: Azure-Pipelines-1ESPT-ExDShared
         image: windows-latest
         os: windows
+      roslyn:
+        copyLogsOnly: true
     stages:
     - stage: validate
       displayName: Validate
