@@ -112,6 +112,7 @@ extends:
               vstsFeed: $(VSTS_FEED_ID)
               includeNuGetOrg: false
               arguments: --runtime ${{ config.runtime }}
+          # 1ES PT requires explicit build task for Roslyn analysis.
           - task: DotNetCoreCLI@2
             displayName: Build projects
             inputs:
