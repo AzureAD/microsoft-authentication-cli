@@ -37,6 +37,7 @@ variables:
   readonly: true
 - name: artifactsPath
   value: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}
+  readonly: true
 
 trigger: none
 
