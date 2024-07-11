@@ -35,6 +35,8 @@ variables:
 - name: pythonVersion
   value: 3.10
   readonly: true
+- name: artifactsPath
+  value: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}
 
 trigger: none
 
@@ -59,6 +61,7 @@ extends:
         name: Azure-Pipelines-1ESPT-ExDShared
         image: windows-latest
         os: windows
+      # This prevents auto-injected Roslyn task from running the build again.
       roslyn:
         copyLogsOnly: true
     stages:
@@ -112,7 +115,7 @@ extends:
               vstsFeed: $(VSTS_FEED_ID)
               includeNuGetOrg: false
               arguments: --runtime ${{ config.runtime }}
-          # 1ES PT requires explicit build task for Roslyn analysis.
+          # 1ES PT requires explicit build task for Roslyn analysis. Auto-injected Roslyn task will use build logs from this build.
           - task: DotNetCoreCLI@2
             displayName: Build projects
             inputs:
