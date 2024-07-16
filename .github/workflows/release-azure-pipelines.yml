@@ -47,8 +47,8 @@ resources:
   repositories:
   - repository: OfficePipelineTemplates
     type: git
-    name: OE/OfficePipelineTemplates
-    ref: refs/heads/main
+    name: 1ESPipelineTemplates/OfficePipelineTemplates
+    ref: refs/tags/release
 
 extends:
   template: v1/Office.Official.PipelineTemplate.yml@OfficePipelineTemplates
