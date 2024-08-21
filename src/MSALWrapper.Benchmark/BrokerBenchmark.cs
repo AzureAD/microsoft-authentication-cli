@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Identity.Client;
     using Microsoft.Identity.Client.Broker;
+    using Microsoft.Identity.Client.Desktop;
     using Microsoft.Extensions.Logging;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using BenchmarkDotNet.Running;
@@ -89,11 +90,11 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
 ;
             if (useNativeBroker)
             {
-                clientBuilder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
+                BrokerExtension.WithBroker(clientBuilder, new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
             }
             else
             {
-                clientBuilder.WithBroker();
+                clientBuilder.WithWindowsEmbeddedBrowserSupport();
             }
 
             return new PCAWrapper(logger, clientBuilder.Build(), errors, tenantId);
