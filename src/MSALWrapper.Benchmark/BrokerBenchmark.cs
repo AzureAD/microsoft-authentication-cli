@@ -88,16 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
                     enableDefaultPlatformLogging: true)
 ;
             clientBuilder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
-            /*
-            if (useNativeBroker)
-            {
-                BrokerExtension.WithBroker(clientBuilder, new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
-            }
-            else
-            {
-                clientBuilder.WithWindowsEmbeddedBrowserSupport();
-            }
-            */
+
             return new PCAWrapper(logger, clientBuilder.Build(), errors, tenantId);
         }
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)
