@@ -22,7 +22,7 @@
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
         <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.61.3" />
-        <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.61.3" />
+
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />

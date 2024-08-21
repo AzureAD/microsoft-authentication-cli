@@ -7,7 +7,6 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Identity.Client;
     using Microsoft.Identity.Client.Broker;
-    using Microsoft.Identity.Client.Desktop;
     using Microsoft.Extensions.Logging;
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using BenchmarkDotNet.Running;
@@ -88,6 +87,8 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
                     enablePiiLogging: false,
                     enableDefaultPlatformLogging: true)
 ;
+            clientBuilder.WithBroker(clientBuilder, new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
+            /*
             if (useNativeBroker)
             {
                 BrokerExtension.WithBroker(clientBuilder, new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
@@ -96,7 +97,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
             {
                 clientBuilder.WithWindowsEmbeddedBrowserSupport();
             }
-
+            */
             return new PCAWrapper(logger, clientBuilder.Build(), errors, tenantId);
         }
         private void LogMSAL(Identity.Client.LogLevel level, string message, bool containsPii)
