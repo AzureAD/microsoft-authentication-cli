@@ -87,7 +87,7 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
                     enablePiiLogging: false,
                     enableDefaultPlatformLogging: true)
 ;
-            clientBuilder.WithBroker(clientBuilder, new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
+            clientBuilder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
             /*
             if (useNativeBroker)
             {
