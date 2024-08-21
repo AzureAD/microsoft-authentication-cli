@@ -44,7 +44,6 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         public void WarmUp()
         {
             NativeBrokerBenchmark();
-            ManagedBrokerBenchmark();
         }
 
         /// <summary>
@@ -53,27 +52,14 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         [Benchmark]
         public void NativeBrokerBenchmark()
         {
-            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, true);
+            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID);
             AuthParameters authParameters = new AuthParameters(this.clientID, this.tenantID, this.scopes);
             Broker broker = new Broker(this.logger, authParameters, pcaWrapper: pcaWrapper);
 
             broker.GetTokenAsync().Wait();
         }
 
-        /// <summary>
-        /// Benchmark with .Net managed broker.
-        /// </summary>
-        [Benchmark]
-        public void ManagedBrokerBenchmark()
-        {
-            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID, false);
-            AuthParameters authParameters = new AuthParameters(this.clientID, this.tenantID, this.scopes);
-            Broker broker = new Broker(this.logger, authParameters, pcaWrapper: pcaWrapper);
-
-            broker.GetTokenAsync().Wait();
-        }
-
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId, bool useNativeBroker)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
         {
             IList<Exception> errors = new List<Exception>();
 
