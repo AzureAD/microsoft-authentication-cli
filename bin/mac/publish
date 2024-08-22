@@ -42,4 +42,4 @@ esac
 #------------------------------------------
 
 # Publish
-dotnet publish "$GIT_DIR/src/AzureAuth/AzureAuth.csproj" --self-contained true -r "$runtime" -c release -o $DIST $*
+$GIT_DIR/bin/mac/dotnet publish "$GIT_DIR/src/AzureAuth/AzureAuth.csproj" --self-contained true -r "$runtime" -c release -o $DIST $*
