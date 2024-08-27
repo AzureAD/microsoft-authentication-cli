@@ -14,6 +14,8 @@
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.61.3" />
     <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="19.239.0-preview" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+      
+    <!-- Transitive dependency of Microsoft.VisualStudio.Services.Client temporarily pinned for security reasons. -->
     <PackageReference Include="System.Formats.Asn1" Version="6.0.1" />
   </ItemGroup>
 
