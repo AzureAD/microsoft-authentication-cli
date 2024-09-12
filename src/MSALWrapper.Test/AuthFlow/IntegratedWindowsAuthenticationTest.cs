@@ -84,6 +84,23 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
+        public async Task GetTokenIWA_WSTrustEndpointError()
+        {
+            this.SetupIWAWSTrustException();
+
+            // Act
+            AuthFlow.IntegratedWindowsAuthentication iwa = this.Subject();
+            var authFlowResult = await iwa.GetTokenAsync();
+
+            // Assert
+            authFlowResult.TokenResult.Should().Be(null);
+            authFlowResult.Errors.Should().HaveCount(1);
+            authFlowResult.Errors[0].Should().BeOfType(typeof(MsalClientException));
+            authFlowResult.Errors[0].As<MsalClientException>().ErrorCode.Should().Be("parsing_wstrust_response_failed");
+            authFlowResult.AuthFlowName.Should().Be("iwa");
+        }
+
+        [Test]
         public async Task GetTokenIWA_MsalServiceException()
         {
             this.IWAServiceException();
@@ -134,6 +151,13 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.mockPca
                 .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(Scopes, It.IsAny<CancellationToken>()))
                 .Throws(new MsalUiRequiredException("1", "AADSTS50076 MSAL UI Required Exception!"));
+        }
+
+        private void SetupIWAWSTrustException()
+        {
+            this.mockPca
+                .Setup((pca) => pca.GetTokenIntegratedWindowsAuthenticationAsync(Scopes, It.IsAny<CancellationToken>()))
+                .Throws(new MsalClientException("parsing_wstrust_response_failed", "WS-Trust endpoint not found"));
         }
 
         private void IWAServiceException()
