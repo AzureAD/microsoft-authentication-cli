@@ -6,14 +6,18 @@
     <RootNamespace>Microsoft.Authentication.AdoPat</RootNamespace>
   </PropertyGroup>
 
-    <ItemGroup>
+  <ItemGroup>
     <!-- Stylecop required items -->
     <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
     <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
-    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.59.1" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.61.3" />
     <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="19.239.0-preview" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+      
+    <!-- Transitive dependencies of Microsoft.VisualStudio.Services.Client temporarily pinned for security reasons. -->
+    <PackageReference Include="System.Formats.Asn1" Version="6.0.1" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
   </ItemGroup>
 
 </Project>

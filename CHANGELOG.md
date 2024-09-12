@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Temporarily paused the publishing of Linux binaries.
+- Upgrade MSAL from `4.59.1` to `4.61.3`.
 
 ## [0.8.6] - 2024-04-25
 ### Changed
