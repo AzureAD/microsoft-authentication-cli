@@ -66,7 +66,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 ex.Classification == UiRequiredExceptionClassification.BasicAction
                 && ex.Message.StartsWith("AADSTS50076", StringComparison.OrdinalIgnoreCase))
             {
-                this.logger.LogWarning("Warning: IWA failed, 2FA is required.");
+                this.logger.LogDebug("IWA failed, 2FA is required.");
                 throw;
             }
             catch (MsalClientException ex) when (ex.Message.Contains("WS-Trust endpoint not found"))
