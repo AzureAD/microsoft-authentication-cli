@@ -1,0 +1,43 @@
+{
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/baselines"
+  },
+  "version": "1.0.0",
+  "baselines": {
+    "guardian-baseline": {
+      "name": "guardian-baseline",
+      "createdDate": "2024-09-18 17:49:28Z",
+      "lastUpdatedDate": "2024-09-18 17:49:28Z"
+    }
+  },
+  "results": {
+    "3ce4f4db0e422734c4ae162ca496d938609f0ddb331b12349c09d95cf052bb06": {
+      "signature": "3ce4f4db0e422734c4ae162ca496d938609f0ddb331b12349c09d95cf052bb06",
+      "alternativeSignatures": [],
+      "target": "src/AdoPat.Test/PatTokenExtensionsTest.cs",
+      "line": 36,
+      "memberOf": [
+        "guardian-baseline"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-AZURE0100",
+      "createdDate": "2024-09-18 17:49:28Z",
+      "expirationDate": "2025-03-07 17:51:38Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-09-18 17:51:38Z"
+    },
+    "5cdba08f09aef74d8c20544d33a26804f8a1277de88a1907d6fa18fae3622d2b": {
+      "signature": "5cdba08f09aef74d8c20544d33a26804f8a1277de88a1907d6fa18fae3622d2b",
+      "alternativeSignatures": [],
+      "target": "src/AdoPat.Test/PatTokenExtensionsTest.cs",
+      "line": 50,
+      "memberOf": [
+        "guardian-baseline"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-AZURE0100",
+      "createdDate": "2024-09-18 17:49:28Z",
+      "expirationDate": "2025-03-07 17:51:38Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-09-18 17:51:38Z"
+    }
+  }
+}
