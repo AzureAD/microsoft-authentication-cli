@@ -101,9 +101,9 @@ extends:
           steps:
           - checkout: self
           - task: UseDotNet@2
-            displayName: Use .NET Core sdk 6.x
+            displayName: Use .NET Core sdk 8.x
             inputs:
-              version: 6.x
+              version: 8.x
           - task: NuGetToolInstaller@0
             displayName: Use NuGet 6.x
             inputs:
