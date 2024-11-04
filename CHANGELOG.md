@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Temporarily paused the publishing of Linux binaries.
 - Upgrade MSAL from `4.59.1` to `4.61.3`.
-- Upgrade Lasso from `2024.8.24.1` to `2024.10.14.1`.
+- Upgrade Lasso from `2024.8.24.1` to `2024.10.23.1`.
+- Upgrade from .NET 6 to .NET 8.
 
 ## [0.8.6] - 2024-04-25
 ### Changed
