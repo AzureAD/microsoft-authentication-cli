@@ -1,47 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>PlatformWindows</DefineConstants>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
   </PropertyGroup>
-
-<!-- Release configuration -->
+  <!-- Release configuration -->
   <PropertyGroup Condition="'$(Configuration)'=='release'">
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <!-- Output an executable -->
     <PackageId>microsoft.authentication.azureauth</PackageId>
     <OutputType>Exe</OutputType>
     <AssemblyName>azureauth</AssemblyName>
     <RootNamespace>Microsoft.Authentication.AzureAuth</RootNamespace>
-
     <NuspecFile>AzureAuth.nuspec</NuspecFile>
     <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration);Version=$(Version)$(VersionSuffix)</NuspecProperties>
-
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
     <!-- Stylecop required items -->
     <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
     <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Office.Lasso" Version="2024.10.14.1" />
+    <PackageReference Include="Microsoft.Office.Lasso" Version="2024.10.23.1" />
     <PackageReference Include="Tomlyn" Version="0.11.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
     <ProjectReference Include="..\AdoPat\AdoPat.csproj" />
   </ItemGroup>
-
   <!-- Assemblies we need to manually mark as roots so they are not trimmed. -->
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <!-- Needed for Web mode on Windows -->
