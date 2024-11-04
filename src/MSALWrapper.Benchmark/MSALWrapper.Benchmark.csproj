@@ -18,7 +18,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
-    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.65.0" />
+    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.61.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />
@@ -32,6 +32,6 @@
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) == false">
         <!-- Not Windows: simple package reference -->
-     <PackageReference Include="Microsoft.Identity.Client" Version="4.65.0" />
+     <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
   </ItemGroup>
 </Project>
