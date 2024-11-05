@@ -58,6 +58,9 @@ extends:
       image: ubuntu-latest
       os: linux
     sdl:
+      binskim:
+        enabled: true
+        scanOutputDirectoryOnly: true
       sourceAnalysisPool:
         name: Azure-Pipelines-1ESPT-ExDShared
         image: windows-latest
