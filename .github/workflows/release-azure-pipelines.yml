@@ -85,6 +85,9 @@ extends:
 
     - stage: build
       displayName: Build
+      feedsToUse: select
+      vstsFeed: $(VSTS_FEED_ID)
+      includeNuGetOrg: false
       jobs:
       - ${{ each config in parameters.buildConfigs }}:
         - job: build_${{ replace(config.runtime,'-', '_') }}
@@ -105,9 +108,9 @@ extends:
             inputs:
               version: 8.x
           - task: NuGetToolInstaller@0
-            displayName: Use NuGet 8.x
+            displayName: Use NuGet 6.x
             inputs:
-              versionSpec: 8.x
+              versionSpec: 6.x
           - task: DotNetCoreCLI@2
             displayName: Install dependencies
             inputs:
