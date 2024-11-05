@@ -13,7 +13,7 @@ parameters:
       name: Azure-Pipelines-1ESPT-ExDShared
       image: windows-latest
       os: windows
-    runtime: win10-x64
+    runtime: win-x64
     archiveExt: zip
   - pool:
       name: Azure Pipelines
