@@ -85,9 +85,6 @@ extends:
 
     - stage: build
       displayName: Build
-      feedsToUse: select
-      vstsFeed: $(VSTS_FEED_ID)
-      includeNuGetOrg: false
       jobs:
       - ${{ each config in parameters.buildConfigs }}:
         - job: build_${{ replace(config.runtime,'-', '_') }}
@@ -123,6 +120,9 @@ extends:
           - task: DotNetCoreCLI@2
             displayName: Build projects
             inputs:
+              feedsToUse: select
+              vstsFeed: $(VSTS_FEED_ID)
+              includeNuGetOrg: false
               command: 'build'
               projects: '**/*.csproj'
           - task: DotNetCoreCLI@2
