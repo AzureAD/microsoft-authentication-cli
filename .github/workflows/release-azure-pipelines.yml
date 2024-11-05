@@ -119,10 +119,9 @@ extends:
           # 1ES PT requires explicit build task for Roslyn analysis. Auto-injected Roslyn task will use build logs from this build.
           - task: DotNetCoreCLI@2
             displayName: Build projects
+            env:
+              ADO_TOKEN: $(System.AccessToken)
             inputs:
-              feedsToUse: select
-              vstsFeed: $(VSTS_FEED_ID)
-              includeNuGetOrg: false
               command: 'build'
               projects: '**/*.csproj'
           - task: DotNetCoreCLI@2
