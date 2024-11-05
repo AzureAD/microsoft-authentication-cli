@@ -105,9 +105,9 @@ extends:
             inputs:
               version: 8.x
           - task: NuGetToolInstaller@0
-            displayName: Use NuGet 6.x
+            displayName: Use NuGet 8.x
             inputs:
-              versionSpec: 6.x
+              versionSpec: 8.x
           - task: DotNetCoreCLI@2
             displayName: Install dependencies
             inputs:
