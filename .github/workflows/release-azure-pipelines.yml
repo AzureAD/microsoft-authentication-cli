@@ -155,9 +155,7 @@ extends:
           templateContext:
             sdl:
               suppression:
-                suppressionFile: $(Build.SourcesDirectory)\.config\guardian\SDL\SigningOsxarm64\.gdnbaselines
-              suppression:
-                suppressionFile: $(Build.SourcesDirectory)\.config\guardian\SDL\SigningOsx-x64\.gdnbaselines
+                suppressionFile: $(Build.SourcesDirectory)\.config\guardian\SDL\.gdnsuppress
             inputs:
             - input: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
