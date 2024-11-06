@@ -1,0 +1,56 @@
+{
+  "hydrated": true,
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/suppressions",
+    "hydrationStatus": "This file contains identifying data. It is **NOT** safe to check into your repo. To dehydrate this file, run `guardian dehydrate --help` and follow the guidance."
+  },
+  "version": "1.0.0",
+  "suppressionSets": {
+    "default": {
+      "name": "default",
+      "createdDate": "2024-11-05 22:44:37Z",
+      "lastUpdatedDate": "2024-11-05 22:44:37Z"
+    }
+  },
+  "results": {
+    "9b908590fc46385c33bd4e2b2a14d08b99c0266f747b49d84096282f3c235c7a": {
+      "signature": "9b908590fc46385c33bd4e2b2a14d08b99c0266f747b49d84096282f3c235c7a",
+      "alternativeSignatures": [
+        "b1dafeea2babfc82fd9dd4d8fd95b509f46d74bcb2b9152ab7e1bba72d97f9e1"
+      ],
+      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/AdoPat.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2024-11-05 22:44:37Z"
+    },
+    "17ed0e261bc1b517b1d242818087a3264c163346e3ba5587186b2be602b159c1": {
+      "signature": "17ed0e261bc1b517b1d242818087a3264c163346e3ba5587186b2be602b159c1",
+      "alternativeSignatures": [
+        "d96cd805605923e5466365501ae55697422f1aa1a60a9e04292b56bace26fa8e"
+      ],
+      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/azureauth.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2024-11-05 22:44:37Z"
+    },
+    "43a1ba6dd9d8f5a638e8596d7aaea53aca9812916c95467ca2828c15435c96bc": {
+      "signature": "43a1ba6dd9d8f5a638e8596d7aaea53aca9812916c95467ca2828c15435c96bc",
+      "alternativeSignatures": [
+        "84717f74e20904b858d4d7ff8029ea2e98b56d862f66feced2367d4090d07632"
+      ],
+      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/MSALWrapper.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2024-11-05 22:44:37Z"
+    }
+  }
+}
