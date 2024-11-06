@@ -154,6 +154,7 @@ extends:
             sdl:
               suppression:
                 suppressionFile: $(Build.SourcesDirectory)\.config\guardian\SDL\SigningOsxarm64\.gdnbaselines
+              suppression:
                 suppressionFile: $(Build.SourcesDirectory)\.config\guardian\SDL\SigningOsx-x64\.gdnbaselines
             inputs:
             - input: pipelineArtifact
