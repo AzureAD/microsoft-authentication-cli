@@ -6,10 +6,15 @@
   },
   "version": "1.0.0",
   "suppressionSets": {
-    "default": {
-      "name": "default",
+    "osx-x64": {
+      "name": "osx-x64",
       "createdDate": "2024-11-05 22:44:27Z",
       "lastUpdatedDate": "2024-11-05 22:44:27Z"
+    },
+    "osx-arm64": {
+      "name": "osx-arm64",
+      "createdDate": "2024-11-05 22:44:37Z",
+      "lastUpdatedDate": "2024-11-05 22:44:37Z"
     }
   },
   "results": {
@@ -20,7 +25,7 @@
       ],
       "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/AdoPat.dll",
       "memberOf": [
-        "default"
+        "osx-x64"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
@@ -33,7 +38,7 @@
       ],
       "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/azureauth.dll",
       "memberOf": [
-        "default"
+        "osx-x64"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
@@ -46,7 +51,7 @@
       ],
       "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/MSALWrapper.dll",
       "memberOf": [
-        "default"
+        "osx-x64"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
@@ -59,7 +64,7 @@
       ],
       "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/AdoPat.dll",
       "memberOf": [
-        "default"
+        "osx-arm64"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
@@ -72,7 +77,7 @@
       ],
       "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/azureauth.dll",
       "memberOf": [
-        "default"
+        "osx-arm64"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
@@ -85,7 +90,7 @@
       ],
       "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/MSALWrapper.dll",
       "memberOf": [
-        "default"
+        "osx-arm64"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
