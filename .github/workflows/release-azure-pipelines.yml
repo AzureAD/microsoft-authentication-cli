@@ -58,9 +58,6 @@ extends:
       image: ubuntu-latest
       os: linux
     sdl:
-      binskim:
-        enabled: true
-        scanOutputDirectoryOnly: true
       sourceAnalysisPool:
         name: Azure-Pipelines-1ESPT-ExDShared
         image: windows-latest
@@ -156,6 +153,10 @@ extends:
             image: windows-latest
             os: windows
           templateContext:
+            sdl:
+              suppression:
+                suppressionFile: $(Build.SourcesDirectory)\.config\guardian\SDL\SigningOsxarm64\.gdnbaselines
+                suppressionFile: $(Build.SourcesDirectory)\.config\guardian\SDL\SigningOsx-x64\.gdnbaselines            
             inputs:
             - input: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
