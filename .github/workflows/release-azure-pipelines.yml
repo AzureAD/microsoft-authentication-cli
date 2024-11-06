@@ -13,7 +13,7 @@ parameters:
       name: Azure-Pipelines-1ESPT-ExDShared
       image: windows-latest
       os: windows
-    runtime: win10-x64
+    runtime: win-x64
     archiveExt: zip
   - pool:
       name: Azure Pipelines
@@ -105,9 +105,9 @@ extends:
             inputs:
               version: 8.x
           - task: NuGetToolInstaller@0
-            displayName: Use NuGet 8.x
+            displayName: Use NuGet 6.x
             inputs:
-              versionSpec: 8.x
+              versionSpec: 6.x
           - task: DotNetCoreCLI@2
             displayName: Install dependencies
             inputs:
@@ -119,6 +119,8 @@ extends:
           # 1ES PT requires explicit build task for Roslyn analysis. Auto-injected Roslyn task will use build logs from this build.
           - task: DotNetCoreCLI@2
             displayName: Build projects
+            env:
+              ADO_TOKEN: $(System.AccessToken)
             inputs:
               command: 'build'
               projects: '**/*.csproj'
