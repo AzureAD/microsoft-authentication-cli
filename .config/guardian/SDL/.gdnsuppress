@@ -1,4 +1,4 @@
-[{
+{
   "hydrated": false,
   "properties": {
     "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/suppressions",
@@ -51,25 +51,7 @@
       "tool": "binskim",
       "ruleId": "BA2021",
       "createdDate": "2024-11-05 22:44:27Z"
-    }
-  }
-},
-
-{
-  "hydrated": true,
-  "properties": {
-    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/suppressions",
-    "hydrationStatus": "This file contains identifying data. It is **NOT** safe to check into your repo. To dehydrate this file, run `guardian dehydrate --help` and follow the guidance."
-  },
-  "version": "1.0.0",
-  "suppressionSets": {
-    "default": {
-      "name": "default",
-      "createdDate": "2024-11-05 22:44:37Z",
-      "lastUpdatedDate": "2024-11-05 22:44:37Z"
-    }
-  },
-  "results": {
+    },
     "9b908590fc46385c33bd4e2b2a14d08b99c0266f747b49d84096282f3c235c7a": {
       "signature": "9b908590fc46385c33bd4e2b2a14d08b99c0266f747b49d84096282f3c235c7a",
       "alternativeSignatures": [
@@ -111,5 +93,3 @@
     }
   }
 }
-
-]
