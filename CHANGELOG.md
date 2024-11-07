@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Removed
-- IWA from default authentcation modes.
+- Removed IWA from default authentcation mode.
 ### Changed
 - Temporarily paused the publishing of Linux binaries.
 - Upgrade MSAL from `4.59.1` to `4.65.0`.
