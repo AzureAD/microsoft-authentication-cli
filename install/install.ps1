@@ -115,7 +115,7 @@ function Install-Post-0-4-0 {
     Write-Verbose "Installing using post-0.4.0 method"
 
     $repo = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_REPO)) { 'AzureAD/microsoft-authentication-cli' } else { $Env:AZUREAUTH_REPO }
-    $releaseName = "azureauth-${version}-win10-x64"
+    $releaseName = "azureauth-${version}-win-x64"
     $releaseFile = "${releaseName}.zip"
     $releaseUrl = "https://github.com/${repo}/releases/download/${version}/$releaseFile"
     $azureauthDirectory = if ([string]::IsNullOrEmpty($Env:AZUREAUTH_INSTALL_DIRECTORY)) {

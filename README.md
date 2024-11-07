@@ -1,8 +1,8 @@
 # Microsoft Authentication CLI
 
 [![Tests](https://img.shields.io/github/actions/workflow/status/AzureAd/microsoft-authentication-cli/.github/workflows/dotnet-test.yml?branch=main&style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/actions/workflows/dotnet-test.yml)
-[![Release](https://img.shields.io/badge/Release-0.8.6-orange?style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/0.8.6)
-![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/azuread/microsoft-authentication-cli/0.8.6/total?logo=github&style=for-the-badge&color=blue)
+[![Release](https://img.shields.io/badge/Release-0.8.7-orange?style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/0.8.7)
+![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/azuread/microsoft-authentication-cli/0.8.7/total?logo=github&style=for-the-badge&color=blue)
 [![License](https://shields.io/badge/license-MIT-purple?style=for-the-badge)](./LICENSE.txt)
 
 ---
@@ -34,8 +34,8 @@ provide a means of downloading the latest release, so you **must** specify your 
 To install the application, run
 
 ```powershell
-# 0.8.6 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = '0.8.6'
+# 0.8.7 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = '0.8.7'
 $script = "${env:TEMP}\install.ps1"
 $url = "https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -58,7 +58,7 @@ To install the application, run
 
 ```bash
 # 0.8.6 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-export AZUREAUTH_VERSION='0.8.6'
+export AZUREAUTH_VERSION='0.8.7'
 curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/$AZUREAUTH_VERSION/install/install.sh | sh
 ```
 

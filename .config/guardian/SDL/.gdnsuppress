@@ -18,7 +18,7 @@
       "alternativeSignatures": [
         "324d61936e58b8df281670af4015fa27e4ca538f4953cb526fadd200f9d39a2c"
       ],
-      "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/AdoPat.dll",
+      "target": "azureauth-0.8.7-osx-x64-signed/AzureAuth/AdoPat.dll",
       "memberOf": [
         "default"
       ],
@@ -32,7 +32,7 @@
       "alternativeSignatures": [
         "71a5d359a6601a6a7521ed45e5332517fe76d21eb8c9e0da490a1cb08c51e081"
       ],
-      "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/azureauth.dll",
+      "target": "azureauth-0.8.7-osx-x64-signed/AzureAuth/azureauth.dll",
       "memberOf": [
         "default"
       ],
@@ -46,7 +46,7 @@
       "alternativeSignatures": [
         "7bebe0a963209c4608e803bcc52d8d946e8032ce71b05471469b19a416acfca1"
       ],
-      "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/MSALWrapper.dll",
+      "target": "azureauth-0.8.7-osx-x64-signed/AzureAuth/MSALWrapper.dll",
       "memberOf": [
         "default"
       ],
@@ -60,7 +60,7 @@
       "alternativeSignatures": [
         "b1dafeea2babfc82fd9dd4d8fd95b509f46d74bcb2b9152ab7e1bba72d97f9e1"
       ],
-      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/AdoPat.dll",
+      "target": "azureauth-0.8.7-osx-arm64-signed/AzureAuth/AdoPat.dll",
       "memberOf": [
         "default"
       ],
@@ -74,7 +74,7 @@
       "alternativeSignatures": [
         "d96cd805605923e5466365501ae55697422f1aa1a60a9e04292b56bace26fa8e"
       ],
-      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/azureauth.dll",
+      "target": "azureauth-0.8.7-osx-arm64-signed/AzureAuth/azureauth.dll",
       "memberOf": [
         "default"
       ],
@@ -88,7 +88,7 @@
       "alternativeSignatures": [
         "84717f74e20904b858d4d7ff8029ea2e98b56d862f66feced2367d4090d07632"
       ],
-      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/MSALWrapper.dll",
+      "target": "azureauth-0.8.7-osx-arm64-signed/AzureAuth/MSALWrapper.dll",
       "memberOf": [
         "default"
       ],
