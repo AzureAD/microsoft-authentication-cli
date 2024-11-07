@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.8.7] - 2024-11-07
+## [0.9.0] - 2024-11-07
 ### Changed
 - Temporarily paused the publishing of Linux binaries.
 - Upgrade MSAL from `4.59.1` to `4.65.0`.
@@ -196,8 +196,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.7...HEAD
-[0.8.7]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.6...0.8.7
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.0...HEAD
+[0.9.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.6...0.9.0
 [0.8.6]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.5...0.8.6
 [0.8.5]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.4...0.8.5
 [0.8.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.3...0.8.4
