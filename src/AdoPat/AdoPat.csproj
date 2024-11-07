@@ -3,6 +3,7 @@
     <PackageId>Microsoft.Authentication.AdoPat</PackageId>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <RootNamespace>Microsoft.Authentication.AdoPat</RootNamespace>
+    <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
   <ItemGroup>
     <!-- Stylecop required items -->

@@ -5,6 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Microsoft.Authentication.MSALWrapper</RootNamespace>
     <PackageOutputPath>../</PackageOutputPath>
+    <PublishTrimmed>false</PublishTrimmed>
     <!-- Human Metadata -->
     <Title>Microsoft Authentication MSAL Wrapper</Title>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-authentication-cli</RepositoryUrl>
