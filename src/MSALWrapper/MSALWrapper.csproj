@@ -1,40 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <!-- Package Naming, Building, & Versioning -->
     <PackageId>Microsoft.Authentication.MSALWrapper</PackageId>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Microsoft.Authentication.MSALWrapper</RootNamespace>
-
     <PackageOutputPath>../</PackageOutputPath>
-
+    <PublishTrimmed>false</PublishTrimmed>
     <!-- Human Metadata -->
     <Title>Microsoft Authentication MSAL Wrapper</Title>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-authentication-cli</RepositoryUrl>
     <Description>A library for quickly authenticating with various Azure resources</Description>
     <PackageTags>MSAL;authentication</PackageTags>
-
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
-
   <ItemGroup>
     <!-- Stylecop required items -->
     <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
     <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.65.0" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.5.0" />
     <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.65.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.65.0" />
-
   </ItemGroup>
-
 </Project>

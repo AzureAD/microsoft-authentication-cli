@@ -13,7 +13,7 @@ parameters:
       name: Azure-Pipelines-1ESPT-ExDShared
       image: windows-latest
       os: windows
-    runtime: win10-x64
+    runtime: win-x64
     archiveExt: zip
   - pool:
       name: Azure Pipelines
@@ -101,9 +101,9 @@ extends:
           steps:
           - checkout: self
           - task: UseDotNet@2
-            displayName: Use .NET Core sdk 6.x
+            displayName: Use .NET Core sdk 8.x
             inputs:
-              version: 6.x
+              version: 8.x
           - task: NuGetToolInstaller@0
             displayName: Use NuGet 6.x
             inputs:
@@ -119,6 +119,8 @@ extends:
           # 1ES PT requires explicit build task for Roslyn analysis. Auto-injected Roslyn task will use build logs from this build.
           - task: DotNetCoreCLI@2
             displayName: Build projects
+            env:
+              ADO_TOKEN: $(System.AccessToken)
             inputs:
               command: 'build'
               projects: '**/*.csproj'
@@ -151,6 +153,9 @@ extends:
             image: windows-latest
             os: windows
           templateContext:
+            sdl:
+              suppression:
+                suppressionFile: $(Build.SourcesDirectory)\.config\guardian\SDL\.gdnsuppress
             inputs:
             - input: pipelineArtifact
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}
@@ -161,8 +166,8 @@ extends:
               targetPath: $(artifactsPath)-${{ config.runtime }}-signed
           steps:
           - task: EsrpCodeSigning@5
-            displayName: Sign artifacts win10-x64
-            condition: eq('${{ config.runtime }}', 'win10-x64')
+            displayName: Sign artifacts win-x64
+            condition: eq('${{ config.runtime }}', 'win-x64')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
               AppRegistrationClientId: $(SIGNING_AAD_ID)
@@ -290,12 +295,12 @@ extends:
               script: |
                 mkdir azureauth-${{ parameters.version }}-packaged
           - task: ArchiveFiles@2
-            displayName: Create win10-x64 archive
+            displayName: Create win-x64 archive
             inputs:
-              rootFolderOrFile: $(artifactsPath)-win10-x64-signed/AzureAuth
+              rootFolderOrFile: $(artifactsPath)-win-x64-signed/AzureAuth
               includeRootFolder: false
               archiveType: zip
-              archiveFile: $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win10-x64.zip
+              archiveFile: $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win-x64.zip
           - task: Bash@3
             displayName: Prepare osx-x64 executables
             inputs:
@@ -371,6 +376,6 @@ extends:
             releaseNotesSource: 'inline'
             releaseNotesInline: "Release ${{ parameters.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ parameters.version }}/CHANGELOG.md) for updates."
             assets: |
-              $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win10-x64.zip
+              $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win-x64.zip
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-osx-x64.tar.gz
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-osx-arm64.tar.gz

@@ -1,22 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>PlatformWindows</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <PackageId>Microsoft.Authentication.AzureAuth.Test</PackageId>
   </PropertyGroup>
-
   <ItemGroup>
     <!-- Stylecop required items -->
     <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
-      <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
-      <Compile Include="..\stylecop\GlobalSuppressions.Test.cs" Link="GlobalSuppressions.Test.cs" />
+    <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+    <Compile Include="..\stylecop\GlobalSuppressions.Test.cs" Link="GlobalSuppressions.Test.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.3" />
@@ -26,10 +22,8 @@
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="7.0.7" />
     <PackageReference Include="Moq" Version="4.17.2" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\AzureAuth\AzureAuth.csproj" />
     <ProjectReference Include="..\TestHelper\TestHelper.csproj" />
   </ItemGroup>
-
 </Project>
