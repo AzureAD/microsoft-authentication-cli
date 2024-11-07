@@ -25,7 +25,7 @@
       "tool": "binskim",
       "ruleId": "BA2021",
       "createdDate": "2024-11-07 21:11:35Z",
-      "justification": "Not applicable to win-x64, only applicable to osx-arm64"
+      "justification": "Not applicable to win-x64, only applicable to osx-x64"
     },
     "5b7304194ffe9b5aa456e2851cc719640de92f65acad5c116db11d69dde12c75": {
       "signature": "5b7304194ffe9b5aa456e2851cc719640de92f65acad5c116db11d69dde12c75",
@@ -39,7 +39,7 @@
       "tool": "binskim",
       "ruleId": "BA2021",
       "createdDate": "2024-11-07 21:11:35Z",
-      "justification": "Not applicable to win-x64, only applicable to osx-arm64"
+      "justification": "Not applicable to win-x64, only applicable to osx-x64"
     },
     "b2a45fadfb8ac7e6211526b362a8e7ce35836041c30947d358c7d3c9a86d2bdb": {
       "signature": "b2a45fadfb8ac7e6211526b362a8e7ce35836041c30947d358c7d3c9a86d2bdb",
@@ -53,7 +53,7 @@
       "tool": "binskim",
       "ruleId": "BA2021",
       "createdDate": "2024-11-07 21:11:35Z",
-      "justification": "Not applicable to win-x64, only applicable to osx-arm64"
+      "justification": "Not applicable to win-x64, only applicable to osx-x64"
     },
     "9c7734fb68e55206bb9fcf1384527dea378f43959f0a8b1f40aecdc799c5de12": {
       "signature": "9c7734fb68e55206bb9fcf1384527dea378f43959f0a8b1f40aecdc799c5de12",
