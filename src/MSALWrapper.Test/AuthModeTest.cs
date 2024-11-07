@@ -26,8 +26,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             subject.IsWeb().Should().BeTrue();
             subject.IsIWA().Should().BeFalse();
             subject.IsDeviceCode().Should().BeFalse();
-            
-
         }
 
         [TestCase(AuthMode.All, true)]
