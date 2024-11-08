@@ -8,93 +8,93 @@
   "suppressionSets": {
     "default": {
       "name": "default",
-      "createdDate": "2024-11-05 22:44:27Z",
-      "lastUpdatedDate": "2024-11-05 22:44:27Z"
+      "createdDate": "2024-11-07 21:11:35Z",
+      "lastUpdatedDate": "2024-11-07 21:11:35Z"
     }
   },
   "results": {
-    "fe2acc487ef033024b04850e3353f13bd2440a4667d0a40e87e8f731e9e515e8": {
-      "signature": "fe2acc487ef033024b04850e3353f13bd2440a4667d0a40e87e8f731e9e515e8",
+    "a75daf613872ec0a11abf801a17c825df3f3684163cd2d37f9bbd010e1e86cd5": {
+      "signature": "a75daf613872ec0a11abf801a17c825df3f3684163cd2d37f9bbd010e1e86cd5",
       "alternativeSignatures": [
-        "324d61936e58b8df281670af4015fa27e4ca538f4953cb526fadd200f9d39a2c"
+        "f64e7afdeda4d177e972afb0f8ea579d3aabfbbf35aba1cf37943b1147972847"
       ],
-      "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/AdoPat.dll",
+      "target": "azureauth-0.9.0-osx-x64-signed/AzureAuth/AdoPat.dll",
       "memberOf": [
         "default"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
-      "createdDate": "2024-11-05 22:44:27Z",
+      "createdDate": "2024-11-07 21:11:35Z",
       "justification": "Not applicable to win-x64, only applicable to osx-x64"
     },
-    "496121e11663e27908700184fa29796a0bf716e2a84d2f1ab70a6cd06730d62d": {
-      "signature": "496121e11663e27908700184fa29796a0bf716e2a84d2f1ab70a6cd06730d62d",
+    "5b7304194ffe9b5aa456e2851cc719640de92f65acad5c116db11d69dde12c75": {
+      "signature": "5b7304194ffe9b5aa456e2851cc719640de92f65acad5c116db11d69dde12c75",
       "alternativeSignatures": [
-        "71a5d359a6601a6a7521ed45e5332517fe76d21eb8c9e0da490a1cb08c51e081"
+        "822b18aca0ac8907ecea8110bc910e502e7b4dee5a467c88db7e56e784704234"
       ],
-      "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/azureauth.dll",
+      "target": "azureauth-0.9.0-osx-x64-signed/AzureAuth/azureauth.dll",
       "memberOf": [
         "default"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
-      "createdDate": "2024-11-05 22:44:27Z",
+      "createdDate": "2024-11-07 21:11:35Z",
       "justification": "Not applicable to win-x64, only applicable to osx-x64"
     },
-    "06af3c593c39a7530472338385efa6359d040941ae019dc6f24984ba7cfbcf0a": {
-      "signature": "06af3c593c39a7530472338385efa6359d040941ae019dc6f24984ba7cfbcf0a",
+    "b2a45fadfb8ac7e6211526b362a8e7ce35836041c30947d358c7d3c9a86d2bdb": {
+      "signature": "b2a45fadfb8ac7e6211526b362a8e7ce35836041c30947d358c7d3c9a86d2bdb",
       "alternativeSignatures": [
-        "7bebe0a963209c4608e803bcc52d8d946e8032ce71b05471469b19a416acfca1"
+        "3cd9b144c8ee98c0662f15a2216df58f10d4b6a2f9beab9684283720f4784a13"
       ],
-      "target": "azureauth-0.8.6-osx-x64-signed/AzureAuth/MSALWrapper.dll",
+      "target": "azureauth-0.9.0-osx-x64-signed/AzureAuth/MSALWrapper.dll",
       "memberOf": [
         "default"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
-      "createdDate": "2024-11-05 22:44:27Z",
+      "createdDate": "2024-11-07 21:11:35Z",
       "justification": "Not applicable to win-x64, only applicable to osx-x64"
     },
-    "9b908590fc46385c33bd4e2b2a14d08b99c0266f747b49d84096282f3c235c7a": {
-      "signature": "9b908590fc46385c33bd4e2b2a14d08b99c0266f747b49d84096282f3c235c7a",
+    "9c7734fb68e55206bb9fcf1384527dea378f43959f0a8b1f40aecdc799c5de12": {
+      "signature": "9c7734fb68e55206bb9fcf1384527dea378f43959f0a8b1f40aecdc799c5de12",
       "alternativeSignatures": [
-        "b1dafeea2babfc82fd9dd4d8fd95b509f46d74bcb2b9152ab7e1bba72d97f9e1"
+        "b57e47103476d52b24414da99ae7c2696be97b5c7238951a1bf9f1d64eb39f80"
       ],
-      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/AdoPat.dll",
+      "target": "azureauth-0.9.0-osx-arm64-signed/AzureAuth/AdoPat.dll",
       "memberOf": [
         "default"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
-      "createdDate": "2024-11-05 22:44:37Z",
+      "createdDate": "2024-11-07 21:08:17Z",
       "justification": "Not applicable to win-x64, only applicable to osx-arm64"
     },
-    "17ed0e261bc1b517b1d242818087a3264c163346e3ba5587186b2be602b159c1": {
-      "signature": "17ed0e261bc1b517b1d242818087a3264c163346e3ba5587186b2be602b159c1",
+    "216ec64083b15d3aecacf42a1058bd392bceb4183600ea55346cd4bc0c098261": {
+      "signature": "216ec64083b15d3aecacf42a1058bd392bceb4183600ea55346cd4bc0c098261",
       "alternativeSignatures": [
-        "d96cd805605923e5466365501ae55697422f1aa1a60a9e04292b56bace26fa8e"
+        "97194b7b9eb10fa462e4ecb05aab826b92295fa659f5973621d7809d7b674c09"
       ],
-      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/azureauth.dll",
+      "target": "azureauth-0.9.0-osx-arm64-signed/AzureAuth/azureauth.dll",
       "memberOf": [
         "default"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
-      "createdDate": "2024-11-05 22:44:37Z",
+      "createdDate": "2024-11-07 21:08:17Z",
       "justification": "Not applicable to win-x64, only applicable to osx-arm64"
     },
-    "43a1ba6dd9d8f5a638e8596d7aaea53aca9812916c95467ca2828c15435c96bc": {
-      "signature": "43a1ba6dd9d8f5a638e8596d7aaea53aca9812916c95467ca2828c15435c96bc",
+    "4221c806e3c5c8786ecacc5299e85ef016d27fee812e309b5f81670fdc4baa08": {
+      "signature": "4221c806e3c5c8786ecacc5299e85ef016d27fee812e309b5f81670fdc4baa08",
       "alternativeSignatures": [
-        "84717f74e20904b858d4d7ff8029ea2e98b56d862f66feced2367d4090d07632"
+        "f99fb99a3eba171f009436c70e52e3fbd18bca7f793cd5db37ac83cdac127278"
       ],
-      "target": "azureauth-0.8.6-osx-arm64-signed/AzureAuth/MSALWrapper.dll",
+      "target": "azureauth-0.9.0-osx-arm64-signed/AzureAuth/MSALWrapper.dll",
       "memberOf": [
         "default"
       ],
       "tool": "binskim",
       "ruleId": "BA2021",
-      "createdDate": "2024-11-05 22:44:37Z",
+      "createdDate": "2024-11-07 21:08:17Z",
       "justification": "Not applicable to win-x64, only applicable to osx-arm64"
     }
   }
