@@ -13,11 +13,19 @@ The CLI is designed for authenticating and returning an access token for public 
 
 # Platform Support
 
+> [!WARNING]
+> AzureAuth support for Ubuntu was suspended as of version 0.8.6. Please file an issue if this lack of support causes issues for you.
+
+> [!IMPORTANT]
+> At this time AzureAuth does **NOT** support headless Linux environments unless you are using device code flow.
+> See [msal#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)
+> and [#410](https://github.com/AzureAD/microsoft-authentication-cli/issues/410) for more information.
+
 | Operating System                           | Integrated Windows Auth | Auth Broker Integration | Web Auth Flow            | Device Code Flow | Token Caching | Multi-Account Support           |
 | ------------------------------------------ | ----------------------- | ----------------------- | ------------------------ | ---------------- | ------------- | ------------------------------- |
 | Windows                                    | ✅                      | ✅                      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
 | OSX (MacOS)                                | N/A                      | ⚠️ via Web Browser      | ✅                      | ✅             | ✅          | ⚠️ `--domain` account filtering |
-| Ubuntu (linux) <br/>‼️Releases coming soon  | N/A                      | ⚠️ via Edge             | ⚠️ in GUI environments | ✅        | ⚠️ in GUI environments. See [msal#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)      | ⚠️ `--domain` account filtering |
+| Ubuntu (Linux)                             | N/A                      | ⚠️ via Edge             | ⚠️ in GUI environments | ✅        | ⚠️ in GUI environments. See [msal#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)      | ⚠️ `--domain` account filtering |
 
 <br/>
 
