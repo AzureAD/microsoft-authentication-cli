@@ -111,27 +111,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void Windows10Or11_Defaults()
         {
-            this.MockIsWindows(true);
             this.MockIsWindows10Or11(true);
-
-            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
-
-            subject.Should().HaveCount(4);
-            subject
-                .Select(a => a.GetType())
-                .Should()
-                .ContainInOrder(
-                    typeof(CachedAuth),
-                    typeof(IntegratedWindowsAuthentication),
-                    typeof(Broker),
-                    typeof(Web));
-        }
-
-        [Test]
-        public void Windows_Defaults()
-        {
-            this.MockIsWindows(true);
-            this.MockIsWindows10Or11(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
@@ -141,7 +121,23 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Should()
                 .ContainInOrder(
                     typeof(CachedAuth),
-                    typeof(IntegratedWindowsAuthentication),
+                    typeof(Broker),
+                    typeof(Web));
+        }
+
+        [Test]
+        public void Windows_Defaults()
+        {
+            this.MockIsWindows10Or11(false);
+
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
+
+            subject.Should().HaveCount(2);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
                     typeof(Web));
         }
 
@@ -159,7 +155,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Should()
                 .ContainInOrder(
                     typeof(CachedAuth),
-                    typeof(IntegratedWindowsAuthentication),
                     typeof(Broker),
                     typeof(Web),
                     typeof(DeviceCode));

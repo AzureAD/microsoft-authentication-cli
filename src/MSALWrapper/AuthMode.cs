@@ -47,7 +47,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <summary>
         /// Default auth mode.
         /// </summary>
-        Default = IWA | Broker | Web,
+        Default = Broker | Web,
 #else
         /// <summary>
         /// All auth modes.

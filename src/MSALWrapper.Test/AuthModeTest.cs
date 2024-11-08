@@ -22,9 +22,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void WindowsDefaultModes()
         {
             var subject = AuthMode.Default;
-            subject.IsIWA().Should().BeTrue();
             subject.IsBroker().Should().BeTrue();
             subject.IsWeb().Should().BeTrue();
+            subject.IsIWA().Should().BeFalse();
             subject.IsDeviceCode().Should().BeFalse();
         }
 
