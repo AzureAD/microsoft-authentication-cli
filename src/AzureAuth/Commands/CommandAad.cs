@@ -61,7 +61,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// </summary>
 #if PlatformWindows
         public const string AuthModeHelperText = @"Authentication mode. Repeated invocations allowed.
-[default: iwa (Integrated Windows Auth), then broker, then web]
+[default: broker, then web]
 [possible values: all, iwa, broker, web, devicecode]";
 #else
         public const string AuthModeHelperText = @"Authentication mode. Repeated invocations allowed. [default: web]
