@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [0.9.0] - 2024-11-07
+### Removed
+- Removed IWA from default authentcation mode.
+
 ### Changed
 - Temporarily paused the publishing of Linux binaries.
 - Upgrade MSAL from `4.59.1` to `4.65.0`.
 - Upgrade Lasso from `2024.8.24.1` to `2024.10.23.1`.
 - Upgrade from .NET 6 to .NET 8.
 - Disable trimmed version when publishing AzureAuth.
-- Remove IWA from default authentcation mode.
 
 ## [0.8.6] - 2024-04-25
 ### Changed
