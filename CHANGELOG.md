@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Removed ChachedAuth mode if Broker is already present in auth modes on windows 10 or 11 since Broker already tries CachedAuth in a compliant way.
 
 ## [0.9.0] - 2024-11-07
 ### Removed

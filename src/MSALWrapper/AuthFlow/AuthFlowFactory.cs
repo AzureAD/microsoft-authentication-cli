@@ -37,11 +37,14 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             // This is a list. The order in which flows get added is very important
             // as it sets the order in which auth flows will be attempted.
-            List<IAuthFlow> flows = new List<IAuthFlow>
+            List<IAuthFlow> flows = new List<IAuthFlow>();
+
+            // We skip CachedAuth if Broker is present in authMode on windows 10 or 11, since Broker 
+            // already tries CachedAuth with its PCAWrapper object built using withBroker(options).
+            if (!(authMode.IsBroker() && platformUtils.IsWindows10Or11()))
             {
-                // We always try cached auth first.
-                new CachedAuth(logger, authParams, preferredDomain, pcaWrapper),
-            };
+                flows.Add(new CachedAuth(logger, authParams, preferredDomain, pcaWrapper));
+            }
 
             // We try IWA as the first auth flow as it works for any Windows version
             // and tries to auth silently.
