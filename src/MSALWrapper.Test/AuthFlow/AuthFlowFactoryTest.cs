@@ -101,11 +101,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
 
-            subject.Should().HaveCount(2);
+            subject.Should().HaveCount(1);
             subject
                 .Select(a => a.GetType())
                 .Should()
-                .ContainInOrder(typeof(CachedAuth), typeof(Broker));
+                .Contain(typeof(Broker));
         }
 
         [Test]
@@ -115,12 +115,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
-            subject.Should().HaveCount(3);
+            subject.Should().HaveCount(2);
             subject
                 .Select(a => a.GetType())
                 .Should()
                 .ContainInOrder(
-                    typeof(CachedAuth),
                     typeof(Broker),
                     typeof(Web));
         }
@@ -149,12 +148,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
-            subject.Should().HaveCount(5);
+            subject.Should().HaveCount(4);
             subject
                 .Select(a => a.GetType())
                 .Should()
                 .ContainInOrder(
-                    typeof(CachedAuth),
                     typeof(Broker),
                     typeof(Web),
                     typeof(DeviceCode));
@@ -228,13 +226,12 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
             this.pcaWrapperMock.VerifyAll();
-            subject.Should().HaveCount(5);
+            subject.Should().HaveCount(4);
             subject
                 .Select(flow => flow.GetType())
                 .Should()
                 .BeEquivalentTo(new[]
                 {
-                    typeof(CachedAuth),
                     typeof(IntegratedWindowsAuthentication),
                     typeof(Broker),
                     typeof(Web),
