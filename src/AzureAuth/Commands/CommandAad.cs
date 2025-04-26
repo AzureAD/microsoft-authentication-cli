@@ -60,12 +60,13 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// The help text for the <see cref="ModeOption"/> option.
         /// </summary>
 #if PlatformWindows
-        public const string AuthModeHelperText = @"Authentication mode. Repeated invocations allowed.
-[default: broker, then web]
-[possible values: all, iwa, broker, web, devicecode]";
+        public const string AuthModeHelperText = $"Authentication mode. Repeated invocations allowed.\n" +
+            $"[default: broker, then web]\n" +
+            $"[possible values: {AuthModeAllowedValues}]";
 #else
-        public const string AuthModeHelperText = @"Authentication mode. Repeated invocations allowed. [default: web]
-[possible values: all, web, devicecode]";
+        public const string AuthModeHelperText = $"Authentication mode. Repeated invocations allowed.\n" +
+            $"[default: web]\n" +
+            $"[possible values: {AuthModeAllowedValues}]";
 #endif
 
         /// <summary>
@@ -82,6 +83,12 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// The default number of minutes CLI is allowed to run.
         /// </summary>
         public static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
+
+#if PlatformWindows
+        private const string AuthModeAllowedValues = "all, iwa, broker, web, devicecode";
+#else
+        private const string AuthModeAllowedValues = "all, web, devicecode";
+#endif
 
         private const string ResourceOption = "--resource";
         private const string ClientOption = "--client";
@@ -179,7 +186,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// Gets or sets the auth modes.
         /// </summary>
         [Option(ModeOption, AuthModeHelperText, CommandOptionType.MultipleValue)]
-        public IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
+        public IEnumerable<AuthMode> AuthModes { get; set; }
 
         /// <summary>
         /// Gets or sets the output.
@@ -270,6 +277,12 @@ namespace Microsoft.Authentication.AzureAuth.Commands
                     this.logger.LogError($"Error parsing TOML in config file at '{fullConfigPath}':\n{ex.Message}");
                     return false;
                 }
+            }
+
+            if (this.AuthModes is null && !this.TrySetAuthModeFromEnvOrDefault())
+            {
+                this.logger.LogError($"Invalid value specified for environment variable {EnvVars.AuthMode}. Allowed values are: {AuthModeAllowedValues}");
+                return false;
             }
 
             // Handle Resource Shorthand for Default Scope
@@ -404,6 +417,35 @@ namespace Microsoft.Authentication.AzureAuth.Commands
             }
 
             return 0;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="AuthMode"/> from the environment variable and sets a default if not set.
+        /// </summary>
+        /// <returns>The list of auth modes.</returns>
+        public bool TrySetAuthModeFromEnvOrDefault()
+        {
+            var authModesFromEnv = this.env.Get(EnvVars.AuthMode);
+            if (string.IsNullOrEmpty(authModesFromEnv))
+            {
+                this.AuthModes = new[] { AuthMode.Default };
+            }
+
+            var result = new List<AuthMode>();
+            foreach(var val in authModesFromEnv.Split(','))
+            {
+                if (Enum.TryParse<AuthMode>(val, ignoreCase: true, out var mode))
+                {
+                    result.Add(mode);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            this.AuthModes = result;
+            return true;
         }
     }
 }
