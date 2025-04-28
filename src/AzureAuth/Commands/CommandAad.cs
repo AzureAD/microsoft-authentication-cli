@@ -422,7 +422,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// <summary>
         /// Sets the <see cref="AuthMode"/> from the environment variable and sets a default if not set.
         /// </summary>
-        /// <returns>The list of auth modes.</returns>
+        /// <returns>True if authmode is set.</returns>
         public bool TrySetAuthModeFromEnvOrDefault()
         {
             var authModesFromEnv = this.env.Get(EnvVars.AuthMode);
