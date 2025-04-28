@@ -61,12 +61,12 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// </summary>
 #if PlatformWindows
         public const string AuthModeHelperText = $@"Authentication mode. Repeated invocations allowed.
-            [default: broker, then web]
-            [possible values: {AuthModeAllowedValues}]";
+[default: broker, then web]
+[possible values: {AuthModeAllowedValues}]";
 #else
         public const string AuthModeHelperText = $@"Authentication mode. Repeated invocations allowed
-            [default: web]
-            [possible values: {AuthModeAllowedValues}]";
+[default: web]
+[possible values: {AuthModeAllowedValues}]";
 #endif
 
         /// <summary>
