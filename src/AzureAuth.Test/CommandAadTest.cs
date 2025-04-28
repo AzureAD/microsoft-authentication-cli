@@ -236,6 +236,7 @@ invalid_key = ""this is not a valid alias key""
 
             // Specify config via env var
             this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
+            this.envMock.Setup(env => env.Get(It.Is<string>(key => key != "AZUREAUTH_CONFIG"))).Returns<string>(key => null);
 
             // Specify a client override on the command line.
             subject.Client = clientOverride;
