@@ -429,6 +429,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
             if (string.IsNullOrEmpty(authModesFromEnv))
             {
                 this.AuthModes = new[] { AuthMode.Default };
+                return true;
             }
 
             var result = new List<AuthMode>();
