@@ -446,6 +446,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
             }
 
             this.AuthModes = result;
+            this.eventData.Add($"env_{EnvVars.AuthMode}", authModesFromEnv);
             return true;
         }
     }
