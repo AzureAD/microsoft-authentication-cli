@@ -84,10 +84,13 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         /// </summary>
         public static readonly TimeSpan GlobalTimeout = TimeSpan.FromMinutes(15);
 
+        /// <summary>
+        /// The allowed values for the <see cref="AuthMode"/> option.
+        /// </summary>
 #if PlatformWindows
-        private const string AuthModeAllowedValues = "all, iwa, broker, web, devicecode";
+        public const string AuthModeAllowedValues = "all, iwa, broker, web, devicecode";
 #else
-        private const string AuthModeAllowedValues = "all, web, devicecode";
+        public const string AuthModeAllowedValues = "all, web, devicecode";
 #endif
 
         private const string ResourceOption = "--resource";
@@ -279,9 +282,10 @@ namespace Microsoft.Authentication.AzureAuth.Commands
                 }
             }
 
-            if (this.AuthModes is null && !this.TrySetAuthModeFromEnvOrDefault())
+            // If command line options for mode are not specified, then use the environment variables.
+            this.AuthModes ??= AuthModeHelper.ReadAuthModeFromEnvOrSetDefault(env, eventData, logger);
+            if (!this.AuthModes.Any())
             {
-                this.logger.LogError($"Invalid value specified for environment variable {EnvVars.AuthMode}. Allowed values are: {AuthModeAllowedValues}");
                 return false;
             }
 
@@ -417,37 +421,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands
             }
 
             return 0;
-        }
-
-        /// <summary>
-        /// Sets the <see cref="AuthMode"/> from the environment variable and sets a default if not set.
-        /// </summary>
-        /// <returns>True if authmode is set.</returns>
-        public bool TrySetAuthModeFromEnvOrDefault()
-        {
-            var authModesFromEnv = this.env.Get(EnvVars.AuthMode);
-            if (string.IsNullOrEmpty(authModesFromEnv))
-            {
-                this.AuthModes = new[] { AuthMode.Default };
-                return true;
-            }
-
-            var result = new List<AuthMode>();
-            foreach(var val in authModesFromEnv.Split(','))
-            {
-                if (Enum.TryParse<AuthMode>(val, ignoreCase: true, out var mode))
-                {
-                    result.Add(mode);
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            this.AuthModes = result;
-            this.eventData.Add($"env_{EnvVars.AuthMode}", authModesFromEnv);
-            return true;
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.IO;
+    using System.Linq;
     using McMaster.Extensions.CommandLineUtils;
 
     using Microsoft.Authentication.AdoPat;
@@ -14,6 +15,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client.Extensions.Msal;
+    using Microsoft.Office.Lasso.Interfaces;
     using Microsoft.Office.Lasso.Telemetry;
     using Microsoft.VisualStudio.Services.DelegatedAuthorization;
     using Microsoft.VisualStudio.Services.OAuth;
@@ -92,7 +94,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         private string Tenant { get; set; } = AzureAuth.Ado.Constants.Tenant.Microsoft;
 
         [Option(CommandAad.ModeOption, CommandAad.AuthModeHelperText, CommandOptionType.MultipleValue)]
-        private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
+        private IEnumerable<AuthMode> AuthModes { get; set; }
 
         [Option(CommandAad.DomainOption, $"{CommandAad.DomainHelpText}\n[default: {AzureAuth.Ado.Constants.PreferredDomain}]", CommandOptionType.SingleValue)]
         private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
@@ -120,10 +122,18 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
         /// <param name="logger">The <see cref="ILogger{T}"/> instance that is used for logging.</param>
         /// <param name="publicClientAuth">An <see cref="IPublicClientAuth"/>.</param>
         /// <param name="eventData">Lasso injected command event data.</param>
+        /// <param name="env">An <see cref="IEnv"/> to use.</param>
         /// <returns>An integer status code. 0 for success and non-zero for failure.</returns>
-        public int OnExecute(ILogger<CommandPat> logger, IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
+        public int OnExecute(ILogger<CommandPat> logger, IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData, IEnv env)
         {
             if (!this.ValidOptions(logger))
+            {
+                return 1;
+            }
+
+            // If command line options for mode are not specified, then use the environment variables.
+            this.AuthModes ??= AuthModeHelper.ReadAuthModeFromEnvOrSetDefault(env, eventData, logger);
+            if (!this.AuthModes.Any())
             {
                 return 1;
             }
