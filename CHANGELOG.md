@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added support for reading auth mode from the environment variable `AZUREAUTH_MODE` for aad subcommands.
+- Added support for reading auth mode from the environment variable `AZUREAUTH_MODE`.
 
 ## [0.9.1] - 2024-12-09
 ### Changed
