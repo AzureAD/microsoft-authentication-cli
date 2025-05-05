@@ -68,6 +68,7 @@ namespace Microsoft.Authentication.AzureAuth
                 EnvVars.CloudBuild,
                 EnvVars.NoUser,
                 EnvVars.CorextNonInteractive,
+                EnvVars.AuthMode,
             };
 
             TelemetryConfig telemetryConfig = new TelemetryConfig(

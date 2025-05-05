@@ -33,7 +33,7 @@ namespace Microsoft.Authentication.AzureAuth
         /// <param name="env">The <see cref="IEnv"/> to use.</param>
         /// <param name="eventData">Event data to add the auth mode to.</param>
         /// <returns>AuthModes.</returns>
-        public static IEnumerable<AuthMode> ReadAuthModeFromEnvOrSetDefault(this IEnv env, EventData eventData)
+        public static IEnumerable<AuthMode> ReadAuthModeFromEnvOrSetDefault(this IEnv env)
         {
             var authModesFromEnv = env.Get(EnvVars.AuthMode);
 
@@ -52,11 +52,11 @@ namespace Microsoft.Authentication.AzureAuth
                 }
                 else
                 {
+                    // If the environment variable is not a valid auth mode, then return an empty list.
                     return new List<AuthMode>();
                 }
             }
 
-            eventData.Add($"env_{EnvVars.AuthMode}", authModesFromEnv);
             return result;
         }
     }

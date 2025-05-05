@@ -65,7 +65,7 @@ namespace AzureAuth.Test
             envMock.Setup(e => e.Get(It.IsAny<string>())).Returns(string.Empty);
 
             // Act
-            var result = IEnvExtensions.ReadAuthModeFromEnvOrSetDefault(envMock.Object, new EventData());
+            var result = IEnvExtensions.ReadAuthModeFromEnvOrSetDefault(envMock.Object);
 
             // Assert
             result.Should().BeEquivalentTo(new[] { AuthMode.Default });
@@ -78,7 +78,7 @@ namespace AzureAuth.Test
             envMock.Setup(e => e.Get(It.IsAny<string>())).Returns("Web,Broker");
 
             // Act
-            var result = IEnvExtensions.ReadAuthModeFromEnvOrSetDefault(envMock.Object, new EventData());
+            var result = IEnvExtensions.ReadAuthModeFromEnvOrSetDefault(envMock.Object);
 
             // Assert
             result.Should().BeEquivalentTo(new[] { AuthMode.Web, AuthMode.Broker });
@@ -91,25 +91,10 @@ namespace AzureAuth.Test
             envMock.Setup(e => e.Get(It.IsAny<string>())).Returns("InvalidMode");
 
             // Act
-            var result = IEnvExtensions.ReadAuthModeFromEnvOrSetDefault(envMock.Object, new EventData());
+            var result = IEnvExtensions.ReadAuthModeFromEnvOrSetDefault(envMock.Object);
 
             // Assert
             result.Should().BeEmpty();
-        }
-
-        [Test]
-        public void ReadAuthModeFromEnvOrSetDefault_AddsEventData_WhenEnvVarIsValid()
-        {
-            // Arrange
-            var eventData = new EventData();
-            envMock.Setup(e => e.Get(It.IsAny<string>())).Returns("Web");
-
-            // Act
-            var result = IEnvExtensions.ReadAuthModeFromEnvOrSetDefault(envMock.Object, eventData);
-
-            // Assert
-            var env_var = $"env_{EnvVars.AuthMode}";
-            eventData.Properties[env_var.ToLower()].Should().Be("Web");
         }
     }
 }

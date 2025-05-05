@@ -283,7 +283,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
             }
 
             // If command line options for mode are not specified, then use the environment variables.
-            this.AuthModes ??= env.ReadAuthModeFromEnvOrSetDefault(eventData);
+            this.AuthModes ??= env.ReadAuthModeFromEnvOrSetDefault();
             if (!this.AuthModes.Any())
             {
                 this.logger.LogError($"Invalid value specified for environment variable {EnvVars.AuthMode}. Allowed values are: {CommandAad.AuthModeHelperText}");
