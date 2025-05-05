@@ -5,7 +5,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
 {
     using System;
     using System.Collections.Generic;
-
+    using System.Linq;
     using McMaster.Extensions.CommandLineUtils;
 
     using Microsoft.Authentication.AzureAuth.Ado;
@@ -52,7 +52,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         private string Tenant { get; set; } = AzureAuth.Ado.Constants.Tenant.Microsoft;
 
         [Option(CommandAad.ModeOption, CommandAad.AuthModeHelperText, CommandOptionType.MultipleValue)]
-        private IEnumerable<AuthMode> AuthModes { get; set; } = new[] { AuthMode.Default };
+        private IEnumerable<AuthMode> AuthModes { get; set; }
 
         [Option(CommandAad.DomainOption, Description = DomainOptionDescription)]
         private string Domain { get; set; } = AzureAuth.Ado.Constants.PreferredDomain;
@@ -96,6 +96,14 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
                 logger.LogDebug($"Using PAT from env var {pat.EnvVarSource}");
                 logger.LogInformation(FormatToken(pat.Value, this.Output, Authorization.Basic));
                 return 0;
+            }
+
+            // If command line options for mode are not specified, then use the environment variables.
+            this.AuthModes ??= env.ReadAuthModeFromEnvOrSetDefault();
+            if (!this.AuthModes.Any())
+            {
+                logger.LogError($"Invalid value specified for environment variable {EnvVars.AuthMode}. Allowed values are: {CommandAad.AuthModeHelperText}");
+                return 1;
             }
 
             // If no PAT then use AAD AT.
