@@ -47,6 +47,11 @@ namespace Microsoft.Authentication.AzureAuth
         public static readonly string AdoPat = $"{EnvVarPrefix}_ADO_PAT";
 
         /// <summary>
+        /// Name of the env var to get the Auth Mode.
+        /// </summary>
+        public static readonly string AuthMode = $"{EnvVarPrefix}_MODE";
+
+        /// <summary>
         /// Name of the env var used to disable user based authentication modes.
         /// NOTE: This is a private variable and it is recommended to not rely on this variable.
         /// </summary>

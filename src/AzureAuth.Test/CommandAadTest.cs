@@ -236,6 +236,7 @@ invalid_key = ""this is not a valid alias key""
 
             // Specify config via env var
             this.envMock.Setup(e => e.Get("AZUREAUTH_CONFIG")).Returns(configFile);
+            this.envMock.Setup(env => env.Get(It.Is<string>(key => key != "AZUREAUTH_CONFIG"))).Returns<string>(key => null);
 
             // Specify a client override on the command line.
             subject.Client = clientOverride;
@@ -442,6 +443,72 @@ invalid_key = ""this is not a valid alias key""
 
             subject.EvaluateOptions().Should().BeTrue();
             subject.TokenFetcherOptions.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void TestEvaluateOptionsWithAuthModeFromCommandLineOptions()
+        {
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+            subject.AuthModes = new List<AuthMode>() { AuthMode.DeviceCode };
+
+            this.envMock.Setup(env => env.Get(EnvVars.AuthMode)).Returns("Web,DeviceCode");
+            subject.EvaluateOptions().Should().BeTrue();
+            subject.AuthModes.Should().Contain(new[] { AuthMode.DeviceCode });
+        }
+
+        [Test]
+        public void TestEvaluateOptionsWithAuthModeFromEnvVar()
+        {
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            this.envMock.Setup(env => env.Get("AZUREAUTH_MODE")).Returns("Web,DeviceCode");
+            subject.EvaluateOptions().Should().BeTrue();
+            subject.AuthModes.Should().Contain(new[] { AuthMode.Web, AuthMode.DeviceCode });
+        }
+
+        [Test]
+        public void TestEvaluateOptionsWithNoAuthModeInEnvVarOrOptions()
+        {
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            subject.EvaluateOptions().Should().BeTrue();
+            subject.AuthModes.Should().Contain(new[] { AuthMode.Default });
+        }
+
+        [Test]
+        public void TestEvaluateOptionsWithAuthModeFromInvalidEnvVars()
+        {
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            this.envMock.Setup(env => env.Get(EnvVars.AuthMode)).Returns("Invalid");
+            subject.EvaluateOptions().Should().BeFalse();
+            this.logTarget.Logs.Should().ContainMatch($"Invalid value specified for environment variable {EnvVars.AuthMode}*");
+        }
+
+        [Test]
+        public void TestEvaluateOptionsWithAuthModeFromEmptyEnvVars()
+        {
+            CommandAad subject = this.serviceProvider.GetService<CommandAad>();
+            subject.Resource = "f0e8d801-3a50-48fd-b2da-6476d6e832a2";
+            subject.Client = "e19f71ed-3b14-448d-9346-9eff9753646b";
+            subject.Tenant = "9f6227ee-3d14-473e-8bed-1281171ef8c9";
+
+            this.envMock.Setup(env => env.Get(EnvVars.AuthMode)).Returns("");
+            subject.EvaluateOptions().Should().BeTrue();
+            subject.AuthModes.Should().Contain(new[] { AuthMode.Default });
         }
 
         /// <summary>
