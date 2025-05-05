@@ -10,11 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.1] - 2024-12-09
 ### Changed
-- Removed ChachedAuth mode if Broker is already present in auth modes on windows 10 or 11 since Broker already tries CachedAuth in a compliant way.
+- Removed CachedAuth mode if Broker is already present in auth modes on windows 10 or 11 since Broker already tries CachedAuth in a compliant way.
 
 ## [0.9.0] - 2024-11-07
 ### Removed
-- Removed IWA from default authentcation mode.
+- Removed IWA from default authentication mode.
 
 ### Changed
 - Temporarily paused the publishing of Linux binaries.
@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.1] - 2023-05-23
 ### Changed
 - The `azureauth ado token` command uses `microsoft.com` as the default `--domain` option value.
-- MSAL Cache usage is now isolated to it's own "auth flow" always injected as the first type of auth to attempt, regardless of mode. This creates a separate telemetry event for `pca_cache` as a new authflow type, which is always silent. The remaining authflows no longer attempt to use the cache first.
+- MSAL Cache usage is now isolated to it's own "auth flow" always injected as the first type of auth to attempt, regardless of mode. This creates a separate telemetry event for `pca_cache` as a new authflow type, which is always silent. The remaining auth flows no longer attempt to use the cache first.
 - Upgraded Lasso to 2023.5.11.1 to reduce the number of log files in temp folder.
 
 ### Fixed
@@ -130,7 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.4] - 2022-09-29
 ### Fixed
-- Enable IWA authmode when interactive authentication is disabled.
+- Enable IWA auth mode when interactive authentication is disabled.
 
 ## [0.5.3] - 2022-09-28
 ### Fixed
@@ -206,7 +206,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial project release.
 
 [Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.1...HEAD
-[0.9.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.0...0.9.1
+[0.9.1]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.6...0.9.0
 [0.8.6]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.5...0.8.6
 [0.8.5]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.8.4...0.8.5

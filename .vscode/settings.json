@@ -1,10 +1,14 @@
 {
     "cSpell.words": [
         "authflow",
+        "azureauth",
         "Corext",
         "devicecode",
         "MSAL",
         "prompthint",
+        "regkey",
+        "SETTINGCHANGE",
+        "setx",
         "validargs"
     ]
 }
