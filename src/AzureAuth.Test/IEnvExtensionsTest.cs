@@ -75,13 +75,13 @@ namespace AzureAuth.Test
         public void ReadAuthModeFromEnvOrSetDefault_ReturnsParsedAuthModes_WhenEnvVarIsValid()
         {
             // Arrange
-            envMock.Setup(e => e.Get(It.IsAny<string>())).Returns("Web,Broker");
+            envMock.Setup(e => e.Get(It.IsAny<string>())).Returns("Web,DeviceCode");
 
             // Act
             var result = IEnvExtensions.ReadAuthModeFromEnvOrSetDefault(envMock.Object);
 
             // Assert
-            result.Should().BeEquivalentTo(new[] { AuthMode.Web, AuthMode.Broker });
+            result.Should().BeEquivalentTo(new[] { AuthMode.Web, AuthMode.DeviceCode });
         }
 
         [Test]
