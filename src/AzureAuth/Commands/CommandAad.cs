@@ -286,7 +286,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
             this.AuthModes ??= env.ReadAuthModeFromEnvOrSetDefault();
             if (!this.AuthModes.Any())
             {
-                this.logger.LogError($"Invalid value specified for environment variable {EnvVars.AuthMode}. Allowed values are: {CommandAad.AuthModeHelperText}");
+                this.logger.LogError($"Invalid value specified for environment variable {EnvVars.AuthMode}. Allowed values are: {CommandAad.AuthModeAllowedValues}");
                 return false;
             }
 

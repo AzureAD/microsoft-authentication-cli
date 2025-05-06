@@ -102,7 +102,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             this.AuthModes ??= env.ReadAuthModeFromEnvOrSetDefault();
             if (!this.AuthModes.Any())
             {
-                logger.LogError($"Invalid value specified for environment variable {EnvVars.AuthMode}. Allowed values are: {CommandAad.AuthModeHelperText}");
+                logger.LogError($"Invalid value specified for environment variable {EnvVars.AuthMode}. Allowed values are: {CommandAad.AuthModeAllowedValues}");
                 return 1;
             }
 
