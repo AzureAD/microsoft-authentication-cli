@@ -352,6 +352,8 @@ extends:
           image: ubuntu-latest
           os: linux
         templateContext:
+          type: releaseJob
+          isProduction: true
           inputs:
           - input: pipelineArtifact
             artifactName: azureauth-${{ parameters.version }}-packaged
