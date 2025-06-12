@@ -1,0 +1,53 @@
+parameters:
+- name: buildConfigs
+  type: object
+  default:
+  - pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: windows-latest
+      os: windows
+  - pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: ubuntu-latest
+      os: linux
+  - pool:
+      name: Azure Pipelines
+      image: macOS-latest
+      os: macOS
+
+stages:
+- stage: build
+  displayName: Build And Test
+  jobs:
+  - ${{ each config in parameters.buildConfigs }}:
+    - job: build_${{ config.pool.os }}
+      displayName: Building and Testing on ${{ config.pool.os }}
+      pool:
+        name: ${{ config.pool.name }}
+        image: ${{ config.pool.image }}
+        os: ${{ config.pool.os }}
+      steps:
+      - checkout: self
+      - task: UseDotNet@2
+        displayName: Use .NET Core sdk 8.x
+        inputs:
+          version: 8.x
+      - task: DotNetCoreCLI@2
+        displayName: Install dependencies
+        inputs:
+          command: restore
+          feedsToUse: select
+          vstsFeed: Office
+          includeNuGetOrg: false
+      # 1ES PT requires explicit build task for Roslyn analysis. Auto-injected Roslyn task will use build logs from this build.
+      - task: DotNetCoreCLI@2
+        displayName: Build projects
+        inputs:
+          command: 'build'
+          arguments: --no-restore
+          projects: '**/*.csproj'
+      - task: DotNetCoreCLI@2
+        displayName: Test
+        inputs:
+          command: test
+          arguments: --no-restore --no-build --verbosity normal

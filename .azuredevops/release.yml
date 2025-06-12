@@ -113,14 +113,12 @@ extends:
             inputs:
               command: restore
               feedsToUse: select
-              vstsFeed: $(VSTS_FEED_ID)
+              vstsFeed: Office
               includeNuGetOrg: false
               arguments: --runtime ${{ config.runtime }}
           # 1ES PT requires explicit build task for Roslyn analysis. Auto-injected Roslyn task will use build logs from this build.
           - task: DotNetCoreCLI@2
             displayName: Build projects
-            env:
-              ADO_TOKEN: $(System.AccessToken)
             inputs:
               command: 'build'
               projects: '**/*.csproj'
@@ -131,8 +129,6 @@ extends:
               arguments: --configuration release --no-restore         
           - task: DotNetCoreCLI@2
             displayName: Build artifacts
-            env:
-              ADO_TOKEN: $(System.AccessToken)
             inputs:
               command: publish
               projects: src/AzureAuth/AzureAuth.csproj
