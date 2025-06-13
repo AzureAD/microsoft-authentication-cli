@@ -31,8 +31,15 @@ pipelines:
         credscan:
           lastModifiedDate: 2024-11-08
         binskim:
-          lastModifiedDate: 2024-11-08
+          lastModifiedDate: 2025-05-07
         prefast:
-          lastModifiedDate: 2024-11-08
+          lastModifiedDate: 2025-05-07
         roslyn:
           lastModifiedDate: 2024-11-08
+  35237:
+    retail:
+      source:
+        eslint:
+          lastModifiedDate: 2025-06-12
+        armory:
+          lastModifiedDate: 2025-06-12
