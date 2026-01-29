@@ -23,8 +23,6 @@ stages:
   displayName: Build And Test
   jobs:
   - ${{ each config in parameters.buildConfigs }}:
-    - job: build_${{ config.pool.os }}
-      displayName: Building and Testing on ${{ config.pool.os }}
     - job: build_${{ replace(config.runtime, '-', '_') }}
       displayName: Building and Testing on ${{ config.runtime }}
       pool:
@@ -57,10 +55,14 @@ stages:
       # 1ES PT requires explicit build task for Roslyn analysis. Auto-injected Roslyn task will use build logs from this build.
       - task: DotNetCoreCLI@2
         displayName: Build projects
+        inputs:
+          command: 'build'
+          arguments: --no-restore
+          projects: '**/*.csproj'
+      - task: DotNetCoreCLI@2
         displayName: Test
         inputs:
           command: test
-          arguments: --no-restore --no-build --verbosity normal
           arguments: --no-restore --no-build --verbosity normal
       - task: DotNetCoreCLI@2
         displayName: Publish artifacts
