@@ -44,6 +44,8 @@ stages:
         displayName: Use NuGet 6.x
         inputs:
           versionSpec: 6.x
+      - task: NuGetAuthenticate@1
+        displayName: Authenticate to Azure Artifacts
       - task: DotNetCoreCLI@2
         displayName: Install dependencies
         inputs:
