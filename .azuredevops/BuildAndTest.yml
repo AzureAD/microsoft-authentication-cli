@@ -6,14 +6,17 @@ parameters:
       name: Azure-Pipelines-1ESPT-ExDShared
       image: windows-latest
       os: windows
+    runtime: win-x64
   - pool:
       name: Azure-Pipelines-1ESPT-ExDShared
       image: ubuntu-latest
       os: linux
+    runtime: linux-x64
   - pool:
       name: Azure Pipelines
       image: macOS-latest
       os: macOS
+    runtime: osx-x64
 
 stages:
 - stage: build
@@ -22,16 +25,27 @@ stages:
   - ${{ each config in parameters.buildConfigs }}:
     - job: build_${{ config.pool.os }}
       displayName: Building and Testing on ${{ config.pool.os }}
+    - job: build_${{ replace(config.runtime, '-', '_') }}
+      displayName: Building and Testing on ${{ config.runtime }}
       pool:
         name: ${{ config.pool.name }}
         image: ${{ config.pool.image }}
         os: ${{ config.pool.os }}
+      templateContext:
+        outputs:
+        - output: pipelineArtifact
+          targetPath: dist/${{ config.runtime }}
+          artifactName: azureauth-${{ config.runtime }}
       steps:
       - checkout: self
       - task: UseDotNet@2
         displayName: Use .NET Core sdk 8.x
         inputs:
           version: 8.x
+      - task: NuGetToolInstaller@0
+        displayName: Use NuGet 6.x
+        inputs:
+          versionSpec: 6.x
       - task: DotNetCoreCLI@2
         displayName: Install dependencies
         inputs:
@@ -39,15 +53,22 @@ stages:
           feedsToUse: select
           vstsFeed: Office
           includeNuGetOrg: false
+          arguments: --runtime ${{ config.runtime }}
       # 1ES PT requires explicit build task for Roslyn analysis. Auto-injected Roslyn task will use build logs from this build.
       - task: DotNetCoreCLI@2
         displayName: Build projects
-        inputs:
-          command: 'build'
-          arguments: --no-restore
-          projects: '**/*.csproj'
-      - task: DotNetCoreCLI@2
+@@ -50,4 +63,13 @@ stages:
         displayName: Test
         inputs:
           command: test
           arguments: --no-restore --no-build --verbosity normal
+          arguments: --no-restore --no-build --verbosity normal
+      - task: DotNetCoreCLI@2
+        displayName: Publish artifacts
+        inputs:
+          command: publish
+          projects: src/AzureAuth/AzureAuth.csproj
+          arguments: --configuration release --self-contained true --runtime ${{ config.runtime }} --output dist/${{ config.runtime }}
+          publishWebProjects: false
+          zipAfterPublish: false
+          modifyOutputPath: true
