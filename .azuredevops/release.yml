@@ -174,6 +174,7 @@ extends:
             condition: eq('${{ config.runtime }}', 'win-x64')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
+              UseMSIAuthentication: true
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
               AuthAKVName: $(AZURE_VAULT)
@@ -223,7 +224,7 @@ extends:
             condition: startsWith('${{ config.runtime }}', 'osx')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
-              AppRegistrationClientId: $(SIGNING_AAD_ID)
+              UseMSIAuthentication: true
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
               AuthAKVName: $(AZURE_VAULT)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
@@ -266,6 +267,7 @@ extends:
             condition: eq('${{ config.runtime }}', 'linux-x64')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
+              UseMSIAuthentication: true
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
               AuthAKVName: $(AZURE_VAULT)
