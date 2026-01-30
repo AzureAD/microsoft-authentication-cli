@@ -226,6 +226,7 @@ extends:
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
               UseMSIAuthentication: true
+              AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
               AuthAKVName: $(AZURE_VAULT)
               EsrpClientId: $(SIGNING_AAD_ID)
