@@ -177,6 +177,7 @@ extends:
               UseMSIAuthentication: true
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
+              EsrpClientId: $(SIGNING_AAD_ID)
               AuthAKVName: $(AZURE_VAULT)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
@@ -227,6 +228,7 @@ extends:
               UseMSIAuthentication: true
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
               AuthAKVName: $(AZURE_VAULT)
+              EsrpClientId: $(SIGNING_AAD_ID)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
               FolderPath: $(Build.ArtifactStagingDirectory)
@@ -270,6 +272,7 @@ extends:
               UseMSIAuthentication: true
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
+              EsrpClientId: $(SIGNING_AAD_ID)
               AuthAKVName: $(AZURE_VAULT)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
