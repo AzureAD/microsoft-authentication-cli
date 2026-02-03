@@ -184,8 +184,10 @@ extends:
             condition: startsWith('${{ config.runtime }}', 'win')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
+              UseMSIAuthentication: true
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
+              EsrpClientId: "9f327a71-bffd-4a67-8a7b-443e11df2909"
               AuthAKVName: $(AZURE_VAULT)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
@@ -233,8 +235,10 @@ extends:
             condition: startsWith('${{ config.runtime }}', 'osx')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
+              UseMSIAuthentication: true
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
+              EsrpClientId: "9f327a71-bffd-4a67-8a7b-443e11df2909"
               AuthAKVName: $(AZURE_VAULT)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
@@ -276,8 +280,10 @@ extends:
             condition: startsWith('${{ config.runtime }}','linux')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
+              UseMSIAuthentication: true
               AppRegistrationClientId: $(SIGNING_AAD_ID)
               AppRegistrationTenantId: $(SIGNING_TENANT_ID)
+              EsrpClientId: "9f327a71-bffd-4a67-8a7b-443e11df2909"
               AuthAKVName: $(AZURE_VAULT)
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
