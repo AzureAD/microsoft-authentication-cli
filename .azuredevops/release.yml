@@ -32,7 +32,19 @@ parameters:
       image: ubuntu-latest
       os: linux
     runtime: linux-x64
-    archiveExt: tar.gz
+    archiveExt: deb
+  - pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: windows-latest
+      os: windows
+    runtime: win-arm64
+    archiveExt: zip
+  - pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: ubuntu-latest
+      os: linux
+    runtime: linux-arm64
+    archiveExt: deb
   
 variables:
 - name: tags
@@ -168,8 +180,8 @@ extends:
               targetPath: $(artifactsPath)-${{ config.runtime }}-signed
           steps:
           - task: EsrpCodeSigning@5
-            displayName: Sign artifacts win-x64
-            condition: eq('${{ config.runtime }}', 'win-x64')
+            displayName: Sign artifacts win
+            condition: startsWith('${{ config.runtime }}', 'win')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
               AppRegistrationClientId: $(SIGNING_AAD_ID)
@@ -207,10 +219,10 @@ extends:
               MaxConcurrency: '50'
               MaxRetryAttempts: '5'
               PendingAnalysisWaitTimeoutMinutes: '5'
-          # We need to zip the artifacts for osx before sending to ESRP for signing.
+          # We need to zip the artifacts for osx and linux before sending to ESRP for signing.
           - task: ArchiveFiles@2
             displayName: Codesigning - zip artifacts to send to ESRP
-            condition: startsWith('${{ config.runtime }}', 'osx')
+            condition: or(startsWith('${{ config.runtime }}','osx'), startsWith('${{ config.runtime }}','linux'))
             inputs:
               rootFolderOrFile: $(artifactsPath)-${{ config.runtime }}
               includeRootFolder: false
@@ -252,7 +264,7 @@ extends:
               PendingAnalysisWaitTimeoutMinutes: '5'
           - task: ExtractFiles@1
             displayName: Extract signed artifacts osx
-            condition: startsWith('${{ config.runtime }}', 'osx')
+            condition: or(startsWith('${{ config.runtime }}','osx'), startsWith('${{ config.runtime }}','linux'))
             inputs:
               archiveFilePatterns: $(artifactsPath)-${{ config.runtime }}.zip
               destinationFolder: $(artifactsPath)-${{ config.runtime }}
@@ -261,7 +273,7 @@ extends:
           # Linux signing with ESRP
           - task: EsrpCodeSigning@5
             displayName: Sign artifacts linux-x64
-            condition: eq('${{ config.runtime }}', 'linux-x64')
+            condition: startsWith('${{ config.runtime }}','linux')
             inputs:
               ConnectedServiceName: $(ESRP_KV_SERVICE_CONNECTION)
               AppRegistrationClientId: $(SIGNING_AAD_ID)
@@ -371,21 +383,85 @@ extends:
               tarCompression: gz
               archiveFile: $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
           - task: Bash@3
-            displayName: Prepare linux-x64 executables
+            displayName: Create linux-x64 Debian package
             inputs:
               workingDirectory: $(Build.ArtifactStagingDirectory)
               targetType: inline
               script: |
-                cd azureauth-${{ parameters.version }}-linux-x64-signed/AzureAuth
-                chmod +x azureauth createdump *.so
-          - task: ArchiveFiles@2
-            displayName: Create linux-x64 archive
+                set -e
+                VERSION="${{ parameters.version }}"
+                ARCH="amd64"
+                PKG_NAME="azureauth"
+                PKG_DIR="${PKG_NAME}_${VERSION}-1_${ARCH}"
+                
+                # Create Debian package directory structure
+                mkdir -p "${PKG_DIR}/DEBIAN"
+                mkdir -p "${PKG_DIR}/usr/bin"
+                mkdir -p "${PKG_DIR}/usr/lib/azureauth"
+                
+                # Copy binaries
+                cp -r azureauth-${{ parameters.version }}-linux-x64-signed/AzureAuth/* "${PKG_DIR}/usr/lib/azureauth/"
+                chmod +x "${PKG_DIR}/usr/lib/azureauth/azureauth"
+                chmod +x "${PKG_DIR}/usr/lib/azureauth/createdump"
+                chmod +x "${PKG_DIR}/usr/lib/azureauth/"*.so
+                
+                # Create symlink script
+                ln -sf /usr/lib/azureauth/azureauth "${PKG_DIR}/usr/bin/azureauth"
+                
+                # Create control file
+                cat > "${PKG_DIR}/DEBIAN/control" << EOF
+                Package: ${PKG_NAME}
+                Version: ${VERSION}-1
+                Section: misc
+                Priority: optional
+                Architecture: ${ARCH}
+                Maintainer: ES365 Security Experience Team <authcli@microsoft.com>
+                Description: A CLI interface to MSAL authentication. Visit https://aka.ms/azureauth for more information
+                EOF
+                
+                # Build the package
+                dpkg-deb --build "${PKG_DIR}"
+                mv "${PKG_DIR}.deb" "azureauth-${{ parameters.version }}-packaged/azureauth-${{ parameters.version }}-linux-x64.deb"
+          - task: Bash@3
+            displayName: Create linux-arm64 Debian package
             inputs:
-              rootFolderOrFile: $(artifactsPath)-linux-x64-signed/AzureAuth
-              includeRootFolder: false
-              archiveType: tar
-              tarCompression: gz
-              archiveFile: $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-linux-x64.tar.gz
+              workingDirectory: $(Build.ArtifactStagingDirectory)
+              targetType: inline
+              script: |
+                set -e
+                VERSION="${{ parameters.version }}"
+                ARCH="arm64"
+                PKG_NAME="azureauth"
+                PKG_DIR="${PKG_NAME}_${VERSION}-1_${ARCH}"
+                
+                # Create Debian package directory structure
+                mkdir -p "${PKG_DIR}/DEBIAN"
+                mkdir -p "${PKG_DIR}/usr/bin"
+                mkdir -p "${PKG_DIR}/usr/lib/azureauth"
+                
+                # Copy binaries
+                cp -r azureauth-${{ parameters.version }}-linux-arm64-signed/AzureAuth/* "${PKG_DIR}/usr/lib/azureauth/"
+                chmod +x "${PKG_DIR}/usr/lib/azureauth/azureauth"
+                chmod +x "${PKG_DIR}/usr/lib/azureauth/createdump"
+                chmod +x "${PKG_DIR}/usr/lib/azureauth/"*.so
+                
+                # Create symlink script
+                ln -sf /usr/lib/azureauth/azureauth "${PKG_DIR}/usr/bin/azureauth"
+                
+                # Create control file
+                cat > "${PKG_DIR}/DEBIAN/control" << EOF
+                Package: ${PKG_NAME}
+                Version: ${VERSION}-1
+                Section: misc
+                Priority: optional
+                Architecture: ${ARCH}
+                Maintainer: ES365 Security Experience Team <authcli@microsoft.com>
+                Description: A CLI interface to MSAL authentication. Visit https://aka.ms/azureauth for more information
+                EOF
+                
+                # Build the package
+                dpkg-deb --build "${PKG_DIR}"
+                mv "${PKG_DIR}.deb" "azureauth-${{ parameters.version }}-packaged/azureauth-${{ parameters.version }}-linux-arm64.deb"
 
     - stage: release
       displayName: Release
@@ -434,4 +510,5 @@ extends:
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win-x64.zip
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-osx-x64.tar.gz
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
-              $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-linux-x64.tar.gz
+              $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-linux-x64.deb
+              $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-linux-arm64.deb
