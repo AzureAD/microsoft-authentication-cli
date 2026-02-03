@@ -33,7 +33,7 @@ namespace Microsoft.Authentication.MSALWrapper
 
         // Plain text cache fallback for headless Linux
         private const string PlainTextCacheDir = ".azureauth";
-        private const string PlainTextCacheFileName = "msal_cache.json";
+        private readonly string plainTextCacheFileName;
 
         private readonly ILogger logger;
         private readonly string osxKeyChainSuffix;
@@ -53,6 +53,7 @@ namespace Microsoft.Authentication.MSALWrapper
 
             this.cacheFileName = $"msal_{tenantId}.cache";
             this.cacheDir = this.GetCacheServiceFolder();
+            this.plainTextCacheFileName = $"msal_{tenantId}_cache.json";
         }
 
         /// <summary>
@@ -87,7 +88,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 errors.Add(ex);
 
                 // On Linux, if keyring fails and we're in a headless environment, try plain text fallback
-                if (IsLinux() && IsHeadlessLinux())
+                if (LinuxHelper.IsLinux() && LinuxHelper.IsHeadlessLinux())
                 {
                     this.logger.LogInformation("Attempting plain text cache fallback for headless Linux environment.");
                     this.SetupPlainTextCache(userTokenCache, errors);
@@ -108,35 +109,38 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="userTokenCache">An <see cref="ITokenCache"/> to use.</param>
         /// <param name="errors">The errors list to append error encountered to.</param>
+
         private void SetupPlainTextCache(ITokenCache userTokenCache, IList<Exception> errors)
         {
             try
             {
                 var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 var cacheDir = Path.Combine(homeDir, PlainTextCacheDir);
-                var cacheFilePath = Path.Combine(cacheDir, PlainTextCacheFileName);
+                var cacheFilePath = Path.Combine(cacheDir, this.plainTextCacheFileName);
 
                 // Create directory if it doesn't exist
+#pragma warning disable CA1416
                 if (!Directory.Exists(cacheDir))
                 {
                     Directory.CreateDirectory(cacheDir);
                     // Set directory permissions to user only (700)
-                    SetDirectoryPermissions(cacheDir);
+                    LinuxHelper.SetDirectoryPermissions(cacheDir, logger);
                 }
 
                 // Create or ensure cache file exists with proper permissions
                 if (!File.Exists(cacheFilePath))
                 {
                     File.WriteAllText(cacheFilePath, "{}");
-                    SetFilePermissions(cacheFilePath);
+                    LinuxHelper.SetFilePermissions(cacheFilePath, logger);
                 }
                 else
                 {
                     // Ensure existing file has proper permissions
-                    SetFilePermissions(cacheFilePath);
+                    LinuxHelper.SetFilePermissions(cacheFilePath, logger);
                 }
+#pragma warning restore CA1416
 
-                var storageProperties = new StorageCreationPropertiesBuilder(PlainTextCacheFileName, cacheDir)
+                var storageProperties = new StorageCreationPropertiesBuilder(this.plainTextCacheFileName, cacheDir)
                     .WithUnprotectedFile()
                     .Build();
 
@@ -149,104 +153,6 @@ namespace Microsoft.Authentication.MSALWrapper
             {
                 this.logger.LogWarning($"Plain text cache fallback failed: {ex.Message}");
                 errors.Add(ex);
-            }
-        }
-
-        /// <summary>
-        /// Checks if the current platform is Linux.
-        /// </summary>
-        /// <returns>True if running on Linux, false otherwise.</returns>
-        private static bool IsLinux()
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        }
-
-        /// <summary>
-        /// Checks if the current Linux environment is headless (no display server).
-        /// </summary>
-        /// <returns>True if headless Linux environment, false otherwise.</returns>
-        private static bool IsHeadlessLinux()
-        {
-            // Check if DISPLAY environment variable is not set or empty
-            var display = Environment.GetEnvironmentVariable("DISPLAY");
-            if (string.IsNullOrEmpty(display))
-            {
-                return true;
-            }
-
-            // Check if WAYLAND_DISPLAY is not set or empty
-            var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
-            if (string.IsNullOrEmpty(waylandDisplay))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Sets directory permissions to user only (700) on Unix systems.
-        /// </summary>
-        /// <param name="directoryPath">The directory path to set permissions for.</param>
-        private void SetDirectoryPermissions(string directoryPath)
-        {
-            if (IsLinux())
-            {
-                try
-                {
-                    // Set directory permissions to 700 (user read/write/execute, no permissions for group/others)
-                    var process = new System.Diagnostics.Process
-                    {
-                        StartInfo = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = "chmod",
-                            Arguments = $"700 \"{directoryPath}\"",
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            CreateNoWindow = true
-                        }
-                    };
-                    process.Start();
-                    process.WaitForExit();
-                }
-                catch (Exception ex)
-                {
-                    this.logger.LogWarning($"Failed to set directory permissions: {ex.Message}");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Sets file permissions to user only (600) on Unix systems.
-        /// </summary>
-        /// <param name="filePath">The file path to set permissions for.</param>
-        private void SetFilePermissions(string filePath)
-        {
-            if (IsLinux())
-            {
-                try
-                {
-                    // Set file permissions to 600 (user read/write, no permissions for group/others)
-                    var process = new System.Diagnostics.Process
-                    {
-                        StartInfo = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = "chmod",
-                            Arguments = $"600 \"{filePath}\"",
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            CreateNoWindow = true
-                        }
-                    };
-                    process.Start();
-                    process.WaitForExit();
-                }
-                catch (Exception ex)
-                {
-                    this.logger.LogWarning($"Failed to set file permissions: {ex.Message}");
-                }
             }
         }
 
