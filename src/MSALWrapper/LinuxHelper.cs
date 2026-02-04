@@ -42,11 +42,6 @@ namespace Microsoft.Authentication.MSALWrapper
                 return true;
             }
 
-            if (TryGetLinuxShellExecuteHandler())
-            {
-                return true;
-            }
-
             return false;
         }
 
@@ -98,6 +93,11 @@ namespace Microsoft.Authentication.MSALWrapper
             }
         }
 
+        /// <summary>
+        /// Tries to find a shell execute handler on Linux. 
+        /// </summary>
+        /// <returns>True if a handler is found, false otherwise.</returns>
+        /// kept this functions in case we need to expand shell execute functionality in future
         private static bool TryGetLinuxShellExecuteHandler()
         {
             string[] handlers = { "xdg-open", "gnome-open", "kfmclient", "wslview" };
