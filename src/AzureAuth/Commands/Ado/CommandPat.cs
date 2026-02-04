@@ -270,7 +270,28 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
                 PatStorageParameters.LinuxKeyRingAttr2)
             .Build();
 
-            var storage = Storage.Create(storageProperties);
+            Storage storage;
+            try
+            {
+                storage = Storage.Create(storageProperties);
+                storage.VerifyPersistence();
+            }
+            catch (MsalCachePersistenceException ex) when (MSALWrapper.LinuxHelper.IsLinux() && MSALWrapper.LinuxHelper.IsHeadlessLinux())
+            {
+                // On headless Linux, fallback to plaintext storage if keyring fails
+                Console.Error.WriteLine($"PAT cache verification failed: {ex.Message}");
+                Console.Error.WriteLine("Attempting plaintext cache fallback for headless Linux environment.");
+
+                var plaintextStorageProperties = new StorageCreationPropertiesBuilder(
+                    PatStorageParameters.CacheFileName,
+                    AzureAuth.Constants.AppDirectory)
+                .WithUnprotectedFile()
+                .Build();
+
+                storage = Storage.Create(plaintextStorageProperties);
+                Console.Error.WriteLine($"Plaintext PAT cache configured at: {Path.Combine(AzureAuth.Constants.AppDirectory, PatStorageParameters.CacheFileName)}");
+            }
+
             var storageWrapper = new StorageWrapper(storage);
             return new PatCache(storageWrapper);
         }
