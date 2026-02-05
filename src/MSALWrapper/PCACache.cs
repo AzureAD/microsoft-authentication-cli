@@ -90,7 +90,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 // On Linux, if keyring fails and we're in a headless environment, try plain text fallback
                 if (LinuxHelper.IsLinux() && LinuxHelper.IsHeadlessLinux())
                 {
-                    this.logger.LogInformation("Attempting plain text cache fallback for headless Linux environment.");
+                    this.logger.LogDebug("Attempting plain text cache fallback for headless Linux environment.");
                     this.SetupPlainTextCache(userTokenCache, errors);
                 }
             }
@@ -147,7 +147,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 MsalCacheHelper cacher = MsalCacheHelper.CreateAsync(storageProperties).Result;
                 cacher.RegisterCache(userTokenCache);
 
-                this.logger.LogInformation($"Plain text cache fallback configured at: {cacheFilePath}");
+                this.logger.LogDebug($"Plain text cache fallback configured at: {cacheFilePath}");
             }
             catch (Exception ex)
             {
