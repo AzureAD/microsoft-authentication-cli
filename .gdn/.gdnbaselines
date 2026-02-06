@@ -1,0 +1,29 @@
+{
+  "hydrated": true,
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/baselines"
+  },
+  "version": "1.0.0",
+  "baselines": {
+    "guardian-baseline": {
+      "name": "guardian-baseline",
+      "createdDate": "2026-02-06 20:55:03Z",
+      "lastUpdatedDate": "2026-02-06 20:55:03Z"
+    }
+  },
+  "results": {
+    "2960648537ceab2dc9e4d4c3ff0f34bcc246699ca797e6d0588cfdb877e66e36": {
+      "signature": "2960648537ceab2dc9e4d4c3ff0f34bcc246699ca797e6d0588cfdb877e66e36",
+      "alternativeSignatures": [
+        "d54c1b18e7a800bc62578ecf06fbadaa70e667f9f62d2d5b60e12fcfc8cba11e"
+      ],
+      "target": "**/AzureAuth/*.dll",
+      "memberOf": [
+        "guardian-baseline"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2026-02-06 20:55:03Z"
+    }
+  }
+}
