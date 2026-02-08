@@ -359,6 +359,13 @@ extends:
               includeRootFolder: false
               archiveType: zip
               archiveFile: $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win-x64.zip
+          - task: ArchiveFiles@2
+            displayName: Create win-arm64 archive
+            inputs:
+              rootFolderOrFile: $(artifactsPath)-win-arm64-signed/AzureAuth
+              includeRootFolder: false
+              archiveType: zip
+              archiveFile: $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win-arm64.zip
           - task: Bash@3
             displayName: Prepare osx-x64 executables
             inputs:
