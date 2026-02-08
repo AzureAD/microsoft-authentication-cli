@@ -494,7 +494,7 @@ extends:
           os: linux
         templateContext:
           type: releaseJob
-          isProduction: true
+          isProduction: false
           inputs:
           - input: pipelineArtifact
             artifactName: azureauth-${{ parameters.version }}-packaged
