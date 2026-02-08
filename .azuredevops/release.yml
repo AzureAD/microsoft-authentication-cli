@@ -76,6 +76,7 @@ extends:
       image: ubuntu-latest
       os: linux
     sdl:
+      enableAllTools: false
       sourceAnalysisPool:
         name: Azure-Pipelines-1ESPT-ExDShared
         image: windows-latest
