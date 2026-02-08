@@ -268,15 +268,7 @@ extends:
               MaxConcurrency: '50'
               MaxRetryAttempts: '5'
               PendingAnalysisWaitTimeoutMinutes: '5'
-          - task: ExtractFiles@1
-            displayName: Extract signed artifacts osx
-            condition: or(startsWith('${{ config.runtime }}','osx'), startsWith('${{ config.runtime }}','linux'))
-            inputs:
-              archiveFilePatterns: $(artifactsPath)-${{ config.runtime }}.zip
-              destinationFolder: $(artifactsPath)-${{ config.runtime }}
-              cleanDestinationFolder: true
-              overwriteExistingFiles: true
-          # Linux signing with ESRP
+        # Linux signing with ESRP
           - task: EsrpCodeSigning@5
             displayName: Sign artifacts linux-x64
             condition: startsWith('${{ config.runtime }}','linux')
@@ -290,7 +282,7 @@ extends:
               AuthCertName: $(AZURE_VAULT_ESRP_AAD_CERT_NAME)
               AuthSignCertName: $(AZURE_VAULT_ESRP_REQ_CERT_NAME)
               FolderPath: $(artifactsPath)-${{ config.runtime }}/AzureAuth
-              Pattern: 'azureauth,*.so,*.dll'
+              Pattern: 'azureauth-${{ parameters.version }}-${{ config.runtime }}.zip'
               signConfigType: 'inlineSignParams'
               inlineOperation: |
                 [
@@ -313,6 +305,14 @@ extends:
               MaxConcurrency: '50'
               MaxRetryAttempts: '5'
               PendingAnalysisWaitTimeoutMinutes: '5'
+          - task: ExtractFiles@1
+            displayName: Extract signed artifacts osx
+            condition: or(startsWith('${{ config.runtime }}','osx'), startsWith('${{ config.runtime }}','linux'))
+            inputs:
+              archiveFilePatterns: $(artifactsPath)-${{ config.runtime }}.zip
+              destinationFolder: $(artifactsPath)-${{ config.runtime }}
+              cleanDestinationFolder: true
+              overwriteExistingFiles: true
           # We rename the signed artifacts to avoid conflicts with the unsigned pipeline artifacts from the previous stage.
           - task: PowerShell@2
             displayName: Rename signed artifacts
