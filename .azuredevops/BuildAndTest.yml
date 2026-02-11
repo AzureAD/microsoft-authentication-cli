@@ -29,6 +29,12 @@ parameters:
       os: linux
     runtime: linux-arm64
     archiveExt: tar.gz
+  - pool:
+      name: Azure Pipelines
+      image: macOS-latest
+      os: macOS
+    runtime: osx-arm64
+    archiveExt: tar.gz
 
 stages:
 - stage: build
