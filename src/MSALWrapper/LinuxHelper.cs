@@ -1,10 +1,8 @@
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Authentication.MSALWrapper
 {
@@ -28,16 +26,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <returns>True if headless Linux environment, false otherwise.</returns>
         public static bool IsHeadlessLinux()
         {
-            // Check if DISPLAY environment variable is not set or empty
+            // Check if DISPLAY and WAYLAND_DISPLAY environment variables are not set or empty
             var display = Environment.GetEnvironmentVariable("DISPLAY");
-            if (string.IsNullOrEmpty(display))
-            {
-                return true;
-            }
-
-            // Check if WAYLAND_DISPLAY is not set or empty
             var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
-            if (string.IsNullOrEmpty(waylandDisplay))
+            if (string.IsNullOrEmpty(display) && string.IsNullOrEmpty(waylandDisplay))
             {
                 return true;
             }
@@ -91,69 +83,6 @@ namespace Microsoft.Authentication.MSALWrapper
             {
                 logger.LogWarning($"Failed to set file permissions for '{filePath}': {ex.Message}");
             }
-        }
-
-        /// <summary>
-        /// Tries to find a shell execute handler on Linux. 
-        /// </summary>
-        /// <returns>True if a handler is found, false otherwise.</returns>
-        /// kept this functions in case we need to expand shell execute functionality in future
-        private static bool TryGetLinuxShellExecuteHandler()
-        {
-            string[] handlers = { "xdg-open", "gnome-open", "kfmclient", "wslview" };
-            foreach (var h in handlers)
-            {
-                if (IsExecutableOnPath(h))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static bool IsExecutableOnPath(string executableName)
-        {
-            return TryLocateExecutable(executableName, null, out _);
-        }
-
-        private static bool TryLocateExecutable(
-            string program,
-            ICollection<string> pathsToIgnore,
-            out string path)
-        {
-            path = null;
-
-            var pathValue = Environment.GetEnvironmentVariable("PATH");
-            if (string.IsNullOrEmpty(pathValue))
-            {
-                return false;
-            }
-
-            foreach (var basePath in pathValue.Split(Path.PathSeparator))
-            {
-                if (string.IsNullOrWhiteSpace(basePath))
-                {
-                    continue;
-                }
-
-                var candidatePath = Path.Combine(basePath, program);
-
-                if (!File.Exists(candidatePath))
-                {
-                    continue;
-                }
-
-                if (pathsToIgnore != null &&
-                    pathsToIgnore.Contains(candidatePath, StringComparer.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                path = candidatePath;
-                return true;
-            }
-
-            return false;
         }
     }
 }
