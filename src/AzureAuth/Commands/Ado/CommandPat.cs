@@ -155,7 +155,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
                 var pat = manager.GetPatAsync(this.PatOptions()).Result;
 
                 // Do not use logger to avoid printing PATs into log files.
-                Console.Write(FormatPat(pat, this.Output));
+                Console.WriteLine(FormatPat(pat, this.Output));
             }
 
             return 0;
