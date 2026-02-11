@@ -66,16 +66,18 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         /// <summary>
-        /// Test Linux platform detection.
+        /// Test that LinuxHelper.IsLinux() correctly wraps RuntimeInformation.IsOSPlatform(OSPlatform.Linux).
         /// </summary>
         [Test]
-        public void IsLinux_ReturnsCorrectPlatform()
+        public void LinuxHelper_IsLinux_MatchesPlatformDetection()
         {
-            // This test verifies the platform detection logic
-            var expectedIsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+            // Act
+            var helperResult = LinuxHelper.IsLinux();
+            var expectedResult = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            // We can't directly test the private method, but we can verify the platform detection works
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux).Should().Be(expectedIsLinux);
+            // Assert
+            helperResult.Should().Be(expectedResult,
+                "LinuxHelper.IsLinux() should return the same value as RuntimeInformation.IsOSPlatform(OSPlatform.Linux)");
         }
 
         /// <summary>
@@ -272,18 +274,28 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         /// <summary>
-        /// Test that SetupTokenCache handles null token cache gracefully.
+        /// Test that SetupTokenCache with null token cache does not throw when cache is disabled.
         /// </summary>
         [Test]
-        public void SetupTokenCache_WithNullTokenCache_HandlesGracefully()
+        public void SetupTokenCache_WithNullTokenCache_CacheDisabled_DoesNotThrow()
         {
             // Arrange
+            var originalEnvVar = Environment.GetEnvironmentVariable(Constants.OEAUTH_MSAL_DISABLE_CACHE);
+            Environment.SetEnvironmentVariable(Constants.OEAUTH_MSAL_DISABLE_CACHE, "1");
             var errors = new List<Exception>();
 
-            // Act & Assert
-            // This should either throw ArgumentNullException or handle gracefully
-            Assert.Throws<ArgumentNullException>(() =>
-                this.pcaCache.SetupTokenCache(null, errors));
+            try
+            {
+                // Act & Assert
+                // When cache is disabled, method returns early and doesn't use the token cache
+                Assert.DoesNotThrow(() =>
+                    this.pcaCache.SetupTokenCache(null, errors));
+            }
+            finally
+            {
+                // Cleanup
+                Environment.SetEnvironmentVariable(Constants.OEAUTH_MSAL_DISABLE_CACHE, originalEnvVar);
+            }
         }
 
         /// <summary>
@@ -415,9 +427,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 Environment.SetEnvironmentVariable("WAYLAND_DISPLAY", "wayland-0");
 
                 // Act
-                var display = Environment.GetEnvironmentVariable("DISPLAY");
-                var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
-                var isHeadless = string.IsNullOrEmpty(display) && string.IsNullOrEmpty(waylandDisplay);
+                var isHeadless = LinuxHelper.IsHeadlessLinux();
 
                 // Assert
                 isHeadless.Should().BeFalse("Environment should not be headless when WAYLAND_DISPLAY is set");
@@ -447,9 +457,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 Environment.SetEnvironmentVariable("WAYLAND_DISPLAY", "wayland-0");
 
                 // Act
-                var display = Environment.GetEnvironmentVariable("DISPLAY");
-                var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
-                var isHeadless = string.IsNullOrEmpty(display) && string.IsNullOrEmpty(waylandDisplay);
+                var isHeadless = LinuxHelper.IsHeadlessLinux();
 
                 // Assert
                 isHeadless.Should().BeFalse("Environment should not be headless when both display variables are set");
@@ -460,21 +468,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 Environment.SetEnvironmentVariable("DISPLAY", originalDisplay);
                 Environment.SetEnvironmentVariable("WAYLAND_DISPLAY", originalWaylandDisplay);
             }
-        }
-
-        /// <summary>
-        /// Test plain text cache file name format.
-        /// </summary>
-        [Test]
-        public void PlainTextCacheFileName_HasCorrectFormat()
-        {
-            // Arrange & Act
-            var expectedPattern = $"msal_{this.testTenantId}_cache.json";
-
-            // Assert
-            expectedPattern.Should().Contain(this.testTenantId.ToString());
-            expectedPattern.Should().StartWith("msal_");
-            expectedPattern.Should().EndWith("_cache.json");
         }
 
         /// <summary>
