@@ -524,6 +524,7 @@ extends:
             releaseNotesInline: "Release ${{ parameters.version }}. See [`CHANGELOG.md`](https://github.com/AzureAD/microsoft-authentication-cli/blob/${{ parameters.version }}/CHANGELOG.md) for updates."
             assets: |
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win-x64.zip
+              $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-win-arm64.zip
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-osx-x64.tar.gz
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-osx-arm64.tar.gz
               $(artifactsPath)-packaged/azureauth-${{ parameters.version }}-linux-x64.deb
