@@ -122,7 +122,7 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
             }
 
             // Do not use logger to avoid printing tokens into log files.
-            Console.Write(FormatToken(token.Token, this.Output, Authorization.Bearer));
+            Console.WriteLine(FormatToken(token.Token, this.Output, Authorization.Bearer));
             return 0;
         }
     }

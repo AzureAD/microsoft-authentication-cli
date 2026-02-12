@@ -405,7 +405,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
                         this.logger.LogSuccess(tokenResult.ToString());
                         break;
                     case OutputMode.Token:
-                        Console.Write(tokenResult.Token);
+                        Console.WriteLine(tokenResult.Token);
                         break;
                     case OutputMode.Json:
                         Console.Write(tokenResult.ToJson());
