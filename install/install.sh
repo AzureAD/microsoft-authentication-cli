@@ -21,15 +21,15 @@ fi
 release_name() {
     name="azureauth-${version}"
     os_info="$(uname -a)"
-    os_name="$(echo $os_info | cut -d ' ' -f1)"
+    os_name="$(echo "$os_info" | cut -d ' ' -f1)"
 
     case "${os_name}" in
         Darwin)
             name="${name}-osx"
             # check if os_info contains arm64 or x86_64
-            if echo $os_info | grep -q arm64; then
+            if echo "$os_info" | grep -q arm64; then
                 name="${name}-arm64"
-            elif echo $os_info | grep -q x86_64; then
+            elif echo "$os_info" | grep -q x86_64; then
                 name="${name}-x64"
             else
                 error "Unsupported architecture '${arch}', unable to download a release"
@@ -77,33 +77,33 @@ install_pre_0_4_0() {
     verbose "Installing using pre-0.4.0 method"
 
     verbose "Creating ${azureauth_directory}"
-    mkdir -p $azureauth_directory
+    mkdir -p "$azureauth_directory"
 
     verbose "Downloading ${release_url} to ${tarball}"
-    if ! curl -sfL $release_url > $tarball; then
+    if ! curl -sfL $release_url > "$tarball"; then
         error "Failed to download azureauth ${version}"
         exit 1
     fi
 
     if [ -d "${target_directory}" ]; then
         verbose "Removing pre-existing target directory at ${target_directory}"
-        rm -rf $target_directory
+        rm -rf "$target_directory"
     fi
 
     verbose "Extracting ${tarball} to ${target_directory}"
-    mkdir -p $target_directory
-    tar -xf $tarball -C $target_directory
+    mkdir -p "$target_directory"
+    tar -xf "$tarball" -C "$target_directory"
 
     # The files extracted from the tarball are all executable, but only two need to be.
-    chmod -x ${target_directory}/*
-    chmod +x ${target_directory}/azureauth
+    chmod -x "${target_directory}"/*
+    chmod +x "${target_directory}/azureauth"
 
     verbose "Removing ${tarball}"
-    rm $tarball
+    rm "$tarball"
 
     verbose "Linking ${latest_directory} to ${target_directory}"
     # It's very important we use -n and -f here or the symlink won't actually be overwritten during upgrades.
-    ln -snf $target_directory $latest_directory
+    ln -snf "$target_directory" "$latest_directory"
 
     # We currently only support automatically appending $PATH modifications for the default
     # Bash and ZSH profiles as the syntax is identical.
@@ -112,7 +112,7 @@ install_pre_0_4_0() {
     do
         if ! grep "${path_modification}" "${shell_profile}" &>/dev/null; then
             verbose "Updating \$PATH in ${shell_profile} to include ${latest_directory}"
-            printf "\n${path_modification}\n" >> $shell_profile
+            printf "\n${path_modification}\n" >> "$shell_profile"
         fi
     done
 
@@ -137,25 +137,25 @@ install_post_0_4_0() {
     verbose "Installing using post-0.4.0 method"
 
     verbose "Creating ${azureauth_directory}"
-    mkdir -p $azureauth_directory
+    mkdir -p "$azureauth_directory"
 
     verbose "Downloading ${release_url} to ${tarball}"
-    if ! curl -sfL $release_url > $tarball; then
+    if ! curl -sfL $release_url > "$tarball"; then
         error "Failed to download azureauth ${version}"
         exit 1
     fi
 
     if [ -d "${target_directory}" ]; then
         verbose "Removing pre-existing target directory at ${target_directory}"
-        rm -rf $target_directory
+        rm -rf "$target_directory"
     fi
 
     verbose "Extracting ${tarball} to ${target_directory}"
-    mkdir -p $target_directory
-    tar -xf $tarball -C $target_directory
+    mkdir -p "$target_directory"
+    tar -xf "$tarball" -C "$target_directory"
 
     verbose "Removing ${tarball}"
-    rm $tarball
+    rm "$tarball"
 
     if [ -n "${no_update_path}" ]; then
         verbose "Not updating the \$PATH in any user profiles"
@@ -189,7 +189,7 @@ install_post_0_4_0() {
         do
             if ! grep "${new_path}" "${shell_profile}" &>/dev/null; then
                 verbose "Appending '${target_directory}' to \$PATH in ${shell_profile}"
-                printf "\n${new_path}\n" >> $shell_profile
+                printf "\n${new_path}\n" >> "$shell_profile"
             fi
         done
     fi
