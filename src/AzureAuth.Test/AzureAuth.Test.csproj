@@ -15,9 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.1.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.82.1" />
-    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.82.1" />
-    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.82.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.3" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />

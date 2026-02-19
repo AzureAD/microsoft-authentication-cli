@@ -11,7 +11,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado.Pat
 {
     /// <summary>
     /// Command to print the list of available scopes
-
     /// </summary>
     [Command("scopes", Description = "List the valid ado pat scopes")]
     public class CommandScopes
