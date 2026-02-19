@@ -5,7 +5,9 @@ namespace Microsoft.Authentication.MSALWrapper
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -83,14 +85,24 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <inheritdoc/>
         public async Task<TokenResult> GetTokenInteractiveAsync(IEnumerable<string> scopes, IAccount account, CancellationToken cancellationToken)
         {
-            AuthenticationResult result = await this.pca
+            var builder = this.pca
                 .AcquireTokenInteractive(scopes)
                 .WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions()
                 {
                     Title = this.PromptHint,
                 })
                 .WithUseEmbeddedWebView(this.UseEmbeddedWebView)
-                .WithAccount(account)
+                .WithAccount(account);
+
+            if (!this.UseEmbeddedWebView && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                builder = builder.WithSystemWebViewOptions(new SystemWebViewOptions
+                {
+                    OpenBrowserAsync = OpenBrowserOnLinuxAsync,
+                });
+            }
+
+            AuthenticationResult result = await builder
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
             return this.TokenResultOrNull(result);
@@ -99,14 +111,24 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <inheritdoc/>
         public async Task<TokenResult> GetTokenInteractiveAsync(IEnumerable<string> scopes, string claims, CancellationToken cancellationToken)
         {
-            AuthenticationResult result = await this.pca
+            var builder = this.pca
                 .AcquireTokenInteractive(scopes)
                 .WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions()
                 {
                     Title = this.PromptHint,
                 })
                 .WithUseEmbeddedWebView(this.UseEmbeddedWebView)
-                .WithClaims(claims)
+                .WithClaims(claims);
+
+            if (!this.UseEmbeddedWebView && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                builder = builder.WithSystemWebViewOptions(new SystemWebViewOptions
+                {
+                    OpenBrowserAsync = OpenBrowserOnLinuxAsync,
+                });
+            }
+
+            AuthenticationResult result = await builder
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
             return this.TokenResultOrNull(result);
@@ -162,6 +184,26 @@ namespace Microsoft.Authentication.MSALWrapper
         public async Task RemoveAsync(IAccount account)
         {
             await this.pca.RemoveAsync(account);
+        }
+
+        private static Task OpenBrowserOnLinuxAsync(Uri uri)
+        {
+            string browser = Environment.GetEnvironmentVariable("BROWSER");
+            if (!string.IsNullOrEmpty(browser))
+            {
+                Process.Start(new ProcessStartInfo(browser, uri.AbsoluteUri)
+                {
+                    UseShellExecute = false,
+                });
+                return Task.CompletedTask;
+            }
+
+            // $BROWSER not set — use default .NET behavior (UseShellExecute tries xdg-open etc.)
+            Process.Start(new ProcessStartInfo(uri.AbsoluteUri)
+            {
+                UseShellExecute = true,
+            });
+            return Task.CompletedTask;
         }
 
         private TokenResult TokenResultOrNull(AuthenticationResult result)
