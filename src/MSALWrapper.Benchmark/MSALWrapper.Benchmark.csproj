@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <TargetFramework>net8.0</TargetFramework>
     <DefineConstants>PlatformWindows</DefineConstants>
@@ -18,7 +18,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
-    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.65.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.82.1" />
+    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.82.1" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.82.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MSALWrapper\MSALWrapper.csproj" />

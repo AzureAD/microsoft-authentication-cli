@@ -10,7 +10,9 @@
     <AdditionalFiles Include="..\stylecop\stylecop.json" Link="stylecop.json" />
     <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.65.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.82.1" />
+    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.82.1" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.82.1" />
     <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="19.239.0-preview" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <!-- Transitive dependencies of Microsoft.VisualStudio.Services.Client temporarily pinned for security reasons. -->

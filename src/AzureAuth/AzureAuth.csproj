@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>PlatformWindows</DefineConstants>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
@@ -26,6 +26,9 @@
     <Compile Include="..\stylecop\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.82.1" />
+    <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.82.1" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.82.1" />
     <PackageReference Include="Microsoft.Office.Lasso" Version="2024.10.23.1" />
     <PackageReference Include="Tomlyn" Version="0.11.0" />
   </ItemGroup>
