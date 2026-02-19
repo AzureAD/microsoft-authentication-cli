@@ -31,7 +31,6 @@ namespace Microsoft.Authentication.AzureAuth
         /// Get the auth modes from the environment or set the default.
         /// </summary>
         /// <param name="env">The <see cref="IEnv"/> to use.</param>
-        /// <param name="eventData">Event data to add the auth mode to.</param>
         /// <returns>AuthModes.</returns>
         public static IEnumerable<AuthMode> ReadAuthModeFromEnvOrSetDefault(this IEnv env)
         {
