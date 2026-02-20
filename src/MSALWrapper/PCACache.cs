@@ -46,7 +46,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="tenantId">The tenant id.</param>
-        internal PCACache(ILogger logger, Guid tenantId)
+        internal PCACache(ILogger logger, string tenantId)
         {
             this.logger = logger;
             this.osxKeyChainSuffix = $"{OSXKeyChainCategory}.{tenantId}";

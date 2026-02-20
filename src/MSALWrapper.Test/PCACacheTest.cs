@@ -22,7 +22,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     public class PCACacheTest
     {
         private Mock<ILogger> loggerMock;
-        private Guid testTenantId;
+        private string testTenantId;
         private PCACache pcaCache;
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void Setup()
         {
             this.loggerMock = new Mock<ILogger>();
-            this.testTenantId = Guid.NewGuid();
+            this.testTenantId = Guid.NewGuid().ToString();
             this.pcaCache = new PCACache(this.loggerMock.Object, this.testTenantId);
         }
 
@@ -140,7 +140,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var originalWaylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
             var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             var testCacheDir = Path.Combine(homeDir, ".azureauth");
-            var testTenantId = Guid.NewGuid();
+            var testTenantId = Guid.NewGuid().ToString();
             var testCacheFile = Path.Combine(testCacheDir, $"msal_{testTenantId}_cache.json");
 
             try
@@ -243,7 +243,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             // Arrange
             var logger = new Mock<ILogger>().Object;
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.NewGuid().ToString();
 
             // Act
             var cache = new PCACache(logger, tenantId);
@@ -260,8 +260,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             // Arrange
             var logger = new Mock<ILogger>().Object;
-            var tenantId1 = Guid.NewGuid();
-            var tenantId2 = Guid.NewGuid();
+            var tenantId1 = Guid.NewGuid().ToString();
+            var tenantId2 = Guid.NewGuid().ToString();
 
             // Act
             var cache1 = new PCACache(logger, tenantId1);
@@ -498,7 +498,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             var loggerMock = new Mock<ILogger>();
             var userTokenCacheMock = new Mock<ITokenCache>();
             var errors = new List<Exception>();
-            var cache = new PCACache(loggerMock.Object, Guid.NewGuid());
+            var cache = new PCACache(loggerMock.Object, Guid.NewGuid().ToString());
 
             try
             {
@@ -550,7 +550,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             // Arrange
             var logger = new Mock<ILogger>().Object;
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.NewGuid().ToString();
 
             // Act
             var cache1 = new PCACache(logger, tenantId);
@@ -559,7 +559,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             // Assert
             // Both instances should be configured to use the same cache file name pattern
             var expectedCacheFileName = $"msal_{tenantId}.cache";
-            expectedCacheFileName.Should().Contain(tenantId.ToString());
+            expectedCacheFileName.Should().Contain(tenantId);
         }
 
         /// <summary>
@@ -643,7 +643,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             // Arrange
             var logger = new Mock<ILogger>().Object;
-            var emptyGuid = Guid.Empty;
+            var emptyGuid = Guid.Empty.ToString();
 
             // Act
             var cache = new PCACache(logger, emptyGuid);
