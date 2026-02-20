@@ -94,7 +94,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
         }
 
-        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, string tenantId)
         {
             var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =

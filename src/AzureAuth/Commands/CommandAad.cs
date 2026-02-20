@@ -366,7 +366,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
         private int ClearLocalCache()
         {
             var pca = PublicClientApplicationBuilder.Create(this.authSettings.Client).Build();
-            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), new Guid(this.authSettings.Tenant));
+            var pcaWrapper = new PCAWrapper(this.logger, pca, new List<Exception>(), this.authSettings.Tenant);
 
             var accounts = pcaWrapper.TryToGetCachedAccountsAsync().Result;
             while (accounts.Any())

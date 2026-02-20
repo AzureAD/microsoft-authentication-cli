@@ -52,14 +52,14 @@ namespace Microsoft.Authentication.MSALWrapper.Benchmark
         [Benchmark]
         public void NativeBrokerBenchmark()
         {
-            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID);
+            var pcaWrapper = BuildPCAWrapper(this.logger, this.clientID, this.tenantID.ToString());
             AuthParameters authParameters = new AuthParameters(this.clientID, this.tenantID, this.scopes);
             Broker broker = new Broker(this.logger, authParameters, pcaWrapper: pcaWrapper);
 
             broker.GetTokenAsync().Wait();
         }
 
-        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(ILogger logger, Guid clientId, string tenantId)
         {
             IList<Exception> errors = new List<Exception>();
 

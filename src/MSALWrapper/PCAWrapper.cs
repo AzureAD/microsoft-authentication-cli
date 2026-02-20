@@ -42,7 +42,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="pca">The public client application instance.</param>
         /// <param name="errors">The errors list to append error encountered to.</param>
         /// <param name="tenantId">The tenant ID to help key the cache off of.</param>
-        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, Guid tenantId)
+        public PCAWrapper(ILogger logger, IPublicClientApplication pca, IList<Exception> errors, string tenantId)
             : this(logger, pca)
         {
             var cacher = new PCACache(logger, tenantId);
