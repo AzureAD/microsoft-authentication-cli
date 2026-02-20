@@ -84,7 +84,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return await this.pcaWrapper.GetTokenIntegratedWindowsAuthenticationAsync(this.scopes, cancellationToken);
         }
 
-        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, string tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder

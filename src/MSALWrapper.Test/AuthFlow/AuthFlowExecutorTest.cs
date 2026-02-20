@@ -29,7 +29,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private TokenResult tokenResult;
         private IStopwatch stopwatch;
         private Guid client = Guid.NewGuid();
-        private Guid tenant = Guid.NewGuid();
+        private string tenant = Guid.NewGuid().ToString();
 
         [SetUp]
         public void Setup()

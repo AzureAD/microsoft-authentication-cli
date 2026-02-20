@@ -15,7 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public Guid Client { get; init; }
 
         /// <summary>Gets the Tenant Id.</summary>
-        public Guid Tenant { get; init; }
+        public string Tenant { get; init; }
 
         /// <summary>Gets the Scopes.</summary>
         public IEnumerable<string> Scopes { get; init; }
@@ -29,7 +29,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public AuthParameters(string client, string tenant, IEnumerable<string> scopes)
         {
             this.Client = new Guid(client);
-            this.Tenant = new Guid(tenant);
+            this.Tenant = tenant;
             this.Scopes = scopes;
         }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Authentication.MSALWrapper
         public AuthParameters(Guid client, Guid tenant, IEnumerable<string> scopes)
         {
             this.Client = client;
-            this.Tenant = tenant;
+            this.Tenant = tenant.ToString();
             this.Scopes = scopes;
         }
     }

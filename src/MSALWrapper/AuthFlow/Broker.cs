@@ -146,7 +146,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return ancestorHandle;
         }
 
-        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, string tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
