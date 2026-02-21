@@ -10,7 +10,6 @@ namespace AzureAuth.Test
     using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
-    using Microsoft.Office.Lasso.Telemetry;
     using Moq;
     using NLog.Targets;
     using NUnit.Framework;
