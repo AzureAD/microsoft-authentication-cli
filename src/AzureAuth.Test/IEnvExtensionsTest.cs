@@ -10,7 +10,6 @@ namespace AzureAuth.Test
     using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
-    using Microsoft.Office.Lasso.Telemetry;
     using Moq;
     using NLog.Targets;
     using NUnit.Framework;
@@ -56,6 +55,20 @@ namespace AzureAuth.Test
         {
             this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
             IEnvExtensions.InteractiveAuthDisabled(this.envMock.Object).Should().BeFalse();
+        }
+
+        [TestCase("True", true)]
+        [TestCase("true", true)]
+        [TestCase("TRUE", true)]
+        [TestCase("False", false)]
+        [TestCase("", false)]
+        [TestCase(null, false)]
+        public void IsAdoPipeline_DetectsTfBuildEnvVar(string tfBuild, bool expected)
+        {
+            this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
+            this.envMock.Setup(e => e.Get(EnvVars.TfBuild)).Returns(tfBuild);
+
+            IEnvExtensions.IsAdoPipeline(this.envMock.Object).Should().Be(expected);
         }
 
         [Test]
