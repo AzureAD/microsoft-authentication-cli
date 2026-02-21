@@ -8,7 +8,6 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     using System.Linq;
     using McMaster.Extensions.CommandLineUtils;
 
-    using Microsoft.Authentication.AzureAuth.Ado;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
@@ -89,13 +88,41 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         /// <returns>An integer status code. 0 for success and non-zero for failure.</returns>
         public int OnExecute(ILogger<CommandToken> logger, IEnv env, ITelemetryService telemetryService, IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
         {
-            // First attempt using a PAT.
-            var pat = PatFromEnv.Get(env);
-            if (pat.Exists)
+            // Always check AZUREAUTH_ADO_PAT first - this is an explicit user override.
+            var adoPat = env.Get(EnvVars.AdoPat);
+            if (!string.IsNullOrEmpty(adoPat))
             {
-                logger.LogDebug($"Using PAT from env var {pat.EnvVarSource}");
-                logger.LogInformation(FormatToken(pat.Value, this.Output, Authorization.Basic));
+                logger.LogDebug($"Using PAT from env var {EnvVars.AdoPat}");
+                logger.LogInformation(FormatToken(adoPat, this.Output, Authorization.Basic));
                 return 0;
+            }
+
+            // Check if we're in an ADO Pipeline environment.
+            bool isAdoPipeline = env.IsAdoPipeline();
+            var systemAccessToken = env.Get(EnvVars.SystemAccessToken);
+
+            if (isAdoPipeline)
+            {
+                if (!string.IsNullOrEmpty(systemAccessToken))
+                {
+                    logger.LogDebug($"Using token from env var {EnvVars.SystemAccessToken}");
+                    logger.LogInformation(FormatToken(systemAccessToken, this.Output, Authorization.Basic));
+                    return 0;
+                }
+                else
+                {
+                    logger.LogError(
+                        $"Running in an Azure DevOps Pipeline environment but {EnvVars.SystemAccessToken} is not set. "
+                        + "Interactive authentication is not possible in a pipeline. "
+                        + "Ensure the pipeline has access to the system token.");
+                    return 1;
+                }
+            }
+            else if (!string.IsNullOrEmpty(systemAccessToken))
+            {
+                logger.LogWarning(
+                    $"{EnvVars.SystemAccessToken} is set but this does not appear to be an Azure DevOps Pipeline environment. "
+                    + "Having this variable set on a developer machine is unusual. It will be ignored.");
             }
 
             // If command line options for mode are not specified, then use the environment variables.

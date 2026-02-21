@@ -37,6 +37,12 @@ namespace Microsoft.Authentication.AzureAuth
         public static readonly string NoUser = $"{EnvVarPrefix}_NO_USER";
 
         /// <summary>
+        /// Name of the env var set by Azure DevOps Pipelines to indicate a pipeline environment.
+        /// Value is "True" when running in an ADO Pipeline.
+        /// </summary>
+        public const string TfBuild = "TF_BUILD";
+
+        /// <summary>
         /// Name of the env var for the Azure DevOps pipelines default personal access token.
         /// </summary>
         public static readonly string SystemAccessToken = "SYSTEM_ACCESSTOKEN";

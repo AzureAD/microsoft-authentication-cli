@@ -17,6 +17,16 @@ namespace Microsoft.Authentication.AzureAuth
         private const string CorextPositiveValue = "1";
 
         /// <summary>
+        /// Determines whether we are running in an Azure DevOps Pipeline environment.
+        /// </summary>
+        /// <param name="env">The <see cref="IEnv"/> to use to get environment variables.</param>
+        /// <returns>True if running in an Azure DevOps Pipeline.</returns>
+        public static bool IsAdoPipeline(this IEnv env)
+        {
+            return string.Equals("True", env.Get(EnvVars.TfBuild), StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Determines whether interactive auth is disabled or not.
         /// </summary>
         /// <param name="env">The <see cref="IEnv"/> to use to get environment variables.</param>
