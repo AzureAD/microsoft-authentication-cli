@@ -8,6 +8,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands.Ado
     using System.Linq;
     using McMaster.Extensions.CommandLineUtils;
 
+    using Microsoft.Authentication.AzureAuth.Ado;
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;

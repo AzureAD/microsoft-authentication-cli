@@ -67,7 +67,7 @@ namespace AzureAuth.Test
         public void IsAdoPipeline_DetectsTfBuildEnvVar(string tfBuild, bool expected)
         {
             this.envMock.Setup(env => env.Get(It.IsAny<string>())).Returns((string)null);
-            this.envMock.Setup(e => e.Get("TF_BUILD")).Returns(tfBuild);
+            this.envMock.Setup(e => e.Get(EnvVars.TfBuild)).Returns(tfBuild);
 
             IEnvExtensions.IsAdoPipeline(this.envMock.Object).Should().Be(expected);
         }
