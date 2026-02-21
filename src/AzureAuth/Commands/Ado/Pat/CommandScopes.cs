@@ -10,8 +10,7 @@ using System.Linq;
 namespace Microsoft.Authentication.AzureAuth.Commands.Ado.Pat
 {
     /// <summary>
-    /// Command to print the list of available scopes
-
+    /// Command to print the list of available scopes for ADO PATs.
     /// </summary>
     [Command("scopes", Description = "List the valid ado pat scopes")]
     public class CommandScopes
