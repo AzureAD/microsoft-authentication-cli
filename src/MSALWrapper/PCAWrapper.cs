@@ -198,7 +198,7 @@ namespace Microsoft.Authentication.MSALWrapper
                 return Task.CompletedTask;
             }
 
-            // $BROWSER not set — use default .NET behavior (UseShellExecute tries xdg-open etc.)
+            // $BROWSER not set — fall back to default .NET behavior (UseShellExecute tries xdg-open etc.)
             Process.Start(new ProcessStartInfo(uri.AbsoluteUri)
             {
                 UseShellExecute = true,
