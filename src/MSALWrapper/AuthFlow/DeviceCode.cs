@@ -72,7 +72,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 cancellationToken);
         }
 
-        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, string tenantId)
         {
             var httpFactoryAdaptor = new MsalHttpClientFactoryAdaptor();
             var clientBuilder =
