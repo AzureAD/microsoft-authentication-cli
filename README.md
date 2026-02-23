@@ -13,19 +13,15 @@ The CLI is designed for authenticating and returning an access token for public 
 
 # Platform Support
 
-> [!WARNING]
-> AzureAuth support for Ubuntu was suspended as of version 0.8.6. Please file an issue if this lack of support causes issues for you.
-
-> [!IMPORTANT]
-> At this time AzureAuth does **NOT** support headless Linux environments unless you are using device code flow.
-> See [msal#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)
-> and [#410](https://github.com/AzureAD/microsoft-authentication-cli/issues/410) for more information.
+> [!Important]
+> AzureAuth started support for Ubuntu again from version 0.9.4. 
+> It started supporting for both headless and headful linux environments.
 
 | Operating System                           | Integrated Windows Auth | Auth Broker Integration | Web Auth Flow            | Device Code Flow | Token Caching | Multi-Account Support           |
 | ------------------------------------------ | ----------------------- | ----------------------- | ------------------------ | ---------------- | ------------- | ------------------------------- |
 | Windows                                    | ✅                      | ✅                      | ✅                      | ✅              | ✅          | ⚠️ `--domain` account filtering |
 | OSX (MacOS)                                | N/A                      | ⚠️ via Web Browser      | ✅                      | ✅             | ✅          | ⚠️ `--domain` account filtering |
-| Ubuntu (Linux)                             | N/A                      | ⚠️ via Edge             | ⚠️ in GUI environments | ✅        | ⚠️ in GUI environments. See [msal#3033](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3033)      | ⚠️ `--domain` account filtering |
+| Ubuntu (Linux)                             | N/A                      | ⚠️ via Edge             | ⚠️ in GUI environments | ✅        | ✅      | ⚠️ `--domain` account filtering |
 
 <br/>
 
@@ -42,8 +38,8 @@ provide a means of downloading the latest release, so you **must** specify your 
 To install the application, run
 
 ```powershell
-# 0.9.2 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = '0.9.2'
+# 0.9.4 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = '0.9.4'
 $script = "${env:TEMP}\install.ps1"
 $url = "https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -65,14 +61,33 @@ release, so you **must** specify your desired version via the `$AZUREAUTH_VERSIO
 To install the application, run
 
 ```bash
-# 0.9.2 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-export AZUREAUTH_VERSION='0.9.2'
+# 0.9.4 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+export AZUREAUTH_VERSION='0.9.4'
 curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/$AZUREAUTH_VERSION/install/install.sh | sh
 ```
 
 **Note**: The script currently only updates the `$PATH` in `~/.bashrc` and `~/.zshrc`. It does not update the environment
 of currently running processes, so you'll need to relaunch applications (or source your shell profile) before the `$PATH`
 changes take effect.
+
+## Linux
+
+On Linux we provide a shell bootstrap script, which will download the `.deb` package and install it using `dpkg` to
+`/usr/bin/azureauth`. The script automatically detects your system architecture (x64 or arm64). You can set an alternative
+download location via the `$AZUREAUTH_DOWNLOAD_DIRECTORY` environment variable (defaults to `/tmp`). We don't currently
+provide a means of downloading the latest release, so you **must** specify your desired version via the
+`$AZUREAUTH_VERSION` environment variable.
+
+To install the application, run
+
+```bash
+# 0.9.4 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+export AZUREAUTH_VERSION='0.9.4'
+curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/$AZUREAUTH_VERSION/install/linux-install.sh | sh
+```
+
+**Note**: The installation requires `sudo` permissions to install the `.deb` package. If the installation fails due to
+missing dependencies, you may need to run `sudo apt-get install -f` to fix them.
 
 # Using AzureAuth
 
