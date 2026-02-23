@@ -3,18 +3,12 @@
 
 namespace Microsoft.Authentication.AzureAuth.Ado
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
 
-    using Microsoft.Authentication.MSALWrapper;
-    using Microsoft.Authentication.MSALWrapper.AuthFlow;
-    using Microsoft.Extensions.Logging;
     using Microsoft.Office.Lasso.Interfaces;
 
     /// <summary>
-    /// A class for getting an ADO PAT from an <see cref="IEnv"/> or an AAD access token through MSAL.
+    /// A class for getting an ADO PAT from an <see cref="IEnv"/>.
     /// </summary>
     public static class PatFromEnv
     {

@@ -5,7 +5,6 @@ namespace Microsoft.Authentication.AzureAuth
 {
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Office.Lasso.Interfaces;
-    using Microsoft.Office.Lasso.Telemetry;
     using System.Collections.Generic;
     using System;
 
@@ -14,7 +13,20 @@ namespace Microsoft.Authentication.AzureAuth
     /// </summary>
     public static class IEnvExtensions
     {
+        private const string AdoPositiveValue = "True";
         private const string CorextPositiveValue = "1";
+
+        /// <summary>
+        /// Determines whether we are running in an Azure DevOps Pipeline environment.
+        /// </summary>
+        /// <param name="env">The <see cref="IEnv"/> to use to get environment variables.</param>
+        /// <returns>True if running in an Azure DevOps Pipeline.</returns>
+        public static bool IsAdoPipeline(this IEnv env)
+        {
+            string tfBuild = env.Get(EnvVars.TfBuild);
+            return string.Equals(AdoPositiveValue, tfBuild, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(CorextPositiveValue, tfBuild, StringComparison.Ordinal);
+        }
 
         /// <summary>
         /// Determines whether interactive auth is disabled or not.
@@ -31,7 +43,6 @@ namespace Microsoft.Authentication.AzureAuth
         /// Get the auth modes from the environment or set the default.
         /// </summary>
         /// <param name="env">The <see cref="IEnv"/> to use.</param>
-        /// <param name="eventData">Event data to add the auth mode to.</param>
         /// <returns>AuthModes.</returns>
         public static IEnumerable<AuthMode> ReadAuthModeFromEnvOrSetDefault(this IEnv env)
         {

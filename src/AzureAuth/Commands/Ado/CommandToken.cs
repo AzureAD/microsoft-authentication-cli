@@ -89,13 +89,32 @@ For use by short-lived processes. More info at https://aka.ms/AzureAuth")]
         /// <returns>An integer status code. 0 for success and non-zero for failure.</returns>
         public int OnExecute(ILogger<CommandToken> logger, IEnv env, ITelemetryService telemetryService, IPublicClientAuth publicClientAuth, CommandExecuteEventData eventData)
         {
-            // First attempt using a PAT.
+            // First attempt using a PAT from the environment.
             var pat = PatFromEnv.Get(env);
             if (pat.Exists)
             {
-                logger.LogDebug($"Using PAT from env var {pat.EnvVarSource}");
-                logger.LogInformation(FormatToken(pat.Value, this.Output, Authorization.Basic));
-                return 0;
+                // SYSTEM_ACCESSTOKEN should only be used inside an ADO Pipeline.
+                if (pat.EnvVarSource == EnvVars.SystemAccessToken && !env.IsAdoPipeline())
+                {
+                    logger.LogWarning(
+                        $"{EnvVars.SystemAccessToken} is set but this does not appear to be an Azure DevOps Pipeline environment. "
+                        + "Having this variable set on a developer machine is unusual. It will be ignored.");
+                }
+                else
+                {
+                    logger.LogDebug($"Using PAT from env var {pat.EnvVarSource}");
+                    logger.LogInformation(FormatToken(pat.Value, this.Output, Authorization.Basic));
+                    return 0;
+                }
+            }
+            else if (env.IsAdoPipeline())
+            {
+                // In a pipeline but no token was found at all.
+                logger.LogError(
+                    $"Running in an Azure DevOps Pipeline environment but {EnvVars.SystemAccessToken} is not set. "
+                    + "Interactive authentication is not possible in a pipeline. "
+                    + "Ensure the pipeline has access to the system token.");
+                return 1;
             }
 
             // If command line options for mode are not specified, then use the environment variables.
