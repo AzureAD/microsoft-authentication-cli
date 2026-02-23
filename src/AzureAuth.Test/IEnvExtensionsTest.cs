@@ -60,6 +60,8 @@ namespace AzureAuth.Test
         [TestCase("True", true)]
         [TestCase("true", true)]
         [TestCase("TRUE", true)]
+        [TestCase("1", true)]
+        [TestCase("0", false)]
         [TestCase("False", false)]
         [TestCase("", false)]
         [TestCase(null, false)]

@@ -13,6 +13,7 @@ namespace Microsoft.Authentication.AzureAuth
     /// </summary>
     public static class IEnvExtensions
     {
+        private const string AdoPositiveValue = "True";
         private const string CorextPositiveValue = "1";
 
         /// <summary>
@@ -22,7 +23,9 @@ namespace Microsoft.Authentication.AzureAuth
         /// <returns>True if running in an Azure DevOps Pipeline.</returns>
         public static bool IsAdoPipeline(this IEnv env)
         {
-            return string.Equals("True", env.Get(EnvVars.TfBuild), StringComparison.OrdinalIgnoreCase);
+            string tfBuild = env.Get(EnvVars.TfBuild);
+            return string.Equals(AdoPositiveValue, tfBuild, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(CorextPositiveValue, tfBuild, StringComparison.Ordinal);
         }
 
         /// <summary>
