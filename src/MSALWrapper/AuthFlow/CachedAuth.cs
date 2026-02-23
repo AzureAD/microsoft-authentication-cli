@@ -85,7 +85,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return await GetTokenAsync(this.logger, this.scopes, account, this.pcaWrapper, this.errors);
         }
 
-        private IPCAWrapper BuildPCAWrapper(Guid clientId, Guid tenantId)
+        private IPCAWrapper BuildPCAWrapper(Guid clientId, string tenantId)
         {
             var clientBuilder =
                 PublicClientApplicationBuilder
