@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.5] - 2026-02-24
+### Added
+- Added support for linux codespace VMs, multi-tenant non-GUID clients, handle PCBS token gracefully 
+
 ## [0.9.4] - 2026-02-12
 ### Added
 - Added support for windows arm64 
@@ -215,7 +219,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.4...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.5...HEAD
+[0.9.5]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.4...0.9.5
 [0.9.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.3...0.9.4
 [0.9.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.2...0.9.3
 [0.9.2]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.1...0.9.2
