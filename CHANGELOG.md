@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.5] - 2026-02-24
 ### Added
-- Added support for linux codespace VMs, multi-tenant non-GUID clients, handle PCBS token gracefully 
-
+- Compatible with remote development VMs (like GitHub Codespaces) by using the $BROWSER environment variable for launching OAuth login 
+- Added support for multi-tenant client configs and non-tenant-GUID athorizations servers for MCP authentication 
+### Removed 
+- Removed unconditional SYSTEM_ACCESSTOKEN (PCBS token) pass-through from the ado token command (now restricted to ADO pipeline environments only) 
+ 
 ## [0.9.4] - 2026-02-12
 ### Added
 - Added support for windows arm64 
