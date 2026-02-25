@@ -1,8 +1,8 @@
 # Microsoft Authentication CLI
 
 [![Tests](https://img.shields.io/github/actions/workflow/status/AzureAd/microsoft-authentication-cli/.github/workflows/dotnet-test.yml?branch=main&style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/actions/workflows/dotnet-test.yml)
-[![Release](https://img.shields.io/badge/Release-0.9.2-orange?style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/0.9.2)
-![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/azuread/microsoft-authentication-cli/0.9.2/total?logo=github&style=for-the-badge&color=blue)
+[![Release](https://img.shields.io/badge/Release-0.9.5-orange?style=for-the-badge&logo=github)](https://github.com/AzureAD/microsoft-authentication-cli/releases/tag/0.9.5)
+![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/azuread/microsoft-authentication-cli/0.9.5/total?logo=github&style=for-the-badge&color=blue)
 [![License](https://shields.io/badge/license-MIT-purple?style=for-the-badge)](./LICENSE.txt)
 
 ---
@@ -38,8 +38,8 @@ provide a means of downloading the latest release, so you **must** specify your 
 To install the application, run
 
 ```powershell
-# 0.9.4 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-$env:AZUREAUTH_VERSION = '0.9.4'
+# 0.9.5 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+$env:AZUREAUTH_VERSION = '0.9.5'
 $script = "${env:TEMP}\install.ps1"
 $url = "https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/${env:AZUREAUTH_VERSION}/install/install.ps1"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -61,8 +61,8 @@ release, so you **must** specify your desired version via the `$AZUREAUTH_VERSIO
 To install the application, run
 
 ```bash
-# 0.9.4 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-export AZUREAUTH_VERSION='0.9.4'
+# 0.9.5 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+export AZUREAUTH_VERSION='0.9.5'
 curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/$AZUREAUTH_VERSION/install/install.sh | sh
 ```
 
@@ -81,8 +81,8 @@ provide a means of downloading the latest release, so you **must** specify your 
 To install the application, run
 
 ```bash
-# 0.9.4 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
-export AZUREAUTH_VERSION='0.9.4'
+# 0.9.5 is an example. See https://github.com/AzureAD/microsoft-authentication-cli/releases for the latest.
+export AZUREAUTH_VERSION='0.9.5'
 curl -sL https://raw.githubusercontent.com/AzureAD/microsoft-authentication-cli/$AZUREAUTH_VERSION/install/linux-install.sh | sh
 ```
 
