@@ -243,6 +243,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsX")]
         public void AllModes_Mac()
         {
+            this.MockIsMacOS(true);
+            this.MockIsWindows10Or11(false);
+
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
             this.pcaWrapperMock.VerifyAll();
@@ -252,7 +255,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Should()
                 .BeEquivalentTo(new[]
                 {
-                    typeof(CachedAuth),
+                    typeof(Broker),
                     typeof(Web),
                     typeof(DeviceCode),
                 });
@@ -262,8 +265,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsx")]
         public void DefaultModes_Not_Windows()
         {
-            // On non-windows platforms the Default Authmode doesn't contain "Broker" as an option to start with.
-            // so we short circuit checking the platform and expect it to not be called.
+            this.MockIsMacOS(true);
+            this.MockIsWindows10Or11(false);
+
             var subject = this.Subject(AuthMode.Default);
 
             this.platformUtilsMock.VerifyAll();
@@ -272,7 +276,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Select(a => a.GetType())
                 .Should()
                 .ContainInOrder(
-                    typeof(CachedAuth),
+                    typeof(Broker),
                     typeof(Web));
         }
 
@@ -284,6 +288,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private void MockIsWindows(bool value)
         {
             this.platformUtilsMock.Setup(p => p.IsWindows()).Returns(value);
+        }
+
+        private void MockIsMacOS(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsMacOS()).Returns(value);
         }
     }
 }

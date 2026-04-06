@@ -15,6 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper
         private ILogger logger;
         private Lazy<bool> isWindows;
         private Lazy<bool> isWindows10;
+        private Lazy<bool> isMacOS;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlatformUtils"/> class.
@@ -25,6 +26,7 @@ namespace Microsoft.Authentication.MSALWrapper
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.isWindows = new Lazy<bool>(() => this.CheckWindows());
             this.isWindows10 = new Lazy<bool>(() => this.CheckWindows10());
+            this.isMacOS = new Lazy<bool>(() => this.CheckMacOS());
         }
 
         /// <inheritdoc/>
@@ -37,6 +39,18 @@ namespace Microsoft.Authentication.MSALWrapper
         public bool IsWindows()
         {
             return this.isWindows.Value;
+        }
+
+        /// <inheritdoc/>
+        public bool IsMacOS()
+        {
+            return this.isMacOS.Value;
+        }
+
+        private bool CheckMacOS()
+        {
+            this.logger.LogTrace($"IsMacOS: RuntimeInformation.IsOSPlatform(OSPlatform.OSX) = {RuntimeInformation.IsOSPlatform(OSPlatform.OSX)}");
+            return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         }
 
         private bool CheckWindows()

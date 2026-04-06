@@ -58,13 +58,14 @@ namespace AzureAuth.Test
             this.logTarget.Logs.Should().ContainInOrder("Interactive authentication is disabled.", "Only Integrated Windows Authentication will be attempted.");
         }
 #else
+        [Test]
         public void CombinedAuthMode_Allowed()
         {
             // Arrange
             this.envMock.Setup(e => e.Get(EnvVars.NoUser)).Returns(string.Empty);
             this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(string.Empty);
 
-            var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
+            var subject = new[] { AuthMode.Broker, AuthMode.Web };
 
             // Act + Assert
             subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.Default);
@@ -73,7 +74,7 @@ namespace AzureAuth.Test
 
         [TestCase("AZUREAUTH_NO_USER")]
         [TestCase("Corext_NonInteractive")]
-        public void Filterinteraction_Interactive_Auth_Disabled(string envVar)
+        public void Filterinteraction_Interactive_Auth_Disabled_NoBroker(string envVar)
         {
             // Arrange
             this.envMock.Setup(e => e.Get(envVar)).Returns("1");
@@ -82,6 +83,19 @@ namespace AzureAuth.Test
             // Act + Assert
             subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.None);
             this.logTarget.Logs.Should().ContainInOrder("Interactive authentication is disabled.");
+        }
+
+        [TestCase("AZUREAUTH_NO_USER")]
+        [TestCase("Corext_NonInteractive")]
+        public void Filterinteraction_Interactive_Auth_Disabled_WithBroker(string envVar)
+        {
+            // Arrange
+            this.envMock.Setup(e => e.Get(envVar)).Returns("1");
+            var subject = new[] { AuthMode.Broker, AuthMode.Web, AuthMode.DeviceCode };
+
+            // Act + Assert
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.Broker);
+            this.logTarget.Logs.Should().ContainInOrder("Interactive authentication is disabled.", "Only Broker silent authentication will be attempted.");
         }
 #endif
     }

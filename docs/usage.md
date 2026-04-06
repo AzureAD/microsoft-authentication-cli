@@ -1,9 +1,9 @@
 # Usage
 AzureAuth is a generic Azure credential provider. It currently supports the following modes of [public client authentication](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-applications) (i.e., authenticating a human user.)
-* [IWA (Integrated Windows Authentication)](https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-desktop-acquire-token-integrated-windows-authentication)
-* [WAM (Web Account Manager)](https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-desktop-acquire-token-wam) (Windows only brokered authentication)
+* [IWA (Integrated Windows Authentication)](https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-desktop-acquire-token-integrated-windows-authentication) (Windows only)
+* [Brokered Authentication](https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-desktop-acquire-token-wam) (Windows via WAM, macOS via Enterprise SSO Extension)
 * [Embedded Web View](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-web-browsers) (Windows Only)
-* [System Web Browser](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-web-browsers) (Used on OSX in-place of Embedded Web View)
+* [System Web Browser](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-web-browsers) (Used on macOS in-place of Embedded Web View)
 * [Device Code Flow](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/Device-Code-Flow) (All platforms, terminal interface only).
 
 ## `aad` subcommand
@@ -22,6 +22,22 @@ The `azureauth aad` subcommand is a "pass-through" for using [MSAL.NET](https://
    5. Select **Configure**.
 
    ![WAM redirect URI configuration](wam-config.png "A screenshot of a WAM URI being configured as a custom redirect URI.")
+
+2b. Configure redirect URIs for the **macOS Enterprise SSO Extension** (the macOS broker)
+   1. Select the **Authentication** blade.
+   2. Under Platform configurations, find **Mobile and desktop applications**.
+   3. Select **Add URI** and enter
+      ```
+      msauth.com.msauth.unsignedapp://auth
+      ```
+   4. Select **Save**.
+   
+   > **Note:** macOS brokered authentication requires:
+   > - **Company Portal** installed on the device
+   > - Device is **MDM-compliant**
+   > - **Enterprise SSO Extension** is running
+   > 
+   > If these prerequisites are not met, AzureAuth will automatically fall back to system web browser authentication.
 
 3. Configure redirect URIs for the **system web browser**
    1. Select the **Authentication** blade.

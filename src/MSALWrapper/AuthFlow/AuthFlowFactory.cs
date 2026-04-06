@@ -41,7 +41,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             // We skip CachedAuth if Broker is present in authMode on windows 10 or 11, since Broker 
             // already tries CachedAuth with its PCAWrapper object built using withBroker(options).
-            if (!(authMode.IsBroker() && platformUtils.IsWindows10Or11()))
+            // The same applies on macOS where the broker handles its own silent attempt.
+            if (!(authMode.IsBroker() && (platformUtils.IsWindows10Or11() || platformUtils.IsMacOS())))
             {
                 flows.Add(new CachedAuth(logger, authParams, preferredDomain, pcaWrapper));
             }
@@ -56,9 +57,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // This check silently fails on winserver if broker has been requested.
             // Future: Consider making AuthMode platform aware at Runtime.
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
-            if (authMode.IsBroker() && platformUtils.IsWindows10Or11())
+            if (authMode.IsBroker() && (platformUtils.IsWindows10Or11() || platformUtils.IsMacOS()))
             {
-                flows.Add(new Broker(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint));
+                flows.Add(new Broker(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint, platformUtils: platformUtils));
             }
 
             if (authMode.IsWeb())

@@ -50,14 +50,19 @@ namespace Microsoft.Authentication.MSALWrapper
         Default = Broker | Web,
 #else
         /// <summary>
+        /// Broker auth mode (macOS Enterprise SSO Extension).
+        /// </summary>
+        Broker = 1 << 2,
+
+        /// <summary>
         /// All auth modes.
         /// </summary>
-        All = Web | DeviceCode,
+        All = Broker | Web | DeviceCode,
 
         /// <summary>
         /// Default auth mode.
         /// </summary>
-        Default = Web,
+        Default = Broker | Web,
 #endif
     }
 
@@ -76,7 +81,7 @@ namespace Microsoft.Authentication.MSALWrapper
 #if PlatformWindows
             return (AuthMode.Broker & authMode) == AuthMode.Broker;
 #else
-            return false;
+            return (AuthMode.Broker & authMode) == AuthMode.Broker;
 #endif
         }
 

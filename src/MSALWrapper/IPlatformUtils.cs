@@ -19,5 +19,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <returns><see cref="bool"/> - true if running on any version of Windows.</returns>
         bool IsWindows();
+        /// <summary>
+        /// Check if running on macOS.
+        /// </summary>
+        /// <returns><see cref="bool"/> - true if running on macOS.</returns>
+        bool IsMacOS();
     }
 }
