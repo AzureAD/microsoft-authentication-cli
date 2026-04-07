@@ -243,7 +243,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsX")]
         public void AllModes_Mac()
         {
-            this.MockIsMacOS(true);
+            this.MockIsMacOSBrokerAvailable(true);
             this.MockIsWindows10Or11(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
@@ -265,7 +265,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsx")]
         public void DefaultModes_Not_Windows()
         {
-            this.MockIsMacOS(true);
+            this.MockIsMacOSBrokerAvailable(true);
             this.MockIsWindows10Or11(false);
 
             var subject = this.Subject(AuthMode.Default);
@@ -293,6 +293,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private void MockIsMacOS(bool value)
         {
             this.platformUtilsMock.Setup(p => p.IsMacOS()).Returns(value);
+        }
+
+        private void MockIsMacOSBrokerAvailable(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsMacOSBrokerAvailable()).Returns(value);
         }
     }
 }
