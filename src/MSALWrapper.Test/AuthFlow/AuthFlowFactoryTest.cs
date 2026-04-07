@@ -3,6 +3,7 @@
 
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -243,6 +244,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsX")]
         public void AllModes_Mac()
         {
+            this.MockIsMacOS(true);
             this.MockIsMacOSBrokerAvailable(true);
             this.MockIsWindows10Or11(false);
 
@@ -265,19 +267,30 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsx")]
         public void DefaultModes_Not_Windows()
         {
-            this.MockIsMacOSBrokerAvailable(true);
-            this.MockIsWindows10Or11(false);
-
+            // On macOS, default mode is Web only (broker is opt-in via --mode broker).
             var subject = this.Subject(AuthMode.Default);
 
-            this.platformUtilsMock.VerifyAll();
             subject.Should().HaveCount(2);
             subject
                 .Select(a => a.GetType())
                 .Should()
                 .ContainInOrder(
-                    typeof(Broker),
+                    typeof(CachedAuth),
                     typeof(Web));
+        }
+
+        [Test]
+        [Platform("MacOsX")]
+        public void BrokerRequested_Mac_CP_Unavailable_Throws()
+        {
+            this.MockIsWindows10Or11(false);
+            this.MockIsMacOS(true);
+            this.MockIsMacOSBrokerAvailable(false);
+
+            Action act = () => this.Subject(AuthMode.Broker).ToList();
+
+            act.Should().Throw<InvalidOperationException>()
+                .WithMessage("*Company Portal*5.2603*");
         }
 
         private void MockIsWindows10Or11(bool value)

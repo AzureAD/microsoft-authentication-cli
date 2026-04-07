@@ -65,7 +65,8 @@ namespace AzureAuth.Test
             this.envMock.Setup(e => e.Get(EnvVars.NoUser)).Returns(string.Empty);
             this.envMock.Setup(e => e.Get("Corext_NonInteractive")).Returns(string.Empty);
 
-            var subject = new[] { AuthMode.Broker, AuthMode.Web };
+            // Default on macOS is Web only (broker is opt-in).
+            var subject = new[] { AuthMode.Web };
 
             // Act + Assert
             subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.Default);

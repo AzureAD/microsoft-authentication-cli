@@ -113,7 +113,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             var subject = AuthMode.Default;
             subject.IsIWA().Should().BeFalse();
-            subject.IsBroker().Should().BeTrue();
+            subject.IsBroker().Should().BeFalse();
             subject.IsWeb().Should().BeTrue();
             subject.IsDeviceCode().Should().BeFalse();
         }

@@ -60,9 +60,11 @@ namespace Microsoft.Authentication.MSALWrapper
         All = Broker | Web | DeviceCode,
 
         /// <summary>
-        /// Default auth mode.
+        /// Default auth mode. On macOS, broker is opt-in via --mode broker because
+        /// it requires Company Portal and apps using broker-required CA policies
+        /// will hang indefinitely if web auth is attempted as fallback.
         /// </summary>
-        Default = Broker | Web,
+        Default = Web,
 #endif
     }
 
