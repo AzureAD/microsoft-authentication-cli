@@ -142,56 +142,88 @@ else
     BROKER_AVAILABLE=false
 fi
 
-# ── Test 1: Web flow (baseline) ───────────────────────────────
-header "Test 1: Web flow — baseline auth (interactive, opens browser)"
-echo "This will try to open a browser for sign-in."
-echo "If the app requires broker, this will hang — Ctrl+C or wait for timeout."
-run_test "Web flow baseline" 0 \
-    aad --client "$CLIENT" --tenant "$TENANT" \
-    --resource "$RESOURCE" \
-    --mode web --output json --verbosity debug
-
-# ── Test 2: Default modes (broker,web) ────────────────────────
-header "Test 2: Default modes — broker + web (broker skipped if CP < 2603)"
-echo "🔍 Watch for: 'Company Portal version' or 'broker' log lines"
-run_test "Default modes (broker+web)" 0 \
+# ── Test 1: Default modes — web only (broker is opt-in on macOS) ──
+header "Test 1: Default modes — web only on macOS"
+echo "Default mode no longer includes broker. This tests web auth flow."
+echo "If the app requires broker (token protection), web will hang — Ctrl+C."
+run_test "Default modes (web only)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
     --output json --verbosity debug
 
-# ── Test 3: Broker-only mode ──────────────────────────────────
-header "Test 3: Broker-only mode"
+# ── Test 2: Broker-only mode (opt-in) ────────────────────────
+header "Test 2: Broker-only mode (--mode broker)"
 if [ "$BROKER_AVAILABLE" = true ]; then
     echo "CP >= 2603 detected — this will attempt real broker auth"
+    echo "Expect: broker interactive prompt via Enterprise SSO Extension"
     EXPECTED_EXIT=0
 else
-    echo "CP < 2603 — broker gated off. Expecting failure (no available auth flows)"
+    echo "CP < 2603 or not installed — expecting clear error about Company Portal"
+    echo "Expect: InvalidOperationException with CP version/path info"
     EXPECTED_EXIT=1
 fi
-run_test "Broker-only mode" "$EXPECTED_EXIT" \
+run_test "Broker-only (opt-in)" "$EXPECTED_EXIT" \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
     --mode broker --output json --verbosity debug
 
-# ── Test 4: Explicit scopes ───────────────────────────────────
-header "Test 4: Explicit Graph scopes (Mail.Read + Chat.Read)"
-echo "Opens browser for consent to specific scopes."
-run_test "Explicit scopes" 0 \
+# ── Test 3: Broker + web combined (explicit) ──────────────────
+header "Test 3: Broker + web combined (--mode broker --mode web)"
+if [ "$BROKER_AVAILABLE" = true ]; then
+    echo "CP >= 2603 — broker will be tried first, web as fallback"
+    EXPECTED_EXIT=0
+else
+    echo "CP < 2603 — broker requested but unavailable, expecting error"
+    echo "(Error occurs before web is attempted because broker was explicitly requested)"
+    EXPECTED_EXIT=1
+fi
+run_test "Broker + web combined" "$EXPECTED_EXIT" \
+    aad --client "$CLIENT" --tenant "$TENANT" \
+    --resource "$RESOURCE" \
+    --mode broker --mode web --output json --verbosity debug
+
+# ── Test 4: Web-only explicit (for apps that support it) ──────
+header "Test 4: Web-only explicit (--mode web)"
+echo "Explicit web flow. For broker-required apps, this will hang."
+echo "For apps supporting web auth, this should open browser and succeed."
+run_test "Web-only explicit" 0 \
+    aad --client "$CLIENT" --tenant "$TENANT" \
+    --resource "$RESOURCE" \
+    --mode web --output json --verbosity debug
+
+# ── Test 5: Trace verbosity — verify CP diagnostics in logs ───
+header "Test 5: Trace verbosity — CP diagnostic logging"
+echo "Running with --verbosity trace to verify Company Portal metadata is logged."
+echo "🔍 Watch for: CP path, raw version output, release parsing"
+if [ "$BROKER_AVAILABLE" = true ]; then
+    EXPECTED_EXIT=0
+else
+    EXPECTED_EXIT=1
+fi
+run_test "Trace CP diagnostics" "$EXPECTED_EXIT" \
+    aad --client "$CLIENT" --tenant "$TENANT" \
+    --resource "$RESOURCE" \
+    --mode broker --output json --verbosity trace
+
+# ── Test 6: Explicit scopes (web) ─────────────────────────────
+header "Test 6: Explicit Graph scopes (Mail.Read + Chat.Read, web)"
+echo "Tests scope-based auth via web flow."
+run_test "Explicit scopes (web)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --scope "https://graph.microsoft.com/Mail.Read" \
     --scope "https://graph.microsoft.com/Chat.Read" \
     --mode web --output token --verbosity debug
 
-# ── Test 5: Silent re-auth (cached token) ─────────────────────
-header "Test 5: Silent re-auth (should use cached token, no browser)"
+# ── Test 7: Silent re-auth (cached token) ─────────────────────
+header "Test 7: Silent re-auth (should use cached token, no browser)"
 echo "Running same command as Test 1 — should succeed silently from cache"
 run_test "Silent re-auth (cached)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
     --mode web --output json --verbosity debug
 
-# ── Test 6: Clear cache ───────────────────────────────────────
-header "Test 6: Clear token cache"
+# ── Test 8: Clear cache ───────────────────────────────────────
+header "Test 8: Clear token cache"
 run_test "Cache clear" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \

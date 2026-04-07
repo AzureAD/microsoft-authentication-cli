@@ -75,7 +75,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     {
                         throw new InvalidOperationException(
                             "Broker authentication was requested but is not available on this machine. " +
-                            "macOS broker requires Company Portal version 5.2603.0 or later. " +
+                            "macOS broker requires Company Portal version 5.2603.0 or later " +
+                            $"(checked: {PlatformUtils.CompanyPortalAppPath}). " +
                             "Please install or update Company Portal, then try again.");
                     }
                 }

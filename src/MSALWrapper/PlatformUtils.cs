@@ -69,7 +69,10 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         private const int MinimumCPRelease = 2603;
 
-        private const string CompanyPortalPath = "/Applications/Company Portal.app";
+        /// <summary>
+        /// Path where Company Portal is expected to be installed on macOS.
+        /// </summary>
+        public const string CompanyPortalAppPath = "/Applications/Company Portal.app";
 
         private bool CheckMacOSBrokerAvailable()
         {
@@ -78,49 +81,66 @@ namespace Microsoft.Authentication.MSALWrapper
                 return false;
             }
 
-            if (!Directory.Exists(CompanyPortalPath))
+            this.logger.LogTrace($"Checking for Company Portal at: {CompanyPortalAppPath}");
+
+            if (!Directory.Exists(CompanyPortalAppPath))
             {
-                this.logger.LogDebug("macOS broker unavailable: Company Portal not installed");
+                this.logger.LogDebug($"macOS broker unavailable: Company Portal not found at {CompanyPortalAppPath}");
                 return false;
             }
 
+            this.logger.LogTrace($"Company Portal found at: {CompanyPortalAppPath}");
+
             try
             {
+                var plistPath = $"{CompanyPortalAppPath}/Contents/Info";
                 var psi = new ProcessStartInfo
                 {
                     FileName = "defaults",
-                    Arguments = $"read \"{CompanyPortalPath}/Contents/Info\" CFBundleShortVersionString",
+                    Arguments = $"read \"{plistPath}\" CFBundleShortVersionString",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
                 };
 
+                this.logger.LogTrace($"Reading CP version: defaults read \"{plistPath}\" CFBundleShortVersionString");
+
                 using var process = Process.Start(psi);
                 var output = process.StandardOutput.ReadToEnd().Trim();
+                var stderr = process.StandardError.ReadToEnd().Trim();
                 process.WaitForExit(5000);
+
+                this.logger.LogTrace($"CP version raw output: '{output}'");
+                if (!string.IsNullOrEmpty(stderr))
+                {
+                    this.logger.LogTrace($"CP version stderr: '{stderr}'");
+                }
 
                 // Version format: "5.RRRR.B" where RRRR is the release number (e.g., 2603)
                 var parts = output.Split('.');
                 if (parts.Length >= 2 && int.TryParse(parts[1], out int releaseNumber))
                 {
                     var meetsMinimum = releaseNumber >= MinimumCPRelease;
-                    this.logger.LogDebug($"Company Portal version: {output}, release: {releaseNumber}, meets minimum ({MinimumCPRelease}): {meetsMinimum}");
+                    this.logger.LogDebug($"Company Portal version: {output} (release {releaseNumber}), minimum required: {MinimumCPRelease}, meets minimum: {meetsMinimum}");
+                    this.logger.LogTrace($"Company Portal path: {CompanyPortalAppPath}");
+                    this.logger.LogTrace($"Company Portal version parts: major={parts[0]}, release={parts[1]}{(parts.Length >= 3 ? $", build={parts[2]}" : string.Empty)}");
 
                     if (!meetsMinimum)
                     {
-                        this.logger.LogWarning($"macOS broker unavailable: Company Portal version {output} is below minimum required release {MinimumCPRelease}. Falling back to web auth.");
+                        this.logger.LogWarning($"macOS broker unavailable: Company Portal {output} (at {CompanyPortalAppPath}) is below minimum required release {MinimumCPRelease}.");
                     }
 
                     return meetsMinimum;
                 }
 
-                this.logger.LogDebug($"macOS broker: unable to parse Company Portal version '{output}'");
+                this.logger.LogDebug($"macOS broker: unable to parse Company Portal version '{output}' from {CompanyPortalAppPath}");
                 return false;
             }
             catch (Exception ex)
             {
-                this.logger.LogDebug($"macOS broker: failed to check Company Portal version: {ex.Message}");
+                this.logger.LogDebug($"macOS broker: failed to check Company Portal version at {CompanyPortalAppPath}: {ex.Message}");
+                this.logger.LogTrace($"macOS broker: version check exception: {ex}");
                 return false;
             }
         }
