@@ -17,6 +17,7 @@ CLIENT="ba081686-5d24-4bc6-a0d6-d034ecffed87"
 TENANT="common"
 RESOURCE="https://graph.microsoft.com"
 TIMEOUT="${AZUREAUTH_TEST_TIMEOUT:-120}"
+VERBOSITY="${AZUREAUTH_TEST_VERBOSITY:-debug}"  # debug, trace, info, warn
 
 PASS=0
 FAIL=0
@@ -156,7 +157,7 @@ fi
 run_test "Broker-only (opt-in)" "$EXPECTED_EXIT" \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --mode broker --output json --verbosity debug
+    --mode broker --output json --verbosity "$VERBOSITY"
 
 # ── Test 2: Broker + web combined (explicit) ──────────────────
 header "Test 2: Broker + web combined (--mode broker --mode web)"
@@ -171,7 +172,7 @@ fi
 run_test "Broker + web combined" "$EXPECTED_EXIT" \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --mode broker --mode web --output json --verbosity debug
+    --mode broker --mode web --output json --verbosity "$VERBOSITY"
 
 # ── Test 3: Trace verbosity — verify CP diagnostics in logs ───
 header "Test 3: Trace verbosity — CP diagnostic logging"
@@ -192,7 +193,7 @@ header "Test 4: Clear token cache"
 run_test "Cache clear" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --clear --verbosity debug
+    --clear --verbosity "$VERBOSITY"
 
 # ── Tests below may hang for broker-required apps (web flow) ──
 header "⚠️  Remaining tests use web auth — may hang for broker-required apps"
@@ -206,7 +207,7 @@ echo "If the app requires broker (token protection), web will hang — Ctrl+C."
 run_test "Default modes (web only)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --output json --verbosity debug
+    --output json --verbosity "$VERBOSITY"
 
 # ── Test 6: Web-only explicit (for apps that support it) ──────
 header "Test 6: Web-only explicit (--mode web)"
@@ -215,7 +216,7 @@ echo "For apps supporting web auth, this should open browser and succeed."
 run_test "Web-only explicit" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --mode web --output json --verbosity debug
+    --mode web --output json --verbosity "$VERBOSITY"
 
 # ── Test 7: Explicit scopes (web) ─────────────────────────────
 header "Test 7: Explicit Graph scopes (Mail.Read + Chat.Read, web)"
@@ -224,7 +225,7 @@ run_test "Explicit scopes (web)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --scope "https://graph.microsoft.com/Mail.Read" \
     --scope "https://graph.microsoft.com/Chat.Read" \
-    --mode web --output token --verbosity debug
+    --mode web --output token --verbosity "$VERBOSITY"
 
 # ── Test 8: Silent re-auth (cached token) ─────────────────────
 header "Test 7: Silent re-auth (should use cached token, no browser)"
@@ -232,14 +233,14 @@ echo "Running same command as Test 1 — should succeed silently from cache"
 run_test "Silent re-auth (cached)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --mode web --output json --verbosity debug
+    --mode web --output json --verbosity "$VERBOSITY"
 
 # ── Test 8: Clear cache ───────────────────────────────────────
 header "Test 8: Clear token cache"
 run_test "Cache clear" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --clear --verbosity debug
+    --clear --verbosity "$VERBOSITY"
 
 # ── Summary ────────────────────────────────────────────────────
 header "Results"

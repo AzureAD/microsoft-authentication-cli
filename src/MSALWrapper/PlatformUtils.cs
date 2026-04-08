@@ -132,13 +132,14 @@ namespace Microsoft.Authentication.MSALWrapper
                         return false;
                     }
 
+                    // TODO: Re-enable once we confirm SSO Extension registration is required.
                     // Check if the Enterprise SSO Extension is registered via MDM.
                     // This is a soft check — disable by setting AZUREAUTH_SKIP_SSO_CHECK=1
                     // if it proves unnecessary (e.g., broker works without it in some configs).
-                    if (!this.IsSSOExtensionRegistered())
-                    {
-                        return false;
-                    }
+                    // if (!this.IsSSOExtensionRegistered())
+                    // {
+                    //     return false;
+                    // }
 
                     return true;
                 }
