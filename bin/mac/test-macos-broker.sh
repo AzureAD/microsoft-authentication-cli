@@ -11,12 +11,12 @@ set -euo pipefail
 # You can also Ctrl+C during any individual test — the script traps it
 # and moves on.
 
-REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 AZUREAUTH="$REPO_ROOT/src/AzureAuth/bin/Debug/net8.0/azureauth"
 CLIENT="ba081686-5d24-4bc6-a0d6-d034ecffed87"
 TENANT="common"
 RESOURCE="https://graph.microsoft.com"
-TIMEOUT="${AZUREAUTH_TEST_TIMEOUT:-30}"
+TIMEOUT="${AZUREAUTH_TEST_TIMEOUT:-120}"
 
 PASS=0
 FAIL=0
