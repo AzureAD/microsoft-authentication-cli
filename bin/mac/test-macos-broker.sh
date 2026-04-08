@@ -165,20 +165,23 @@ run_test "Broker-only (opt-in)" "$EXPECTED_EXIT" \
     --resource "$RESOURCE" \
     --mode broker --output json --verbosity "$VERBOSITY"
 
-# ── Test 2: Broker + web combined (explicit) ──────────────────
-header "Test 2: Broker + web combined (--mode broker --mode web)"
-if [ "$BROKER_AVAILABLE" = true ]; then
-    echo "CP >= 2603 — broker will be tried first, web as fallback"
-    EXPECTED_EXIT=0
-else
-    echo "CP < 2603 — broker requested but unavailable, expecting error"
-    echo "(Error occurs before web is attempted because broker was explicitly requested)"
-    EXPECTED_EXIT=1
-fi
-run_test "Broker + web combined" "$EXPECTED_EXIT" \
-    aad --client "$CLIENT" --tenant "$TENANT" \
-    --resource "$RESOURCE" \
-    --mode broker --mode web --output json --verbosity "$VERBOSITY"
+# ── Test 2: Broker + web combined — COMMENTED OUT ─────────────
+# This app requires broker (token protection CA policy), so web auth
+# will hang indefinitely waiting for a redirect that never comes.
+# Uncomment for apps that support both broker and web auth.
+#
+# header "Test 2: Broker + web combined (--mode broker --mode web)"
+# if [ "$BROKER_AVAILABLE" = true ]; then
+#     echo "CP >= 2603 — broker will be tried first, web as fallback"
+#     EXPECTED_EXIT=0
+# else
+#     echo "CP unavailable — broker skipped, falls through to web"
+#     EXPECTED_EXIT=0
+# fi
+# run_test "Broker + web combined" "$EXPECTED_EXIT" \
+#     aad --client "$CLIENT" --tenant "$TENANT" \
+#     --resource "$RESOURCE" \
+#     --mode broker --mode web --output json --verbosity "$VERBOSITY"
 
 # ── Test 3: Trace verbosity — verify CP diagnostics in logs ───
 header "Test 3: Trace verbosity — CP diagnostic logging"
@@ -201,49 +204,49 @@ run_test "Cache clear" 0 \
     --resource "$RESOURCE" \
     --clear --verbosity "$VERBOSITY"
 
-# ── Tests below may hang for broker-required apps (web flow) ──
-header "⚠️  Remaining tests use web auth — may hang for broker-required apps"
-echo "Ctrl+C or wait for timeout to skip individual tests."
-echo ""
+# ── Test 5: Broker + web fallthrough — COMMENTED OUT ──────────
+# Same issue as Test 2: this app requires broker, so web will hang.
+# Uncomment for apps that support both broker and web auth.
+#
+# header "Test 5: Broker + web fallthrough (--mode broker --mode web)"
+# echo "Tests the fallthrough pattern: broker tried first, web as fallback."
+# if [ "$BROKER_AVAILABLE" = true ]; then
+#     echo "CP available — broker should succeed silently from Test 1 cache"
+#     EXPECTED_EXIT=0
+# else
+#     echo "CP unavailable — broker skipped, falls through to web"
+#     EXPECTED_EXIT=0
+# fi
+# run_test "Broker + web fallthrough" "$EXPECTED_EXIT" \
+#     aad --client "$CLIENT" --tenant "$TENANT" \
+#     --resource "$RESOURCE" \
+#     --mode broker --mode web --output json --verbosity "$VERBOSITY"
 
-# ── Test 5: Default modes — web only (broker is opt-in on macOS) ──
-header "Test 5: Default modes — web only on macOS"
-echo "Default mode no longer includes broker. This tests web auth flow."
-echo "If the app requires broker (token protection), web will hang — Ctrl+C."
-run_test "Default modes (web only)" 0 \
+# ── Test 6: Clear cache (before re-testing broker interactive) ─
+header "Test 6: Clear token cache"
+run_test "Cache clear (pre-broker retest)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --output json --verbosity "$VERBOSITY"
+    --clear --verbosity "$VERBOSITY"
 
-# ── Test 6: Web-only explicit (for apps that support it) ──────
-header "Test 6: Web-only explicit (--mode web)"
-echo "Explicit web flow. For broker-required apps, this will hang."
-echo "For apps supporting web auth, this should open browser and succeed."
-run_test "Web-only explicit" 0 \
+# ── Test 7: Broker interactive again (after cache clear) ──────
+header "Test 7: Broker interactive (after cache clear)"
+if [ "$BROKER_AVAILABLE" = true ]; then
+    echo "Cache was just cleared — broker must prompt interactively again"
+    echo "Expect: broker account picker / SSO Extension prompt"
+    EXPECTED_EXIT=0
+else
+    echo "CP unavailable — broker skipped, CachedAuth only (will fail)"
+    EXPECTED_EXIT=1
+fi
+run_test "Broker interactive (re-prompt)" "$EXPECTED_EXIT" \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
-    --mode web --output json --verbosity "$VERBOSITY"
+    --mode broker --output json --verbosity "$VERBOSITY"
 
-# ── Test 7: Explicit scopes (web) ─────────────────────────────
-header "Test 7: Explicit Graph scopes (Mail.Read + Chat.Read, web)"
-echo "Tests scope-based auth via web flow."
-run_test "Explicit scopes (web)" 0 \
-    aad --client "$CLIENT" --tenant "$TENANT" \
-    --scope "https://graph.microsoft.com/Mail.Read" \
-    --scope "https://graph.microsoft.com/Chat.Read" \
-    --mode web --output token --verbosity "$VERBOSITY"
-
-# ── Test 8: Silent re-auth (cached token) ─────────────────────
-header "Test 7: Silent re-auth (should use cached token, no browser)"
-echo "Running same command as Test 1 — should succeed silently from cache"
-run_test "Silent re-auth (cached)" 0 \
-    aad --client "$CLIENT" --tenant "$TENANT" \
-    --resource "$RESOURCE" \
-    --mode web --output json --verbosity "$VERBOSITY"
-
-# ── Test 8: Clear cache ───────────────────────────────────────
-header "Test 8: Clear token cache"
-run_test "Cache clear" 0 \
+# ── Test 8: Final cache clear ─────────────────────────────────
+header "Test 8: Final cache clear"
+run_test "Cache clear (final)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
     --clear --verbosity "$VERBOSITY"
