@@ -13,6 +13,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.Identity.Client.Broker;
+    using Microsoft.Identity.Client.Utils;
 
     /// <summary>
     /// The broker auth flow. Supports Windows (WAM) and macOS (Enterprise SSO Extension).
@@ -236,16 +237,46 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
         private Func<CancellationToken, Task<TokenResult>> GetTokenInteractive(IAccount account)
         {
-            return (CancellationToken cancellationToken) => this.pcaWrapper
-                .WithPromptHint(this.promptHint)
-                .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+            return async (CancellationToken cancellationToken) =>
+            {
+                if (this.platformUtils.IsMacOS() && MacMainThreadScheduler.Instance().IsRunning())
+                {
+                    TokenResult result = null;
+                    await MacMainThreadScheduler.Instance().RunOnMainThreadAsync(async () =>
+                    {
+                        result = await this.pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+                    });
+                    return result;
+                }
+
+                return await this.pcaWrapper
+                    .WithPromptHint(this.promptHint)
+                    .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+            };
         }
 
         private Func<CancellationToken, Task<TokenResult>> GetTokenInteractiveWithClaims(string claims)
         {
-            return (CancellationToken cancellationToken) => this.pcaWrapper
-                .WithPromptHint(this.promptHint)
-                .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
+            return async (CancellationToken cancellationToken) =>
+            {
+                if (this.platformUtils.IsMacOS() && MacMainThreadScheduler.Instance().IsRunning())
+                {
+                    TokenResult result = null;
+                    await MacMainThreadScheduler.Instance().RunOnMainThreadAsync(async () =>
+                    {
+                        result = await this.pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
+                    });
+                    return result;
+                }
+
+                return await this.pcaWrapper
+                    .WithPromptHint(this.promptHint)
+                    .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
+            };
         }
 
 #if PlatformWindows

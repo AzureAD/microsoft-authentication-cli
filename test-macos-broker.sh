@@ -33,10 +33,10 @@ result() {
     local name="$1" exit_code="$2" expected="$3"
     if [ "$exit_code" -eq "$expected" ]; then
         echo "✅ PASS: $name (exit=$exit_code, expected=$expected)"
-        ((PASS++))
+        PASS=$((PASS + 1))
     else
         echo "❌ FAIL: $name (exit=$exit_code, expected=$expected)"
-        ((FAIL++))
+        FAIL=$((FAIL + 1))
     fi
 }
 
@@ -99,10 +99,10 @@ run_test() {
         choice="${choice:-s}"
         if [[ "$choice" =~ ^[fF] ]]; then
             echo "❌ FAIL: $test_name (interrupted, marked as fail)"
-            ((FAIL++))
+            FAIL=$((FAIL + 1))
         else
             echo "⏭️  SKIP: $test_name (interrupted)"
-            ((SKIP++))
+            SKIP=$((SKIP + 1))
         fi
         return
     fi
@@ -142,17 +142,8 @@ else
     BROKER_AVAILABLE=false
 fi
 
-# ── Test 1: Default modes — web only (broker is opt-in on macOS) ──
-header "Test 1: Default modes — web only on macOS"
-echo "Default mode no longer includes broker. This tests web auth flow."
-echo "If the app requires broker (token protection), web will hang — Ctrl+C."
-run_test "Default modes (web only)" 0 \
-    aad --client "$CLIENT" --tenant "$TENANT" \
-    --resource "$RESOURCE" \
-    --output json --verbosity debug
-
-# ── Test 2: Broker-only mode (opt-in) ────────────────────────
-header "Test 2: Broker-only mode (--mode broker)"
+# ── Test 1: Broker-only mode (opt-in) ────────────────────────
+header "Test 1: Broker-only mode (--mode broker)"
 if [ "$BROKER_AVAILABLE" = true ]; then
     echo "CP >= 2603 detected — this will attempt real broker auth"
     echo "Expect: broker interactive prompt via Enterprise SSO Extension"
@@ -167,8 +158,8 @@ run_test "Broker-only (opt-in)" "$EXPECTED_EXIT" \
     --resource "$RESOURCE" \
     --mode broker --output json --verbosity debug
 
-# ── Test 3: Broker + web combined (explicit) ──────────────────
-header "Test 3: Broker + web combined (--mode broker --mode web)"
+# ── Test 2: Broker + web combined (explicit) ──────────────────
+header "Test 2: Broker + web combined (--mode broker --mode web)"
 if [ "$BROKER_AVAILABLE" = true ]; then
     echo "CP >= 2603 — broker will be tried first, web as fallback"
     EXPECTED_EXIT=0
@@ -182,17 +173,8 @@ run_test "Broker + web combined" "$EXPECTED_EXIT" \
     --resource "$RESOURCE" \
     --mode broker --mode web --output json --verbosity debug
 
-# ── Test 4: Web-only explicit (for apps that support it) ──────
-header "Test 4: Web-only explicit (--mode web)"
-echo "Explicit web flow. For broker-required apps, this will hang."
-echo "For apps supporting web auth, this should open browser and succeed."
-run_test "Web-only explicit" 0 \
-    aad --client "$CLIENT" --tenant "$TENANT" \
-    --resource "$RESOURCE" \
-    --mode web --output json --verbosity debug
-
-# ── Test 5: Trace verbosity — verify CP diagnostics in logs ───
-header "Test 5: Trace verbosity — CP diagnostic logging"
+# ── Test 3: Trace verbosity — verify CP diagnostics in logs ───
+header "Test 3: Trace verbosity — CP diagnostic logging"
 echo "Running with --verbosity trace to verify Company Portal metadata is logged."
 echo "🔍 Watch for: CP path, raw version output, release parsing"
 if [ "$BROKER_AVAILABLE" = true ]; then
@@ -205,8 +187,38 @@ run_test "Trace CP diagnostics" "$EXPECTED_EXIT" \
     --resource "$RESOURCE" \
     --mode broker --output json --verbosity trace
 
-# ── Test 6: Explicit scopes (web) ─────────────────────────────
-header "Test 6: Explicit Graph scopes (Mail.Read + Chat.Read, web)"
+# ── Test 4: Clear cache ───────────────────────────────────────
+header "Test 4: Clear token cache"
+run_test "Cache clear" 0 \
+    aad --client "$CLIENT" --tenant "$TENANT" \
+    --resource "$RESOURCE" \
+    --clear --verbosity debug
+
+# ── Tests below may hang for broker-required apps (web flow) ──
+header "⚠️  Remaining tests use web auth — may hang for broker-required apps"
+echo "Ctrl+C or wait for timeout to skip individual tests."
+echo ""
+
+# ── Test 5: Default modes — web only (broker is opt-in on macOS) ──
+header "Test 5: Default modes — web only on macOS"
+echo "Default mode no longer includes broker. This tests web auth flow."
+echo "If the app requires broker (token protection), web will hang — Ctrl+C."
+run_test "Default modes (web only)" 0 \
+    aad --client "$CLIENT" --tenant "$TENANT" \
+    --resource "$RESOURCE" \
+    --output json --verbosity debug
+
+# ── Test 6: Web-only explicit (for apps that support it) ──────
+header "Test 6: Web-only explicit (--mode web)"
+echo "Explicit web flow. For broker-required apps, this will hang."
+echo "For apps supporting web auth, this should open browser and succeed."
+run_test "Web-only explicit" 0 \
+    aad --client "$CLIENT" --tenant "$TENANT" \
+    --resource "$RESOURCE" \
+    --mode web --output json --verbosity debug
+
+# ── Test 7: Explicit scopes (web) ─────────────────────────────
+header "Test 7: Explicit Graph scopes (Mail.Read + Chat.Read, web)"
 echo "Tests scope-based auth via web flow."
 run_test "Explicit scopes (web)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
@@ -214,7 +226,7 @@ run_test "Explicit scopes (web)" 0 \
     --scope "https://graph.microsoft.com/Chat.Read" \
     --mode web --output token --verbosity debug
 
-# ── Test 7: Silent re-auth (cached token) ─────────────────────
+# ── Test 8: Silent re-auth (cached token) ─────────────────────
 header "Test 7: Silent re-auth (should use cached token, no browser)"
 echo "Running same command as Test 1 — should succeed silently from cache"
 run_test "Silent re-auth (cached)" 0 \
