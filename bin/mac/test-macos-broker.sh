@@ -4,7 +4,13 @@ set -euo pipefail
 # Functional test script for macOS brokered auth changes
 # Tests AzureAuth CLI with Work IQ's 3P Graph app registration
 #
-# Each interactive test has a timeout (default 30s). If azureauth hangs
+# Usage:
+#   ./bin/mac/test-macos-broker.sh                              # defaults (debug verbosity, 120s timeout)
+#   AZUREAUTH_TEST_VERBOSITY=info  ./bin/mac/test-macos-broker.sh   # less noise
+#   AZUREAUTH_TEST_VERBOSITY=trace ./bin/mac/test-macos-broker.sh   # max detail
+#   AZUREAUTH_TEST_TIMEOUT=60     ./bin/mac/test-macos-broker.sh   # shorter timeout
+#
+# Each interactive test has a timeout (default 120s). If azureauth hangs
 # waiting for browser/broker, it will be killed and you can choose to
 # mark it as SKIP or FAIL, then the script continues to the next test.
 #
