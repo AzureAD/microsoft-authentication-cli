@@ -281,16 +281,37 @@ namespace Microsoft.Authentication.MSALWrapper.Test
 
         [Test]
         [Platform("MacOsX")]
-        public void BrokerRequested_Mac_CP_Unavailable_Throws()
+        public void BrokerRequested_Mac_CP_Unavailable_SkipsBroker()
         {
             this.MockIsWindows10Or11(false);
             this.MockIsMacOS(true);
             this.MockIsMacOSBrokerAvailable(false);
 
-            Action act = () => this.Subject(AuthMode.Broker).ToList();
+            // Broker is silently skipped; only CachedAuth remains when no other modes are requested.
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
 
-            act.Should().Throw<InvalidOperationException>()
-                .WithMessage("*Company Portal*5.2603*");
+            subject.Should().HaveCount(1);
+            subject.First().Should().BeOfType<CachedAuth>();
+        }
+
+        [Test]
+        [Platform("MacOsX")]
+        public void BrokerAndWeb_Mac_CP_Unavailable_FallsThrough()
+        {
+            this.MockIsWindows10Or11(false);
+            this.MockIsMacOS(true);
+            this.MockIsMacOSBrokerAvailable(false);
+
+            // Broker is skipped but web is still added — fall-through pattern.
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker | AuthMode.Web);
+
+            subject.Should().HaveCount(2);
+            subject
+                .Select(flow => flow.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
+                    typeof(Web));
         }
 
         private void MockIsWindows10Or11(bool value)

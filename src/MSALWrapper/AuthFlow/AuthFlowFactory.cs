@@ -41,8 +41,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             // We skip CachedAuth if Broker is present in authMode on windows 10 or 11, since Broker 
             // already tries CachedAuth with its PCAWrapper object built using withBroker(options).
-            // The same applies on macOS where the broker handles its own silent attempt.
-            // Note: If broker is requested on macOS but unavailable, we throw before reaching here.
+            // The same applies on macOS when the broker is available.
+            // If broker is requested but unavailable, CachedAuth is still added as a first-pass attempt.
             bool brokerWillRun = authMode.IsBroker() && (platformUtils.IsWindows10Or11() || platformUtils.IsMacOSBrokerAvailable());
             if (!brokerWillRun)
             {
@@ -56,8 +56,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 flows.Add(new IntegratedWindowsAuthentication(logger, authParams, preferredDomain, pcaWrapper));
             }
 
-            // This check silently fails on winserver if broker has been requested.
-            // Future: Consider making AuthMode platform aware at Runtime.
+            // Broker is silently skipped when unavailable on the current platform
+            // (e.g., Windows Server, macOS without Company Portal). The executor
+            // continues to the next flow in the list (Web, DeviceCode, etc.).
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
             if (authMode.IsBroker())
             {
@@ -73,11 +74,11 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     }
                     else
                     {
-                        throw new InvalidOperationException(
+                        logger.LogWarning(
                             "Broker authentication was requested but is not available on this machine. " +
                             "macOS broker requires Company Portal version 5.2603.0 or later " +
                             $"(checked: {PlatformUtils.CompanyPortalAppPath}). " +
-                            "Please install or update Company Portal, then try again.");
+                            "Skipping broker and falling through to next auth flow.");
                     }
                 }
             }
