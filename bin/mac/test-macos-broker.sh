@@ -165,26 +165,8 @@ run_test "Broker-only (opt-in)" "$EXPECTED_EXIT" \
     --resource "$RESOURCE" \
     --mode broker --output json --verbosity "$VERBOSITY"
 
-# ── Test 2: Broker + web combined — COMMENTED OUT ─────────────
-# This app requires broker (token protection CA policy), so web auth
-# will hang indefinitely waiting for a redirect that never comes.
-# Uncomment for apps that support both broker and web auth.
-#
-# header "Test 2: Broker + web combined (--mode broker --mode web)"
-# if [ "$BROKER_AVAILABLE" = true ]; then
-#     echo "CP >= 2603 — broker will be tried first, web as fallback"
-#     EXPECTED_EXIT=0
-# else
-#     echo "CP unavailable — broker skipped, falls through to web"
-#     EXPECTED_EXIT=0
-# fi
-# run_test "Broker + web combined" "$EXPECTED_EXIT" \
-#     aad --client "$CLIENT" --tenant "$TENANT" \
-#     --resource "$RESOURCE" \
-#     --mode broker --mode web --output json --verbosity "$VERBOSITY"
-
-# ── Test 3: Trace verbosity — verify CP diagnostics in logs ───
-header "Test 3: Trace verbosity — CP diagnostic logging"
+# ── Test 2: Trace verbosity — verify CP diagnostics in logs ───
+header "Test 2: Trace verbosity — CP diagnostic logging"
 echo "Running with --verbosity trace to verify Company Portal metadata is logged."
 echo "🔍 Watch for: CP path, raw version output, release parsing"
 if [ "$BROKER_AVAILABLE" = true ]; then
@@ -197,40 +179,22 @@ run_test "Trace CP diagnostics" "$EXPECTED_EXIT" \
     --resource "$RESOURCE" \
     --mode broker --output json --verbosity trace
 
-# ── Test 4: Clear cache ───────────────────────────────────────
-header "Test 4: Clear token cache"
+# ── Test 3: Clear cache ───────────────────────────────────────
+header "Test 3: Clear token cache"
 run_test "Cache clear" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
     --clear --verbosity "$VERBOSITY"
 
-# ── Test 5: Broker + web fallthrough — COMMENTED OUT ──────────
-# Same issue as Test 2: this app requires broker, so web will hang.
-# Uncomment for apps that support both broker and web auth.
-#
-# header "Test 5: Broker + web fallthrough (--mode broker --mode web)"
-# echo "Tests the fallthrough pattern: broker tried first, web as fallback."
-# if [ "$BROKER_AVAILABLE" = true ]; then
-#     echo "CP available — broker should succeed silently from Test 1 cache"
-#     EXPECTED_EXIT=0
-# else
-#     echo "CP unavailable — broker skipped, falls through to web"
-#     EXPECTED_EXIT=0
-# fi
-# run_test "Broker + web fallthrough" "$EXPECTED_EXIT" \
-#     aad --client "$CLIENT" --tenant "$TENANT" \
-#     --resource "$RESOURCE" \
-#     --mode broker --mode web --output json --verbosity "$VERBOSITY"
-
-# ── Test 6: Clear cache (before re-testing broker interactive) ─
-header "Test 6: Clear token cache"
+# ── Test 4: Clear cache (before re-testing broker interactive) ─
+header "Test 4: Clear token cache"
 run_test "Cache clear (pre-broker retest)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \
     --clear --verbosity "$VERBOSITY"
 
-# ── Test 7: Broker interactive again (after cache clear) ──────
-header "Test 7: Broker interactive (after cache clear)"
+# ── Test 5: Broker interactive again (after cache clear) ──────
+header "Test 5: Broker interactive (after cache clear)"
 if [ "$BROKER_AVAILABLE" = true ]; then
     echo "Cache was just cleared — broker must prompt interactively again"
     echo "Expect: broker account picker / SSO Extension prompt"
@@ -244,8 +208,8 @@ run_test "Broker interactive (re-prompt)" "$EXPECTED_EXIT" \
     --resource "$RESOURCE" \
     --mode broker --output json --verbosity "$VERBOSITY"
 
-# ── Test 8: Final cache clear ─────────────────────────────────
-header "Test 8: Final cache clear"
+# ── Test 6: Final cache clear ─────────────────────────────────
+header "Test 6: Final cache clear"
 run_test "Cache clear (final)" 0 \
     aad --client "$CLIENT" --tenant "$TENANT" \
     --resource "$RESOURCE" \

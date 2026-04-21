@@ -59,6 +59,7 @@ namespace AzureAuth.Test
         }
 #else
         [Test]
+        [Platform("MacOsX,Linux")]
         public void CombinedAuthMode_Allowed()
         {
             // Arrange
@@ -75,6 +76,7 @@ namespace AzureAuth.Test
 
         [TestCase("AZUREAUTH_NO_USER")]
         [TestCase("Corext_NonInteractive")]
+        [Platform("MacOsX,Linux")]
         public void Filterinteraction_Interactive_Auth_Disabled_NoBroker(string envVar)
         {
             // Arrange
@@ -88,6 +90,7 @@ namespace AzureAuth.Test
 
         [TestCase("AZUREAUTH_NO_USER")]
         [TestCase("Corext_NonInteractive")]
+        [Platform("MacOsX,Linux")]
         public void Filterinteraction_Interactive_Auth_Disabled_WithBroker(string envVar)
         {
             // Arrange

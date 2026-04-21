@@ -65,7 +65,7 @@ namespace Microsoft.Authentication.AzureAuth.Commands
 [possible values: {AuthModeAllowedValues}]";
 #else
         public const string AuthModeHelperText = $@"Authentication mode. Repeated invocations allowed
-[default: broker, then web]
+[default: web]
 [possible values: {AuthModeAllowedValues}]";
 #endif
 
