@@ -32,12 +32,18 @@ The `azureauth aad` subcommand is a "pass-through" for using [MSAL.NET](https://
       ```
    4. Select **Save**.
    
-   > **Note:** macOS brokered authentication requires:
-   > - **Company Portal** installed on the device
+   > **Note:** macOS brokered authentication is **opt-in** via `--mode broker` and requires:
+   > - **Company Portal** version 5.2603.0 or later installed on the device
    > - Device is **MDM-compliant**
-   > - **Enterprise SSO Extension** is running
    > 
-   > If these prerequisites are not met, AzureAuth will automatically fall back to system web browser authentication.
+   > If Company Portal is unavailable or below the minimum version, broker is
+   > silently skipped and the next auth flow in the chain is attempted.
+   > 
+   > Example usage:
+   > ```
+   > azureauth aad --client <clientID> --resource <resourceID> --tenant <tenantID> --mode broker
+   > azureauth aad --client <clientID> --resource <resourceID> --tenant <tenantID> --mode broker --mode web
+   > ```
 
 3. Configure redirect URIs for the **system web browser**
    1. Select the **Authentication** blade.
