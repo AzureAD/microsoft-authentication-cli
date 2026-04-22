@@ -61,76 +61,21 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
-        public async Task MacOS_NoCachedAccount_PersistedAccountFound_SilentSuccess()
+        public async Task MacOS_NoCachedAccount_Interactive_Success()
         {
-            // No cached account via preferred domain lookup, but a persisted username
-            // matches an account in the MSAL cache — silent auth succeeds.
-            this.SetupCachedAccount(false);
-
-            // Save a persisted account so ResolveAccountAsync can find it.
-            var store = new DefaultAccountStore(this.logger);
-            store.SaveDefaultAccount(TestUsername, ClientId, TenantId.ToString());
-
-            try
-            {
-                // Set up accounts returned by TryToGetCachedAccountsAsync
-                this.mockAccount.Setup(a => a.Username).Returns(TestUsername);
-                this.mockPca
-                    .Setup(pca => pca.TryToGetCachedAccountsAsync(null))
-                    .ReturnsAsync(new List<IAccount> { this.mockAccount.Object });
-
-                this.mockPca
-                    .Setup(pca => pca.GetTokenSilentAsync(Scopes, this.mockAccount.Object, It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(this.testToken);
-
-                AuthFlowResult result = await this.Subject().GetTokenAsync();
-
-                result.TokenResult.Should().Be(this.testToken);
-                result.TokenResult.IsSilent.Should().BeTrue();
-                result.Errors.Should().BeEmpty();
-            }
-            finally
-            {
-                store.ClearDefaultAccount(ClientId, TenantId.ToString());
-            }
-        }
-
-        [Test]
-        public async Task MacOS_NoCachedAccount_NoPersistedAccount_Interactive_Success()
-        {
-            // Ensure no stale persisted account from other tests.
-            var store = new DefaultAccountStore(this.logger);
-            store.ClearDefaultAccount(ClientId, TenantId.ToString());
-
-            // No cached or persisted account — falls through to interactive auth.
-            // Use SetupSequence so the first call returns null (ResolveAccountAsync)
-            // and the second call returns the account (PersistDefaultAccount).
+            // No cached account — falls through to interactive auth.
             this.mockPca
-                .SetupSequence(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
-                .ReturnsAsync((IAccount)null)
-                .ReturnsAsync(this.mockAccount.Object);
-
-            this.mockAccount.Setup(a => a.Username).Returns(TestUsername);
+                .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
+                .ReturnsAsync((IAccount)null);
 
             this.SetupWithPromptHint();
             this.SetupGetTokenInteractiveSuccess(withAccount: false);
 
-            try
-            {
-                AuthFlowResult result = await this.Subject().GetTokenAsync();
+            AuthFlowResult result = await this.Subject().GetTokenAsync();
 
-                result.TokenResult.Should().Be(this.testToken);
-                result.TokenResult.IsSilent.Should().BeFalse();
-                result.Errors.Should().BeEmpty();
-
-                // Verify the account was persisted for future runs
-                var persisted = store.GetDefaultAccount(ClientId, TenantId.ToString());
-                persisted.Should().Be(TestUsername);
-            }
-            finally
-            {
-                store.ClearDefaultAccount(ClientId, TenantId.ToString());
-            }
+            result.TokenResult.Should().Be(this.testToken);
+            result.TokenResult.IsSilent.Should().BeFalse();
+            result.Errors.Should().BeEmpty();
         }
 
         [Test]
@@ -166,33 +111,19 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public async Task MacOS_SilentFails_Interactive_RetriesWithClaims_Success()
         {
             // No cached account, interactive gets MsalUiRequiredException, retries with claims.
-            // Use SetupSequence: first returns null (ResolveAccountAsync),
-            // second returns account (PersistDefaultAccount).
             this.mockPca
-                .SetupSequence(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
-                .ReturnsAsync((IAccount)null)
-                .ReturnsAsync(this.mockAccount.Object);
-
-            this.mockAccount.Setup(a => a.Username).Returns(TestUsername);
+                .Setup(pca => pca.TryToGetCachedAccountAsync(It.IsAny<string>()))
+                .ReturnsAsync((IAccount)null);
 
             this.SetupWithPromptHint();
             this.SetupGetTokenInteractiveMsalUiRequiredException(null);
             this.SetupGetTokenInteractiveWithClaimsSuccess();
 
-            var store = new DefaultAccountStore(this.logger);
+            AuthFlowResult result = await this.Subject().GetTokenAsync();
 
-            try
-            {
-                AuthFlowResult result = await this.Subject().GetTokenAsync();
-
-                result.TokenResult.Should().Be(this.testToken);
-                result.Errors.Should().HaveCount(1);
-                result.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
-            }
-            finally
-            {
-                store.ClearDefaultAccount(ClientId, TenantId.ToString());
-            }
+            result.TokenResult.Should().Be(this.testToken);
+            result.Errors.Should().HaveCount(1);
+            result.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
         }
 
         [Test]

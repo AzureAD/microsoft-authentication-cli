@@ -5,7 +5,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -123,23 +122,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 tokenResult = await this.FallbackToBrowserAuthAsync(account);
             }
 
-            // Persist the resolved account username for future silent auth on macOS.
-            if (tokenResult != null && this.platformUtils.IsMacOS())
-            {
-                await this.PersistDefaultAccountAsync(tokenResult);
-            }
-
             return tokenResult;
         }
 
         /// <summary>
         /// Resolves the account to use for token acquisition.
         /// On Windows, falls back to OperatingSystemAccount if no cached account.
-        /// On macOS, uses the persisted default account username to look up from cache.
+        /// On macOS, returns null to trigger interactive auth if no cached account.
         /// </summary>
         private async Task<IAccount> ResolveAccountAsync()
         {
-            // First, try the MSAL cache filtered by preferred domain.
+            // Try the MSAL cache filtered by preferred domain.
             IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
             if (account != null)
             {
@@ -148,54 +141,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             if (this.platformUtils.IsMacOS())
             {
-                // On macOS, OperatingSystemAccount is not supported. Instead, look up
-                // the persisted default account username from a previous successful auth.
-                var store = new DefaultAccountStore(this.logger);
-                var persistedUsername = store.GetDefaultAccount(this.authParameters.Client, this.authParameters.Tenant);
-
-                if (!string.IsNullOrEmpty(persistedUsername))
-                {
-                    this.logger.LogDebug($"Looking up persisted account '{persistedUsername}' from MSAL cache");
-                    var accounts = await this.pcaWrapper.TryToGetCachedAccountsAsync();
-                    account = accounts?.FirstOrDefault(a =>
-                        a.Username.Equals(persistedUsername, StringComparison.OrdinalIgnoreCase));
-
-                    if (account != null)
-                    {
-                        return account;
-                    }
-
-                    this.logger.LogDebug("Persisted account not found in MSAL cache, will use interactive auth");
-                }
-
-                // No cached or persisted account — will trigger interactive auth
+                // On macOS, OperatingSystemAccount is not supported.
+                // If MSAL cache has no single matching account, trigger interactive auth.
                 return null;
             }
 
             // On Windows, fall back to OperatingSystemAccount sentinel for WAM resolution.
             return PublicClientApplication.OperatingSystemAccount;
-        }
-
-        /// <summary>
-        /// Persists the authenticated account username for future macOS silent auth.
-        /// </summary>
-        private async Task PersistDefaultAccountAsync(TokenResult tokenResult)
-        {
-            try
-            {
-                // Get the account username from the MSAL cache (the token result
-                // itself doesn't carry the username, but the cache was just updated).
-                var resolvedAccount = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
-                if (resolvedAccount != null && !string.IsNullOrEmpty(resolvedAccount.Username))
-                {
-                    var store = new DefaultAccountStore(this.logger);
-                    store.SaveDefaultAccount(resolvedAccount.Username, this.authParameters.Client, this.authParameters.Tenant);
-                }
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogDebug($"Failed to persist default account after auth: {ex.Message}");
-            }
         }
 
         /// <summary>
