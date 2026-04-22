@@ -132,15 +132,6 @@ namespace Microsoft.Authentication.MSALWrapper
                         return false;
                     }
 
-                    // TODO: Re-enable once we confirm SSO Extension registration is required.
-                    // Check if the Enterprise SSO Extension is registered via MDM.
-                    // This is a soft check — disable by setting AZUREAUTH_SKIP_SSO_CHECK=1
-                    // if it proves unnecessary (e.g., broker works without it in some configs).
-                    // if (!this.IsSSOExtensionRegistered())
-                    // {
-                    //     return false;
-                    // }
-
                     return true;
                 }
 
@@ -152,69 +143,6 @@ namespace Microsoft.Authentication.MSALWrapper
                 this.logger.LogDebug($"macOS broker: failed to check Company Portal version at {CompanyPortalAppPath}: {ex.Message}");
                 this.logger.LogTrace($"macOS broker: version check exception: {ex}");
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Checks if the macOS Enterprise SSO Extension is registered via MDM.
-        /// Uses `app-sso -l` which returns a plist array of registered extensions.
-        /// An empty array means no SSO extensions are configured.
-        ///
-        /// To skip this check (e.g., if broker works without it), set AZUREAUTH_SKIP_SSO_CHECK=1.
-        /// </summary>
-        private bool IsSSOExtensionRegistered()
-        {
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZUREAUTH_SKIP_SSO_CHECK")))
-            {
-                this.logger.LogDebug("SSO Extension check skipped (AZUREAUTH_SKIP_SSO_CHECK is set)");
-                return true;
-            }
-
-            try
-            {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = "app-sso",
-                    Arguments = "-l",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                };
-
-                this.logger.LogTrace("Checking SSO Extension registration: app-sso -l");
-
-                using var process = Process.Start(psi);
-                var output = process.StandardOutput.ReadToEnd().Trim();
-                process.WaitForExit(5000);
-
-                this.logger.LogTrace($"app-sso output: '{output}'");
-
-                // An empty plist array looks like: <array/> or <array>\n</array>
-                bool hasExtensions = !string.IsNullOrEmpty(output)
-                    && !output.Contains("<array/>")
-                    && !output.Contains("<array>\n</array>");
-
-                if (!hasExtensions)
-                {
-                    this.logger.LogWarning(
-                        "macOS broker unavailable: No Enterprise SSO Extensions registered. " +
-                        "Your MDM profile may not have been applied yet. " +
-                        "Try restarting or contact your IT admin. " +
-                        "Set AZUREAUTH_SKIP_SSO_CHECK=1 to bypass this check.");
-                }
-                else
-                {
-                    this.logger.LogDebug("Enterprise SSO Extension is registered");
-                }
-
-                return hasExtensions;
-            }
-            catch (Exception ex)
-            {
-                // If app-sso isn't available or fails, don't block — assume it might work.
-                this.logger.LogDebug($"SSO Extension check failed (non-fatal, proceeding): {ex.Message}");
-                return true;
             }
         }
 
