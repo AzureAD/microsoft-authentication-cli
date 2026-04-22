@@ -126,7 +126,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // Persist the resolved account username for future silent auth on macOS.
             if (tokenResult != null && this.platformUtils.IsMacOS())
             {
-                this.PersistDefaultAccount(tokenResult);
+                await this.PersistDefaultAccountAsync(tokenResult);
             }
 
             return tokenResult;
@@ -179,15 +179,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <summary>
         /// Persists the authenticated account username for future macOS silent auth.
         /// </summary>
-        private void PersistDefaultAccount(TokenResult tokenResult)
+        private async Task PersistDefaultAccountAsync(TokenResult tokenResult)
         {
             try
             {
                 // Get the account username from the MSAL cache (the token result
                 // itself doesn't carry the username, but the cache was just updated).
-                var task = this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
-                task.Wait();
-                var resolvedAccount = task.Result;
+                var resolvedAccount = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
                 if (resolvedAccount != null && !string.IsNullOrEmpty(resolvedAccount.Username))
                 {
                     var store = new DefaultAccountStore(this.logger);
