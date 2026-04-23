@@ -96,10 +96,11 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Test]
         public void AllIsAll()
         {
-            (AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
+            (AuthMode.Broker | AuthMode.Web | AuthMode.DeviceCode).Should().Be(AuthMode.All);
         }
 
-        [TestCase(AuthMode.All, false)]
+        [TestCase(AuthMode.All, true)]
+        [TestCase(AuthMode.Broker, true)]
         [TestCase(AuthMode.Web, false)]
         [TestCase(AuthMode.DeviceCode, false)]
         public void BrokerIsExpected(AuthMode subject, bool expected)

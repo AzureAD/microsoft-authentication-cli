@@ -3,6 +3,7 @@
 
 namespace Microsoft.Authentication.MSALWrapper.Test
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -243,6 +244,10 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsX")]
         public void AllModes_Mac()
         {
+            this.MockIsMacOS(true);
+            this.MockIsMacOSBrokerAvailable(true);
+            this.MockIsWindows10Or11(false);
+
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
             this.pcaWrapperMock.VerifyAll();
@@ -252,7 +257,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Should()
                 .BeEquivalentTo(new[]
                 {
-                    typeof(CachedAuth),
+                    typeof(Broker),
                     typeof(Web),
                     typeof(DeviceCode),
                 });
@@ -262,14 +267,47 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsx")]
         public void DefaultModes_Not_Windows()
         {
-            // On non-windows platforms the Default Authmode doesn't contain "Broker" as an option to start with.
-            // so we short circuit checking the platform and expect it to not be called.
+            // On macOS, default mode is Web only (broker is opt-in via --mode broker).
             var subject = this.Subject(AuthMode.Default);
 
-            this.platformUtilsMock.VerifyAll();
             subject.Should().HaveCount(2);
             subject
                 .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(
+                    typeof(CachedAuth),
+                    typeof(Web));
+        }
+
+        [Test]
+        [Platform("MacOsX")]
+        public void BrokerRequested_Mac_CP_Unavailable_SkipsBroker()
+        {
+            this.MockIsWindows10Or11(false);
+            this.MockIsMacOS(true);
+            this.MockIsMacOSBrokerAvailable(false);
+
+            // Broker is silently skipped; only CachedAuth remains when no other modes are requested.
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
+
+            subject.Should().HaveCount(1);
+            subject.First().Should().BeOfType<CachedAuth>();
+        }
+
+        [Test]
+        [Platform("MacOsX")]
+        public void BrokerAndWeb_Mac_CP_Unavailable_FallsThrough()
+        {
+            this.MockIsWindows10Or11(false);
+            this.MockIsMacOS(true);
+            this.MockIsMacOSBrokerAvailable(false);
+
+            // Broker is skipped but web is still added — fall-through pattern.
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker | AuthMode.Web);
+
+            subject.Should().HaveCount(2);
+            subject
+                .Select(flow => flow.GetType())
                 .Should()
                 .ContainInOrder(
                     typeof(CachedAuth),
@@ -284,6 +322,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private void MockIsWindows(bool value)
         {
             this.platformUtilsMock.Setup(p => p.IsWindows()).Returns(value);
+        }
+
+        private void MockIsMacOS(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsMacOS()).Returns(value);
+        }
+
+        private void MockIsMacOSBrokerAvailable(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsMacOSBrokerAvailable()).Returns(value);
         }
     }
 }

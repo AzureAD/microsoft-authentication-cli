@@ -6,6 +6,7 @@ namespace Microsoft.Authentication.AzureAuth
     using System;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading.Tasks;
 
     using McMaster.Extensions.CommandLineUtils;
 
@@ -13,6 +14,7 @@ namespace Microsoft.Authentication.AzureAuth
     using Microsoft.Authentication.MSALWrapper;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Identity.Client.Utils;
     using Microsoft.Office.Lasso;
     using Microsoft.Office.Lasso.Telemetry;
 
@@ -22,6 +24,34 @@ namespace Microsoft.Authentication.AzureAuth
     public class Program
     {
         private static void Main(string[] args)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                // macOS brokered auth requires interactive calls on the main thread.
+                // Start the MSAL message loop on main, dispatch CLI work to a background thread.
+                var scheduler = MacMainThreadScheduler.Instance();
+                var cliTask = Task.Run(() =>
+                {
+                    try
+                    {
+                        MainInner(args);
+                    }
+                    finally
+                    {
+                        scheduler.Stop();
+                    }
+                });
+
+                scheduler.StartMessageLoop();
+                cliTask.GetAwaiter().GetResult();
+            }
+            else
+            {
+                MainInner(args);
+            }
+        }
+
+        private static void MainInner(string[] args)
         {
             // Use UTF-8 output encoding.
             // This will impact the NLog Console Target as well as any other Console usage.

@@ -28,7 +28,14 @@ namespace Microsoft.Authentication.AzureAuth
                 logger.LogWarning($"Only Integrated Windows Authentication will be attempted.");
                 return AuthMode.IWA;
 #else
-                return 0;
+                // Keep broker for silent auth on macOS, where the broker can resolve tokens silently.
+                var silentMode = authMode & AuthMode.Broker;
+                if (silentMode != 0)
+                {
+                    logger.LogWarning($"Only Broker silent authentication will be attempted.");
+                }
+
+                return silentMode;
 #endif
             }
 
