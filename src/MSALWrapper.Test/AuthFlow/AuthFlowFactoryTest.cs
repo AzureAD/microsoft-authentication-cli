@@ -129,6 +129,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void Windows_Defaults()
         {
             this.MockIsWindows10Or11(false);
+            this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsMacOS(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
@@ -164,6 +166,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockIsWindows(true);
             this.MockIsWindows10Or11(false);
+            this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsMacOS(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
@@ -200,6 +204,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockIsWindows(true);
             this.MockIsWindows10Or11(false);
+            this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsMacOS(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
