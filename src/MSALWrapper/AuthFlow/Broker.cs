@@ -112,15 +112,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.GetTokenInteractiveWithClaims(ex.Claims),
                     this.errors).ConfigureAwait(false);
             }
-            catch (Exception ex) when (this.platformUtils.IsMacOS())
-            {
-                // On macOS, broker interactive auth can fail (e.g., Company Portal not installed,
-                // SSO Extension not running, or main thread issue). Fall back to browser-based auth.
-                this.errors.Add(ex);
-                this.logger.LogDebug($"macOS broker interactive auth failed: {ex.Message}. Falling back to browser auth.");
-
-                tokenResult = await this.FallbackToBrowserAuthAsync(account);
-            }
 
             return tokenResult;
         }
@@ -148,36 +139,6 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
             // On Windows, fall back to OperatingSystemAccount sentinel for WAM resolution.
             return PublicClientApplication.OperatingSystemAccount;
-        }
-
-        /// <summary>
-        /// Falls back to browser-based interactive auth on macOS when the broker fails.
-        /// Creates a separate PCA without broker configuration using http://localhost redirect.
-        /// </summary>
-        private async Task<TokenResult> FallbackToBrowserAuthAsync(IAccount account)
-        {
-            this.logger.LogDebug("Creating browser fallback PCA for macOS");
-
-            var fallbackBuilder = PublicClientApplicationBuilder
-                .Create($"{this.authParameters.Client}")
-                .WithAuthority($"https://login.microsoftonline.com/{this.authParameters.Tenant}")
-                .WithRedirectUri(Constants.AadRedirectUri.ToString())
-                .WithLogging(
-                    this.LogMSAL,
-                    Identity.Client.LogLevel.Verbose,
-                    enablePiiLogging: false,
-                    enableDefaultPlatformLogging: true);
-
-            var fallbackPca = new PCAWrapper(this.logger, fallbackBuilder.Build(), this.errors, this.authParameters.Tenant);
-
-            return await TaskExecutor.CompleteWithin(
-                this.logger,
-                this.interactiveAuthTimeout,
-                $"{this.Name} browser fallback",
-                (CancellationToken cancellationToken) => fallbackPca
-                    .WithPromptHint(this.promptHint)
-                    .GetTokenInteractiveAsync(this.scopes, account, cancellationToken),
-                this.errors).ConfigureAwait(false);
         }
 
 #if PlatformWindows

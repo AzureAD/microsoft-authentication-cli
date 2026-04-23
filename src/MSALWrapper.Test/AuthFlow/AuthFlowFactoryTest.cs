@@ -250,7 +250,6 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         [Platform("MacOsX")]
         public void AllModes_Mac()
         {
-            this.MockIsMacOS(true);
             this.MockIsMacOSBrokerAvailable(true);
             this.MockIsWindows10Or11(false);
 

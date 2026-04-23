@@ -62,24 +62,17 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
             if (authMode.IsBroker())
             {
-                if (platformUtils.IsWindows10Or11())
+                if (platformUtils.IsWindows10Or11() || platformUtils.IsMacOSBrokerAvailable())
                 {
                     flows.Add(new Broker(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint, platformUtils: platformUtils));
                 }
                 else if (platformUtils.IsMacOS())
                 {
-                    if (platformUtils.IsMacOSBrokerAvailable())
-                    {
-                        flows.Add(new Broker(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint, platformUtils: platformUtils));
-                    }
-                    else
-                    {
-                        logger.LogWarning(
-                            "Broker authentication was requested but is not available on this machine. " +
-                            "macOS broker requires Company Portal version 5.2603.0 or later " +
-                            $"(checked: {PlatformUtils.CompanyPortalAppPath}). " +
-                            "Skipping broker and falling through to next auth flow.");
-                    }
+                    logger.LogWarning(
+                        "Broker authentication was requested but is not available on this machine. " +
+                        "macOS broker requires Company Portal version 5.2603.0 or later " +
+                        $"(checked: {PlatformUtils.CompanyPortalAppPath}). " +
+                        "Skipping broker and falling through to next auth flow.");
                 }
             }
 
