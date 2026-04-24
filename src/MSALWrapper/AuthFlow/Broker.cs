@@ -12,9 +12,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
     using Microsoft.Identity.Client.Broker;
+    using Microsoft.Identity.Client.Utils;
 
     /// <summary>
-    /// The broker auth flow.
+    /// The broker auth flow. Supports Windows (WAM) and macOS (Enterprise SSO Extension).
     /// </summary>
     public class Broker : AuthFlowBase
     {
@@ -22,6 +23,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly string preferredDomain;
         private readonly string promptHint;
         private readonly IPCAWrapper pcaWrapper;
+        private readonly AuthParameters authParameters;
+        private readonly IPlatformUtils platformUtils;
 
         /// <summary>
         /// The interactive auth timeout.
@@ -36,15 +39,19 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="preferredDomain">The preferred domain.</param>
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
-        public Broker(ILogger logger, AuthParameters authParameters, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null)
+        /// <param name="platformUtils">Optional: IPlatformUtils for platform detection (defaults to runtime detection).</param>
+        public Broker(ILogger logger, AuthParameters authParameters, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null, IPlatformUtils platformUtils = null)
         {
             this.logger = logger;
+            this.authParameters = authParameters;
             this.scopes = authParameters.Scopes;
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
+            this.platformUtils = platformUtils ?? new PlatformUtils(logger);
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(authParameters.Client, authParameters.Tenant);
         }
 
+#if PlatformWindows
         private enum GetAncestorType
         {
             /// <summary>
@@ -62,6 +69,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             /// </summary>
             GetRootOwner = 3,
         }
+#endif
 
         /// <inheritdoc/>
         protected override string Name { get; } = Constants.AuthFlow.Broker;
@@ -69,8 +77,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <inheritdoc/>
         protected override async Task<TokenResult> GetTokenInnerAsync()
         {
-            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain)
-                 ?? PublicClientApplication.OperatingSystemAccount;
+            IAccount account = await this.ResolveAccountAsync();
 
             TokenResult tokenResult = await CachedAuth.GetTokenAsync(
                 this.logger,
@@ -109,42 +116,100 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             return tokenResult;
         }
 
+        /// <summary>
+        /// Resolves the account to use for token acquisition.
+        /// On Windows, falls back to OperatingSystemAccount if no cached account.
+        /// On macOS, returns null to trigger interactive auth if no cached account.
+        /// </summary>
+        private async Task<IAccount> ResolveAccountAsync()
+        {
+            // Try the MSAL cache filtered by preferred domain.
+            IAccount account = await this.pcaWrapper.TryToGetCachedAccountAsync(this.preferredDomain);
+            if (account != null)
+            {
+                return account;
+            }
+
+            if (this.platformUtils.IsMacOS())
+            {
+                // On macOS, OperatingSystemAccount is not supported.
+                // If MSAL cache has no single matching account, trigger interactive auth.
+                return null;
+            }
+
+            // On Windows, fall back to OperatingSystemAccount sentinel for WAM resolution.
+            return PublicClientApplication.OperatingSystemAccount;
+        }
+
+#if PlatformWindows
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
+#endif
 
         private Func<CancellationToken, Task<TokenResult>> GetTokenInteractive(IAccount account)
         {
-            return (CancellationToken cancellationToken) => this.pcaWrapper
-                .WithPromptHint(this.promptHint)
-                .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+            return async (CancellationToken cancellationToken) =>
+            {
+                if (this.platformUtils.IsMacOS() && MacMainThreadScheduler.Instance().IsRunning())
+                {
+                    TokenResult result = null;
+                    await MacMainThreadScheduler.Instance().RunOnMainThreadAsync(async () =>
+                    {
+                        result = await this.pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+                    });
+                    return result;
+                }
+
+                return await this.pcaWrapper
+                    .WithPromptHint(this.promptHint)
+                    .GetTokenInteractiveAsync(this.scopes, account, cancellationToken);
+            };
         }
 
         private Func<CancellationToken, Task<TokenResult>> GetTokenInteractiveWithClaims(string claims)
         {
-            return (CancellationToken cancellationToken) => this.pcaWrapper
-                .WithPromptHint(this.promptHint)
-                .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
+            return async (CancellationToken cancellationToken) =>
+            {
+                if (this.platformUtils.IsMacOS() && MacMainThreadScheduler.Instance().IsRunning())
+                {
+                    TokenResult result = null;
+                    await MacMainThreadScheduler.Instance().RunOnMainThreadAsync(async () =>
+                    {
+                        result = await this.pcaWrapper
+                            .WithPromptHint(this.promptHint)
+                            .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
+                    });
+                    return result;
+                }
+
+                return await this.pcaWrapper
+                    .WithPromptHint(this.promptHint)
+                    .GetTokenInteractiveAsync(this.scopes, claims, cancellationToken);
+            };
         }
 
+#if PlatformWindows
         /// <summary>
         /// Retrieves the handle to the ancestor of the specified window.
         /// </summary>
         /// <param name="windowsHandle">A handle to the window whose ancestor is to be retrieved.
         /// If this parameter is the desktop window, the function returns NULL. </param>
         /// <param name="flags">The ancestor to be retrieved.</param>
-        /// <returns>The return value is the handle to the ancestor window.</returns>[DllImport("user32.dll", ExactSpelling = true)]
+        /// <returns>The return value is the handle to the ancestor window.</returns>
         [DllImport("user32.dll", ExactSpelling = true)]
 #pragma warning disable SA1204 // Static elements should appear before instance elements
         private static extern IntPtr GetAncestor(IntPtr windowsHandle, GetAncestorType flags);
 #pragma warning restore SA1204 // Static elements should appear before instance elements
 
-        // MSAL will be providing a similar helper in the future that we can use to simplify this(AzureAD/microsoft-authentication-library-for-dotnet#3590).
         private IntPtr GetParentWindowHandle()
         {
             IntPtr consoleHandle = GetConsoleWindow();
             IntPtr ancestorHandle = GetAncestor(consoleHandle, GetAncestorType.GetRootOwner);
             return ancestorHandle;
         }
+#endif
 
         private IPCAWrapper BuildPCAWrapper(Guid clientId, string tenantId)
         {
@@ -156,12 +221,25 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                     this.LogMSAL,
                     Identity.Client.LogLevel.Verbose,
                     enablePiiLogging: false,
-                    enableDefaultPlatformLogging: true)
-                .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
-                {
-                    Title = this.promptHint,
-                })
-                .WithParentActivityOrWindow(() => this.GetParentWindowHandle()); // Pass parent window handle to MSAL so it can parent the authentication dialogs.
+                    enableDefaultPlatformLogging: true);
+
+            if (this.platformUtils.IsMacOS())
+            {
+                clientBuilder
+                    .WithRedirectUri(Constants.MacOSBrokerRedirectUri.ToString())
+                    .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.OSX));
+            }
+            else
+            {
+#if PlatformWindows
+                clientBuilder
+                    .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+                    {
+                        Title = this.promptHint,
+                    })
+                    .WithParentActivityOrWindow(() => this.GetParentWindowHandle());
+#endif
+            }
 
             return new PCAWrapper(this.logger, clientBuilder.Build(), this.errors, tenantId);
         }
