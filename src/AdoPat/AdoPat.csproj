@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="19.239.0-preview" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <!-- Transitive dependencies of Microsoft.VisualStudio.Services.Client temporarily pinned for security reasons. -->
-    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.2" />
+    <PackageReference Include="System.Formats.Asn1" Version="10.0.7" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.7" />
   </ItemGroup>
 </Project>
