@@ -19,6 +19,8 @@ namespace Microsoft.Authentication.MSALWrapper
         private Lazy<bool> isWindows10;
         private Lazy<bool> isMacOS;
         private Lazy<bool> isMacOSBrokerAvailable;
+        private Lazy<bool> isLinux;
+        private Lazy<bool> isLinuxBrokerAvailable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlatformUtils"/> class.
@@ -31,6 +33,8 @@ namespace Microsoft.Authentication.MSALWrapper
             this.isWindows10 = new Lazy<bool>(() => this.CheckWindows10());
             this.isMacOS = new Lazy<bool>(() => this.CheckMacOS());
             this.isMacOSBrokerAvailable = new Lazy<bool>(() => this.CheckMacOSBrokerAvailable());
+            this.isLinux = new Lazy<bool>(() => this.CheckLinux());
+            this.isLinuxBrokerAvailable = new Lazy<bool>(() => this.CheckLinuxBrokerAvailable());
         }
 
         /// <inheritdoc/>
@@ -55,6 +59,18 @@ namespace Microsoft.Authentication.MSALWrapper
         public bool IsMacOSBrokerAvailable()
         {
             return this.isMacOSBrokerAvailable.Value;
+        }
+
+        /// <inheritdoc/>
+        public bool IsLinux()
+        {
+            return this.isLinux.Value;
+        }
+
+        /// <inheritdoc/>
+        public bool IsLinuxBrokerAvailable()
+        {
+            return this.isLinuxBrokerAvailable.Value;
         }
 
         private bool CheckMacOS()
@@ -144,6 +160,35 @@ namespace Microsoft.Authentication.MSALWrapper
                 this.logger.LogTrace($"macOS broker: version check exception: {ex}");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Install location of the Microsoft Identity Broker binary on Linux
+        /// (from the microsoft-identity-broker package).
+        /// </summary>
+        private const string LinuxBrokerPath = "/opt/microsoft/identity-broker/bin/microsoft-identity-broker";
+
+        private bool CheckLinux()
+        {
+            this.logger.LogTrace($"IsLinux: RuntimeInformation.IsOSPlatform(OSPlatform.Linux) = {RuntimeInformation.IsOSPlatform(OSPlatform.Linux)}");
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        }
+
+        private bool CheckLinuxBrokerAvailable()
+        {
+            if (!this.IsLinux())
+            {
+                return false;
+            }
+
+            if (File.Exists(LinuxBrokerPath))
+            {
+                this.logger.LogTrace($"Linux broker found at: {LinuxBrokerPath}");
+                return true;
+            }
+
+            this.logger.LogDebug($"Linux broker unavailable: Microsoft Identity Broker not found at {LinuxBrokerPath}");
+            return false;
         }
 
         private bool CheckWindows()

@@ -50,7 +50,7 @@ namespace Microsoft.Authentication.MSALWrapper
         Default = Broker | Web,
 #else
         /// <summary>
-        /// Broker auth mode (macOS Enterprise SSO Extension).
+        /// Broker auth mode (macOS Enterprise SSO Extension or Linux Microsoft Identity Broker).
         /// </summary>
         Broker = 1 << 2,
 
@@ -60,9 +60,10 @@ namespace Microsoft.Authentication.MSALWrapper
         All = Broker | Web | DeviceCode,
 
         /// <summary>
-        /// Default auth mode. On macOS, broker is opt-in via --mode broker because
-        /// it requires Company Portal and apps using broker-required CA policies
-        /// will hang indefinitely if web auth is attempted as fallback.
+        /// Default auth mode. On macOS/Linux, broker is opt-in via --mode broker because
+        /// it requires a platform broker (Company Portal / Microsoft Identity Broker) and
+        /// apps using broker-required CA policies will hang indefinitely if web auth is
+        /// attempted as fallback.
         /// </summary>
         Default = Web,
 #endif

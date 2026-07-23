@@ -130,7 +130,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockIsWindows10Or11(false);
             this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsLinuxBrokerAvailable(false);
             this.MockIsMacOS(false);
+            this.MockIsLinux(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
@@ -167,7 +169,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockIsWindows(true);
             this.MockIsWindows10Or11(false);
             this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsLinuxBrokerAvailable(false);
             this.MockIsMacOS(false);
+            this.MockIsLinux(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
@@ -205,7 +209,9 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockIsWindows(true);
             this.MockIsWindows10Or11(false);
             this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsLinuxBrokerAvailable(false);
             this.MockIsMacOS(false);
+            this.MockIsLinux(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
@@ -291,6 +297,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockIsWindows10Or11(false);
             this.MockIsMacOS(true);
             this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsLinuxBrokerAvailable(false);
 
             // Broker is silently skipped; only CachedAuth remains when no other modes are requested.
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
@@ -306,6 +313,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.MockIsWindows10Or11(false);
             this.MockIsMacOS(true);
             this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsLinuxBrokerAvailable(false);
 
             // Broker is skipped but web is still added — fall-through pattern.
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker | AuthMode.Web);
@@ -317,6 +325,49 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ContainInOrder(
                     typeof(CachedAuth),
                     typeof(Web));
+        }
+
+        [Test]
+        [Platform("Linux")]
+        public void BrokerRequested_Linux_BrokerAvailable()
+        {
+            this.MockIsWindows10Or11(false);
+            this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsLinuxBrokerAvailable(true);
+
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
+
+            subject.Should().ContainSingle().Which.Should().BeOfType<Broker>();
+        }
+
+        [Test]
+        [Platform("Linux")]
+        public void BrokerRequested_Linux_BrokerUnavailable_SkipsBroker()
+        {
+            this.MockIsWindows10Or11(false);
+            this.MockIsMacOSBrokerAvailable(false);
+            this.MockIsLinuxBrokerAvailable(false);
+            this.MockIsMacOS(false);
+            this.MockIsLinux(true);
+
+            // Broker is silently skipped; only CachedAuth remains when no other modes are requested.
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Broker);
+
+            subject.Should().ContainSingle().Which.Should().BeOfType<CachedAuth>();
+        }
+
+        [Test]
+        [Platform("Linux")]
+        public void DefaultModes_Linux()
+        {
+            // On Linux, default mode is Web only (broker is opt-in via --mode broker).
+            IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
+
+            subject.Should().HaveCount(2);
+            subject
+                .Select(a => a.GetType())
+                .Should()
+                .ContainInOrder(typeof(CachedAuth), typeof(Web));
         }
 
         private void MockIsWindows10Or11(bool value)
@@ -337,6 +388,16 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         private void MockIsMacOSBrokerAvailable(bool value)
         {
             this.platformUtilsMock.Setup(p => p.IsMacOSBrokerAvailable()).Returns(value);
+        }
+
+        private void MockIsLinux(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsLinux()).Returns(value);
+        }
+
+        private void MockIsLinuxBrokerAvailable(bool value)
+        {
+            this.platformUtilsMock.Setup(p => p.IsLinuxBrokerAvailable()).Returns(value);
         }
     }
 }

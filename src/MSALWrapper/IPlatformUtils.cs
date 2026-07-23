@@ -31,5 +31,19 @@ namespace Microsoft.Authentication.MSALWrapper
         /// </summary>
         /// <returns><see cref="bool"/> - true if macOS broker prerequisites are met.</returns>
         bool IsMacOSBrokerAvailable();
+
+        /// <summary>
+        /// Check if running on Linux.
+        /// </summary>
+        /// <returns><see cref="bool"/> - true if running on Linux.</returns>
+        bool IsLinux();
+
+        /// <summary>
+        /// Check if Linux brokered authentication is available.
+        /// Requires Linux and the Microsoft Identity Broker (installed/run by
+        /// Intune enrollment) to be present on the machine.
+        /// </summary>
+        /// <returns><see cref="bool"/> - true if Linux broker prerequisites are met.</returns>
+        bool IsLinuxBrokerAvailable();
     }
 }

@@ -32,6 +32,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.mockPlatformUtils = new Mock<IPlatformUtils>(MockBehavior.Strict);
             // Default to Windows behavior so existing tests keep working.
             this.mockPlatformUtils.Setup(p => p.IsMacOS()).Returns(false);
+            this.mockPlatformUtils.Setup(p => p.IsLinux()).Returns(false);
         }
 
         public AuthFlow.Broker Subject() => new AuthFlow.Broker(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object, promptHint: PromptHint, platformUtils: this.mockPlatformUtils.Object);

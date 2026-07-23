@@ -15,7 +15,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using Microsoft.Identity.Client.Utils;
 
     /// <summary>
-    /// The broker auth flow. Supports Windows (WAM) and macOS (Enterprise SSO Extension).
+    /// The broker auth flow. Supports Windows (WAM), macOS (Enterprise SSO Extension),
+    /// and Linux (Microsoft Identity Broker).
     /// </summary>
     public class Broker : AuthFlowBase
     {
@@ -130,9 +131,9 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 return account;
             }
 
-            if (this.platformUtils.IsMacOS())
+            if (this.platformUtils.IsMacOS() || this.platformUtils.IsLinux())
             {
-                // On macOS, OperatingSystemAccount is not supported.
+                // On macOS and Linux, OperatingSystemAccount is not supported.
                 // If MSAL cache has no single matching account, trigger interactive auth.
                 return null;
             }
@@ -226,8 +227,14 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             if (this.platformUtils.IsMacOS())
             {
                 clientBuilder
-                    .WithRedirectUri(Constants.MacOSBrokerRedirectUri.ToString())
+                    .WithRedirectUri(Constants.UnsignedAppBrokerRedirectUri.ToString())
                     .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.OSX));
+            }
+            else if (this.platformUtils.IsLinux())
+            {
+                clientBuilder
+                    .WithRedirectUri(Constants.UnsignedAppBrokerRedirectUri.ToString())
+                    .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Linux));
             }
             else
             {
