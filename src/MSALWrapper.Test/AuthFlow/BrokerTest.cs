@@ -123,6 +123,22 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         }
 
         [Test]
+        public async Task Linux_NoCachedAccount_UsesOperatingSystemAccount()
+        {
+            this.mockPlatformUtils.Setup(p => p.IsLinux()).Returns(true);
+            this.SetupCachedAccount(false);
+            this.mockPca
+                .Setup(pca => pca.GetTokenSilentAsync(Scopes, PublicClientApplication.OperatingSystemAccount, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(this.testToken);
+
+            AuthFlowResult authFlowResult = await this.Subject().GetTokenAsync();
+
+            authFlowResult.TokenResult.Should().Be(this.testToken);
+            authFlowResult.TokenResult.IsSilent.Should().BeTrue();
+            authFlowResult.Errors.Should().BeEmpty();
+        }
+
+        [Test]
         public async Task General_Exceptions_Are_ReThrown()
         {
             this.SetupCachedAccount();

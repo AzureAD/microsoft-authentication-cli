@@ -119,7 +119,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
         /// <summary>
         /// Resolves the account to use for token acquisition.
-        /// On Windows, falls back to OperatingSystemAccount if no cached account.
+        /// On Windows and Linux, falls back to OperatingSystemAccount if no cached account.
         /// On macOS, returns null to trigger interactive auth if no cached account.
         /// </summary>
         private async Task<IAccount> ResolveAccountAsync()
@@ -131,14 +131,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 return account;
             }
 
-            if (this.platformUtils.IsMacOS() || this.platformUtils.IsLinux())
+            if (this.platformUtils.IsMacOS())
             {
-                // On macOS and Linux, OperatingSystemAccount is not supported.
+                // On macOS, OperatingSystemAccount is not supported.
                 // If MSAL cache has no single matching account, trigger interactive auth.
                 return null;
             }
 
-            // On Windows, fall back to OperatingSystemAccount sentinel for WAM resolution.
+            // On Windows and Linux, fall back to the OperatingSystemAccount sentinel so the
+            // broker can silently resolve the device-joined account via its PRT.
             return PublicClientApplication.OperatingSystemAccount;
         }
 
@@ -234,7 +235,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 clientBuilder
                     .WithRedirectUri(Constants.LinuxBrokerRedirectUri.ToString())
-                    .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Linux));
+                    .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Linux)
+                    {
+                        ListOperatingSystemAccounts = true,
+                    });
             }
             else
             {
