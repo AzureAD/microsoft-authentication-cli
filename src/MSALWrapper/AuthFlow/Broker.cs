@@ -227,13 +227,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             if (this.platformUtils.IsMacOS())
             {
                 clientBuilder
-                    .WithRedirectUri(Constants.UnsignedAppBrokerRedirectUri.ToString())
+                    .WithRedirectUri(Constants.MacOSBrokerRedirectUri.ToString())
                     .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.OSX));
             }
             else if (this.platformUtils.IsLinux())
             {
                 clientBuilder
-                    .WithRedirectUri(Constants.UnsignedAppBrokerRedirectUri.ToString())
+                    .WithRedirectUri(Constants.LinuxBrokerRedirectUri.ToString())
                     .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Linux));
             }
             else
