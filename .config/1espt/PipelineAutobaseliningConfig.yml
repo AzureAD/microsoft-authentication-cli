@@ -7,20 +7,20 @@ pipelines:
         credscan:
           lastModifiedDate: 2024-09-18
         eslint:
-          lastModifiedDate: 2026-09-17
+          lastModifiedDate: 2024-09-18
         bandit:
-          lastModifiedDate: 2026-09-17
+          lastModifiedDate: 2024-09-18
         psscriptanalyzer:
-          lastModifiedDate: 2026-09-17
+          lastModifiedDate: 2024-09-18
         armory:
-          lastModifiedDate: 2026-09-17
+          lastModifiedDate: 2024-09-18
       binary:
         binskim:
-          lastModifiedDate: 2026-09-17
+          lastModifiedDate: 2026-02-12
         prefast:
-          lastModifiedDate: 2026-09-17
+          lastModifiedDate: 2026-02-12
         roslyn:
-          lastModifiedDate: 2026-09-17
+          lastModifiedDate: 2026-02-12
   29585:
     retail:
       source:
@@ -47,9 +47,9 @@ pipelines:
     retail:
       source:
         eslint:
-          lastModifiedDate: 2025-06-12
+          lastModifiedDate: 2026-09-17
         armory:
-          lastModifiedDate: 2025-06-12
+          lastModifiedDate: 2026-09-17
       binary:
         binskim:
-          lastModifiedDate: 2026-02-12
+          lastModifiedDate: 2026-09-17
