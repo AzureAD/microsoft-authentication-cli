@@ -43,7 +43,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // already tries CachedAuth with its PCAWrapper object built using withBroker(options).
             // The same applies on macOS when the broker is available.
             // If broker is requested but unavailable, CachedAuth is still added as a first-pass attempt.
-            bool brokerWillRun = authMode.IsBroker() && (platformUtils.IsWindows10Or11() || platformUtils.IsMacOSBrokerAvailable());
+            bool brokerWillRun = authMode.IsBroker() && (platformUtils.IsWindows10Or11() || platformUtils.IsMacOSBrokerAvailable() || platformUtils.IsLinuxBrokerAvailable());
             if (!brokerWillRun)
             {
                 flows.Add(new CachedAuth(logger, authParams, preferredDomain, pcaWrapper));
@@ -62,7 +62,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // https://github.com/AzureAD/microsoft-authentication-cli/issues/55
             if (authMode.IsBroker())
             {
-                if (platformUtils.IsWindows10Or11() || platformUtils.IsMacOSBrokerAvailable())
+                if (platformUtils.IsWindows10Or11() || platformUtils.IsMacOSBrokerAvailable() || platformUtils.IsLinuxBrokerAvailable())
                 {
                     flows.Add(new Broker(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint, platformUtils: platformUtils));
                 }
@@ -72,6 +72,13 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                         "Broker authentication was requested but is not available on this machine. " +
                         "macOS broker requires Company Portal version 5.2603.0 or later " +
                         $"(checked: {PlatformUtils.CompanyPortalAppPath}). " +
+                        "Skipping broker and falling through to next auth flow.");
+                }
+                else if (platformUtils.IsLinux())
+                {
+                    logger.LogWarning(
+                        "Broker authentication was requested but is not available on this machine. " +
+                        "Linux broker requires the Microsoft Identity Broker (installed via Intune enrollment). " +
                         "Skipping broker and falling through to next auth flow.");
                 }
             }

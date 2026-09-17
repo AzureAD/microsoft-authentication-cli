@@ -15,7 +15,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
     using Microsoft.Identity.Client.Utils;
 
     /// <summary>
-    /// The broker auth flow. Supports Windows (WAM) and macOS (Enterprise SSO Extension).
+    /// The broker auth flow. Supports Windows (WAM), macOS (Enterprise SSO Extension),
+    /// and Linux (Microsoft Identity Broker).
     /// </summary>
     public class Broker : AuthFlowBase
     {
@@ -118,7 +119,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
 
         /// <summary>
         /// Resolves the account to use for token acquisition.
-        /// On Windows, falls back to OperatingSystemAccount if no cached account.
+        /// On Windows and Linux, falls back to OperatingSystemAccount if no cached account.
         /// On macOS, returns null to trigger interactive auth if no cached account.
         /// </summary>
         private async Task<IAccount> ResolveAccountAsync()
@@ -137,7 +138,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 return null;
             }
 
-            // On Windows, fall back to OperatingSystemAccount sentinel for WAM resolution.
+            // On Windows and Linux, fall back to the OperatingSystemAccount sentinel so the
+            // broker can silently resolve the device-joined account via its PRT.
             return PublicClientApplication.OperatingSystemAccount;
         }
 
@@ -228,6 +230,15 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
                 clientBuilder
                     .WithRedirectUri(Constants.MacOSBrokerRedirectUri.ToString())
                     .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.OSX));
+            }
+            else if (this.platformUtils.IsLinux())
+            {
+                clientBuilder
+                    .WithRedirectUri(Constants.LinuxBrokerRedirectUri.ToString())
+                    .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Linux)
+                    {
+                        ListOperatingSystemAccounts = true,
+                    });
             }
             else
             {

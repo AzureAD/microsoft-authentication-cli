@@ -32,6 +32,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.mockPlatformUtils = new Mock<IPlatformUtils>(MockBehavior.Strict);
             // Default to Windows behavior so existing tests keep working.
             this.mockPlatformUtils.Setup(p => p.IsMacOS()).Returns(false);
+            this.mockPlatformUtils.Setup(p => p.IsLinux()).Returns(false);
         }
 
         public AuthFlow.Broker Subject() => new AuthFlow.Broker(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object, promptHint: PromptHint, platformUtils: this.mockPlatformUtils.Object);
@@ -119,6 +120,22 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             authFlowResult.Errors.Should().HaveCount(1);
             authFlowResult.Errors[0].Should().BeOfType(typeof(MsalUiRequiredException));
             authFlowResult.AuthFlowName.Should().Be("broker");
+        }
+
+        [Test]
+        public async Task Linux_NoCachedAccount_UsesOperatingSystemAccount()
+        {
+            this.mockPlatformUtils.Setup(p => p.IsLinux()).Returns(true);
+            this.SetupCachedAccount(false);
+            this.mockPca
+                .Setup(pca => pca.GetTokenSilentAsync(Scopes, PublicClientApplication.OperatingSystemAccount, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(this.testToken);
+
+            AuthFlowResult authFlowResult = await this.Subject().GetTokenAsync();
+
+            authFlowResult.TokenResult.Should().Be(this.testToken);
+            authFlowResult.TokenResult.IsSilent.Should().BeTrue();
+            authFlowResult.Errors.Should().BeEmpty();
         }
 
         [Test]
