@@ -97,7 +97,7 @@ namespace AzureAuth.Test
 
             this.tokenFetcher.SetupSequence(
                 t => t.AccessToken(
-                    this.logger, this.authParams, expectedMode, this.domain, expectedPrompt, this.timeout))
+                    this.logger, this.authParams, expectedMode, this.domain, expectedPrompt, this.timeout, false))
                 .Returns(tokenFetcherResult);
 
             // The AuthMode should be Combined, and run through the extension to disable interacive auth if needed.
@@ -139,6 +139,37 @@ namespace AzureAuth.Test
                 { "error_count", 0 },
                 { "authflow_count", 1 },
             });
+        }
+
+        [Test]
+        public void Interactive_Auth_Disabled_Requests_SilentOnly()
+        {
+            var expected = new TokenResult(new JsonWebToken(Fake.Token), Guid.NewGuid());
+            var tokenFetcherResult = new MsalWrapper.Result()
+            {
+                Attempts = new List<AuthFlowResult>() { new AuthFlowResult(expected, Array.Empty<Exception>(), "broker") },
+            };
+
+            this.env.Setup(e => e.Get("AZUREAUTH_NO_USER")).Returns("1");
+#if PlatformWindows
+            var expectedMode = AuthMode.IWA | AuthMode.Broker;
+#else
+            var expectedMode = AuthMode.Broker;
+#endif
+            this.tokenFetcher
+                .Setup(t => t.AccessToken(this.logger, this.authParams, expectedMode, this.domain, It.IsAny<string>(), this.timeout, true))
+                .Returns(tokenFetcherResult);
+            this.telemetryService.Setup(t => t.SendEvent("authflow_broker", It.IsAny<EventData>()));
+
+            TokenResult subject = this.Subject().Token(
+                this.authParams,
+                new[] { AuthMode.Broker },
+                this.domain,
+                this.prompt,
+                this.timeout,
+                new EventData());
+
+            subject.Should().Be(expected);
         }
     }
 }

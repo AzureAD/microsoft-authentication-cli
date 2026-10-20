@@ -25,8 +25,18 @@ namespace Microsoft.Authentication.AzureAuth
             {
                 logger.LogWarning($"Interactive authentication is disabled.");
 #if PlatformWindows
-                logger.LogWarning($"Only Integrated Windows Authentication will be attempted.");
-                return AuthMode.IWA;
+                // Keep broker alongside IWA so WAM can resolve tokens silently (the Broker flow is silent-only here).
+                var silentMode = AuthMode.IWA | (authMode & AuthMode.Broker);
+                if (silentMode.IsBroker())
+                {
+                    logger.LogWarning($"Only Integrated Windows Authentication and Broker silent authentication (where available) will be attempted.");
+                }
+                else
+                {
+                    logger.LogWarning($"Only Integrated Windows Authentication will be attempted.");
+                }
+
+                return silentMode;
 #else
                 // Keep broker for silent auth on macOS, where the broker can resolve tokens silently.
                 var silentMode = authMode & AuthMode.Broker;

@@ -49,7 +49,8 @@ namespace Microsoft.Authentication.AzureAuth
                 authModes.Combine().PreventInteractionIfNeeded(this.env, this.logger),
                 domain,
                 PromptHint.Prefixed(prompt),
-                timeout);
+                timeout,
+                silentOnly: this.env.InteractiveAuthDisabled());
 
             // Report individual auth flow telemetry
             result.Attempts.SendTelemetry(this.telemetryService);

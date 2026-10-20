@@ -23,6 +23,7 @@ namespace Microsoft.Authentication.MSALWrapper
         /// <param name="domain">The domain (account suffix) to filter cached accounts with.</param>
         /// <param name="prompt">A prompt hint to display to the user if needed.</param>
         /// <param name="timeout">The max <see cref="TimeSpan"/> we should spend attempting token acquisition for.</param>
+        /// <param name="silentOnly">When true, auth flows must not fall back to interactive prompts.</param>
         /// <returns>A <see cref="MsalWrapper.Result"/> representing the result of the asynchronous operation.</returns>
         MsalWrapper.Result AccessToken(
             ILogger logger,
@@ -30,6 +31,7 @@ namespace Microsoft.Authentication.MSALWrapper
             AuthMode mode,
             string domain,
             string prompt,
-            TimeSpan timeout);
+            TimeSpan timeout,
+            bool silentOnly = false);
     }
 }

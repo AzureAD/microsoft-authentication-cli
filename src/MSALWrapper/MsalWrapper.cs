@@ -48,14 +48,16 @@ namespace Microsoft.Authentication.MSALWrapper
             AuthMode mode,
             string domain,
             string prompt,
-            TimeSpan timeout)
+            TimeSpan timeout,
+            bool silentOnly = false)
         {
             var authFlows = AuthFlowFactory.Create(
                 logger: logger,
                 authMode: mode,
                 authParams: authParams,
                 preferredDomain: domain,
-                promptHint: prompt);
+                promptHint: prompt,
+                silentOnly: silentOnly);
 
             List<AuthFlowResult> results = new List<AuthFlowResult>();
             var executor = new AuthFlowExecutor(logger, authFlows, new StopwatchTracker(timeout));

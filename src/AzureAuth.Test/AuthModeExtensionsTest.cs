@@ -47,11 +47,24 @@ namespace AzureAuth.Test
 
         [TestCase("AZUREAUTH_NO_USER")]
         [TestCase("Corext_NonInteractive")]
-        public void Filterinteraction_Interactive_Auth_Disabled(string envVar)
+        public void Filterinteraction_Interactive_Auth_Disabled_WithBroker(string envVar)
         {
             // Arrange
             this.envMock.Setup(e => e.Get(envVar)).Returns("1");
             var subject = new[] { AuthMode.IWA, AuthMode.Web, AuthMode.Broker, AuthMode.DeviceCode };
+
+            // Act + Assert
+            subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.IWA | AuthMode.Broker);
+            this.logTarget.Logs.Should().ContainInOrder("Interactive authentication is disabled.", "Only Integrated Windows Authentication and Broker silent authentication (where available) will be attempted.");
+        }
+
+        [TestCase("AZUREAUTH_NO_USER")]
+        [TestCase("Corext_NonInteractive")]
+        public void Filterinteraction_Interactive_Auth_Disabled_NoBroker(string envVar)
+        {
+            // Arrange
+            this.envMock.Setup(e => e.Get(envVar)).Returns("1");
+            var subject = new[] { AuthMode.Web, AuthMode.DeviceCode };
 
             // Act + Assert
             subject.Combine().PreventInteractionIfNeeded(this.envMock.Object, this.logger).Should().Be(AuthMode.IWA);

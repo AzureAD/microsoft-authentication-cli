@@ -35,7 +35,38 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.mockPlatformUtils.Setup(p => p.IsLinux()).Returns(false);
         }
 
-        public AuthFlow.Broker Subject() => new AuthFlow.Broker(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object, promptHint: PromptHint, platformUtils: this.mockPlatformUtils.Object);
+        public AuthFlow.Broker Subject(bool silentOnly = false) => new AuthFlow.Broker(this.logger, this.authParameters, pcaWrapper: this.mockPca.Object, promptHint: PromptHint, platformUtils: this.mockPlatformUtils.Object, silentOnly: silentOnly);
+
+        [Test]
+        public async Task SilentOnly_GetTokenSilent_Success()
+        {
+            this.SetupCachedAccount(false);
+            this.mockPca
+                .Setup(pca => pca.GetTokenSilentAsync(Scopes, PublicClientApplication.OperatingSystemAccount, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(this.testToken);
+
+            AuthFlowResult authFlowResult = await this.Subject(silentOnly: true).GetTokenAsync();
+
+            authFlowResult.TokenResult.Should().Be(this.testToken);
+            authFlowResult.TokenResult.IsSilent.Should().BeTrue();
+            authFlowResult.Errors.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task SilentOnly_GetTokenSilent_ReturnsNull_DoesNotGetTokenInteractive()
+        {
+            this.SetupCachedAccount();
+            this.SetupAccountUsername();
+            this.SetupGetTokenSilentReturnsNull();
+
+            AuthFlowResult authFlowResult = await this.Subject(silentOnly: true).GetTokenAsync();
+
+            authFlowResult.TokenResult.Should().BeNull();
+            authFlowResult.Success.Should().BeFalse();
+            this.mockPca.Verify(pca => pca.WithPromptHint(It.IsAny<string>()), Times.Never);
+            this.mockPca.Verify(pca => pca.GetTokenInteractiveAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<IAccount>(), It.IsAny<CancellationToken>()), Times.Never);
+            this.mockPca.Verify(pca => pca.GetTokenInteractiveAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
 
         [Test]
         public async Task GetTokenSilent_Success()

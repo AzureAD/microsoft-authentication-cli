@@ -22,6 +22,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="promptHint">A prompt hint to contextualize an auth prompt if given.</param>
         /// <param name="pcaWrapper">An optional injected <see cref="IPCAWrapper"/> to use.</param>
         /// <param name="platformUtils">An optional injected <see cref="IPlatformUtils"/> to use.</param>
+        /// <param name="silentOnly">When true, flows that support it (Broker) will not fall back to interactive prompts.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="IAuthFlow"/> instances.</returns>
         public static IEnumerable<IAuthFlow> Create(
             ILogger logger,
@@ -30,7 +31,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             string preferredDomain,
             string promptHint,
             IPCAWrapper pcaWrapper = null,
-            IPlatformUtils platformUtils = null)
+            IPlatformUtils platformUtils = null,
+            bool silentOnly = false)
         {
             logger = logger ?? throw new ArgumentNullException(nameof(logger));
             platformUtils = platformUtils ?? new PlatformUtils(logger);
@@ -64,7 +66,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             {
                 if (platformUtils.IsWindows10Or11() || platformUtils.IsMacOSBrokerAvailable() || platformUtils.IsLinuxBrokerAvailable())
                 {
-                    flows.Add(new Broker(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint, platformUtils: platformUtils));
+                    flows.Add(new Broker(logger, authParams, preferredDomain: preferredDomain, pcaWrapper: pcaWrapper, promptHint: promptHint, platformUtils: platformUtils, silentOnly: silentOnly));
                 }
                 else if (platformUtils.IsMacOS())
                 {

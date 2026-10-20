@@ -26,6 +26,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         private readonly IPCAWrapper pcaWrapper;
         private readonly AuthParameters authParameters;
         private readonly IPlatformUtils platformUtils;
+        private readonly bool silentOnly;
 
         /// <summary>
         /// The interactive auth timeout.
@@ -41,7 +42,8 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
         /// <param name="pcaWrapper">Optional: IPCAWrapper to use.</param>
         /// <param name="promptHint">The customized header text in account picker for WAM prompts.</param>
         /// <param name="platformUtils">Optional: IPlatformUtils for platform detection (defaults to runtime detection).</param>
-        public Broker(ILogger logger, AuthParameters authParameters, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null, IPlatformUtils platformUtils = null)
+        /// <param name="silentOnly">Optional: When true, only silent token acquisition is attempted and interactive auth is never invoked.</param>
+        public Broker(ILogger logger, AuthParameters authParameters, string preferredDomain = null, IPCAWrapper pcaWrapper = null, string promptHint = null, IPlatformUtils platformUtils = null, bool silentOnly = false)
         {
             this.logger = logger;
             this.authParameters = authParameters;
@@ -49,6 +51,7 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             this.preferredDomain = preferredDomain;
             this.promptHint = promptHint;
             this.platformUtils = platformUtils ?? new PlatformUtils(logger);
+            this.silentOnly = silentOnly;
             this.pcaWrapper = pcaWrapper ?? this.BuildPCAWrapper(authParameters.Client, authParameters.Tenant);
         }
 
@@ -90,6 +93,12 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             if (tokenResult != null)
             {
                 return tokenResult;
+            }
+
+            if (this.silentOnly)
+            {
+                this.logger.LogDebug($"{this.Name} silent auth did not return a token and interactive auth is disabled. Skipping interactive auth.");
+                return null;
             }
 
             try

@@ -6,6 +6,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using FluentAssertions;
 
@@ -13,6 +15,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Identity.Client;
 
     using Moq;
 
@@ -59,14 +62,15 @@ namespace Microsoft.Authentication.MSALWrapper.Test
             this.platformUtilsMock.VerifyAll();
         }
 
-        public IEnumerable<IAuthFlow> Subject(AuthMode mode) => AuthFlowFactory.Create(
+        public IEnumerable<IAuthFlow> Subject(AuthMode mode, bool silentOnly = false) => AuthFlowFactory.Create(
                 this.logger,
                 this.authParams,
                 mode,
                 this.preferredDomain,
                 this.promptHint,
                 pcaWrapper: this.pcaWrapperMock.Object,
-                platformUtils: this.platformUtilsMock.Object);
+                platformUtils: this.platformUtilsMock.Object,
+                silentOnly: silentOnly);
 
         [Test]
         public void Web_Only()
@@ -107,6 +111,34 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .Select(a => a.GetType())
                 .Should()
                 .Contain(typeof(Broker));
+        }
+
+        [Test]
+        public async Task Broker_SilentOnly_DoesNotGetTokenInteractive()
+        {
+            this.MockIsWindows10Or11(true);
+            this.MockIsMacOS(false);
+            this.pcaWrapperMock
+                .Setup(p => p.TryToGetCachedAccountAsync(this.preferredDomain))
+                .ReturnsAsync((IAccount)null);
+            this.pcaWrapperMock
+                .Setup(p => p.GetTokenSilentAsync(this.authParams.Scopes, PublicClientApplication.OperatingSystemAccount, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((TokenResult)null);
+
+            IAuthFlow broker = AuthFlowFactory.Create(
+                this.logger,
+                this.authParams,
+                AuthMode.Broker,
+                this.preferredDomain,
+                this.promptHint,
+                pcaWrapper: this.pcaWrapperMock.Object,
+                platformUtils: this.platformUtilsMock.Object,
+                silentOnly: true).OfType<Broker>().Single();
+
+            // The strict IPCAWrapper mock fails the test if any interactive method is invoked.
+            AuthFlowResult result = await broker.GetTokenAsync();
+
+            result.Success.Should().BeFalse();
         }
 
         [Test]

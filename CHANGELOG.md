@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Upgrade MSAL from `4.65.0` to `4.83.1`
 - Added `Microsoft.Identity.Client.NativeInterop` v0.20.3
+- When interactive auth is disabled, Windows now attempts silent Broker (WAM) authentication after IWA
+- When interactive auth is disabled, Broker no longer falls back to an interactive prompt on any platform
 
 ## [0.9.5] - 2026-02-24
 ### Added
