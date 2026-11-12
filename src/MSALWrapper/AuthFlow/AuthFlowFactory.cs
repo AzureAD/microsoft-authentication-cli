@@ -39,12 +39,10 @@ namespace Microsoft.Authentication.MSALWrapper.AuthFlow
             // as it sets the order in which auth flows will be attempted.
             List<IAuthFlow> flows = new List<IAuthFlow>();
 
-            // We skip CachedAuth if Broker is present in authMode on windows 10 or 11, since Broker 
-            // already tries CachedAuth with its PCAWrapper object built using withBroker(options).
-            // The same applies on macOS when the broker is available.
-            // If broker is requested but unavailable, CachedAuth is still added as a first-pass attempt.
             bool brokerWillRun = authMode.IsBroker() && (platformUtils.IsWindows10Or11() || platformUtils.IsMacOSBrokerAvailable() || platformUtils.IsLinuxBrokerAvailable());
-            if (!brokerWillRun)
+            bool useCacheBeforeBroker = brokerWillRun && authMode.IsWeb() && platformUtils.IsMacOS();
+            // Broker-only requests retain their broker cache; macOS web-enabled requests first try the regular cache.
+            if (!brokerWillRun || useCacheBeforeBroker)
             {
                 flows.Add(new CachedAuth(logger, authParams, preferredDomain, pcaWrapper));
             }
