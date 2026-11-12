@@ -5,9 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.9.8] - 2026-11-12
+### Fixed
+- On macOS, requests enabling both broker and web authentication now try the regular MSAL cache before the broker, avoiding unnecessary browser prompts and broker latency when a cached token is available. Broker-only requests and Windows/Linux authentication behavior are unchanged.
+
+## [0.9.7] - 2026-10-16
+### Added
+- Added support for Linux brokered authentication via the Microsoft Identity Broker (opt-in with `--mode broker`)
+
+### Changed
+- Updated `System.Formats.Asn1` and `System.Security.Cryptography.Xml` to `10.0.7`, and added `OpenTelemetry.Api` `1.15.3`, to address dependency security advisories.
+
+## [0.9.6] - 2026-04-24
 ### Added
 - Added support for macOS brokered authentication via Enterprise SSO Extension (opt-in with `--mode broker`)
-- Added support for Linux brokered authentication via the Microsoft Identity Broker (opt-in with `--mode broker`)
 
 ### Changed
 - Upgrade MSAL from `4.65.0` to `4.83.1`
@@ -229,7 +241,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project release.
 
-[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.5...HEAD
+[Unreleased]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.8...HEAD
+[0.9.8]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.7...0.9.8
+[0.9.7]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.6...0.9.7
+[0.9.6]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.5...0.9.6
 [0.9.5]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.4...0.9.5
 [0.9.4]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.3...0.9.4
 [0.9.3]: https://github.com/AzureAD/microsoft-authentication-cli/compare/0.9.2...0.9.3
