@@ -6,6 +6,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using FluentAssertions;
 
@@ -13,6 +15,8 @@ namespace Microsoft.Authentication.MSALWrapper.Test
     using Microsoft.Authentication.MSALWrapper.AuthFlow;
     using Microsoft.Authentication.TestHelper;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Identity.Client;
+    using Microsoft.IdentityModel.JsonWebTokens;
 
     using Moq;
 
@@ -113,6 +117,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         public void Windows10Or11_Defaults()
         {
             this.MockIsWindows10Or11(true);
+            this.MockIsMacOS(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.Default);
 
@@ -150,6 +155,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockIsWindows(true);
             this.MockIsWindows10Or11(true);
+            this.MockIsMacOS(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
@@ -235,6 +241,7 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockIsWindows(true);
             this.MockIsWindows10Or11(true);
+            this.MockIsMacOS(false);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
@@ -258,16 +265,18 @@ namespace Microsoft.Authentication.MSALWrapper.Test
         {
             this.MockIsMacOSBrokerAvailable(true);
             this.MockIsWindows10Or11(false);
+            this.MockIsMacOS(true);
 
             IEnumerable<IAuthFlow> subject = this.Subject(AuthMode.All);
 
             this.pcaWrapperMock.VerifyAll();
-            subject.Should().HaveCount(3);
+            subject.Should().HaveCount(4);
             subject
                 .Select(flow => flow.GetType())
                 .Should()
                 .BeEquivalentTo(new[]
                 {
+                    typeof(CachedAuth),
                     typeof(Broker),
                     typeof(Web),
                     typeof(DeviceCode),
@@ -288,6 +297,67 @@ namespace Microsoft.Authentication.MSALWrapper.Test
                 .ContainInOrder(
                     typeof(CachedAuth),
                     typeof(Web));
+        }
+
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        [Platform("MacOsX")]
+        public async Task BrokerAndWeb_Mac_UsesCacheThenBrokerThenInteractiveWeb(bool cacheHasToken, bool brokerSucceeds)
+        {
+            var platform = new Mock<IPlatformUtils>();
+            platform.Setup(p => p.IsMacOSBrokerAvailable()).Returns(true);
+            platform.Setup(p => p.IsMacOS()).Returns(true);
+            var account = new Mock<IAccount>();
+            account.Setup(a => a.Username).Returns("test@contoso.com");
+            var token = new TokenResult(new JsonWebToken(TokenResultTest.FakeToken), Guid.NewGuid());
+
+            this.pcaWrapperMock
+                .Setup(p => p.TryToGetCachedAccountAsync(this.preferredDomain))
+                .ReturnsAsync(account.Object);
+            var silentCalls = this.pcaWrapperMock
+                .SetupSequence(p => p.GetTokenSilentAsync(this.authParams.Scopes, account.Object, It.IsAny<CancellationToken>()));
+            if (cacheHasToken)
+            {
+                silentCalls.ReturnsAsync(token);
+            }
+            else
+            {
+                silentCalls.ThrowsAsync(new MsalUiRequiredException("interaction_required", "Cache miss"));
+                if (brokerSucceeds)
+                {
+                    silentCalls.ReturnsAsync(token);
+                }
+                else
+                {
+                    silentCalls.ThrowsAsync(new MsalServiceException("redirect_uri_mismatch", "Broker redirect URI mismatch"));
+                }
+            }
+
+            if (!cacheHasToken && !brokerSucceeds)
+            {
+                this.pcaWrapperMock.Setup(p => p.WithPromptHint(this.promptHint)).Returns(this.pcaWrapperMock.Object);
+                this.pcaWrapperMock
+                    .Setup(p => p.GetTokenInteractiveAsync(this.authParams.Scopes, account.Object, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(token);
+            }
+
+            var flows = AuthFlowFactory.Create(
+                this.logger, this.authParams, AuthMode.Broker | AuthMode.Web,
+                this.preferredDomain, this.promptHint, this.pcaWrapperMock.Object, platform.Object);
+            var executor = new AuthFlowExecutor(this.logger, flows, new StopwatchTracker(TimeSpan.FromSeconds(5)));
+            var results = (await executor.GetTokenAsync()).ToList();
+
+            results.Select(r => r.AuthFlowName).Should().Equal(
+                cacheHasToken ? new[] { "cache" } : brokerSucceeds ? new[] { "cache", "broker" } : new[] { "cache", "broker", "web" });
+            results.Last().TokenResult.Should().BeSameAs(token);
+            results.Last().TokenResult.IsSilent.Should().Be(cacheHasToken || brokerSucceeds);
+            this.pcaWrapperMock.Verify(
+                p => p.GetTokenSilentAsync(this.authParams.Scopes, account.Object, It.IsAny<CancellationToken>()),
+                Times.Exactly(cacheHasToken ? 1 : 2));
+            this.pcaWrapperMock.Verify(
+                p => p.GetTokenInteractiveAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<IAccount>(), It.IsAny<CancellationToken>()),
+                cacheHasToken || brokerSucceeds ? Times.Never() : Times.Once());
         }
 
         [Test]
