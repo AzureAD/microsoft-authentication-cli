@@ -51,7 +51,7 @@ variables:
   value: "production"
   readonly: true
 - name: pythonVersion
-  value: 3.10
+  value: 3.12
   readonly: true
 - name: artifactsPath
   value: $(Build.ArtifactStagingDirectory)/azureauth-${{ parameters.version }}
