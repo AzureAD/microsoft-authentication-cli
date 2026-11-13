@@ -4,6 +4,8 @@ variables:
     value: "production"
     readonly: true
 
+pr: none
+
 trigger:
   branches:
     include:
