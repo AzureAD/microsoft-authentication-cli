@@ -182,7 +182,7 @@ extends:
               artifactName: azureauth-${{ parameters.version }}-${{ config.runtime }}-signed
               targetPath: $(artifactsPath)-${{ config.runtime }}-signed
           steps:
-          - task: EsrpCodeSigning@5
+          - task: EsrpCodeSigning@6
             displayName: Sign artifacts win
             condition: startsWith('${{ config.runtime }}', 'win')
             inputs:
@@ -233,7 +233,7 @@ extends:
               includeRootFolder: false
               archiveType: zip
               archiveFile: $(artifactsPath)-${{ config.runtime }}.zip
-          - task: EsrpCodeSigning@5
+          - task: EsrpCodeSigning@6
             displayName: Sign artifacts osx
             condition: startsWith('${{ config.runtime }}', 'osx')
             inputs:
@@ -270,7 +270,7 @@ extends:
               MaxRetryAttempts: '5'
               PendingAnalysisWaitTimeoutMinutes: '5'
         # Linux signing with ESRP
-          - task: EsrpCodeSigning@5
+          - task: EsrpCodeSigning@6
             displayName: Sign artifacts linux-x64
             condition: startsWith('${{ config.runtime }}','linux')
             inputs:
